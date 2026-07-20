@@ -1,0 +1,12 @@
+node_modules/
+build/
+.docusaurus/
+.cache-loader/
+.DS_Store
+.idea/
+.vscode/
+.superpowers/
+.omx/
+work/
+outputs/
+npm-debug.log*
