@@ -2,7 +2,12 @@ import {readdir, readFile} from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 
-import {allowedValues, requiredCaseSlugs, requiredFields} from './content-schema.mjs';
+import {
+  allowedValues,
+  requiredCaseHeadings,
+  requiredCaseSlugs,
+  requiredFields,
+} from './content-schema.mjs';
 
 async function findContentFiles(root) {
   const files = [];
@@ -94,7 +99,8 @@ export async function validateContent(root, {requireLaunchCases = false} = {}) {
 
   for (const filePath of files) {
     const file = displayPath(root, filePath);
-    const metadata = parseFrontMatter(await readFile(filePath, 'utf8'));
+    const source = await readFile(filePath, 'utf8');
+    const metadata = parseFrontMatter(source);
     documents.push({file, metadata});
 
     for (const field of requiredFields) {
@@ -120,6 +126,15 @@ export async function validateContent(root, {requireLaunchCases = false} = {}) {
           if (typeof value !== 'string' || !value.startsWith('https://')) {
             errors.push(`${file}: invalid official_sources value "${value}"; expected HTTPS URL`);
           }
+        }
+      }
+    }
+
+    if (metadata.content_type === 'case') {
+      const lines = new Set(source.replace(/^\uFEFF/, '').split(/\r?\n/));
+      for (const heading of requiredCaseHeadings) {
+        if (!lines.has(heading)) {
+          errors.push(`${file}: missing required case heading "${heading}"`);
         }
       }
     }

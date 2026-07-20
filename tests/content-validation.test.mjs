@@ -28,10 +28,24 @@ async function withTempRoot(run) {
   }
 }
 
-async function writeMdx(root, relativePath, frontMatter) {
+const validCaseBody = [
+  '# Fixture',
+  '## 学习问题',
+  '## 一页摘要',
+  '## 事实边界',
+  '## 架构图',
+  '## 控制权与任务流',
+  '## 关键源码导读',
+  '## 架构决策与权衡',
+  '## 生产化分析',
+  '## 可迁移经验',
+  '## 来源',
+].join('\n\n');
+
+async function writeMdx(root, relativePath, frontMatter, body = validCaseBody) {
   const filePath = path.join(root, relativePath);
   await mkdir(path.dirname(filePath), {recursive: true});
-  await writeFile(filePath, `---\n${frontMatter}\n---\n\n# Fixture\n`);
+  await writeFile(filePath, `---\n${frontMatter}\n---\n\n${body}\n`);
 }
 
 function validCaseFrontMatter(slug, overrides = {}) {
@@ -177,5 +191,25 @@ test('accepts all five valid launch cases with HTTPS official sources', async ()
       {encoding: 'utf8'},
     );
     assert.equal(cli.status, 0, cli.stderr);
+  });
+});
+
+test('rejects a case missing required analysis sections', async () => {
+  await withTempRoot(async (root) => {
+    await writeMdx(
+      root,
+      'cases/missing-sections.mdx',
+      validCaseFrontMatter('/cases/missing-sections'),
+      '# Structurally valid case without the analysis contract',
+    );
+
+    const result = await validateContent(root);
+
+    assert.ok(
+      result.errors.some(
+        (error) =>
+          error.includes('cases/missing-sections.mdx') && error.includes('## 学习问题'),
+      ),
+    );
   });
 });
