@@ -1,0 +1,60 @@
+---
+title: 资料库
+slug: /references
+content_type: reference
+status: reviewed
+difficulty: beginner
+analyzed_at: 2026-07-20
+source_cutoff: 2026-07-20
+confidence: high
+domains:
+  - multi-agent-systems
+  - evidence-management
+agent_patterns:
+  - supervisor
+  - handoff
+  - hierarchical-teams
+protocols:
+  - A2A
+  - MCP
+quality_attributes:
+  - traceability
+  - reproducibility
+  - maintainability
+tags:
+  - 资料库
+  - 一手来源
+  - 引用规范
+official_sources:
+  - https://github.com/openai/openai-agents-python
+  - https://openai.github.io/openai-agents-python/multi_agent/
+  - https://github.com/langchain-ai/langgraph
+  - https://docs.langchain.com/oss/python/langgraph/overview
+  - https://github.com/google/adk-python
+  - https://google.github.io/adk-docs/agents/multi-agents/
+  - https://github.com/a2aproject/A2A
+  - https://a2a-protocol.org/latest/
+  - https://learn.microsoft.com/en-us/azure/architecture/ai-ml/guide/ai-agent-design-patterns
+  - https://github.com/awslabs/cli-agent-orchestrator
+  - https://docs.aws.amazon.com/agent-toolkit/latest/userguide/aws-cli.html
+---
+
+# 资料库
+
+资料库保存案例判断所依赖的证据入口，而不是堆积未经分级的链接。来源优先级如下：
+
+1. **官方仓库与官方文档**：用于确认公开 API、实现结构、协议语义和维护者明确陈述。
+2. **论文与工程演讲**：用于补充设计动机、实验方法和公开实现没有解释的取舍。
+3. **可信二手来源**：只用于交叉核对、历史背景或发现线索；核心架构结论不能仅靠二手转述。
+
+每条引用应记录可获得的**发布日期**、实际核查的**访问日期**，并明确**推断边界**：哪些内容由来源直接支持，哪些是跨来源推断，哪些仍属个人分析。网页没有发布日期时，应明确标注“未提供”，不能用访问日期替代发布日期。
+
+## 五个首发案例的一手来源族
+
+- **OpenAI Agents SDK**：[官方仓库](https://github.com/openai/openai-agents-python)与[多智能体文档](https://openai.github.io/openai-agents-python/multi_agent/)覆盖 agents as tools、handoff 与运行时原语。
+- **LangGraph Supervisor**：[LangGraph 官方仓库](https://github.com/langchain-ai/langgraph)、[LangGraph 文档](https://docs.langchain.com/oss/python/langgraph/overview)与[Supervisor 官方仓库](https://github.com/langchain-ai/langgraph-supervisor-py)覆盖图编排、持久状态和监督者实现。
+- **Google ADK / A2A**：[ADK Python 官方仓库](https://github.com/google/adk-python)、[ADK 多智能体文档](https://google.github.io/adk-docs/agents/multi-agents/)、[A2A 官方仓库](https://github.com/a2aproject/A2A)与[A2A 规范站点](https://a2a-protocol.org/latest/)覆盖层级协作和跨智能体互操作。
+- **Microsoft 多智能体参考架构**：[Azure Architecture Center 的智能体设计模式](https://learn.microsoft.com/en-us/azure/architecture/ai-ml/guide/ai-agent-design-patterns)提供企业架构与模式入口。
+- **AWS CLI Agent Orchestrator**：[官方仓库](https://github.com/awslabs/cli-agent-orchestrator)与[AWS Agent Toolkit 文档](https://docs.aws.amazon.com/agent-toolkit/latest/userguide/aws-cli.html)覆盖编排器实现、CLI 接入与运行约束。
+
+引用这些来源并不自动证明案例中的全部结论。案例仍需把事实、推断和分析逐项标注，并用 `source_cutoff` 说明证据覆盖到何时。

@@ -1,0 +1,54 @@
+---
+title: 学习路径
+slug: /paths
+content_type: path
+status: reviewed
+difficulty: beginner
+analyzed_at: 2026-07-20
+source_cutoff: 2026-07-20
+confidence: high
+domains:
+  - multi-agent-systems
+  - software-architecture
+agent_patterns:
+  - agents-as-tools
+  - supervisor
+  - hierarchical-teams
+protocols:
+  - A2A
+quality_attributes:
+  - reliability
+  - interoperability
+  - operability
+tags:
+  - 学习路径
+  - 渐进阅读
+  - 生产架构
+official_sources:
+  - https://openai.github.io/openai-agents-python/multi_agent/
+  - https://docs.langchain.com/oss/python/langgraph/overview
+  - https://google.github.io/adk-docs/agents/multi-agents/
+  - https://learn.microsoft.com/en-us/azure/architecture/ai-ml/guide/ai-agent-design-patterns
+  - https://github.com/awslabs/cli-agent-orchestrator
+---
+
+# 学习路径
+
+这条路径按概念依赖而不是厂商或功能数量排序：先辨认最小控制原语，再引入持久状态、层级协作、跨运行时互操作、企业治理，最后观察专业化编码工作负载中的恢复与验收。
+
+1. [OpenAI Agents SDK：控制原语](/cases/openai-agents-sdk)
+   从 agents as tools 与 handoff 入手，先回答“谁拥有下一步控制权”和“何时值得拆成多个智能体”。
+
+2. [LangGraph Supervisor：持久化编排](/cases/langgraph-supervisor)
+   在基本角色拆分之上学习图状态、检查点、循环终止和可恢复执行，理解长流程为何需要耐久编排。
+
+3. [Google ADK 与 A2A：层级协作和互操作](/cases/google-adk-a2a)
+   把单运行时内的层级团队扩展到独立智能体之间的能力发现与任务协作，区分内部编排和跨系统协议。
+
+4. [Microsoft 多智能体参考架构：企业治理](/cases/microsoft-multi-agent-reference-architecture)
+   将前述控制模式放入身份、网络、数据、可观测性、合规与人工治理约束，检查参考架构如何应对生产风险。
+
+5. [AWS CLI Agent Orchestrator：编码智能体专业化](/cases/aws-cli-agent-orchestrator)
+   最后研究编码任务的工作区隔离、并行 worker、失败恢复和结果验收，把抽象模式落到高副作用的工程流程。
+
+顺序体现从最小概念到生产关注点的递进：后一步都要求读者保留前一步对控制权的判断，同时增加状态、互操作、治理或故障处理约束。

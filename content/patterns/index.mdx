@@ -1,0 +1,80 @@
+---
+title: 架构模式
+slug: /patterns
+content_type: pattern
+status: reviewed
+difficulty: intermediate
+analyzed_at: 2026-07-20
+source_cutoff: 2026-07-20
+confidence: high
+domains:
+  - multi-agent-systems
+  - distributed-systems
+agent_patterns:
+  - router
+  - supervisor
+  - agents-as-tools
+  - handoff
+  - fan-out-fan-in
+  - evaluator-optimizer
+  - hierarchical-teams
+protocols:
+  - A2A
+  - MCP
+quality_attributes:
+  - reliability
+  - scalability
+  - interoperability
+tags:
+  - 架构模式
+  - 控制模型
+  - 协作协议
+official_sources:
+  - https://openai.github.io/openai-agents-python/multi_agent/
+  - https://docs.langchain.com/oss/python/langchain/multi-agent
+  - https://google.github.io/adk-docs/agents/multi-agents/
+  - https://a2a-protocol.org/latest/
+  - https://modelcontextprotocol.io/docs/getting-started/intro
+---
+
+# 架构模式
+
+模式页按“谁掌握下一步控制权”组织概念。名称相同的实现可能采用不同状态、权限和恢复策略，因此模式只提供比较框架，不能替代案例证据。
+
+## Router
+
+控制模型：一个路由器根据输入选择单个专家或流程，决策集中，执行通常不回到路由器循环。相关案例：[OpenAI Agents SDK](/cases/openai-agents-sdk)。
+
+## Supervisor
+
+控制模型：中心管理者反复分派任务、接收结果并决定下一步，工作智能体不拥有全局流程。相关案例：[LangGraph Supervisor](/cases/langgraph-supervisor)。
+
+## Agents as Tools
+
+控制模型：主智能体把专业智能体当作工具调用；调用结束后控制权和最终回答责任仍在主智能体。相关案例：[OpenAI Agents SDK](/cases/openai-agents-sdk)。
+
+## Handoff
+
+控制模型：当前智能体把会话和后续决策权移交给另一个智能体，控制中心随任务阶段变化。相关案例：[OpenAI Agents SDK](/cases/openai-agents-sdk)。
+
+## Fan-out / Fan-in
+
+控制模型：编排者并行发出独立子任务，再汇总、去重或解决冲突；分发和收敛点仍由编排层控制。相关案例：[Microsoft 多智能体参考架构](/cases/microsoft-multi-agent-reference-architecture)。
+
+## Evaluator-Optimizer
+
+控制模型：生成者产出候选，评估者按明确标准反馈，循环由终止条件或预算约束控制。相关案例：[LangGraph Supervisor](/cases/langgraph-supervisor)。
+
+## Hierarchical Teams
+
+控制模型：顶层协调者把目标交给子团队管理者，子团队再控制本地工作智能体；控制权分层而非完全扁平。相关案例：[Google ADK 与 A2A](/cases/google-adk-a2a)。
+
+## A2A
+
+控制模型：一个智能体通过可发现的能力和任务协议与另一个独立智能体协作，双方保留各自运行时与内部实现。相关案例：[Google ADK 与 A2A](/cases/google-adk-a2a)。
+
+## MCP
+
+控制模型：智能体或宿主通过标准接口访问工具、资源和数据上下文，工具端不因此成为对等智能体。相关案例：[OpenAI Agents SDK](/cases/openai-agents-sdk)。
+
+A2A 处理的是 **agent-to-agent** 的任务协作与互操作；MCP 处理的是 **agent-to-tool/data** 的能力和上下文接入。两者可以组合，但不能因为都使用协议就视为同一种控制关系。

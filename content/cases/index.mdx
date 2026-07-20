@@ -1,0 +1,58 @@
+---
+title: 案例库
+slug: /cases
+content_type: case
+status: reviewed
+difficulty: beginner
+analyzed_at: 2026-07-20
+source_cutoff: 2026-07-20
+confidence: high
+domains:
+  - multi-agent-systems
+  - software-architecture
+agent_patterns:
+  - supervisor
+  - handoff
+  - hierarchical-teams
+protocols:
+  - A2A
+  - MCP
+quality_attributes:
+  - reliability
+  - scalability
+  - observability
+tags:
+  - 案例库
+  - 证据分级
+  - 架构分析
+official_sources:
+  - https://openai.github.io/openai-agents-python/multi_agent/
+  - https://docs.langchain.com/oss/python/langgraph/overview
+  - https://google.github.io/adk-docs/agents/multi-agents/
+  - https://learn.microsoft.com/en-us/azure/architecture/ai-ml/guide/ai-agent-design-patterns
+  - https://github.com/awslabs/cli-agent-orchestrator
+---
+
+# 案例库
+
+案例库用统一模板拆解真实项目，避免把框架术语、公开事实与作者判断混在一起。每篇案例依次说明：问题与约束、角色与职责、控制流与数据流、通信协议、状态和故障恢复、质量属性、代价、未确认事项，以及可回查的一手来源。
+
+## 证据标签
+
+- **已证实事实**：官方文档、官方仓库或可复查实现直接支持的陈述。
+- **基于证据的推断**：多个事实共同指向、但来源没有直接表述的架构结论；必须写明推断链和不确定性。
+- **个人分析**：用于比较、迁移或提出设计建议的作者判断；不能冒充项目原意。
+
+## 筛选维度
+
+每篇案例都用 `domains`、`agent_patterns`、`protocols`、`quality_attributes`、`difficulty`、`status`、`confidence`、`analyzed_at` 与 `source_cutoff` 描述可筛选元数据。读者可以据此按领域、控制模式、协议、质量目标、阅读难度和证据新鲜度横向比较，而不必只依赖产品名称。
+
+## 首批案例
+
+1. [OpenAI Agents SDK：控制原语](/cases/openai-agents-sdk)
+2. [LangGraph Supervisor：持久化编排](/cases/langgraph-supervisor)
+3. [Google ADK 与 A2A：层级协作和互操作](/cases/google-adk-a2a)
+4. [Microsoft 多智能体参考架构：企业治理](/cases/microsoft-multi-agent-reference-architecture)
+5. [AWS CLI Agent Orchestrator：编码智能体专业化](/cases/aws-cli-agent-orchestrator)
+
+这五篇只是案例库的首批集合，用来覆盖不同控制模型和生产约束，不是系统的数量上限或永久边界。后续案例仍应遵循同一模板和证据纪律。

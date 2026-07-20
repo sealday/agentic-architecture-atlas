@@ -1,0 +1,55 @@
+---
+title: 设计题
+slug: /questions
+content_type: question
+status: reviewed
+difficulty: intermediate
+analyzed_at: 2026-07-20
+source_cutoff: 2026-07-20
+confidence: high
+domains:
+  - multi-agent-systems
+  - architecture-decision-records
+agent_patterns:
+  - supervisor
+  - handoff
+protocols:
+  - MCP
+quality_attributes:
+  - reliability
+  - maintainability
+  - recoverability
+tags:
+  - 设计题
+  - 架构取舍
+  - 评审清单
+official_sources:
+  - https://openai.github.io/openai-agents-python/multi_agent/
+  - https://docs.langchain.com/oss/python/langchain/multi-agent
+  - https://learn.microsoft.com/en-us/azure/architecture/ai-ml/guide/ai-agent-design-patterns
+  - https://github.com/awslabs/cli-agent-orchestrator
+---
+
+# 设计题
+
+设计题不追求唯一答案，而是训练对控制权、状态、失败和成本的显式取舍。每题使用同一格式：
+
+- **背景**：业务目标、现有系统和触发决策的变化。
+- **约束**：延迟、预算、权限、合规、团队能力和不可改变的边界。
+- **成功标准**：可测量的正确性、恢复时间、成本或用户体验指标。
+- **候选方案**：至少包含最小可行结构和更复杂结构，并说明控制权归属。
+- **失败模式**：超时、循环、重复执行、状态丢失、权限越界和降级路径。
+- **证据链接**：把关键判断连接到官方文档、实现或可复现实验。
+- **评审提示**：检查是否真的需要新增智能体、故障由谁恢复、状态如何重放，以及复杂度收益能否被指标证明。
+
+## 1. 单智能体加工具，还是多智能体？
+
+给定工具数量持续增长、上下文开始互相干扰的业务助手，比较“单智能体 + 工具治理”与“专业化多智能体”。重点量化路由错误、上下文隔离、延迟、成本和可观测性，再决定拆分是否创造净收益。
+
+## 2. 客服系统使用 Manager，还是 Handoff？
+
+比较由 Manager 保持全局控制并调用专家，与把会话直接移交给退款、技术支持或升级处理智能体。重点检查会话连续性、最终责任、权限边界、人工接管和错误路由后的恢复路径。
+
+## 3. 编码智能体 worker 崩溃后如何恢复？
+
+设计 worker 在执行中崩溃、失联或留下部分文件修改时的恢复机制。需要界定任务租约、检查点、幂等重试、工作区隔离、结果验收和何时转交人工，避免重复提交或把损坏状态传播给后续任务。
