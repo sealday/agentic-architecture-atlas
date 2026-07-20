@@ -1,10 +1,14 @@
 import assert from 'node:assert/strict';
+import {spawnSync} from 'node:child_process';
 import {mkdtemp, mkdir, rm, writeFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
+import {fileURLToPath} from 'node:url';
 
 import {validateContent} from '../scripts/validate-content.mjs';
+
+const validatorScript = fileURLToPath(new URL('../scripts/validate-content.mjs', import.meta.url));
 
 const launchCaseSlugs = [
   '/cases/microsoft-multi-agent-reference-architecture',
@@ -109,10 +113,52 @@ test('reports the four missing launch cases when only the OpenAI case exists', a
         error.includes('/cases/microsoft-multi-agent-reference-architecture'),
       ),
     );
+
+    const cli = spawnSync(
+      process.execPath,
+      [validatorScript, root, '--require-launch-cases'],
+      {encoding: 'utf8'},
+    );
+    assert.equal(cli.status, 1);
+    assert.match(`${cli.stdout}${cli.stderr}`, /Missing launch case/);
   });
 });
 
 test('accepts all five valid launch cases with HTTPS official sources', async () => {
+  await withTempRoot(async (root) => {
+    await writeMdx(
+      root,
+      'empty-sources.mdx',
+      validCaseFrontMatter('/cases/empty-sources', {official_sources: []}),
+    );
+
+    const result = await validateContent(root);
+
+    assert.ok(
+      result.errors.some(
+        (error) => error.includes('official_sources') && error.includes('non-empty'),
+      ),
+    );
+  });
+
+  await withTempRoot(async (root) => {
+    await writeMdx(
+      root,
+      'insecure-source.mdx',
+      validCaseFrontMatter('/cases/insecure-source', {
+        official_sources: ['http://example.com'],
+      }),
+    );
+
+    const result = await validateContent(root);
+
+    assert.ok(
+      result.errors.some(
+        (error) => error.includes('official_sources') && error.includes('HTTPS'),
+      ),
+    );
+  });
+
   await withTempRoot(async (root) => {
     await Promise.all(
       launchCaseSlugs.map((slug, index) =>
@@ -124,5 +170,12 @@ test('accepts all five valid launch cases with HTTPS official sources', async ()
 
     assert.equal(result.documents.length, 5);
     assert.deepEqual(result.errors, []);
+
+    const cli = spawnSync(
+      process.execPath,
+      [validatorScript, root, '--require-launch-cases'],
+      {encoding: 'utf8'},
+    );
+    assert.equal(cli.status, 0, cli.stderr);
   });
 });

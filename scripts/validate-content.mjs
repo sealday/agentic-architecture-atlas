@@ -113,6 +113,8 @@ export async function validateContent(root, {requireLaunchCases = false} = {}) {
     if ('official_sources' in metadata) {
       if (!Array.isArray(metadata.official_sources)) {
         errors.push(`${file}: field "official_sources" must be an array`);
+      } else if (metadata.official_sources.length === 0) {
+        errors.push(`${file}: field "official_sources" must be a non-empty array`);
       } else {
         for (const value of metadata.official_sources) {
           if (typeof value !== 'string' || !value.startsWith('https://')) {
