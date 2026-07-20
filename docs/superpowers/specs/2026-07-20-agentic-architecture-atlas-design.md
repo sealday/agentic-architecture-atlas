@@ -1,8 +1,9 @@
 # Agentic Architecture Atlas 设计规格
 
 **日期：** 2026-07-20  
-**状态：** 已确认，等待书面审阅  
+**状态：** 已通过书面审阅
 **仓库：** `sealday/agentic-architecture-atlas`  
+**本地根目录：** `/Users/seal/projects/tego-arch`
 **站点：** `https://sealday.github.io/agentic-architecture-atlas/`
 
 ## 1. 目标
