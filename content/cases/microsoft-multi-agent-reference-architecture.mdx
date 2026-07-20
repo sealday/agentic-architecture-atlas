@@ -33,11 +33,11 @@ tags:
   - 企业治理
   - 受控自治
 official_sources:
-  - https://github.com/microsoft/multi-agent-reference-architecture
-  - https://github.com/microsoft/multi-agent-reference-architecture/blob/main/docs/reference-architecture/Reference-Architecture.md
-  - https://github.com/microsoft/multi-agent-reference-architecture/blob/main/docs/agent-registry/Agent-Registry.md
-  - https://github.com/microsoft/multi-agent-reference-architecture/blob/main/docs/security/Security.md
-  - https://github.com/microsoft/multi-agent-reference-architecture/blob/main/docs/governance/Governance.md
+  - https://github.com/microsoft/multi-agent-reference-architecture/tree/ed3613b54b46b595dd223aaff8772def376a8c37
+  - https://github.com/microsoft/multi-agent-reference-architecture/blob/ed3613b54b46b595dd223aaff8772def376a8c37/docs/reference-architecture/Reference-Architecture.md
+  - https://github.com/microsoft/multi-agent-reference-architecture/blob/ed3613b54b46b595dd223aaff8772def376a8c37/docs/agent-registry/Agent-Registry.md
+  - https://github.com/microsoft/multi-agent-reference-architecture/blob/ed3613b54b46b595dd223aaff8772def376a8c37/docs/security/Security.md
+  - https://github.com/microsoft/multi-agent-reference-architecture/blob/ed3613b54b46b595dd223aaff8772def376a8c37/docs/governance/Governance.md
   - https://learn.microsoft.com/en-us/azure/architecture/ai-ml/guide/ai-agent-design-patterns
 ---
 
@@ -99,6 +99,9 @@ official_sources:
 
 ```mermaid
 flowchart TB
+  accTitle: Microsoft 多智能体参考架构的五平面组件图
+  accDescr: 用户请求经过中央控制平面分派给专业智能体，数据与记忆平面保存状态，保障与治理平面横向约束注册、编排和工具调用。
+
   subgraph Interaction["交互平面"]
     User["用户 / 上游系统"] --> App["User Application / API"]
   end
@@ -163,6 +166,9 @@ flowchart TB
 
 ```mermaid
 sequenceDiagram
+  accTitle: 受控多智能体任务流与分层失败处理
+  accDescr: 请求先完成租户策略校验和智能体发现；专业智能体获准后调用外部工具，策略拒绝与工具超时或熔断分别处理。
+
   actor U as 用户
   participant App as 应用/API
   participant P as 身份与策略
@@ -172,6 +178,7 @@ sequenceDiagram
   participant A as 专业智能体
   participant M as 记忆/状态
   participant G as MCP策略网关
+  participant T as 外部 Tool
   participant E as 遥测与评估
 
   U->>App: 提交请求
@@ -186,14 +193,21 @@ sequenceDiagram
   S->>A: 分派子任务
   A->>G: 请求调用工具
   G->>P: 校验身份、参数与权限
-  alt 策略允许且依赖健康
+  alt 策略拒绝
+    P-->>G: 拒绝
+    G-->>A: 可审计的授权错误
+    A-->>S: 策略拒绝
+  else 策略允许
     P-->>G: 允许
-    G-->>A: 工具结果
-    A-->>S: 结构化结果与置信信息
-  else 拒绝、超时或熔断
-    P-->>G: 拒绝或降级策略
-    G-->>A: 可审计错误
-    A-->>S: 失败/部分结果
+    G-->>A: 受限凭证与工具路由
+    A->>T: 调用外部工具
+    alt 下游依赖正常
+      T-->>A: 工具结果
+      A-->>S: 结构化结果与置信信息
+    else 下游超时或熔断
+      T--xA: 超时或断路器拒绝
+      A-->>S: 依赖失败/部分结果
+    end
   end
   S-->>O: 聚合结果
   O->>E: 记录追踪并执行在线评估
@@ -311,15 +325,15 @@ sequenceDiagram
 
 以下均为官方或上游来源。访问日期与来源截断日期：**2026-07-20**。
 
-- [Microsoft Multi-Agent Reference Architecture 仓库与 README](https://github.com/microsoft/multi-agent-reference-architecture) — 项目定位、适用人群、框架无关声明与章节入口；核对 `main` 提交 `ed3613b54b46b595dd223aaff8772def376a8c37`。
-- [Introduction](https://github.com/microsoft/multi-agent-reference-architecture/blob/main/docs/Introduction.md) — 关注点分离、安全、可追踪、注册与生命周期、故障隔离、上下文管理等原则。
-- [Building Blocks](https://github.com/microsoft/multi-agent-reference-architecture/blob/main/docs/building-blocks/Building-Blocks.md) — Orchestrator、专业智能体、Registry 与默认通信控制。
-- [Reference Architecture](https://github.com/microsoft/multi-agent-reference-architecture/blob/main/docs/reference-architecture/Reference-Architecture.md) — 主架构构件、存储、MCP 集成和官方端到端序列。
-- [Agent Registry](https://github.com/microsoft/multi-agent-reference-architecture/blob/main/docs/agent-registry/Agent-Registry.md) — 集中/分布注册、发现、存储、查询、监测和注册评估。
-- [Memory](https://github.com/microsoft/multi-agent-reference-architecture/blob/main/docs/memory/Memory.md) — 短期/长期记忆及同步、所有权、隐私、一致性问题。
-- [Agents Communication](https://github.com/microsoft/multi-agent-reference-architecture/blob/main/docs/agents-communication/Agents-Communication.md) 与 [Message-Driven](https://github.com/microsoft/multi-agent-reference-architecture/blob/main/docs/agents-communication/Message-Driven.md) — 请求式、消息驱动与混合通信权衡。
-- [Observability](https://github.com/microsoft/multi-agent-reference-architecture/blob/main/docs/observability/Observability.md) 与 [Evaluation](https://github.com/microsoft/multi-agent-reference-architecture/blob/main/docs/evaluation/Evaluation.md) — 智能体特有遥测、确定性/语义评估及离线/在线阶段。
-- [Security](https://github.com/microsoft/multi-agent-reference-architecture/blob/main/docs/security/Security.md) — 身份、能力约束、加密、工具策略、记忆、审计、版本与回滚。
-- [Governance](https://github.com/microsoft/multi-agent-reference-architecture/blob/main/docs/governance/Governance.md) — 数据来源、输出责任、运行边界、模型监督、RAI 与红队流程。
-- [Patterns](https://github.com/microsoft/multi-agent-reference-architecture/blob/main/docs/reference-architecture/Patterns.md) — 动态注册、MCP、分层、上下文和智能体通信模式。
+- [Microsoft Multi-Agent Reference Architecture 仓库与 README](https://github.com/microsoft/multi-agent-reference-architecture/tree/ed3613b54b46b595dd223aaff8772def376a8c37) — 固定提交下的项目定位、适用人群、框架无关声明与章节入口。
+- [Introduction](https://github.com/microsoft/multi-agent-reference-architecture/blob/ed3613b54b46b595dd223aaff8772def376a8c37/docs/Introduction.md) — 关注点分离、安全、可追踪、注册与生命周期、故障隔离、上下文管理等原则。
+- [Building Blocks](https://github.com/microsoft/multi-agent-reference-architecture/blob/ed3613b54b46b595dd223aaff8772def376a8c37/docs/building-blocks/Building-Blocks.md) — Orchestrator、专业智能体、Registry 与默认通信控制。
+- [Reference Architecture](https://github.com/microsoft/multi-agent-reference-architecture/blob/ed3613b54b46b595dd223aaff8772def376a8c37/docs/reference-architecture/Reference-Architecture.md) — 主架构构件、存储、MCP 集成和官方端到端序列。
+- [Agent Registry](https://github.com/microsoft/multi-agent-reference-architecture/blob/ed3613b54b46b595dd223aaff8772def376a8c37/docs/agent-registry/Agent-Registry.md) — 集中/分布注册、发现、存储、查询、监测和注册评估。
+- [Memory](https://github.com/microsoft/multi-agent-reference-architecture/blob/ed3613b54b46b595dd223aaff8772def376a8c37/docs/memory/Memory.md) — 短期/长期记忆及同步、所有权、隐私、一致性问题。
+- [Agents Communication](https://github.com/microsoft/multi-agent-reference-architecture/blob/ed3613b54b46b595dd223aaff8772def376a8c37/docs/agents-communication/Agents-Communication.md) 与 [Message-Driven](https://github.com/microsoft/multi-agent-reference-architecture/blob/ed3613b54b46b595dd223aaff8772def376a8c37/docs/agents-communication/Message-Driven.md) — 请求式、消息驱动与混合通信权衡。
+- [Observability](https://github.com/microsoft/multi-agent-reference-architecture/blob/ed3613b54b46b595dd223aaff8772def376a8c37/docs/observability/Observability.md) 与 [Evaluation](https://github.com/microsoft/multi-agent-reference-architecture/blob/ed3613b54b46b595dd223aaff8772def376a8c37/docs/evaluation/Evaluation.md) — 智能体特有遥测、确定性/语义评估及离线/在线阶段。
+- [Security](https://github.com/microsoft/multi-agent-reference-architecture/blob/ed3613b54b46b595dd223aaff8772def376a8c37/docs/security/Security.md) — 身份、能力约束、加密、工具策略、记忆、审计、版本与回滚。
+- [Governance](https://github.com/microsoft/multi-agent-reference-architecture/blob/ed3613b54b46b595dd223aaff8772def376a8c37/docs/governance/Governance.md) — 数据来源、输出责任、运行边界、模型监督、RAI 与红队流程。
+- [Patterns](https://github.com/microsoft/multi-agent-reference-architecture/blob/ed3613b54b46b595dd223aaff8772def376a8c37/docs/reference-architecture/Patterns.md) — 动态注册、MCP、分层、上下文和智能体通信模式。
 - [AI agent orchestration patterns — Azure Architecture Center](https://learn.microsoft.com/en-us/azure/architecture/ai-ml/guide/ai-agent-design-patterns) — 最低必要复杂度、可靠性、安全、可观测、成本和人工参与的官方补充指导。

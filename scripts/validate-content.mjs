@@ -92,6 +92,53 @@ function displayPath(root, filePath) {
   return path.relative(root, filePath).split(path.sep).join('/');
 }
 
+function findCaseHeadings(source) {
+  const headings = new Set();
+  let fence;
+  let inHtmlComment = false;
+
+  for (const line of source.replace(/^\uFEFF/, '').split(/\r?\n/)) {
+    if (fence) {
+      const closingFence = line.match(/^ {0,3}([`~]{3,})[ \t]*$/);
+      if (
+        closingFence &&
+        closingFence[1][0] === fence.marker &&
+        closingFence[1].length >= fence.length
+      ) {
+        fence = undefined;
+      }
+      continue;
+    }
+
+    if (inHtmlComment) {
+      if (line.includes('-->')) {
+        inHtmlComment = false;
+      }
+      continue;
+    }
+
+    const commentStart = line.indexOf('<!--');
+    if (commentStart !== -1) {
+      if (line.indexOf('-->', commentStart + 4) === -1) {
+        inHtmlComment = true;
+      }
+      continue;
+    }
+
+    const openingFence = line.match(/^ {0,3}([`~]{3,})(?:[^\r\n]*)$/);
+    if (openingFence) {
+      fence = {marker: openingFence[1][0], length: openingFence[1].length};
+      continue;
+    }
+
+    if (requiredCaseHeadings.includes(line)) {
+      headings.add(line);
+    }
+  }
+
+  return headings;
+}
+
 export async function validateContent(root, {requireLaunchCases = false} = {}) {
   const documents = [];
   const errors = [];
@@ -131,9 +178,9 @@ export async function validateContent(root, {requireLaunchCases = false} = {}) {
     }
 
     if (metadata.content_type === 'case') {
-      const lines = new Set(source.replace(/^\uFEFF/, '').split(/\r?\n/));
+      const headings = findCaseHeadings(source);
       for (const heading of requiredCaseHeadings) {
-        if (!lines.has(heading)) {
+        if (!headings.has(heading)) {
           errors.push(`${file}: missing required case heading "${heading}"`);
         }
       }

@@ -6,6 +6,7 @@ import path from 'node:path';
 import test from 'node:test';
 import {fileURLToPath} from 'node:url';
 
+import {requiredCaseHeadings} from '../scripts/content-schema.mjs';
 import {validateContent} from '../scripts/validate-content.mjs';
 
 const validatorScript = fileURLToPath(new URL('../scripts/validate-content.mjs', import.meta.url));
@@ -196,20 +197,77 @@ test('accepts all five valid launch cases with HTTPS official sources', async ()
 
 test('rejects a case missing required analysis sections', async () => {
   await withTempRoot(async (root) => {
+    const relativePath = 'cases/missing-sections.mdx';
     await writeMdx(
       root,
-      'cases/missing-sections.mdx',
+      relativePath,
       validCaseFrontMatter('/cases/missing-sections'),
       '# Structurally valid case without the analysis contract',
     );
 
     const result = await validateContent(root);
-
-    assert.ok(
-      result.errors.some(
-        (error) =>
-          error.includes('cases/missing-sections.mdx') && error.includes('## 学习问题'),
-      ),
+    const headingErrors = result.errors.filter((error) =>
+      error.includes(`${relativePath}: missing required case heading`),
     );
+
+    assert.equal(headingErrors.length, requiredCaseHeadings.length);
+    for (const heading of requiredCaseHeadings) {
+      assert.ok(headingErrors.some((error) => error.includes(`"${heading}"`)));
+    }
   });
+
+  for (const [index, heading] of requiredCaseHeadings.entries()) {
+    await withTempRoot(async (root) => {
+      const relativePath = `cases/missing-one-${index}.mdx`;
+      const body = validCaseBody
+        .split('\n\n')
+        .filter((line) => line !== heading)
+        .join('\n\n');
+      await writeMdx(
+        root,
+        relativePath,
+        validCaseFrontMatter(`/cases/missing-one-${index}`),
+        body,
+      );
+
+      const result = await validateContent(root);
+      const headingErrors = result.errors.filter((error) =>
+        error.includes(`${relativePath}: missing required case heading`),
+      );
+
+      assert.deepEqual(headingErrors, [
+        `${relativePath}: missing required case heading "${heading}"`,
+      ]);
+    });
+  }
+
+  const hiddenHeadingCases = [
+    ['backtick fence', '```markdown\n## 学习问题\n```'],
+    ['tilde fence', '~~~markdown\n## 学习问题\n~~~'],
+    ['HTML comment', '<!--\n## 学习问题\n-->'],
+  ];
+
+  for (const [index, [label, hiddenHeading]] of hiddenHeadingCases.entries()) {
+    await withTempRoot(async (root) => {
+      const relativePath = `cases/hidden-heading-${index}.mdx`;
+      const body = `${validCaseBody.replace('## 学习问题\n\n', '')}\n\n${hiddenHeading}`;
+      await writeMdx(
+        root,
+        relativePath,
+        validCaseFrontMatter(`/cases/hidden-heading-${index}`),
+        body,
+      );
+
+      const result = await validateContent(root);
+      const headingErrors = result.errors.filter((error) =>
+        error.includes(`${relativePath}: missing required case heading`),
+      );
+
+      assert.deepEqual(
+        headingErrors,
+        [`${relativePath}: missing required case heading "## 学习问题"`],
+        label,
+      );
+    });
+  }
 });
