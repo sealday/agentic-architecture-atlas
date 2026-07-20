@@ -127,7 +127,7 @@ export async function validateContent(root, {requireLaunchCases = false} = {}) {
     const documentSlugs = new Set(documents.map(({metadata}) => metadata.slug));
     for (const slug of requiredCaseSlugs) {
       if (!documentSlugs.has(slug)) {
-        errors.push(`missing required launch case slug "${slug}"`);
+        errors.push(`Missing launch case slug "${slug}"`);
       }
     }
   }

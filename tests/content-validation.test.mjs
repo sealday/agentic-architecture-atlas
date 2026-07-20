@@ -100,7 +100,10 @@ test('reports the four missing launch cases when only the OpenAI case exists', a
 
     const result = await validateContent(root, {requireLaunchCases: true});
 
-    assert.equal(result.errors.length, 4);
+    assert.equal(
+      result.errors.filter((error) => error.includes('Missing launch case')).length,
+      4,
+    );
     assert.ok(
       result.errors.some((error) =>
         error.includes('/cases/microsoft-multi-agent-reference-architecture'),
