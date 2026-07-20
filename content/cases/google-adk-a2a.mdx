@@ -132,9 +132,10 @@ flowchart TB
   accDescr: 根智能体拥有最终回答和委派入口；确定性工作流按顺序、并行和循环组织本地子智能体；远程代理虽然挂在本地树上，但通过 A2A 网络边界调用独立服务；所有写操作经过策略与幂等门禁。
 
   User["用户 / 上游应用"] --> Runner["Runner + SessionService"]
-  Runner --> Root["Root LlmAgent：意图、委派、最终回答"]
 
   subgraph Local["本地 ADK 进程"]
+    Root["Root LlmAgent：意图、委派、最终回答"]
+    Runner --> Root
     Root -->|"LLM transfer：允许的树内目标"| Specialist["本地领域子智能体"]
     Root -->|"代码选择"| Workflow["确定性 workflow 外壳"]
     Workflow --> Seq["Sequential：固定顺序"]
@@ -166,12 +167,13 @@ flowchart TB
 ```mermaid
 sequenceDiagram
   accTitle: ADK 客户端与远端 A2A 服务的发现、认证和任务流
-  accDescr: 本地根智能体先经可信注册表或已配置地址取得并验证 Agent Card，再获取凭证并发送消息；远端可创建任务、流式发送状态和制品，客户端可尝试取消或在需要输入时继续任务，但本地与远端分别提交状态。
+  accDescr: 本地根智能体先经可信注册表或已配置地址取得并验证 Agent Card，再获取凭证并发送消息；远端可创建任务、流式发送状态和制品；若应用另建支持取消的 A2A 客户端或网关，可尝试取消任务，但固定版本 RemoteA2aAgent 没有端到端取消映射。
 
   actor U as 用户
   participant R as ADK Root
   participant D as 发现与信任策略
   participant P as RemoteA2aAgent
+  participant G as 应用 A2A Client / Gateway
   participant I as 身份提供方
   participant A as A2A Server
   participant W as Remote Agent / Worker
@@ -198,9 +200,11 @@ sequenceDiagram
     R->>P: 继续同一 taskId/contextId
     P->>A: Send Message
   else 调用方取消
-    R->>P: 取消意图
-    P->>A: Cancel Task
-    A-->>P: canceled 或无法取消/已终止
+    R->>G: 取消意图 + 已保存 taskId
+    Note over R,G: 应用需自行实现此取消路径
+    G->>A: Cancel Task
+    A-->>G: canceled 或无法取消/未实现/已终止
+    G-->>R: 取消结果；必要时继续查询状态
   else 正常完成
     A-->>P: completed + final Artifact/Message
   end
@@ -213,7 +217,7 @@ sequenceDiagram
 1. 客户端从受治理 registry、可信配置或 well-known endpoint 取得 Agent Card，并在模型看见候选之前检查来源、签名/证书、协议版本、binding、媒体类型和安全策略；公开 URL 不能直接变成可信依赖。
 2. 凭证在 A2A payload 之外通过标准 HTTP/OAuth 等机制取得和发送。远端服务对每次请求重新认证并按 skill、数据和动作授权。
 3. 客户端发送带唯一 `messageId` 的 Message。远端可立即返回 Message，或创建 `taskId` / `contextId` 并发送状态和 Artifact 更新。
-4. `input-required` 与 `auth-required` 是可继续的中断状态；completed、failed、canceled、rejected 是终态。取消只是一项请求，调用者必须接受“无法取消或已经完成”的结果。
+4. `input-required` 与 `auth-required` 是可继续的中断状态；completed、failed、canceled、rejected 是终态。图中的 Cancel Task 由应用自建、支持取消的 A2A client/gateway 发出，不是固定版本 `RemoteA2aAgent` 的现成功能。该代理没有把本地取消意图端到端映射为协议操作，而固定版本 ADK 服务端 executor 的 `cancel()` 也可能未实现；即使服务实现了取消，调用者仍必须接受“无法取消或已经完成”的结果。
 5. 远端结果回到本地后仍要经过 schema、来源、策略和业务一致性检查。两侧分别持久化，图中没有全局 commit 点。
 
 ## 控制权与任务流
@@ -321,14 +325,14 @@ A2A 版本兼容应在连接前完成：读取 `supportedInterfaces`，选择双
 
 ### 取消、重试、幂等与事务
 
-**已证实事实**：A2A Cancel Task 只要求服务尝试取消，取消可能不受支持或任务已终止；Send Message 仅 MAY 通过 `messageId` 去重。ADK 当前 executor 还没有实现 cancel。因此超时关闭 HTTP 连接、用户点击“停止”和远端副作用停止是三件不同的事。
+**已证实事实**：A2A Cancel Task 只要求服务尝试取消，取消可能不受支持或任务已终止；Send Message 仅 MAY 通过 `messageId` 去重。固定版本 `RemoteA2aAgent` 没有把本地取消意图映射到 A2A Cancel Task 的端到端 client 路径，ADK 服务端 executor 的 `cancel()` 还直接抛出 `NotImplementedError`。因此超时关闭 HTTP 连接、用户点击“停止”和远端副作用停止是三件不同的事；需要取消时，应用必须自建支持该操作的 A2A client/gateway，并在接入时验证远端实现。
 
 生产建议：
 
 1. 为每个业务动作生成稳定 `operation_id`，并在 A2A Message metadata/structured Part 与远端业务数据库中传播；传输重试复用相同 `messageId`，业务重试复用相同 `operation_id`。
 2. 只有网络错误、明确可重试状态和未产生外部副作用的阶段才自动重试；使用指数退避、jitter、总 deadline 和 retry budget。
-3. Cancel 返回后继续轮询或订阅直到得到明确终态；若 adapter 不支持 cancel，标记为“本地停止等待，远端可能继续”，并触发对账。
-4. Push notification 按至少一次投递设计，以 `taskId + event/version` 去重；乱序更新按服务端状态 timestamp 或明确序号处理。
+3. 通过应用自建 client/gateway 发出 Cancel 后，继续轮询或订阅直到得到明确终态；若本地 adapter 或远端 executor 不支持 cancel，标记为“本地停止等待，远端可能继续”，并触发对账。
+4. Push notification 按至少一次投递设计。A2A 1.0 没有内建通用的 event ID 或 event version 字段；若要用 `taskId + event_id/version` 去重，`event_id` 或单调 `version` 必须由应用写入 metadata。Artifact chunk 可用协议内建 `artifactId` 配合 metadata 中应用自定义的 `chunk_sequence` 去重和排序，并结合 `append` / `lastChunk` 判断拼接语义。
 5. 跨本地 state、A2A Task 和 MCP/业务工具的操作使用 saga、outbox、补偿和人工修复队列。不要声称 A2A 提供全局 exactly-once 或两阶段提交。
 
 ### 可观测性与评估
