@@ -1,30 +1,249 @@
-/**
- * Any CSS included here will be global. The classic template
- * bundles Infima by default. Infima is a CSS framework designed to
- * work well for content-centric websites.
- */
-
-/* You can override the default Infima variables here. */
 :root {
-  --ifm-color-primary: #2e8555;
-  --ifm-color-primary-dark: #29784c;
-  --ifm-color-primary-darker: #277148;
-  --ifm-color-primary-darkest: #205d3b;
-  --ifm-color-primary-light: #33925d;
-  --ifm-color-primary-lighter: #359962;
-  --ifm-color-primary-lightest: #3cad6e;
-  --ifm-code-font-size: 95%;
-  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+  --ifm-color-primary: #9f3f31;
+  --ifm-color-primary-dark: #8e382c;
+  --ifm-color-primary-darker: #86352a;
+  --ifm-color-primary-darkest: #6e2c22;
+  --ifm-color-primary-light: #b04636;
+  --ifm-color-primary-lighter: #b84b3a;
+  --ifm-color-primary-lightest: #c96859;
+  --ifm-background-color: #f7f2e8;
+  --ifm-background-surface-color: #fffaf0;
+  --ifm-font-color-base: #292723;
+  --ifm-font-family-base: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', 'PingFang SC',
+    'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  --ifm-heading-font-family: 'Noto Serif SC', 'Songti SC', STSong, 'Source Han Serif SC', Georgia, serif;
+  --ifm-heading-font-weight: 650;
+  --ifm-line-height-base: 1.78;
+  --ifm-code-font-size: 92%;
+  --ifm-navbar-background-color: rgba(247, 242, 232, 0.92);
+  --ifm-footer-background-color: #272522;
+  --ifm-toc-border-color: #d8cebf;
+  --atlas-paper: #f7f2e8;
+  --atlas-paper-raised: #fffaf0;
+  --atlas-paper-muted: #eee7da;
+  --atlas-paper-fade: rgba(247, 242, 232, 0.74);
+  --atlas-ink: #292723;
+  --atlas-ink-soft: #5d584f;
+  --atlas-muted: #81786c;
+  --atlas-line: #d8cebf;
+  --atlas-line-strong: #bdb09f;
+  --atlas-grid-line: rgba(123, 108, 91, 0.08);
+  --atlas-accent-soft: #c98f82;
+  --atlas-focus: rgba(159, 63, 49, 0.5);
+  --atlas-on-accent: #fffaf0;
+  --atlas-tape: #d9c59c;
+  --atlas-shadow: 0 7px 24px rgba(70, 54, 38, 0.045);
+  --atlas-shadow-hover: 0 12px 34px rgba(70, 54, 38, 0.09);
+  --atlas-serif: var(--ifm-heading-font-family);
+  --atlas-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
+  --docusaurus-highlighted-code-line-bg: rgba(159, 63, 49, 0.12);
 }
 
-/* For readability concerns, you should choose a lighter palette in dark mode. */
 [data-theme='dark'] {
-  --ifm-color-primary: #25c2a0;
-  --ifm-color-primary-dark: #21af90;
-  --ifm-color-primary-darker: #1fa588;
-  --ifm-color-primary-darkest: #1a8870;
-  --ifm-color-primary-light: #29d5b0;
-  --ifm-color-primary-lighter: #32d8b4;
-  --ifm-color-primary-lightest: #4fddbf;
-  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+  --ifm-color-primary: #e3907d;
+  --ifm-color-primary-dark: #dd7963;
+  --ifm-color-primary-darker: #d96d55;
+  --ifm-color-primary-darkest: #cf4525;
+  --ifm-color-primary-light: #e9a797;
+  --ifm-color-primary-lighter: #edb3a5;
+  --ifm-color-primary-lightest: #f6d5cd;
+  --ifm-background-color: #1f1d1a;
+  --ifm-background-surface-color: #282521;
+  --ifm-font-color-base: #eee7dc;
+  --ifm-navbar-background-color: rgba(31, 29, 26, 0.94);
+  --ifm-footer-background-color: #161513;
+  --ifm-toc-border-color: #4a443d;
+  --atlas-paper: #1f1d1a;
+  --atlas-paper-raised: #292621;
+  --atlas-paper-muted: #25221e;
+  --atlas-paper-fade: rgba(31, 29, 26, 0.75);
+  --atlas-ink: #eee7dc;
+  --atlas-ink-soft: #c5bbac;
+  --atlas-muted: #9d9387;
+  --atlas-line: #464038;
+  --atlas-line-strong: #62594e;
+  --atlas-grid-line: rgba(220, 203, 181, 0.055);
+  --atlas-accent-soft: #9f6659;
+  --atlas-focus: rgba(227, 144, 125, 0.62);
+  --atlas-on-accent: #211d1a;
+  --atlas-tape: #5f5441;
+  --atlas-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
+  --atlas-shadow-hover: 0 12px 34px rgba(0, 0, 0, 0.28);
+  --docusaurus-highlighted-code-line-bg: rgba(227, 144, 125, 0.14);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--atlas-paper);
+  color: var(--atlas-ink);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--atlas-ink);
+  text-wrap: balance;
+}
+
+a {
+  text-underline-offset: 0.16em;
+}
+
+a:focus-visible,
+button:focus-visible,
+[tabindex='0']:focus-visible {
+  border-radius: 2px;
+  outline: 3px solid var(--atlas-focus);
+  outline-offset: 3px;
+}
+
+.navbar {
+  border-bottom: 1px solid var(--atlas-line);
+  box-shadow: none;
+  backdrop-filter: blur(12px);
+}
+
+.navbar__title,
+.footer__title {
+  font-family: var(--atlas-serif);
+  letter-spacing: -0.015em;
+}
+
+.navbar__link {
+  font-size: 0.88rem;
+}
+
+.footer {
+  border-top: 1px solid var(--atlas-line-strong);
+}
+
+.footer__copyright {
+  color: #bdb4a9;
+  font-size: 0.78rem;
+}
+
+.theme-doc-markdown {
+  max-width: 50rem;
+  font-size: 1rem;
+  line-height: 1.9;
+}
+
+.theme-doc-markdown > header + * {
+  margin-top: 2rem;
+}
+
+.theme-doc-markdown h1 {
+  font-size: clamp(2.15rem, 4vw, 3.25rem);
+  letter-spacing: -0.035em;
+  line-height: 1.2;
+}
+
+.theme-doc-markdown h2 {
+  margin-top: 3.2rem;
+  border-top: 1px solid var(--atlas-line);
+  padding-top: 1.45rem;
+  font-size: clamp(1.55rem, 3vw, 2.1rem);
+}
+
+.theme-doc-markdown h3 {
+  margin-top: 2.2rem;
+}
+
+.theme-doc-markdown blockquote {
+  border-left-color: var(--ifm-color-primary);
+  background: var(--atlas-paper-muted);
+  color: var(--atlas-ink-soft);
+  padding: 1rem 1.25rem;
+}
+
+.theme-doc-markdown code:not(pre code) {
+  border: 1px solid var(--atlas-line);
+  border-radius: 3px;
+  background: var(--atlas-paper-muted);
+  color: var(--ifm-color-primary-dark);
+}
+
+[data-theme='dark'] .theme-doc-markdown code:not(pre code) {
+  color: var(--ifm-color-primary-light);
+}
+
+.theme-doc-markdown pre {
+  border: 1px solid var(--atlas-line);
+  border-radius: 3px;
+  box-shadow: none;
+}
+
+.theme-doc-markdown table {
+  display: table;
+  min-width: 42rem;
+  margin: 0;
+}
+
+.theme-doc-markdown table thead {
+  background: var(--atlas-paper-muted);
+}
+
+.theme-doc-markdown table th,
+.theme-doc-markdown table td {
+  border-color: var(--atlas-line);
+}
+
+.theme-doc-markdown .table-wrapper,
+.theme-doc-markdown > div:has(> table) {
+  max-width: 100%;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+  -webkit-overflow-scrolling: touch;
+}
+
+.theme-doc-markdown .docusaurus-mermaid-container,
+.theme-doc-markdown .mermaid {
+  max-width: 100%;
+  overflow-x: auto;
+  padding: 1rem 0;
+  -webkit-overflow-scrolling: touch;
+}
+
+.theme-doc-markdown .docusaurus-mermaid-container svg,
+.theme-doc-markdown .mermaid svg {
+  min-width: 42rem;
+  height: auto;
+}
+
+.pagination-nav__link {
+  border-color: var(--atlas-line);
+  border-radius: 3px;
+  background: var(--atlas-paper-raised);
+}
+
+.menu__link--active:not(.menu__link--sublist) {
+  border-left: 2px solid var(--ifm-color-primary);
+  border-radius: 0;
+}
+
+@media screen and (max-width: 996px) {
+  .theme-doc-markdown {
+    max-width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }
