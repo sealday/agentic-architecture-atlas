@@ -197,6 +197,27 @@ test('accepts all five valid launch cases with HTTPS official sources', async ()
 
 test('rejects a case missing required analysis sections', async () => {
   await withTempRoot(async (root) => {
+    const relativePath = 'cases/front-matter-headings.mdx';
+    const frontMatter = `${validCaseFrontMatter('/cases/front-matter-headings')}\n${requiredCaseHeadings.join('\n')}`;
+    await writeMdx(
+      root,
+      relativePath,
+      frontMatter,
+      '# Body without required analysis headings',
+    );
+
+    const result = await validateContent(root);
+    const headingErrors = result.errors.filter((error) =>
+      error.includes(`${relativePath}: missing required case heading`),
+    );
+
+    assert.equal(headingErrors.length, requiredCaseHeadings.length);
+    for (const heading of requiredCaseHeadings) {
+      assert.ok(headingErrors.some((error) => error.includes(`"${heading}"`)));
+    }
+  });
+
+  await withTempRoot(async (root) => {
     const relativePath = 'cases/missing-sections.mdx';
     await writeMdx(
       root,

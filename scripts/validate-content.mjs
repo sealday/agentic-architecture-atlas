@@ -92,6 +92,16 @@ function displayPath(root, filePath) {
   return path.relative(root, filePath).split(path.sep).join('/');
 }
 
+function extractMarkdownBody(source) {
+  const lines = source.replace(/^\uFEFF/, '').split(/\r?\n/);
+  if (lines[0]?.trim() !== '---') {
+    return lines.join('\n');
+  }
+
+  const closingIndex = lines.findIndex((line, index) => index > 0 && line.trim() === '---');
+  return closingIndex === -1 ? '' : lines.slice(closingIndex + 1).join('\n');
+}
+
 function findCaseHeadings(source) {
   const headings = new Set();
   let fence;
@@ -178,7 +188,7 @@ export async function validateContent(root, {requireLaunchCases = false} = {}) {
     }
 
     if (metadata.content_type === 'case') {
-      const headings = findCaseHeadings(source);
+      const headings = findCaseHeadings(extractMarkdownBody(source));
       for (const heading of requiredCaseHeadings) {
         if (!headings.has(heading)) {
           errors.push(`${file}: missing required case heading "${heading}"`);
