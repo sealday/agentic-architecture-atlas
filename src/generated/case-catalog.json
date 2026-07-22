@@ -173,5 +173,33 @@
       "idempotency",
       "controller"
     ]
+  },
+  {
+    "title": "Temporal Durable Execution + Saga：为长时智能体任务建立可恢复边界",
+    "slug": "/cases/temporal-saga-durable-execution",
+    "summary": "结合 Saga 补偿和 Temporal 事件历史，分析 LLM 与外部副作用应落在哪个耐久执行边界。",
+    "difficulty": "advanced",
+    "series": "classic-distributed",
+    "catalog_order": 8,
+    "featured": false,
+    "source_kinds": [
+      "official-docs",
+      "open-source-project",
+      "classic-paper"
+    ],
+    "migration_targets": [
+      "durable-execution",
+      "saga-compensation",
+      "idempotent-activity",
+      "human-intervention"
+    ],
+    "tags": [
+      "Temporal",
+      "Saga",
+      "durable-execution",
+      "deterministic-replay",
+      "idempotency",
+      "compensation"
+    ]
   }
 ]
