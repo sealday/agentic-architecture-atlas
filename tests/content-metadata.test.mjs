@@ -114,3 +114,15 @@ ${paddedHeading}
     '### Trimmed',
   ]);
 });
+
+test('ignores a heading suffix after an inline HTML comment that owns the line', () => {
+  assert.deepEqual([...findMarkdownHeadings('<!-- note --> ## Hidden')], []);
+});
+
+test('ignores a heading suffix on a multiline HTML comment closing line', () => {
+  const source = `<!--
+note
+--> ## Hidden`;
+
+  assert.deepEqual([...findMarkdownHeadings(source)], []);
+});

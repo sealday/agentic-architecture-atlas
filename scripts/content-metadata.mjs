@@ -120,6 +120,7 @@ export function findMarkdownHeadings(source) {
       continue;
     }
 
+    const htmlCommentOwnsLine = inHtmlComment || /^ {0,3}<!--/.test(line);
     let content = '';
     let cursor = 0;
 
@@ -151,6 +152,10 @@ export function findMarkdownHeadings(source) {
       }
 
       cursor = commentEnd + 3;
+    }
+
+    if (htmlCommentOwnsLine) {
+      continue;
     }
 
     const openingFence = content.match(/^ {0,3}([`~]{3,})(?:[^\r\n]*)$/);
