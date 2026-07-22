@@ -201,5 +201,34 @@
       "idempotency",
       "compensation"
     ]
+  },
+  {
+    "title": "Apache Kafka Consumer Groups：用分区所有权组织可重放的 Agent 工作",
+    "slug": "/cases/apache-kafka-consumer-groups",
+    "summary": "从日志、分区、消费组和 rebalance 中分析 Agent 任务归属、重放、背压与重复执行。",
+    "difficulty": "advanced",
+    "series": "classic-distributed",
+    "catalog_order": 9,
+    "featured": false,
+    "source_kinds": [
+      "official-docs",
+      "open-source-project",
+      "classic-paper",
+      "engineering-blog"
+    ],
+    "migration_targets": [
+      "partition-ownership",
+      "event-replay",
+      "backpressure",
+      "duplicate-handling"
+    ],
+    "tags": [
+      "Apache Kafka",
+      "consumer-groups",
+      "partition-ownership",
+      "replay",
+      "backpressure",
+      "idempotency"
+    ]
   }
 ]
