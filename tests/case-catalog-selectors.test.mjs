@@ -70,16 +70,16 @@ const noFilters = {
 };
 
 test('derives the current featured and second-collection views from generated data', () => {
-  assert.equal(caseCatalog.length, 12);
+  assert.equal(caseCatalog.length, 13);
   assert.equal(featuredCases.length, 5);
   assert.deepEqual(
     featuredCases.map(({catalog_order}) => catalog_order),
     [1, 2, 3, 4, 5],
   );
-  assert.equal(secondCollectionCases.length, 7);
+  assert.equal(secondCollectionCases.length, 8);
   assert.deepEqual(
     secondCollectionCases.map(({catalog_order}) => catalog_order),
-    [6, 7, 8, 9, 10, 11, 12],
+    [6, 7, 8, 9, 10, 11, 12, 13],
   );
   assert.ok(featuredCases.every((entry) => caseCatalog.includes(entry)));
   assert.deepEqual(

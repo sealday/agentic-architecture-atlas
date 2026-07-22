@@ -315,5 +315,34 @@
       "state-vector",
       "multi-agent"
     ]
+  },
+  {
+    "title": "Cloudflare Durable Objects + workerd：把边缘协调收敛到身份寻址的状态单元",
+    "slug": "/cases/cloudflare-durable-objects-workerd",
+    "summary": "从全局身份、单对象协调和持久化状态中分析会话、任务与租户的边缘分片。",
+    "difficulty": "advanced",
+    "series": "edge-physical",
+    "catalog_order": 13,
+    "featured": false,
+    "source_kinds": [
+      "official-docs",
+      "open-source-project",
+      "reference-architecture"
+    ],
+    "migration_targets": [
+      "identity-addressed-state",
+      "edge-coordination",
+      "single-writer-boundary",
+      "hotspot-sharding"
+    ],
+    "tags": [
+      "Cloudflare",
+      "Durable Objects",
+      "workerd",
+      "edge-coordination",
+      "identity-routing",
+      "SQLite",
+      "WebSocket-Hibernation"
+    ]
   }
 ]
