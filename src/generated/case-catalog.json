@@ -230,5 +230,34 @@
       "backpressure",
       "idempotency"
     ]
+  },
+  {
+    "title": "AWS Cell Architecture + Shuffle Sharding：把失控智能体限制在可计算的故障半径内",
+    "slug": "/cases/aws-cell-shuffle-sharding",
+    "summary": "用 cell、bulkhead 和 shuffle sharding 设计租户隔离、容量边界与逐单元发布。",
+    "difficulty": "advanced",
+    "series": "classic-distributed",
+    "catalog_order": 10,
+    "featured": false,
+    "source_kinds": [
+      "official-docs",
+      "open-source-project",
+      "engineering-blog",
+      "reference-architecture"
+    ],
+    "migration_targets": [
+      "blast-radius-control",
+      "tenant-isolation",
+      "cell-routing",
+      "quota-partitioning"
+    ],
+    "tags": [
+      "AWS",
+      "cell-architecture",
+      "shuffle-sharding",
+      "bulkhead",
+      "tenant-isolation",
+      "blast-radius"
+    ]
   }
 ]
