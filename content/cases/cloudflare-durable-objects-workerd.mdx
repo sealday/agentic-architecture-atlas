@@ -51,7 +51,9 @@ tags:
   - WebSocket-Hibernation
 official_sources:
   - https://developers.cloudflare.com/durable-objects/
+  - https://developers.cloudflare.com/durable-objects/concepts/what-are-durable-objects/
   - https://developers.cloudflare.com/durable-objects/api/namespace/
+  - https://developers.cloudflare.com/durable-objects/api/id/
   - https://developers.cloudflare.com/durable-objects/api/stub/
   - https://developers.cloudflare.com/durable-objects/api/sqlite-storage-api/
   - https://developers.cloudflare.com/durable-objects/api/alarms/
@@ -61,14 +63,18 @@ official_sources:
   - https://developers.cloudflare.com/durable-objects/concepts/durable-object-lifecycle/
   - https://developers.cloudflare.com/durable-objects/platform/known-issues/
   - https://developers.cloudflare.com/durable-objects/platform/limits/
+  - https://developers.cloudflare.com/durable-objects/reference/data-security/
   - https://developers.cloudflare.com/durable-objects/reference/data-location/
   - https://developers.cloudflare.com/durable-objects/reference/durable-objects-migrations/
   - https://developers.cloudflare.com/durable-objects/observability/metrics-and-analytics/
+  - https://developers.cloudflare.com/changelog/product/durable-objects/
   - https://developers.cloudflare.com/reference-architecture/diagrams/storage/durable-object-control-data-plane-pattern/
   - https://github.com/cloudflare/workerd/tree/14894eccbb339da199d772fcadd337b6d0902128
   - https://github.com/cloudflare/workerd/blob/14894eccbb339da199d772fcadd337b6d0902128/README.md
   - https://github.com/cloudflare/workerd/blob/14894eccbb339da199d772fcadd337b6d0902128/src/workerd/io/io-gate.h
+  - https://github.com/cloudflare/workerd/blob/14894eccbb339da199d772fcadd337b6d0902128/src/workerd/io/io-context.c%2B%2B
   - https://github.com/cloudflare/workerd/blob/14894eccbb339da199d772fcadd337b6d0902128/src/workerd/io/actor-cache.h
+  - https://github.com/cloudflare/workerd/blob/14894eccbb339da199d772fcadd337b6d0902128/src/workerd/io/actor-sqlite.c%2B%2B
   - https://github.com/cloudflare/workerd/blob/14894eccbb339da199d772fcadd337b6d0902128/src/workerd/server/workerd.capnp
 ---
 
@@ -94,7 +100,7 @@ official_sources:
 
 **已证实事实**：单个对象固有单线程，但多个事件可以在异步边界交错。异步 storage 操作默认启用 Input Gate，storage 完成前暂停其他 I/O 事件；同步 SQLite 操作不让出事件循环。非存储 I/O，例如 `fetch()` 或写 R2，会允许其他请求运行，因而“读状态 → 调外部服务 → 写状态”仍可能竞态。`blockConcurrencyWhile()` 可以扩大关键区，但回调抛错或超过 30 秒会重置对象，不适合包住长时间模型推理。
 
-**已证实事实**：新 namespace 当前应使用、且通过新 `exports` 流程只能使用 SQLite backend；legacy KV backend 仅为既有 namespace 保留。SQLite-backed 对象同时有 SQL、同步 KV、异步 KV 和 PITR。`transactionSync()` 仅 SQLite 可用且回调必须同步；`transaction()` 仍可用，但 SQLite 下 `txn` 参数已经 obsolete，直接在 `ctx.storage` 上执行的 storage 操作属于该事务。连续、无中间 `await` 的写会自动合并并原子提交。
+**已证实事实**：当前新 `exports` namespace 只能选择 SQLite backend。2026-07-09 官方 changelog 对 legacy `migrations` 给出更窄的兼容例外：账户只要已有至少一个 KV-backed namespace，目前仍可用 `new_classes` 新建 KV namespace；没有既有 KV-backed namespace 的账户不能再新建，已有 KV namespace 继续受支持。SQLite-backed 对象同时有 SQL、同步 KV、异步 KV 和 PITR。`transactionSync()` 仅 SQLite 可用且回调必须同步；`transaction()` 仍可用，但 SQLite 下 `txn` 参数已经 obsolete，直接在 `ctx.storage` 上执行的 storage 操作属于该事务。连续、无中间 `await` 的写会自动合并并原子提交。
 
 **边界。已证实事实**：Output Gate 只把写入后的外发网络消息延迟到 durable write 确认；写失败时外发消息被丢弃、对象重置、调用方收到错误。它不撤销已经在写入前发出的 HTTP 请求，不把 LLM、R2、队列、支付或邮件纳入对象存储事务，也不能给这些系统提供 exactly-once。
 
@@ -161,7 +167,7 @@ flowchart TB
 ## 控制权与任务流
 
 1. **认证与 key 派生。** 入口验证用户/Agent token，读取可信 tenant、workspace、session、task 或 entity ID，做规范化与长度限制，再组合版本化 key，例如 `v2:tenant-17:task-42`。不要直接采用 query string 作为 `idFromName()` 输入，更不要把“知道 name/ID”当作已授权。
-2. **选择 ID 策略。** 稳定且可重算的业务实体使用 `idFromName()` 或 `getByName()`；不可预测的新会话可用 `newUniqueId()`，但必须原子保存 ID string 到受控目录或返回给已认证客户端。ID 只在原 namespace 有效，`idFromString()` 会拒绝其他 namespace 生成的 ID。
+2. **选择 ID 策略。** 稳定且可重算的业务实体使用 `idFromName()` 或 `getByName()`；不可预测的新会话可用 `newUniqueId()`。“原子保存”只表示目录对象能在它自己的私有 storage transaction 中保存 ID string 和目录记录，不会让目录对象与目标对象的首次初始化形成跨对象原子事务。目标对象的初始化必须以稳定 receipt / initialization key 做幂等检查；调用超时或重试后，系统通过目录记录、目标对象 receipt 和 reconciliation 收敛。若把 ID string 返回给已认证客户端，也不能把它当授权凭证。ID 只在原 namespace 有效，`idFromString()` 会拒绝其他 namespace 生成的 ID。
 3. **取得并调用 stub。** `get()` 立即返回 client；真正 RPC/HTTP 调用才建立连接并懒创建对象。按调用方和业务协议携带 `request_id` / `operation_id`，不要仅靠 stub E-order 代替跨调用方全局顺序。stub 抛错后重建 stub，再依据 receipt 判断是否重试。
 4. **对象内判定。** 同步 SQLite 读写在当前事件循环内执行；异步 KV storage 默认通过 Input Gate 防止 storage await 期间其他事件交错。连续无 `await` 写入可自动 coalesce；需要明确同步原子区时使用 `transactionSync()`，需要兼容异步 storage API 时使用 `transaction()`。
 5. **外部调用。** 在调用 LLM/tool 前把 `operation_id`、input hash、state version、deadline、attempt 与 `PENDING` 写入对象 storage；提交后再发外部请求。`await fetch()` 会允许其他事件交错，返回时必须重新读取/检查版本和 ownership，再把 receipt 原子写回。若另一个请求已经取消或接管任务，迟到结果只作为候选记录，不覆盖 current state。
@@ -225,7 +231,9 @@ flowchart TB
 | 故障恢复 | 增量 checkpoint、无 shutdown-hook 假设；stub error 后重建；客户端有界退避 | object reset/restart、storage exception、in-flight age、orphan operation、reconnect | 先 reconcile storage/outbox/downstream；无法判定转人工，禁止盲重放 |
 | 可观测性 | 官方 namespace/per-object metrics + Workers logs/traces；统一 task/operation/version 字段 | `$workers.durableObjectId`、invocation/storage/subrequest/WebSocket metrics、cost、deny rate | 从热点 object drill-down；保护 PII；为 control/data plane 分开 SLO |
 
-**安全。已证实事实**：每对象 storage 对其他对象不可直接访问，平台数据静态与传输加密；这不等于应用授权。官方 best practices 把 Worker 放在认证、校验和响应格式层。生产系统还要限制 key 长度与基数、RPC payload、WebSocket 消息、SQL 查询、外部连接和每主体成本，并让高风险 tool credential 只在实际调用时按 tenant/action 发放。
+**安全。已证实事实**：每个对象的 attached storage 是私有的，其他对象不能直接访问。官方 Data security 说明全部 Durable Object 数据及其 metadata 都会自动静态加密，Worker / Cloudflare network node 与 Durable Object 之间的传输由 TLS/SSL 保护。官方 best practices 把 Worker 放在认证、校验和响应格式层；这些平台能力不等于应用授权。
+
+**安全。个人分析**：生产系统还应限制 key 长度与基数、RPC payload、WebSocket 消息、SQL 查询、外部连接和每主体成本，并让高风险 tool credential 只在实际调用时按 tenant/action 发放。
 
 **可靠性。已证实事实**：对象会因部署、空闲和 runtime 决策重启，没有 shutdown hook；访问 storage 的 in-flight 请求在 shutdown 时可能被停止以保持唯一性。Hibernation 会丢内存，普通 shutdown 也可能终止 WebSocket。客户端必须支持重连、恢复 token/state version 与重复结果，不能把“连接曾经建立”当交付证明。
 
@@ -275,7 +283,8 @@ flowchart TB
 - [Alarms](https://developers.cloudflare.com/durable-objects/api/alarms/)：单 alarm、at-least-once、2 秒起指数退避、最多 6 次 retry、retry info 与有限重试边界。
 - [WebSockets](https://developers.cloudflare.com/durable-objects/best-practices/websockets/) 与 [Lifecycle](https://developers.cloudflare.com/durable-objects/concepts/durable-object-lifecycle/)：server-side hibernation、constructor 重跑、内存丢失、attachment、重启、shutdown 与无 hook 恢复。
 - [Data location](https://developers.cloudflare.com/durable-objects/reference/data-location/)：jurisdiction、首次 `get()`、best-effort `locationHint`、当前 location 不动态变更及其非保证边界。
-- [Durable Object class exports](https://developers.cloudflare.com/durable-objects/reference/durable-objects-migrations/)：2026 年当前 `exports` 与 legacy migrations、create/delete/rename/transfer、storage backend immutability、gradual deployment 和 rollback 限制。
+- [Data security](https://developers.cloudflare.com/durable-objects/reference/data-security/)：attached storage 的对象私有边界、全部数据及 metadata 的静态加密，以及 Worker / Cloudflare network node 与对象间的 TLS/SSL 传输保护。
+- [Durable Object class exports](https://developers.cloudflare.com/durable-objects/reference/durable-objects-migrations/) 与 [Durable Objects changelog](https://developers.cloudflare.com/changelog/product/durable-objects/)：当前 `exports` 与 legacy migrations、create/delete/rename/transfer、storage backend immutability、gradual deployment 和 rollback 限制；2026-07-09 条目限定了哪些账户仍可通过 `new_classes` 新建 KV-backed namespace。
 - [Limits](https://developers.cloudflare.com/durable-objects/platform/limits/) 与 [Metrics and analytics](https://developers.cloudflare.com/durable-objects/observability/metrics-and-analytics/)：单对象 soft throughput、overload、storage/CPU/WebSocket 边界、namespace/per-object 指标与 `$workers.durableObjectId`。
 
 **Cloudflare 官方 reference architecture（已证实事实，访问与截断日期 2026-07-22）**
