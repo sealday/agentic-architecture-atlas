@@ -22,13 +22,63 @@ export const allowedValues = {
   confidence: ['low', 'medium', 'high'],
 };
 
-export const requiredCaseSlugs = [
+export const caseRequiredFields = [
+  'summary',
+  'series',
+  'catalog_order',
+  'featured',
+  'source_kinds',
+  'migration_targets',
+];
+
+export const allowedSeries = [
+  'ai-native',
+  'classic-distributed',
+  'frontend-architecture',
+  'edge-physical',
+];
+
+export const allowedSourceKinds = [
+  'official-docs',
+  'open-source-project',
+  'classic-paper',
+  'engineering-blog',
+  'reference-architecture',
+];
+
+export const requiredMigrationHeadings = [
+  '### 可直接复用的机制',
+  '### 只能有限类比的部分',
+  '### 不应照搬的部分',
+];
+
+export const launchCaseSlugs = [
   '/cases/microsoft-multi-agent-reference-architecture',
   '/cases/openai-agents-sdk',
   '/cases/langgraph-supervisor',
   '/cases/google-adk-a2a',
   '/cases/aws-cli-agent-orchestrator',
 ];
+
+export const classicCollectionSlugs = [
+  ...launchCaseSlugs,
+  '/cases/erlang-otp-supervision-tree',
+  '/cases/kubernetes-reconciliation-loop',
+  '/cases/temporal-saga-durable-execution',
+  '/cases/apache-kafka-consumer-groups',
+  '/cases/aws-cell-shuffle-sharding',
+];
+
+export const requiredCaseSlugs = [
+  ...classicCollectionSlugs,
+  '/cases/micro-frontends-single-spa',
+  '/cases/yjs-crdt-collaboration',
+  '/cases/cloudflare-durable-objects-workerd',
+  '/cases/kubeedge-cloud-edge-autonomy',
+  '/cases/ros2-dds-agent-lifecycle',
+];
+
+export const secondCollectionSlugs = new Set(requiredCaseSlugs.slice(5));
 
 export const requiredCaseHeadings = [
   '## 学习问题',

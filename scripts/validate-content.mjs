@@ -3,15 +3,43 @@ import {fileURLToPath} from 'node:url';
 
 import {readContentDocuments} from './content-metadata.mjs';
 import {
+  allowedSeries,
+  allowedSourceKinds,
   allowedValues,
+  caseRequiredFields,
+  classicCollectionSlugs,
+  launchCaseSlugs,
   requiredCaseHeadings,
+  requiredMigrationHeadings,
   requiredCaseSlugs,
   requiredFields,
+  secondCollectionSlugs,
 } from './content-schema.mjs';
 
-export async function validateContent(root, {requireLaunchCases = false} = {}) {
+const collectionRequirements = {
+  launch: {
+    slugs: launchCaseSlugs,
+    missingLabel: 'launch case',
+  },
+  classic: {
+    slugs: classicCollectionSlugs,
+    missingLabel: 'classic collection case',
+  },
+  complete: {
+    slugs: requiredCaseSlugs,
+    missingLabel: 'complete catalog case',
+  },
+};
+
+export async function validateContent(root, {requiredCollection} = {}) {
+  if (requiredCollection !== undefined && !(requiredCollection in collectionRequirements)) {
+    throw new TypeError(`Unknown required collection "${requiredCollection}"`);
+  }
+
   const documents = await readContentDocuments(root);
   const errors = [];
+  const slugFiles = new Map();
+  const catalogOrderFiles = new Map();
 
   for (const {file, metadata, headings} of documents) {
     for (const field of requiredFields) {
@@ -42,19 +70,106 @@ export async function validateContent(root, {requireLaunchCases = false} = {}) {
     }
 
     if (metadata.content_type === 'case') {
+      for (const field of caseRequiredFields) {
+        if (!(field in metadata)) {
+          errors.push(`${file}: missing required case field "${field}"`);
+        }
+      }
+
+      if (
+        'summary' in metadata &&
+        (typeof metadata.summary !== 'string' || metadata.summary.trim() === '')
+      ) {
+        errors.push(`${file}: field "summary" must be a non-empty string`);
+      }
+
+      if ('series' in metadata && !allowedSeries.includes(metadata.series)) {
+        errors.push(`${file}: invalid series value "${metadata.series}"`);
+      }
+
+      if (
+        'catalog_order' in metadata &&
+        (!Number.isInteger(metadata.catalog_order) || metadata.catalog_order <= 0)
+      ) {
+        errors.push(`${file}: field "catalog_order" must be a positive integer`);
+      }
+
+      if ('featured' in metadata && typeof metadata.featured !== 'boolean') {
+        errors.push(`${file}: field "featured" must be a boolean`);
+      }
+
+      if ('source_kinds' in metadata) {
+        if (!Array.isArray(metadata.source_kinds) || metadata.source_kinds.length === 0) {
+          errors.push(`${file}: field "source_kinds" must be a non-empty array`);
+        } else {
+          for (const value of metadata.source_kinds) {
+            if (!allowedSourceKinds.includes(value)) {
+              errors.push(`${file}: invalid source_kinds value "${value}"`);
+            }
+          }
+        }
+      }
+
+      if ('migration_targets' in metadata) {
+        if (!Array.isArray(metadata.migration_targets) || metadata.migration_targets.length === 0) {
+          errors.push(`${file}: field "migration_targets" must be a non-empty array`);
+        } else {
+          for (const value of metadata.migration_targets) {
+            if (typeof value !== 'string' || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value)) {
+              errors.push(
+                `${file}: invalid migration_targets value "${value}"; expected kebab-case`,
+              );
+            }
+          }
+        }
+      }
+
       for (const heading of requiredCaseHeadings) {
         if (!headings.has(heading)) {
           errors.push(`${file}: missing required case heading "${heading}"`);
         }
       }
+
+      if (secondCollectionSlugs.has(metadata.slug)) {
+        for (const heading of requiredMigrationHeadings) {
+          if (!headings.has(heading)) {
+            errors.push(`${file}: missing required migration heading "${heading}"`);
+          }
+        }
+      }
+
+      if (Number.isInteger(metadata.catalog_order) && metadata.catalog_order > 0) {
+        const conflictingFile = catalogOrderFiles.get(metadata.catalog_order);
+        if (conflictingFile) {
+          errors.push(
+            `${file}: duplicate catalog_order "${metadata.catalog_order}" conflicts with ${conflictingFile}`,
+          );
+        } else {
+          catalogOrderFiles.set(metadata.catalog_order, file);
+        }
+      }
+    }
+
+    if (metadata.slug !== undefined) {
+      const conflictingFile = slugFiles.get(metadata.slug);
+      if (conflictingFile) {
+        errors.push(`${file}: duplicate slug "${metadata.slug}" conflicts with ${conflictingFile}`);
+      } else {
+        slugFiles.set(metadata.slug, file);
+      }
     }
   }
 
-  if (requireLaunchCases) {
-    const documentSlugs = new Set(documents.map(({metadata}) => metadata.slug));
-    for (const slug of requiredCaseSlugs) {
-      if (!documentSlugs.has(slug)) {
-        errors.push(`Missing launch case slug "${slug}"`);
+  if (requiredCollection) {
+    const {slugs, missingLabel} = collectionRequirements[requiredCollection];
+    const caseSlugs = new Set(
+      documents
+        .filter(({metadata}) => metadata.content_type === 'case')
+        .map(({metadata}) => metadata.slug),
+    );
+    for (const slug of slugs) {
+      if (!caseSlugs.has(slug)) {
+        errors.push(`Missing ${missingLabel} slug "${slug}"`);
       }
     }
   }
@@ -67,17 +182,33 @@ export async function validateContent(root, {requireLaunchCases = false} = {}) {
 
 async function runCli() {
   const args = process.argv.slice(2);
-  const requireLaunchCases = args.includes('--require-launch-cases');
+  const collectionFlags = new Map([
+    ['--require-launch-cases', 'launch'],
+    ['--require-classic-collection', 'classic'],
+    ['--require-complete-catalog', 'complete'],
+  ]);
+  const requestedCollections = new Set(
+    args.filter((arg) => collectionFlags.has(arg)).map((arg) => collectionFlags.get(arg)),
+  );
   const root = args.find((arg) => !arg.startsWith('--'));
 
+  if (requestedCollections.size > 1) {
+    console.error('Conflicting coverage flags: choose exactly one catalog coverage flag.');
+    process.exitCode = 1;
+    return;
+  }
+
   if (!root) {
-    console.error('Usage: node scripts/validate-content.mjs <root> [--require-launch-cases]');
+    console.error(
+      'Usage: node scripts/validate-content.mjs <root> [--require-launch-cases | --require-classic-collection | --require-complete-catalog]',
+    );
     process.exitCode = 1;
     return;
   }
 
   try {
-    const {documents, errors} = await validateContent(root, {requireLaunchCases});
+    const [requiredCollection] = requestedCollections;
+    const {documents, errors} = await validateContent(root, {requiredCollection});
 
     if (errors.length > 0) {
       for (const error of errors) {
