@@ -344,5 +344,32 @@
       "SQLite",
       "WebSocket-Hibernation"
     ]
+  },
+  {
+    "title": "KubeEdge Cloud-Edge Autonomy：在断网边界上划分规划权与执行权",
+    "slug": "/cases/kubeedge-cloud-edge-autonomy",
+    "summary": "沿 CloudCore、EdgeCore、设备孪生和断网自治分析云端规划与边缘执行如何分权。",
+    "difficulty": "advanced",
+    "series": "edge-physical",
+    "catalog_order": 14,
+    "featured": false,
+    "source_kinds": [
+      "official-docs",
+      "open-source-project"
+    ],
+    "migration_targets": [
+      "cloud-edge-authority",
+      "disconnected-operation",
+      "desired-reported-state",
+      "policy-sync"
+    ],
+    "tags": [
+      "KubeEdge",
+      "CloudCore",
+      "EdgeCore",
+      "DeviceTwin",
+      "disconnected-operation",
+      "physical-agents"
+    ]
   }
 ]
