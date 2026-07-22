@@ -287,5 +287,33 @@
       "lifecycle",
       "distributed-monolith"
     ]
+  },
+  {
+    "title": "Yjs CRDT Collaboration：让人和多个 Agent 合并共享工作区状态",
+    "slug": "/cases/yjs-crdt-collaboration",
+    "summary": "用 CRDT update、provider、awareness 和离线同步区分收敛数据、临时意图与业务语义。",
+    "difficulty": "advanced",
+    "series": "frontend-architecture",
+    "catalog_order": 12,
+    "featured": false,
+    "source_kinds": [
+      "official-docs",
+      "open-source-project"
+    ],
+    "migration_targets": [
+      "convergent-state",
+      "offline-sync",
+      "collaborative-editing",
+      "ephemeral-awareness"
+    ],
+    "tags": [
+      "yjs",
+      "crdt",
+      "collaborative-editing",
+      "offline-first",
+      "awareness",
+      "state-vector",
+      "multi-agent"
+    ]
   }
 ]
