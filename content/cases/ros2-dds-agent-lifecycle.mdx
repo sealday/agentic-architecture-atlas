@@ -63,6 +63,7 @@ official_sources:
   - https://github.com/ros2/rclcpp/blob/53cf81e42e6530c2ed7a23489d6640966dccd083/rclcpp_action/include/rclcpp_action/server.hpp
   - https://github.com/ros2/rclcpp/blob/53cf81e42e6530c2ed7a23489d6640966dccd083/rclcpp_action/include/rclcpp_action/server_goal_handle.hpp
   - https://github.com/ros2/rclcpp/blob/53cf81e42e6530c2ed7a23489d6640966dccd083/rclcpp_lifecycle/include/rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp
+  - https://github.com/ros2/rclcpp/blob/53cf81e42e6530c2ed7a23489d6640966dccd083/rclcpp_lifecycle/src/lifecycle_node_interface_impl.cpp
   - https://github.com/ros2/rclcpp/blob/53cf81e42e6530c2ed7a23489d6640966dccd083/rclcpp_lifecycle/src/lifecycle_node.cpp
 ---
 
@@ -89,7 +90,7 @@ official_sources:
 | Action | 长任务含 goal、feedback、result 与 cancel 接口 | 规划、导航、操作臂任务和长工具执行 | cancel 自动完成、抢占自动安全、设备已停止 |
 | DDS QoS | 端点按 Request-vs-Offered 匹配；history/depth 管队列，reliability/durability/deadline/liveliness 描述不同交付或时序属性 | 按数据风险和新鲜度定义契约，并监听不兼容、deadline missed、liveliness lost 事件 | “reliable”代表应用正确、deadline 触发停止、liveliness 代表设备安全 |
 | Executor / Callback Group | Executor 从 wait set 取 ready entity；Mutually Exclusive 禁止组内并行，Reentrant 允许并行 | 隔离控制回调、推理回调和管理回调，显式配置线程与优先级 | FIFO、无优先级反转、允许并行就必然并行 |
-| Managed Node | 外部管理者请求 configure/activate/deactivate/cleanup/shutdown；错误进入 ErrorProcessing | supervisor 在资源、策略和联锁校验后才激活 Agent | Active 自动等于有业务权限或满足物理安全条件 |
+| Managed Node | 外部管理者请求 configure/activate/deactivate/cleanup/shutdown；lifecycle transition callback 的异常或 `CallbackReturn::ERROR` 由状态机处理 | supervisor 在资源、策略和联锁校验后才激活 Agent | 普通业务 callback 异常自动触发生命周期转换，或 Active 自动等于有业务权限 |
 
 **已证实事实**：本文只讨论 ROS 2 Jazzy Jalisco。Jazzy 于 2024-05-23 发布、支持到 2029-05；源码固定到 `ros2/ros2` 的 `release-jazzy-20260618`（`a38203a7da336eb123122bc241f53e78d2a0284f`）。该 release 的 `ros2.repos` 固定 `ros2/rclcpp` 为 tag `28.1.21`（`53cf81e42e6530c2ed7a23489d6640966dccd083`）。访问日期为 2026-07-22。
 
@@ -144,7 +145,7 @@ flowchart LR
 4. **激活**：`activate` 成功后进入 Active，受管 publisher/处理链可工作。持续传感器与状态走 Topic；短、有界、最好幂等的查询走 Service；长任务走 Action。
 5. **Action 执行**：server 接受 goal，周期发布 feedback；执行循环检查 deadline、资源预算、授权租约、联锁与 `is_canceling()`。result 只在真实终态后发布。
 6. **协作取消与抢占**：client 请求 cancel；server policy 可接受或拒绝。接受后执行器停止生成新命令、撤销可撤销工具、等待驱动器 receipt/安全状态，再调用 `canceled`。若新 goal 触发 preemption，必须复用这条应用级停止政策，不能并行覆盖旧命令。
-7. **失效与恢复**：deadline missed、liveliness lost、QoS incompatible、callback 超时或设备告警进入观测与策略输入。supervisor 可 deactivate、cleanup、重新 configure；callback 抛错或返回 ERROR 时进入 ErrorProcessing，清理成功回 Unconfigured，否则到 Finalized。
+7. **失效与恢复**：deadline missed、liveliness lost、QoS incompatible、普通 topic/service/action/timer callback 的超时或异常，以及设备告警，都只是应用与 supervisor 必须显式观测的策略输入；它们不会自动触发 Managed Node 生命周期转换。supervisor 需要按策略请求 deactivate、cleanup、重新 configure 或其他恢复。只有 lifecycle transition callback（`on_configure`、`on_activate`、`on_deactivate`、`on_cleanup`、`on_shutdown`、`on_error`）抛出异常或返回 `CallbackReturn::ERROR`，才由 Managed Node 状态机沿错误路径处理：前五类进入 ErrorProcessing；`on_error` 本身在 ErrorProcessing 中执行，其结果决定清理成功后回 Unconfigured，或清理失败后进入 Finalized。
 
 | 通信选择 | 适合 | 必须附加的控制 | 拒绝使用的条件 |
 | --- | --- | --- | --- |
@@ -162,7 +163,7 @@ flowchart LR
 | [`executor.cpp`](https://github.com/ros2/rclcpp/blob/53cf81e42e6530c2ed7a23489d6640966dccd083/rclcpp/src/rclcpp/executor.cpp) | Executor 等待 ready work，再选择并执行 entity | callback 何时运行取决于 Executor、线程、ready 状态和组约束 | 完整队列长度、严格 FIFO、优先级和 WCET 保证 |
 | [`server.hpp`](https://github.com/ros2/rclcpp/blob/53cf81e42e6530c2ed7a23489d6640966dccd083/rclcpp_action/include/rclcpp_action/server.hpp) | 应用 callback 接受/拒绝 goal 与 cancel；接受 cancel 只表示尝试取消 | cancel/preemption policy 属于 action server/application | 自动中断执行线程、自动撤销工具或安全停止设备 |
 | [`server_goal_handle.hpp`](https://github.com/ros2/rclcpp/blob/53cf81e42e6530c2ed7a23489d6640966dccd083/rclcpp_action/include/rclcpp_action/server_goal_handle.hpp) | `canceled(result)` 只可在 canceling 状态调用并进入终态 | 执行循环必须主动观察、清理并提交终态 | cancel request 与 canceled result 同时发生 |
-| [`lifecycle_node_interface.hpp`](https://github.com/ros2/rclcpp/blob/53cf81e42e6530c2ed7a23489d6640966dccd083/rclcpp_lifecycle/include/rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp) 与 [`lifecycle_node.cpp`](https://github.com/ros2/rclcpp/blob/53cf81e42e6530c2ed7a23489d6640966dccd083/rclcpp_lifecycle/src/lifecycle_node.cpp) | 暴露 configure/cleanup/shutdown/activate/deactivate/error callbacks 和 transition 触发接口 | lifecycle manager 有统一控制接缝，节点可实现资源准备与清理 | Active 自动通过权限、联锁或安全认证 |
+| [`lifecycle_node_interface.hpp`](https://github.com/ros2/rclcpp/blob/53cf81e42e6530c2ed7a23489d6640966dccd083/rclcpp_lifecycle/include/rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp)、[`lifecycle_node_interface_impl.cpp`](https://github.com/ros2/rclcpp/blob/53cf81e42e6530c2ed7a23489d6640966dccd083/rclcpp_lifecycle/src/lifecycle_node_interface_impl.cpp) 与 [`lifecycle_node.cpp`](https://github.com/ros2/rclcpp/blob/53cf81e42e6530c2ed7a23489d6640966dccd083/rclcpp_lifecycle/src/lifecycle_node.cpp) | 暴露六个 lifecycle transition callback；实现只捕获这些 callback 的异常并映射为 `CallbackReturn::ERROR`，再沿状态机错误路径处理 | lifecycle manager 有统一控制接缝；普通 ROS callback 的异常必须另行观测和恢复 | 任意 callback 异常自动触发生命周期转换，或 Active 自动通过权限/联锁认证 |
 
 **已证实事实**：Jazzy Executor 文档说明消息留在 middleware 层，wait set 对每个队列只给一个 ready 标志；积压时 Executor 只知道“有消息”，按 round-robin 处理 ready entity，而非严格 FIFO。默认 Executor 还可能出现混合调度、优先级反转和缺少显式执行顺序的问题。
 
@@ -190,7 +191,7 @@ flowchart LR
 | 生产控制 | 最小机制 | 必须观测 | 失效与恢复 |
 | --- | --- | --- | --- |
 | 身份与权限 | SROS2/DDS Security identity/permissions CA、签名 governance/permissions、每角色 enclave、default deny；应用层 goal/tool capability | enclave、证书指纹/到期、subject、permission deny、goal/device/tool scope | 撤销并轮换凭证；权限材料无效保持 Inactive；不得回退 permissive |
-| 生命周期授权 | 外部 lifecycle manager；`alive/configured/active/authorized` 四态分离；激活前校验策略与联锁 | lifecycle state/transition、policy version、authority lease、activation reason | deactivate → cleanup → configure；失败进 ErrorProcessing/Finalized 并升级人工 |
+| 生命周期授权 | 外部 lifecycle manager；`alive/configured/active/authorized` 四态分离；激活前校验策略与联锁 | lifecycle state/transition、policy version、authority lease、activation reason | 普通 callback 故障由 supervisor 显式请求恢复；lifecycle transition callback 的异常/`ERROR` 才沿 ErrorProcessing 路径处理 |
 | 资源限额 | Executor 线程、callback WCET、DDS depth/resource limits、CPU/GPU/内存、Action 并发和 feedback 频率上限 | queue age、callback latency、deadline miss、drop、OOM、goal admission/reject | admission control、丢弃陈旧感知、降级推理；保留安全 callback 预算 |
 | Backpressure | 有界 Keep Last/队列、按数据类别丢弃、Service 限时、Action goal admission、发布限速 | DDS backlog 的替代指标、sample age、in-flight goal、reject、feedback lag | 停收新 goal、取消低优先任务、保留最新状态；禁止无界重试 |
 | 幂等与效果 | request/goal UUID、operation ID、设备 command sequence、下游 idempotency key、terminal receipt | duplicate、retry、unknown effect、base/result version、最终设备状态 | 同 ID 返回既有结果；unknown effect 禁止盲重放并转人工核对 |
@@ -258,6 +259,6 @@ flowchart LR
 - [Managed nodes design](https://design.ros2.org/articles/node_lifecycle.html)：Unconfigured/Inactive/Active/Finalized，configure/activate/deactivate/cleanup/shutdown、ErrorProcessing，以及外部 supervisory process/lifecycle management software 的职责。该文档最后修改于 2021-02，本文以 Jazzy 源码核对实现接缝，不把它伪装成 2026 release note。
 - [`callback_group.hpp`](https://github.com/ros2/rclcpp/blob/53cf81e42e6530c2ed7a23489d6640966dccd083/rclcpp/include/rclcpp/callback_group.hpp) 与 [`executor.cpp`](https://github.com/ros2/rclcpp/blob/53cf81e42e6530c2ed7a23489d6640966dccd083/rclcpp/src/rclcpp/executor.cpp)：callback 并发合同与 Executor 等待/选择/执行路径。
 - [`rclcpp_action/server.hpp`](https://github.com/ros2/rclcpp/blob/53cf81e42e6530c2ed7a23489d6640966dccd083/rclcpp_action/include/rclcpp_action/server.hpp) 与 [`server_goal_handle.hpp`](https://github.com/ros2/rclcpp/blob/53cf81e42e6530c2ed7a23489d6640966dccd083/rclcpp_action/include/rclcpp_action/server_goal_handle.hpp)：goal/cancel callback、cancel 接受边界、`is_canceling` 与 `canceled` 终态。
-- [`lifecycle_node_interface.hpp`](https://github.com/ros2/rclcpp/blob/53cf81e42e6530c2ed7a23489d6640966dccd083/rclcpp_lifecycle/include/rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp) 与 [`lifecycle_node.cpp`](https://github.com/ros2/rclcpp/blob/53cf81e42e6530c2ed7a23489d6640966dccd083/rclcpp_lifecycle/src/lifecycle_node.cpp)：Jazzy 的生命周期 callback 与 transition API。
+- [`lifecycle_node_interface.hpp`](https://github.com/ros2/rclcpp/blob/53cf81e42e6530c2ed7a23489d6640966dccd083/rclcpp_lifecycle/include/rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp)、[`lifecycle_node_interface_impl.cpp`](https://github.com/ros2/rclcpp/blob/53cf81e42e6530c2ed7a23489d6640966dccd083/rclcpp_lifecycle/src/lifecycle_node_interface_impl.cpp) 与 [`lifecycle_node.cpp`](https://github.com/ros2/rclcpp/blob/53cf81e42e6530c2ed7a23489d6640966dccd083/rclcpp_lifecycle/src/lifecycle_node.cpp)：Jazzy 的六个 lifecycle transition callback、异常到 `CallbackReturn::ERROR` 的映射，以及 transition API。
 
 **证据边界说明**：Agent 通信映射、业务 authority、goal/tool/device 细粒度授权、资源预算、幂等 operation ID、cancel race fencing、独立安全回路、观测字段和恢复 runbook 是依据 Jazzy 原语形成的“基于证据的推断”或“个人分析”，不是 ROS 2 官方的自动保证。Rolling、Kilted、Lyrical 和未固定分支源码不支持本文结论。
