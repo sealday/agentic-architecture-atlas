@@ -1,0 +1,126 @@
+[
+  {
+    "title": "Microsoft 多智能体参考架构：企业治理下的受控自治",
+    "slug": "/cases/microsoft-multi-agent-reference-architecture",
+    "summary": "从注册、编排、记忆到治理，分析企业级多智能体平台如何约束自治边界。",
+    "difficulty": "advanced",
+    "series": "ai-native",
+    "catalog_order": 1,
+    "featured": true,
+    "source_kinds": [
+      "official-docs",
+      "open-source-project",
+      "reference-architecture"
+    ],
+    "migration_targets": [
+      "platform-governance",
+      "agent-registry",
+      "bounded-autonomy"
+    ],
+    "tags": [
+      "Microsoft",
+      "参考架构",
+      "企业治理",
+      "受控自治"
+    ]
+  },
+  {
+    "title": "OpenAI Agents SDK：小型多智能体系统的控制权模型",
+    "slug": "/cases/openai-agents-sdk",
+    "summary": "比较 Manager、Handoff 与代码编排，理解小型多智能体系统的控制权配置。",
+    "difficulty": "intermediate",
+    "series": "ai-native",
+    "catalog_order": 2,
+    "featured": true,
+    "source_kinds": [
+      "official-docs",
+      "open-source-project"
+    ],
+    "migration_targets": [
+      "control-ownership",
+      "handoff",
+      "deterministic-orchestration"
+    ],
+    "tags": [
+      "OpenAI",
+      "Agents SDK",
+      "控制权",
+      "多智能体编排"
+    ]
+  },
+  {
+    "title": "LangGraph Supervisor：用显式状态构建可恢复的多智能体编排",
+    "slug": "/cases/langgraph-supervisor",
+    "summary": "沿显式状态图、并行分支与检查点，分析长任务如何恢复并持续收敛。",
+    "difficulty": "advanced",
+    "series": "ai-native",
+    "catalog_order": 3,
+    "featured": true,
+    "source_kinds": [
+      "official-docs",
+      "open-source-project"
+    ],
+    "migration_targets": [
+      "stateful-orchestration",
+      "checkpoint-recovery",
+      "fan-out-fan-in"
+    ],
+    "tags": [
+      "LangGraph",
+      "Supervisor",
+      "Checkpoint",
+      "状态归约",
+      "多智能体编排"
+    ]
+  },
+  {
+    "title": "Google ADK 与 A2A：从本地层级编排到跨系统智能体协作",
+    "slug": "/cases/google-adk-a2a",
+    "summary": "区分进程内层级编排与跨系统协议，厘清 Agent、工作流和互操作边界。",
+    "difficulty": "advanced",
+    "series": "ai-native",
+    "catalog_order": 4,
+    "featured": true,
+    "source_kinds": [
+      "official-docs",
+      "open-source-project"
+    ],
+    "migration_targets": [
+      "hierarchical-agents",
+      "protocol-boundaries",
+      "remote-agent-interoperability"
+    ],
+    "tags": [
+      "Google ADK",
+      "A2A",
+      "MCP",
+      "层级智能体",
+      "远程智能体"
+    ]
+  },
+  {
+    "title": "AWS Labs CLI Agent Orchestrator：以终端为执行边界的 Supervisor–Worker 编排",
+    "slug": "/cases/aws-cli-agent-orchestrator",
+    "summary": "以编码任务为切面，研究 Supervisor–Worker、进程隔离、消息传递与工具接入。",
+    "difficulty": "advanced",
+    "series": "ai-native",
+    "catalog_order": 5,
+    "featured": true,
+    "source_kinds": [
+      "official-docs",
+      "open-source-project"
+    ],
+    "migration_targets": [
+      "supervisor-worker",
+      "process-isolation",
+      "tool-governance"
+    ],
+    "tags": [
+      "AWS Labs",
+      "CLI Agent Orchestrator",
+      "Supervisor Worker",
+      "tmux",
+      "MCP"
+    ]
+  }
+]
