@@ -76,7 +76,7 @@ function assertCatalogEntry(value: unknown, index: number): asserts value is Cas
   if (!difficulties.has(entry.difficulty as CaseDifficulty)) {
     throw new Error(`Catalog entry ${entry.slug} has an unknown difficulty.`);
   }
-  if (!((entry.series as string) in seriesLabels)) {
+  if (!Object.hasOwn(seriesLabels, entry.series as string)) {
     throw new Error(`Catalog entry ${entry.slug} has no series label.`);
   }
   if (
@@ -87,7 +87,7 @@ function assertCatalogEntry(value: unknown, index: number): asserts value is Cas
   }
 }
 
-function assertCatalog(value: unknown): asserts value is CaseCatalogEntry[] {
+export function assertCaseCatalog(value: unknown): asserts value is CaseCatalogEntry[] {
   if (!Array.isArray(value) || value.length === 0) {
     throw new Error('Generated case catalog must not be empty.');
   }
@@ -111,7 +111,7 @@ function assertCatalog(value: unknown): asserts value is CaseCatalogEntry[] {
 }
 
 const importedCatalog: unknown = generatedCatalog;
-assertCatalog(importedCatalog);
+assertCaseCatalog(importedCatalog);
 
 export const caseCatalog: readonly CaseCatalogEntry[] = importedCatalog;
 export const featuredCases = caseCatalog.filter(({featured}) => featured);

@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+  assertCaseCatalog,
   caseCatalog,
   featuredCases,
   secondCollectionCases,
@@ -77,6 +78,16 @@ test('derives the current featured and second-collection views from generated da
     Object.keys(seriesLabels),
     ['ai-native', 'classic-distributed', 'frontend-architecture', 'edge-physical'],
   );
+});
+
+test('rejects prototype-inherited names as generated catalog series', () => {
+  for (const series of ['constructor', 'toString', '__proto__']) {
+    assert.throws(
+      () => assertCaseCatalog([{...fixture[0], series}]),
+      /has no series label/,
+      series,
+    );
+  }
 });
 
 test('groups a complete fixture in fixed series order and omits empty groups', () => {
