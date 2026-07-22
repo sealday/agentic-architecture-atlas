@@ -371,5 +371,31 @@
       "disconnected-operation",
       "physical-agents"
     ]
+  },
+  {
+    "title": "ROS 2 + DDS Agent Lifecycle：为物理智能体选择通信语义与受管状态",
+    "slug": "/cases/ros2-dds-agent-lifecycle",
+    "summary": "用 Topic、Service、Action、DDS QoS 与 Managed Node 区分消息流、工具调用、长任务和执行授权。",
+    "difficulty": "advanced",
+    "series": "edge-physical",
+    "catalog_order": 15,
+    "featured": false,
+    "source_kinds": [
+      "official-docs",
+      "open-source-project",
+      "reference-architecture"
+    ],
+    "migration_targets": [
+      "communication-semantics",
+      "managed-lifecycle",
+      "qos-policy",
+      "task-cancellation"
+    ],
+    "tags": [
+      "ROS 2",
+      "DDS",
+      "生命周期",
+      "物理智能体"
+    ]
   }
 ]
