@@ -9,6 +9,7 @@ import {
   findContentFiles,
   findMarkdownHeadings,
   parseFrontMatter,
+  readContentDocuments,
 } from '../scripts/content-metadata.mjs';
 
 test('parses catalog scalar types and arrays', () => {
@@ -64,12 +65,37 @@ test('discovers Markdown files recursively in sorted order', async () => {
   }
 });
 
+test('reads content documents with the public result shape', async () => {
+  const root = await mkdtemp(path.join(tmpdir(), 'content-documents-'));
+  const filePath = path.join(root, 'nested', 'case.mdx');
+  const source = '---\ntitle: A case\nfeatured: true\n---\n## Body';
+
+  try {
+    await mkdir(path.dirname(filePath), {recursive: true});
+    await writeFile(filePath, source);
+
+    assert.deepEqual(await readContentDocuments(root), [
+      {
+        filePath,
+        file: 'nested/case.mdx',
+        source,
+        body: '## Body',
+        metadata: {title: 'A case', featured: true},
+        headings: new Set(['## Body']),
+      },
+    ]);
+  } finally {
+    await rm(root, {recursive: true, force: true});
+  }
+});
+
 test('finds only real Markdown headings', () => {
   const paddedHeading = '   ### Trimmed   ';
   const source = `---
 fake: ## Front matter
 ---
 ## Real
+## Inline comment <!-- note -->
 ${paddedHeading}
 #### Not collected
 \`\`\`md
@@ -84,6 +110,7 @@ ${paddedHeading}
 ~~~`;
   assert.deepEqual([...findMarkdownHeadings(extractMarkdownBody(source))], [
     '## Real',
+    '## Inline comment',
     '### Trimmed',
   ]);
 });

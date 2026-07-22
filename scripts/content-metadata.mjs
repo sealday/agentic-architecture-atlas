@@ -120,29 +120,47 @@ export function findMarkdownHeadings(source) {
       continue;
     }
 
-    if (inHtmlComment) {
-      if (line.includes('-->')) {
+    let content = '';
+    let cursor = 0;
+
+    while (cursor < line.length) {
+      if (inHtmlComment) {
+        const commentEnd = line.indexOf('-->', cursor);
+        if (commentEnd === -1) {
+          cursor = line.length;
+          continue;
+        }
+
+        content += ' ';
         inHtmlComment = false;
+        cursor = commentEnd + 3;
+        continue;
       }
-      continue;
-    }
 
-    const commentStart = line.indexOf('<!--');
-    if (commentStart !== -1) {
-      if (line.indexOf('-->', commentStart + 4) === -1) {
+      const commentStart = line.indexOf('<!--', cursor);
+      if (commentStart === -1) {
+        content += line.slice(cursor);
+        break;
+      }
+
+      content += `${line.slice(cursor, commentStart)} `;
+      const commentEnd = line.indexOf('-->', commentStart + 4);
+      if (commentEnd === -1) {
         inHtmlComment = true;
+        break;
       }
-      continue;
+
+      cursor = commentEnd + 3;
     }
 
-    const openingFence = line.match(/^ {0,3}([`~]{3,})(?:[^\r\n]*)$/);
+    const openingFence = content.match(/^ {0,3}([`~]{3,})(?:[^\r\n]*)$/);
     if (openingFence) {
       fence = {marker: openingFence[1][0], length: openingFence[1].length};
       continue;
     }
 
-    if (/^ {0,3}#{2,3}(?!#)(?:[ \t]+.*)?$/.test(line)) {
-      headings.add(line.trim());
+    if (/^ {0,3}#{2,3}(?!#)(?:[ \t]+.*)?$/.test(content)) {
+      headings.add(content.trim());
     }
   }
 
