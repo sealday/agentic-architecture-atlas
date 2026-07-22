@@ -6,6 +6,7 @@ import {
   allowedSeries,
   allowedSourceKinds,
   allowedValues,
+  caseCatalogManifest,
   caseRequiredFields,
   classicCollectionSlugs,
   launchCaseSlugs,
@@ -31,8 +32,15 @@ const collectionRequirements = {
   },
 };
 
+const approvedCatalogOrders = new Map(
+  caseCatalogManifest.map(({slug, catalog_order}) => [slug, catalog_order]),
+);
+
 export async function validateContent(root, {requiredCollection} = {}) {
-  if (requiredCollection !== undefined && !(requiredCollection in collectionRequirements)) {
+  if (
+    requiredCollection !== undefined &&
+    !Object.hasOwn(collectionRequirements, requiredCollection)
+  ) {
     throw new TypeError(`Unknown required collection "${requiredCollection}"`);
   }
 
@@ -92,6 +100,16 @@ export async function validateContent(root, {requiredCollection} = {}) {
         (!Number.isInteger(metadata.catalog_order) || metadata.catalog_order <= 0)
       ) {
         errors.push(`${file}: field "catalog_order" must be a positive integer`);
+      }
+
+      const approvedCatalogOrder = approvedCatalogOrders.get(metadata.slug);
+      if (
+        approvedCatalogOrder !== undefined &&
+        metadata.catalog_order !== approvedCatalogOrder
+      ) {
+        errors.push(
+          `${file}: slug "${metadata.slug}" has invalid approved catalog_order; expected ${approvedCatalogOrder}, actual ${metadata.catalog_order}`,
+        );
       }
 
       if ('featured' in metadata && typeof metadata.featured !== 'boolean') {

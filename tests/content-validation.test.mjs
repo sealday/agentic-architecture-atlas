@@ -7,13 +7,38 @@ import test from 'node:test';
 import {fileURLToPath} from 'node:url';
 
 import {
+  classicCollectionSlugs,
   launchCaseSlugs,
+  requiredCaseSlugs,
   requiredCaseHeadings,
   requiredMigrationHeadings,
+  secondCollectionSlugs,
 } from '../scripts/content-schema.mjs';
 import {validateContent} from '../scripts/validate-content.mjs';
 
 const validatorScript = fileURLToPath(new URL('../scripts/validate-content.mjs', import.meta.url));
+
+const expectedCaseCatalog = [
+  {slug: '/cases/microsoft-multi-agent-reference-architecture', catalog_order: 1},
+  {slug: '/cases/openai-agents-sdk', catalog_order: 2},
+  {slug: '/cases/langgraph-supervisor', catalog_order: 3},
+  {slug: '/cases/google-adk-a2a', catalog_order: 4},
+  {slug: '/cases/aws-cli-agent-orchestrator', catalog_order: 5},
+  {slug: '/cases/erlang-otp-supervision-tree', catalog_order: 6},
+  {slug: '/cases/kubernetes-reconciliation-loop', catalog_order: 7},
+  {slug: '/cases/temporal-saga-durable-execution', catalog_order: 8},
+  {slug: '/cases/apache-kafka-consumer-groups', catalog_order: 9},
+  {slug: '/cases/aws-cell-shuffle-sharding', catalog_order: 10},
+  {slug: '/cases/micro-frontends-single-spa', catalog_order: 11},
+  {slug: '/cases/yjs-crdt-collaboration', catalog_order: 12},
+  {slug: '/cases/cloudflare-durable-objects-workerd', catalog_order: 13},
+  {slug: '/cases/kubeedge-cloud-edge-autonomy', catalog_order: 14},
+  {slug: '/cases/ros2-dds-agent-lifecycle', catalog_order: 15},
+];
+
+const expectedLaunchCases = expectedCaseCatalog.slice(0, 5);
+const expectedClassicCases = expectedCaseCatalog.slice(0, 10);
+const expectedSecondCollectionCases = expectedCaseCatalog.slice(5);
 
 async function withTempRoot(run) {
   const root = await mkdtemp(path.join(tmpdir(), 'content-validation-'));
@@ -118,9 +143,32 @@ test('rejects an invalid enum with field and value context', async () => {
   });
 });
 
+test('exports the literal approved catalog coverage in canonical order', () => {
+  assert.deepEqual(
+    launchCaseSlugs,
+    expectedLaunchCases.map(({slug}) => slug),
+  );
+  assert.deepEqual(
+    classicCollectionSlugs,
+    expectedClassicCases.map(({slug}) => slug),
+  );
+  assert.deepEqual(
+    requiredCaseSlugs,
+    expectedCaseCatalog.map(({slug}) => slug),
+  );
+  assert.deepEqual(
+    [...secondCollectionSlugs],
+    expectedSecondCollectionCases.map(({slug}) => slug),
+  );
+});
+
 test('reports staged catalog coverage failures', async () => {
   await withTempRoot(async (root) => {
-    await writeMdx(root, 'openai.mdx', validCaseFrontMatter('/cases/openai-agents-sdk'));
+    await writeMdx(
+      root,
+      'openai.mdx',
+      validCaseFrontMatter('/cases/openai-agents-sdk', {catalog_order: 2}),
+    );
 
     const result = await validateContent(root, {requiredCollection: 'launch'});
 
@@ -145,11 +193,11 @@ test('reports staged catalog coverage failures', async () => {
 
   await withTempRoot(async (root) => {
     await Promise.all(
-      launchCaseSlugs.map((slug, index) =>
+      expectedLaunchCases.map(({slug, catalog_order}) =>
         writeMdx(
           root,
-          `case-${index + 1}.mdx`,
-          validCaseFrontMatter(slug, {catalog_order: index + 1}),
+          `case-${catalog_order}.mdx`,
+          validCaseFrontMatter(slug, {catalog_order}),
         ),
       ),
     );
@@ -205,11 +253,11 @@ test('accepts all five valid launch cases with HTTPS official sources', async ()
 
   await withTempRoot(async (root) => {
     await Promise.all(
-      launchCaseSlugs.map((slug, index) =>
+      expectedLaunchCases.map(({slug, catalog_order}) =>
         writeMdx(
           root,
-          `case-${index + 1}.mdx`,
-          validCaseFrontMatter(slug, {catalog_order: index + 1}),
+          `case-${catalog_order}.mdx`,
+          validCaseFrontMatter(slug, {catalog_order}),
         ),
       ),
     );
@@ -331,21 +379,101 @@ test('validates catalog metadata only for cases', async () => {
     await writeMdx(
       root,
       'reference.mdx',
-      validCaseFrontMatter('/references/catalog', {
-        content_type: 'reference',
-        summary: '',
-        series: 'unknown',
-        catalog_order: 'first',
-        featured: 'yes',
-        source_kinds: [],
-        migration_targets: [],
-      }),
+      [
+        'title: Catalog reference',
+        'slug: /references/catalog',
+        'content_type: reference',
+        'status: reviewed',
+        'difficulty: beginner',
+        'analyzed_at: 2026-07-20',
+        'source_cutoff: 2026-07-01',
+        'confidence: high',
+        'domains: []',
+        'agent_patterns: []',
+        'protocols: []',
+        'quality_attributes: []',
+        'tags: []',
+        'official_sources:',
+        '  - https://example.com/official',
+      ].join('\n'),
       '# Reference',
     );
 
     const result = await validateContent(root);
 
     assert.deepEqual(result.errors, []);
+  });
+});
+
+test('rejects swapped canonical orders for approved launch cases', async () => {
+  await withTempRoot(async (root) => {
+    await Promise.all(
+      expectedLaunchCases.map(({slug, catalog_order}) => {
+        const swappedOrder = catalog_order === 1 ? 2 : catalog_order === 2 ? 1 : catalog_order;
+        return writeMdx(
+          root,
+          `case-${catalog_order}.mdx`,
+          validCaseFrontMatter(slug, {catalog_order: swappedOrder}),
+        );
+      }),
+    );
+
+    const result = await validateContent(root, {requiredCollection: 'launch'});
+    const orderErrors = result.errors.filter((error) =>
+      error.includes('approved catalog_order'),
+    );
+
+    assert.equal(orderErrors.length, 2);
+    assert.ok(
+      orderErrors.some(
+        (error) =>
+          error.includes('case-1.mdx') &&
+          error.includes('/cases/microsoft-multi-agent-reference-architecture') &&
+          error.includes('expected 1') &&
+          error.includes('actual 2'),
+      ),
+    );
+    assert.ok(
+      orderErrors.some(
+        (error) =>
+          error.includes('case-2.mdx') &&
+          error.includes('/cases/openai-agents-sdk') &&
+          error.includes('expected 2') &&
+          error.includes('actual 1'),
+      ),
+    );
+  });
+});
+
+test('rejects a unique wrong order for every approved case', async () => {
+  for (const {slug, catalog_order} of expectedCaseCatalog) {
+    await withTempRoot(async (root) => {
+      const actualOrder = catalog_order + 100;
+      const relativePath = `cases/case-${catalog_order}.mdx`;
+      await writeMdx(
+        root,
+        relativePath,
+        validCaseFrontMatter(slug, {catalog_order: actualOrder}),
+      );
+
+      const result = await validateContent(root);
+      const orderErrors = result.errors.filter((error) =>
+        error.includes('approved catalog_order'),
+      );
+
+      assert.deepEqual(orderErrors, [
+        `${relativePath}: slug "${slug}" has invalid approved catalog_order; expected ${catalog_order}, actual ${actualOrder}`,
+      ]);
+    });
+  }
+});
+
+test('rejects prototype properties as unknown required collections', async () => {
+  await withTempRoot(async (root) => {
+    await assert.rejects(
+      validateContent(root, {requiredCollection: 'constructor'}),
+      /Unknown required collection "constructor"/,
+    );
   });
 });
 

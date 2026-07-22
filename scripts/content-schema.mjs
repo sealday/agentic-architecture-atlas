@@ -52,33 +52,33 @@ export const requiredMigrationHeadings = [
   '### 不应照搬的部分',
 ];
 
-export const launchCaseSlugs = [
-  '/cases/microsoft-multi-agent-reference-architecture',
-  '/cases/openai-agents-sdk',
-  '/cases/langgraph-supervisor',
-  '/cases/google-adk-a2a',
-  '/cases/aws-cli-agent-orchestrator',
+export const caseCatalogManifest = [
+  {slug: '/cases/microsoft-multi-agent-reference-architecture', catalog_order: 1},
+  {slug: '/cases/openai-agents-sdk', catalog_order: 2},
+  {slug: '/cases/langgraph-supervisor', catalog_order: 3},
+  {slug: '/cases/google-adk-a2a', catalog_order: 4},
+  {slug: '/cases/aws-cli-agent-orchestrator', catalog_order: 5},
+  {slug: '/cases/erlang-otp-supervision-tree', catalog_order: 6},
+  {slug: '/cases/kubernetes-reconciliation-loop', catalog_order: 7},
+  {slug: '/cases/temporal-saga-durable-execution', catalog_order: 8},
+  {slug: '/cases/apache-kafka-consumer-groups', catalog_order: 9},
+  {slug: '/cases/aws-cell-shuffle-sharding', catalog_order: 10},
+  {slug: '/cases/micro-frontends-single-spa', catalog_order: 11},
+  {slug: '/cases/yjs-crdt-collaboration', catalog_order: 12},
+  {slug: '/cases/cloudflare-durable-objects-workerd', catalog_order: 13},
+  {slug: '/cases/kubeedge-cloud-edge-autonomy', catalog_order: 14},
+  {slug: '/cases/ros2-dds-agent-lifecycle', catalog_order: 15},
 ];
 
-export const classicCollectionSlugs = [
-  ...launchCaseSlugs,
-  '/cases/erlang-otp-supervision-tree',
-  '/cases/kubernetes-reconciliation-loop',
-  '/cases/temporal-saga-durable-execution',
-  '/cases/apache-kafka-consumer-groups',
-  '/cases/aws-cell-shuffle-sharding',
-];
+export const launchCaseSlugs = caseCatalogManifest.slice(0, 5).map(({slug}) => slug);
 
-export const requiredCaseSlugs = [
-  ...classicCollectionSlugs,
-  '/cases/micro-frontends-single-spa',
-  '/cases/yjs-crdt-collaboration',
-  '/cases/cloudflare-durable-objects-workerd',
-  '/cases/kubeedge-cloud-edge-autonomy',
-  '/cases/ros2-dds-agent-lifecycle',
-];
+export const classicCollectionSlugs = caseCatalogManifest.slice(0, 10).map(({slug}) => slug);
 
-export const secondCollectionSlugs = new Set(requiredCaseSlugs.slice(5));
+export const requiredCaseSlugs = caseCatalogManifest.map(({slug}) => slug);
+
+export const secondCollectionSlugs = new Set(
+  caseCatalogManifest.slice(5).map(({slug}) => slug),
+);
 
 export const requiredCaseHeadings = [
   '## 学习问题',
