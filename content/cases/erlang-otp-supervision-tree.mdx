@@ -119,8 +119,9 @@ flowchart TB
         S --> B["child B：依赖 A"]
         S --> C["child C：依赖 B"]
         C --> X{"EXIT 原因 + restart type"}
-        X --> R{"strategy + intensity/period"}
-        R -->|"预算内"| A1["one_for_one / one_for_all / rest_for_one"]
+        X -->|"permanent；或 transient 异常退出"| R{"intensity/period"}
+        X -->|"temporary；或 transient 正常/shutdown 退出"| N["不重启；从监督状态移除"]
+        R -->|"预算内"| A1["按 strategy 恢复：one_for_one / one_for_all / rest_for_one"]
         R -->|"超过强度"| SD["当前 supervisor shutdown"]
         SD --> P
     end
@@ -140,18 +141,20 @@ flowchart TB
     R -. "机制类比，不是进程等价" .-> B1
 ```
 
+左侧流程按默认 `auto_shutdown=never` 建模，因此“不重启”分支只表达 child 不再恢复，没有把 significant child 的自动关闭混入 restart type 判断。
+
 图中 OTP 的升级事件是 supervisor 自身退出；Agent 平台中的升级不应只是一条异常。它至少要携带任务版本、输入与状态快照、已执行工具调用、外部资源标识、尝试历史、评估结果、费用与风险预算，才能让更高层或人工安全接管。
 
 ## 控制权与任务流
 
 **Worker 与 supervisor 的职责分离。** OTP worker 承担业务行为，supervisor 持有 child specification、处理退出信号、选择重启范围并执行关闭。子进程通过 `start` 指定的函数被创建并与 supervisor 建立链接；supervisor 设置 `trap_exit` 后把退出信号作为消息处理。业务进程不拥有“我还能重启几次”的最终决定权。
 
-**四层决策顺序。** 一次退出不是直接进入某种 strategy。实际逻辑先找到退出的 child，再用 restart type 与退出原因决定是否需要重启；只有需要重启时才记入强度窗口，随后应用 `one_for_one`、`one_for_all` 或 `rest_for_one`。如果记账结果已超限，则不再进入局部策略，而是让当前 supervisor 退出。
+**五层决策顺序。** 一次退出不是直接进入某种 strategy。实际逻辑先找到退出的 child，再用 restart type 与退出原因决定是否需要重启；只有需要重启时才记入强度窗口，随后应用 `one_for_one`、`one_for_all` 或 `rest_for_one`。如果记账结果已超限，则不再进入局部策略，而是让当前 supervisor 退出。
 
 | 决策层 | 输入 | OTP 动作 | Agent 迁移问题 |
 | --- | --- | --- | --- |
 | 1. 识别对象 | `Pid` | 找到对应 child spec | 哪个任务、Agent、工具调用或协作组失败？ |
-| 2. 判断是否恢复 | exit reason + restart type | 重启、删除规格或触发自动关闭 | 这是 crash、质量失败、工具失败还是业务拒绝？ |
+| 2. 判断是否恢复 | exit reason + restart type | 进入重启路径或从监督状态移除 | 这是 crash、质量失败、工具失败还是业务拒绝？ |
 | 3. 检查局部预算 | `intensity` + `period` | 允许重启或当前层 shutdown | 是否还满足次数、费用、时限、配额和风险预算？ |
 | 4. 选择恢复范围 | strategy + child order | 单个、全部或依赖后缀 | 哪些状态共享同一不变量，哪些结果已可安全保留？ |
 | 5. 向上升级 | supervisor exit | 父 supervisor 重启或继续退出 | 上层是否能扩大恢复范围，还是必须交给人？ |
