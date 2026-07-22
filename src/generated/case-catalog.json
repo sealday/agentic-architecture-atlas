@@ -122,5 +122,30 @@
       "tmux",
       "MCP"
     ]
+  },
+  {
+    "title": "Erlang/OTP Supervision Tree：把失败恢复设计成层级控制协议",
+    "slug": "/cases/erlang-otp-supervision-tree",
+    "summary": "从监督树、重启策略和故障升级中提炼 Agent 失败恢复与人工接管边界。",
+    "difficulty": "intermediate",
+    "series": "classic-distributed",
+    "catalog_order": 6,
+    "featured": false,
+    "source_kinds": [
+      "official-docs",
+      "open-source-project"
+    ],
+    "migration_targets": [
+      "failure-supervision",
+      "restart-strategy",
+      "retry-escalation",
+      "human-handoff"
+    ],
+    "tags": [
+      "Erlang",
+      "OTP",
+      "supervision-tree",
+      "fault-tolerance"
+    ]
   }
 ]
