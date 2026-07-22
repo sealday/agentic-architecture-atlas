@@ -33,6 +33,8 @@ official_sources:
   - https://github.com/awslabs/cli-agent-orchestrator
 ---
 
+import CaseCatalog from '@site/src/components/CaseCatalog';
+
 # 案例库
 
 案例库用统一模板拆解真实项目，避免把框架术语、公开事实与作者判断混在一起。每篇案例依次使用十个固定标题：学习问题、一页摘要、事实边界、架构图、控制权与任务流、关键源码导读、架构决策与权衡、生产化分析、可迁移经验、来源。
@@ -45,14 +47,10 @@ official_sources:
 
 ## 筛选维度
 
-每篇案例都用 `domains`、`agent_patterns`、`protocols`、`quality_attributes`、`difficulty`、`status`、`confidence`、`analyzed_at` 与 `source_cutoff` 描述可筛选元数据。读者可以据此按领域、控制模式、协议、质量目标、阅读难度和证据新鲜度横向比较，而不必只依赖产品名称。
+目录提供系列、阅读难度、来源类型与迁移目标四个筛选维度，用来横向比较案例的学习路径、证据基础和可复用的架构经验。案例正文仍使用“已证实事实”、“基于证据的推断”和“个人分析”标签区分证据强度；筛选条件不会改变这些证据边界。
 
-## 首批案例
+## 全部案例
 
-1. [OpenAI Agents SDK：控制原语](/cases/openai-agents-sdk)
-2. [LangGraph Supervisor：持久化编排](/cases/langgraph-supervisor)
-3. [Google ADK 与 A2A：层级协作和互操作](/cases/google-adk-a2a)
-4. [Microsoft 多智能体参考架构：企业治理](/cases/microsoft-multi-agent-reference-architecture)
-5. [AWS CLI Agent Orchestrator：编码智能体专业化](/cases/aws-cli-agent-orchestrator)
+<CaseCatalog />
 
 这五篇只是案例库的首批集合，用来覆盖不同控制模型和生产约束，不是系统的数量上限或永久边界。后续案例仍应遵循同一模板和证据纪律。
