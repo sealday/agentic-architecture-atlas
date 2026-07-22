@@ -1,33 +1,52 @@
 import type {ReactNode} from 'react';
 import Link from '@docusaurus/Link';
 import Heading from '@theme/Heading';
-import type {FeaturedCase} from '@site/src/data/featuredCases';
+import type {CaseCatalogEntry, SourceKind} from '@site/src/data/caseCatalog';
 
 import styles from './styles.module.css';
 
 type CaseCardProps = {
-  caseStudy: FeaturedCase;
+  caseStudy: CaseCatalogEntry;
+};
+
+const sourceKindLabels: Record<SourceKind, string> = {
+  'official-docs': '官方文档',
+  'open-source-project': '开源项目',
+  'classic-paper': '经典论文',
+  'engineering-blog': '工程博客',
+  'reference-architecture': '参考架构',
 };
 
 export default function CaseCard({caseStudy}: CaseCardProps): ReactNode {
-  const {number, title, subtitle, href, patterns, evidenceLabel} = caseStudy;
+  const {
+    catalog_order,
+    title,
+    slug,
+    summary,
+    migration_targets,
+    source_kinds,
+  } = caseStudy;
+  const caseNumber = String(catalog_order).padStart(2, '0');
+  const evidenceLabel = source_kinds
+    .map((sourceKind) => sourceKindLabels[sourceKind])
+    .join(' · ');
 
   return (
     <article className={styles.card}>
-      <Link className={styles.cardLink} to={href} aria-label={`阅读案例：${title}`}>
+      <Link className={styles.cardLink} to={slug} aria-label={`阅读案例：${title}`}>
         <div className={styles.archiveLine}>
           <span className={styles.number} aria-hidden="true">
-            CASE {number}
+            CASE {caseNumber}
           </span>
           <span className={styles.evidence}>{evidenceLabel}</span>
         </div>
         <Heading as="h3" className={styles.title}>
           {title}
         </Heading>
-        <p className={styles.subtitle}>{subtitle}</p>
+        <p className={styles.subtitle}>{summary}</p>
         <ul className={styles.patterns} aria-label="涉及的架构主题">
-          {patterns.slice(0, 3).map((pattern) => (
-            <li key={pattern}>{pattern}</li>
+          {migration_targets.slice(0, 3).map((migrationTarget) => (
+            <li key={migrationTarget}>{migrationTarget}</li>
           ))}
         </ul>
         <span className={styles.readMore} aria-hidden="true">

@@ -181,6 +181,7 @@
 }
 
 .featuredSection,
+.migrationSection,
 .pathSection,
 .expansionSection,
 .contributionSection {
@@ -192,6 +193,7 @@
   background: var(--atlas-paper-muted);
 }
 
+.migrationSection,
 .pathSection,
 .contributionSection {
   background: var(--atlas-paper);
@@ -246,6 +248,70 @@
 
 .caseGrid > article:nth-last-child(-n + 2) {
   grid-column: span 3;
+}
+
+.migrationSection {
+  border-top: 1px solid var(--atlas-line);
+}
+
+.migrationGroups {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.25rem;
+  margin-top: 2.5rem;
+}
+
+.migrationGroup {
+  min-width: 0;
+  border-top: 2px solid var(--ifm-color-primary);
+  padding-top: 1rem;
+}
+
+.migrationGroup > h3 {
+  margin-bottom: 0.4rem;
+  font-size: 1.05rem;
+  line-height: 1.4;
+}
+
+.migrationGroup > ul,
+.migrationItem > ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.migrationItem {
+  border-top: 1px solid var(--atlas-line);
+  padding: 1rem 0;
+}
+
+.migrationItem h4 {
+  margin-bottom: 0.65rem;
+  font-size: 0.96rem;
+  line-height: 1.5;
+}
+
+.migrationItem > ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-bottom: 0.75rem;
+}
+
+.migrationItem > ul li {
+  border: 1px solid var(--atlas-line);
+  border-radius: 999px;
+  background: var(--atlas-paper-muted);
+  color: var(--atlas-ink-soft);
+  font-size: 0.68rem;
+  line-height: 1.35;
+  padding: 0.22rem 0.5rem;
+}
+
+.migrationItem > a {
+  color: var(--ifm-color-primary);
+  font-size: 0.78rem;
+  font-weight: 700;
 }
 
 .pathSection {
@@ -444,6 +510,7 @@
   }
 
   .caseGrid,
+  .migrationGroups,
   .portGrid {
     grid-template-columns: 1fr;
   }

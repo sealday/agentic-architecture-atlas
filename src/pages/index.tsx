@@ -4,8 +4,23 @@ import Layout from '@theme/Layout';
 import Heading from '@theme/Heading';
 
 import CaseCard from '@site/src/components/CaseCard';
-import {featuredCases} from '@site/src/data/featuredCases';
+import {groupCasesBySeries} from '@site/src/components/CaseCatalog/filterCases';
+import {
+  featuredCases,
+  secondCollectionCases,
+  seriesLabels,
+} from '@site/src/data/caseCatalog';
 import styles from './index.module.css';
+
+const migrationSeries = [
+  'classic-distributed',
+  'frontend-architecture',
+  'edge-physical',
+] as const;
+
+const migrationGroups = groupCasesBySeries(secondCollectionCases).filter(({series}) =>
+  migrationSeries.some((migrationSeriesName) => migrationSeriesName === series),
+);
 
 const learningSteps = [
   ['先问边界', '确认谁在做决策、谁持有状态，以及哪些能力其实属于框架之外。'],
@@ -130,11 +145,48 @@ export default function Home(): ReactNode {
             </div>
             <div className={styles.caseGrid}>
               {featuredCases.map((caseStudy) => (
-                <CaseCard key={caseStudy.href} caseStudy={caseStudy} />
+                <CaseCard key={caseStudy.slug} caseStudy={caseStudy} />
               ))}
             </div>
           </div>
         </section>
+
+        {migrationGroups.length > 0 && (
+          <section
+            className={styles.migrationSection}
+            aria-labelledby="migration-map-title">
+            <div className="container">
+              <SectionHeading
+                id="migration-map-title"
+                eyebrow="MIGRATION MAP"
+                title="经典架构迁移地图"
+                description="这不是 AI 框架排名，而是从经典分布式、前端协同与边缘系统中研究可迁移的架构机制。"
+              />
+              <div className={styles.migrationGroups}>
+                {migrationGroups.map((group) => (
+                  <section className={styles.migrationGroup} key={group.series}>
+                    <Heading as="h3">{seriesLabels[group.series]}</Heading>
+                    <ul>
+                      {group.cases.map((caseStudy) => (
+                        <li className={styles.migrationItem} key={caseStudy.slug}>
+                          <Heading as="h4">{caseStudy.title}</Heading>
+                          <ul aria-label="迁移目标">
+                            {caseStudy.migration_targets.slice(0, 2).map((migrationTarget) => (
+                              <li key={migrationTarget}>{migrationTarget}</li>
+                            ))}
+                          </ul>
+                          <Link to={caseStudy.slug} aria-label={`阅读案例：${caseStudy.title}`}>
+                            阅读案例 <span aria-hidden="true">→</span>
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </section>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
 
         <section className={styles.pathSection} aria-labelledby="learning-path-title">
           <div className="container">

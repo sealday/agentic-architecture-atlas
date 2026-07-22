@@ -72,6 +72,10 @@ const noFilters = {
 test('derives the current featured and second-collection views from generated data', () => {
   assert.equal(caseCatalog.length, 5);
   assert.equal(featuredCases.length, 5);
+  assert.deepEqual(
+    featuredCases.map(({catalog_order}) => catalog_order),
+    [1, 2, 3, 4, 5],
+  );
   assert.equal(secondCollectionCases.length, 0);
   assert.ok(featuredCases.every((entry) => caseCatalog.includes(entry)));
   assert.deepEqual(
@@ -95,13 +99,19 @@ test('groups a complete fixture in fixed series order and omits empty groups', (
   assert.equal(new Set(fixture.map(({catalog_order}) => catalog_order)).size, 15);
 
   const secondCollection = fixture.filter(({featured}) => !featured);
+  const secondCollectionGroups = groupCasesBySeries(secondCollection);
+  assert.equal(secondCollection.length, 10);
   assert.deepEqual(
-    groupCasesBySeries(secondCollection).map(({series, cases}) => [series, cases.length]),
+    secondCollectionGroups.map(({series, cases}) => [series, cases.length]),
     [
       ['classic-distributed', 5],
       ['frontend-architecture', 2],
       ['edge-physical', 3],
     ],
+  );
+  assert.equal(
+    secondCollectionGroups.some(({series}) => series === 'ai-native'),
+    false,
   );
 });
 
