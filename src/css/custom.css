@@ -179,10 +179,14 @@ button:focus-visible,
   box-shadow: none;
 }
 
-.theme-doc-markdown table {
-  display: table;
-  min-width: 42rem;
-  margin: 0;
+.theme-doc-markdown > table {
+  display: block;
+  width: max-content;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+  -webkit-overflow-scrolling: touch;
 }
 
 .theme-doc-markdown table thead {
