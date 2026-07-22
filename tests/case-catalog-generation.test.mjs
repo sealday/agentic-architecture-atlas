@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 import {mkdtemp, mkdir, readFile, rm, writeFile} from 'node:fs/promises';
+import {syncBuiltinESMExports} from 'node:module';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
@@ -144,6 +146,35 @@ test('builds a deterministic catalog containing only ordered case fields', async
     assert.ok(firstSerialization.endsWith('\n'));
     assert.ok(!firstSerialization.endsWith('\n\n'));
     assert.ok(!firstSerialization.includes(contentRoot));
+  });
+});
+
+test('builds the catalog from the validated document snapshot without rereading sources', async () => {
+  await withCatalogFixture(async (contentRoot) => {
+    const originalReadFile = fs.promises.readFile;
+    let sourceReads = 0;
+
+    fs.promises.readFile = async (...args) => {
+      const [filePath] = args;
+      if (
+        typeof filePath === 'string' &&
+        filePath.startsWith(contentRoot) &&
+        /\.mdx?$/.test(filePath)
+      ) {
+        sourceReads += 1;
+      }
+      return originalReadFile(...args);
+    };
+    syncBuiltinESMExports();
+
+    try {
+      await buildCaseCatalog(contentRoot);
+    } finally {
+      fs.promises.readFile = originalReadFile;
+      syncBuiltinESMExports();
+    }
+
+    assert.equal(sourceReads, 3, 'each discovered source document should be read once');
   });
 });
 

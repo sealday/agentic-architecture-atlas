@@ -2,7 +2,6 @@ import {mkdir, readFile, writeFile} from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 
-import {readContentDocuments} from './content-metadata.mjs';
 import {validateContent} from './validate-content.mjs';
 
 export const catalogFields = [
@@ -42,8 +41,7 @@ export async function buildCaseCatalog(root) {
     throw new Error(`Content validation failed:\n${validation.errors.join('\n')}`);
   }
 
-  const documents = await readContentDocuments(root);
-  return documents
+  return validation.documents
     .filter(({metadata}) => metadata.content_type === 'case')
     .map(({metadata}) =>
       Object.fromEntries(catalogFields.map((field) => [field, metadata[field]])),

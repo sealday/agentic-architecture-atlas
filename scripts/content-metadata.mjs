@@ -103,11 +103,13 @@ export function extractMarkdownBody(source) {
 }
 
 export function findMarkdownHeadings(source) {
-  const headings = new Set();
+  const headings = [];
   let fence;
   let inHtmlComment = false;
+  let lineOffset = 0;
+  const normalizedSource = source.replace(/^\uFEFF/, '');
 
-  for (const line of source.replace(/^\uFEFF/, '').split(/\r?\n/)) {
+  for (const line of normalizedSource.split(/\r?\n/)) {
     if (fence) {
       const closingFence = line.match(/^ {0,3}([`~]{3,})[ \t]*$/);
       if (
@@ -117,6 +119,7 @@ export function findMarkdownHeadings(source) {
       ) {
         fence = undefined;
       }
+      lineOffset += line.length + (normalizedSource.startsWith('\r\n', lineOffset + line.length) ? 2 : 1);
       continue;
     }
 
@@ -155,18 +158,28 @@ export function findMarkdownHeadings(source) {
     }
 
     if (htmlCommentOwnsLine) {
+      lineOffset += line.length + (normalizedSource.startsWith('\r\n', lineOffset + line.length) ? 2 : 1);
       continue;
     }
 
     const openingFence = content.match(/^ {0,3}([`~]{3,})(?:[^\r\n]*)$/);
     if (openingFence) {
       fence = {marker: openingFence[1][0], length: openingFence[1].length};
+      lineOffset += line.length + (normalizedSource.startsWith('\r\n', lineOffset + line.length) ? 2 : 1);
       continue;
     }
 
-    if (/^ {0,3}#{2,3}(?!#)(?:[ \t]+.*)?$/.test(content)) {
-      headings.add(content.trim());
+    const heading = content.match(/^( {0,3})(#{2,3})(?!#)(?:[ \t]+(.*?))?[ \t]*$/);
+    if (heading) {
+      const text = (heading[3] ?? '').replace(/[ \t]+#+[ \t]*$/, '').trim();
+      headings.push({
+        level: heading[2].length,
+        text,
+        offset: lineOffset + heading[1].length,
+      });
     }
+
+    lineOffset += line.length + (normalizedSource.startsWith('\r\n', lineOffset + line.length) ? 2 : 1);
   }
 
   return headings;

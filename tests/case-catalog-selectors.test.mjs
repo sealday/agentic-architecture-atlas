@@ -7,6 +7,7 @@ import {
   featuredCases,
   secondCollectionCases,
   seriesLabels,
+  sourceKindLabels,
 } from '../src/data/caseCatalog.ts';
 import {
   collectFilterOptions,
@@ -95,6 +96,16 @@ test('derives the current featured and second-collection views from generated da
     Object.keys(seriesLabels),
     ['ai-native', 'classic-distributed', 'frontend-architecture', 'edge-physical'],
   );
+});
+
+test('provides the shared Chinese source-kind labels for catalog consumers', () => {
+  assert.deepEqual(sourceKindLabels, {
+    'official-docs': '官方文档',
+    'open-source-project': '开源项目',
+    'classic-paper': '经典论文',
+    'engineering-blog': '工程博客',
+    'reference-architecture': '参考架构',
+  });
 });
 
 test('rejects prototype-inherited names as generated catalog series', () => {

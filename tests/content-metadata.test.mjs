@@ -81,7 +81,7 @@ test('reads content documents with the public result shape', async () => {
         source,
         body: '## Body',
         metadata: {title: 'A case', featured: true},
-        headings: new Set(['## Body']),
+        headings: [{level: 2, text: 'Body', offset: 0}],
       },
     ]);
   } finally {
@@ -98,6 +98,9 @@ fake: ## Front matter
 ## Inline comment <!-- note -->
 ${paddedHeading}
 #### Not collected
+> ## Blockquoted
+prose ## Not a heading
+##Not a heading
 \`\`\`md
 ## Fenced
 \`\`\`
@@ -108,15 +111,26 @@ ${paddedHeading}
 ~~~md
 ## Tilde fenced
 ~~~`;
-  assert.deepEqual([...findMarkdownHeadings(extractMarkdownBody(source))], [
-    '## Real',
-    '## Inline comment',
-    '### Trimmed',
+  const body = extractMarkdownBody(source);
+  assert.deepEqual(findMarkdownHeadings(body), [
+    {level: 2, text: 'Real', offset: body.indexOf('## Real')},
+    {level: 2, text: 'Inline comment', offset: body.indexOf('## Inline comment')},
+    {level: 3, text: 'Trimmed', offset: body.indexOf('### Trimmed')},
+  ]);
+});
+
+test('returns ordered heading tokens without collapsing duplicates', () => {
+  const source = '## First\n\n### Child\n\n## First';
+
+  assert.deepEqual(findMarkdownHeadings(source), [
+    {level: 2, text: 'First', offset: source.indexOf('## First')},
+    {level: 3, text: 'Child', offset: source.indexOf('### Child')},
+    {level: 2, text: 'First', offset: source.lastIndexOf('## First')},
   ]);
 });
 
 test('ignores a heading suffix after an inline HTML comment that owns the line', () => {
-  assert.deepEqual([...findMarkdownHeadings('<!-- note --> ## Hidden')], []);
+  assert.deepEqual(findMarkdownHeadings('<!-- note --> ## Hidden'), []);
 });
 
 test('ignores a heading suffix on a multiline HTML comment closing line', () => {
@@ -124,5 +138,5 @@ test('ignores a heading suffix on a multiline HTML comment closing line', () => 
 note
 --> ## Hidden`;
 
-  assert.deepEqual([...findMarkdownHeadings(source)], []);
+  assert.deepEqual(findMarkdownHeadings(source), []);
 });

@@ -5,9 +5,9 @@ import Heading from '@theme/Heading';
 import {
   caseCatalog,
   seriesLabels,
+  sourceKindLabels,
   type CatalogFilters,
   type CaseDifficulty,
-  type SourceKind,
 } from '../../data/caseCatalog';
 import {
   collectFilterOptions,
@@ -20,14 +20,6 @@ const difficultyLabels: Record<CaseDifficulty, string> = {
   beginner: '入门',
   intermediate: '进阶',
   advanced: '高级',
-};
-
-const sourceKindLabels: Record<SourceKind, string> = {
-  'official-docs': '官方文档',
-  'open-source-project': '开源项目',
-  'classic-paper': '经典论文',
-  'engineering-blog': '工程博客',
-  'reference-architecture': '参考架构',
 };
 
 const emptyFilters: CatalogFilters = {

@@ -374,6 +374,57 @@ test('rejects a case missing required analysis sections', async () => {
   }
 });
 
+test('rejects case H2 sections in a non-canonical order', async () => {
+  await withTempRoot(async (root) => {
+    const relativePath = 'cases/reordered-h2.mdx';
+    const body = validCaseBody
+      .replace('## 学习问题\n\n## 一页摘要', '## 一页摘要\n\n## 学习问题');
+    await writeMdx(
+      root,
+      relativePath,
+      validCaseFrontMatter('/cases/reordered-h2'),
+      body,
+    );
+
+    const result = await validateContent(root);
+
+    assert.ok(
+      result.errors.some(
+        (error) =>
+          error.includes(`${relativePath}: invalid case H2 sequence`) &&
+          error.includes('expected "## 学习问题"') &&
+          error.includes('actual "## 一页摘要"'),
+      ),
+    );
+  });
+});
+
+test('rejects duplicate case H2 sections', async () => {
+  await withTempRoot(async (root) => {
+    const relativePath = 'cases/duplicate-h2.mdx';
+    const body = validCaseBody.replace(
+      '## 一页摘要',
+      '## 学习问题\n\n## 一页摘要',
+    );
+    await writeMdx(
+      root,
+      relativePath,
+      validCaseFrontMatter('/cases/duplicate-h2'),
+      body,
+    );
+
+    const result = await validateContent(root);
+
+    assert.ok(
+      result.errors.some(
+        (error) =>
+          error.includes(`${relativePath}: expected exactly 10 case H2 headings`) &&
+          error.includes('found 11'),
+      ),
+    );
+  });
+});
+
 test('validates catalog metadata only for cases', async () => {
   await withTempRoot(async (root) => {
     await writeMdx(
@@ -600,6 +651,86 @@ test('requires migration analysis headings for second-collection cases', async (
       ]);
     });
   }
+});
+
+test('requires migration H3 headings to belong to the migration section', async () => {
+  await withTempRoot(async (root) => {
+    const relativePath = 'cases/relocated-migration-h3.mdx';
+    const migrationHeadings = requiredMigrationHeadings.join('\n\n');
+    const body = validCaseBody
+      .replace('## 学习问题', `## 学习问题\n\n${migrationHeadings}`)
+      .replace(`\n\n${migrationHeadings}\n\n## 来源`, '\n\n## 来源');
+    await writeMdx(
+      root,
+      relativePath,
+      validCaseFrontMatter('/cases/erlang-otp-supervision-tree', {catalog_order: 6}),
+      body,
+    );
+
+    const result = await validateContent(root);
+
+    assert.ok(
+      result.errors.some(
+        (error) =>
+          error.includes(`${relativePath}: migration H3 headings must appear under`) &&
+          error.includes('"## 可迁移经验"'),
+      ),
+    );
+  });
+});
+
+test('rejects migration H3 headings in a non-canonical order', async () => {
+  await withTempRoot(async (root) => {
+    const relativePath = 'cases/reordered-migration-h3.mdx';
+    const reversedHeadings = [...requiredMigrationHeadings].reverse().join('\n\n');
+    const body = validCaseBody.replace(
+      requiredMigrationHeadings.join('\n\n'),
+      reversedHeadings,
+    );
+    await writeMdx(
+      root,
+      relativePath,
+      validCaseFrontMatter('/cases/erlang-otp-supervision-tree', {catalog_order: 6}),
+      body,
+    );
+
+    const result = await validateContent(root);
+
+    assert.ok(
+      result.errors.some(
+        (error) =>
+          error.includes(`${relativePath}: invalid migration H3 sequence`) &&
+          error.includes(`expected "${requiredMigrationHeadings[0]}"`) &&
+          error.includes(`actual "${requiredMigrationHeadings.at(-1)}"`),
+      ),
+    );
+  });
+});
+
+test('rejects duplicate migration H3 headings', async () => {
+  await withTempRoot(async (root) => {
+    const relativePath = 'cases/duplicate-migration-h3.mdx';
+    const body = validCaseBody.replace(
+      requiredMigrationHeadings[1],
+      `${requiredMigrationHeadings[0]}\n\n${requiredMigrationHeadings[1]}`,
+    );
+    await writeMdx(
+      root,
+      relativePath,
+      validCaseFrontMatter('/cases/erlang-otp-supervision-tree', {catalog_order: 6}),
+      body,
+    );
+
+    const result = await validateContent(root);
+
+    assert.ok(
+      result.errors.some(
+        (error) =>
+          error.includes(`${relativePath}: expected exactly 3 migration H3 headings`) &&
+          error.includes('found 4'),
+      ),
+    );
+  });
 });
 
 test('does not count migration headings hidden outside Markdown body structure', async () => {

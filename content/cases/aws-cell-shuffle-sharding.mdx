@@ -258,7 +258,7 @@ flowchart TB
 
 **疏散演练。** 定期选择一个非关键 cell，模拟 router cache stale、控制面不可用、目标 cell 容量不足、state copy 中断、旧 executor 迟到写和 credential revoke 延迟。成功条件包括：未迁移 tenant 无影响；迁移 tenant 的 RPO/RTO 达标；没有双重 owner；所有外部副作用可对账；旧 cell tombstone 生效；目标 cell 仍保有 headroom。没有演练证据就不能把 evacuation 写成恢复承诺。
 
-**安全与滥用。** 攻击者可能选择 tenant/resource key 寻找 overlap，或制造高成本 prompt 迫使 shard 内重试。placement 应使用服务端 secret 的 keyed hash，外部不可预测；seed rotation 需要双读/迁移 epoch。每 tenant 仍要有 rate/cost/tool policy，poison signature 隔离与 quarantine cell。shuffle sharding降低资源相遇概率，不替代认证、授权、输入验证、内容安全或 DDoS 防护。
+**安全与滥用。** 攻击者可能选择 tenant/resource key 寻找 overlap，或制造高成本 prompt 迫使 shard 内重试。placement 应使用服务端 secret 的 keyed hash，外部不可预测；seed rotation 需要双读/迁移 epoch。每 tenant 仍要有 rate/cost/tool policy，poison signature 隔离与 quarantine cell。shuffle sharding 降低资源相遇概率，不替代认证、授权、输入验证、内容安全或 DDoS 防护。
 
 **不可违反的边界。** 一个 Agent run 不得跨 cell 借用模型额度、executor、queue、memory、data 或 credential 来“完成目标”；一个 cell 不得因控制面短暂不可用而丢失已有 placement；一个 retry 不得逃出 tenant shard；一个迁移不得只有路由切换而没有 state/fence；一个归档库不得被描述为 AWS 当前实现或生产建议。
 

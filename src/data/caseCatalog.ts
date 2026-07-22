@@ -42,6 +42,14 @@ export const seriesLabels: Record<CaseSeries, string> = {
   'edge-physical': '边缘与物理智能体',
 };
 
+export const sourceKindLabels: Record<SourceKind, string> = {
+  'official-docs': '官方文档',
+  'open-source-project': '开源项目',
+  'classic-paper': '经典论文',
+  'engineering-blog': '工程博客',
+  'reference-architecture': '参考架构',
+};
+
 const difficulties = new Set<CaseDifficulty>(['beginner', 'intermediate', 'advanced']);
 const sourceKinds = new Set<SourceKind>([
   'official-docs',

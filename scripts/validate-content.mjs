@@ -36,6 +36,86 @@ const approvedCatalogOrders = new Map(
   caseCatalogManifest.map(({slug, catalog_order}) => [slug, catalog_order]),
 );
 
+function headingText(heading) {
+  return heading.replace(/^#{2,3}[ \t]+/, '');
+}
+
+function formatHeading({level, text}) {
+  return `${'#'.repeat(level)} ${text}`;
+}
+
+function validateCaseHeadingContract(file, headings, errors) {
+  const caseH2Headings = headings.filter(({level}) => level === 2);
+
+  for (const requiredHeading of requiredCaseHeadings) {
+    if (!caseH2Headings.some(({text}) => text === headingText(requiredHeading))) {
+      errors.push(`${file}: missing required case heading "${requiredHeading}"`);
+    }
+  }
+
+  if (caseH2Headings.length !== requiredCaseHeadings.length) {
+    errors.push(
+      `${file}: expected exactly ${requiredCaseHeadings.length} case H2 headings; found ${caseH2Headings.length}`,
+    );
+  }
+
+  for (const [index, expectedHeading] of requiredCaseHeadings.entries()) {
+    const actualHeading = caseH2Headings[index];
+    if (actualHeading && actualHeading.text !== headingText(expectedHeading)) {
+      errors.push(
+        `${file}: invalid case H2 sequence at position ${index + 1}; expected "${expectedHeading}", actual "${formatHeading(actualHeading)}"`,
+      );
+    }
+  }
+}
+
+function validateMigrationHeadingContract(file, headings, errors) {
+  const migrationH2Index = headings.findIndex(
+    ({level, text}) => level === 2 && text === headingText('## 可迁移经验'),
+  );
+  const nextH2Index = headings.findIndex(
+    ({level}, index) => index > migrationH2Index && level === 2,
+  );
+  const migrationSectionEnd = nextH2Index === -1 ? headings.length : nextH2Index;
+  const migrationSectionH3s =
+    migrationH2Index === -1
+      ? []
+      : headings
+          .slice(migrationH2Index + 1, migrationSectionEnd)
+          .filter(({level}) => level === 3);
+
+  for (const requiredHeading of requiredMigrationHeadings) {
+    if (!headings.some(({level, text}) => level === 3 && text === headingText(requiredHeading))) {
+      errors.push(`${file}: missing required migration heading "${requiredHeading}"`);
+    }
+  }
+
+  if (migrationSectionH3s.length !== requiredMigrationHeadings.length) {
+    errors.push(
+      `${file}: expected exactly ${requiredMigrationHeadings.length} migration H3 headings under "## 可迁移经验"; found ${migrationSectionH3s.length}`,
+    );
+  }
+
+  const misplacedRequiredHeading = headings.some(
+    ({level, text}, index) =>
+      level === 3 &&
+      requiredMigrationHeadings.some((heading) => headingText(heading) === text) &&
+      (index <= migrationH2Index || index >= migrationSectionEnd),
+  );
+  if (misplacedRequiredHeading) {
+    errors.push(`${file}: migration H3 headings must appear under "## 可迁移经验" before the next H2`);
+  }
+
+  for (const [index, expectedHeading] of requiredMigrationHeadings.entries()) {
+    const actualHeading = migrationSectionH3s[index];
+    if (actualHeading && actualHeading.text !== headingText(expectedHeading)) {
+      errors.push(
+        `${file}: invalid migration H3 sequence at position ${index + 1}; expected "${expectedHeading}", actual "${formatHeading(actualHeading)}"`,
+      );
+    }
+  }
+}
+
 export async function validateContent(root, {requiredCollection} = {}) {
   if (
     requiredCollection !== undefined &&
@@ -142,18 +222,10 @@ export async function validateContent(root, {requiredCollection} = {}) {
         }
       }
 
-      for (const heading of requiredCaseHeadings) {
-        if (!headings.has(heading)) {
-          errors.push(`${file}: missing required case heading "${heading}"`);
-        }
-      }
+      validateCaseHeadingContract(file, headings, errors);
 
       if (secondCollectionSlugs.has(metadata.slug)) {
-        for (const heading of requiredMigrationHeadings) {
-          if (!headings.has(heading)) {
-            errors.push(`${file}: missing required migration heading "${heading}"`);
-          }
-        }
+        validateMigrationHeadingContract(file, headings, errors);
       }
 
       if (Number.isInteger(metadata.catalog_order) && metadata.catalog_order > 0) {

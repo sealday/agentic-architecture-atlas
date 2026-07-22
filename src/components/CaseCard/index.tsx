@@ -1,20 +1,15 @@
 import type {ReactNode} from 'react';
 import Link from '@docusaurus/Link';
 import Heading from '@theme/Heading';
-import type {CaseCatalogEntry, SourceKind} from '@site/src/data/caseCatalog';
+import {
+  sourceKindLabels,
+  type CaseCatalogEntry,
+} from '@site/src/data/caseCatalog';
 
 import styles from './styles.module.css';
 
 type CaseCardProps = {
   caseStudy: CaseCatalogEntry;
-};
-
-const sourceKindLabels: Record<SourceKind, string> = {
-  'official-docs': '官方文档',
-  'open-source-project': '开源项目',
-  'classic-paper': '经典论文',
-  'engineering-blog': '工程博客',
-  'reference-architecture': '参考架构',
 };
 
 export default function CaseCard({caseStudy}: CaseCardProps): ReactNode {
