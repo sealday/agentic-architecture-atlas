@@ -259,5 +259,33 @@
       "tenant-isolation",
       "blast-radius"
     ]
+  },
+  {
+    "title": "Micro Frontends + single-spa：用垂直业务切片约束多 Agent 所有权",
+    "slug": "/cases/micro-frontends-single-spa",
+    "summary": "从运行时组合、独立部署和生命周期契约中分析 Agent 团队边界与共享 Shell。",
+    "difficulty": "intermediate",
+    "series": "frontend-architecture",
+    "catalog_order": 11,
+    "featured": false,
+    "source_kinds": [
+      "official-docs",
+      "open-source-project",
+      "engineering-blog"
+    ],
+    "migration_targets": [
+      "vertical-ownership",
+      "runtime-composition",
+      "lifecycle-contract",
+      "independent-delivery"
+    ],
+    "tags": [
+      "micro-frontends",
+      "single-spa",
+      "vertical-slicing",
+      "independent-deployment",
+      "lifecycle",
+      "distributed-monolith"
+    ]
   }
 ]
