@@ -168,7 +168,7 @@ flowchart TB
 5. **工作负载执行。** Edged 启动后从 MetaManager 查询本地 pod 列表，向 lite kubelet 提交 `SET`，并通过 CRI 管理容器、探针和 pod lifecycle。它能维持已有工作负载，不代表能在离线时完成新的调度、镜像拉取、存储挂载、Secret 获取或跨节点编排。
 6. **设备闭环。** 云端 desired 下发后，EdgeCore 内部转换为 DeviceTwin expected；Mapper 接收并对物理设备执行，采集 actual，再上报为 CRD reported，并回写 observedDesired 表明本轮已观察的期望。DeviceTwin SQLite 保存当前 twin 与版本并生成 delta，但物理效果是否发生仍要由 Mapper/设备回执与安全传感器验证。
 7. **断网继续。** EdgeHub 标记 disconnected 后，本地 Edged、CRI、DeviceTwin、Mapper 和应用进程可以继续运行；本地查询使用已有 metadata。云端新意图到不了现场，边缘新状态也暂时上不去。任何依赖云 API、在线授权、远程 Secret 或跨站点共识的动作必须失败关闭或进入降级模式。
-8. **重连协调。** EdgeHub 新建连接并广播 connected；需要 ACK 的资源继续按版本同步，MetaManager 周期上报 pod status。DeviceTwin 从 disconnected 变为 connected 时会请求 membership detail；后续显式 twin sync 或新的设备报告可更新云端 reported/observedDesired，但断网期间被跳过的所有发云消息不会自动变成完整重放日志。重复和迟到消息必须按资源/twin/业务版本判定，不能按到达顺序覆盖。
+8. **重连协调。** EdgeHub 新建连接并广播 connected；需要 ACK 的资源继续按版本同步。Edged/lite kubelet 周期生成 pod status，并经 MetaManager 上报云端。DeviceTwin 从 disconnected 变为 connected 时会请求 membership detail；后续显式 twin sync 或新的设备报告可更新云端 reported/observedDesired，但断网期间被跳过的所有发云消息不会自动变成完整重放日志。重复和迟到消息必须按资源/twin/业务版本判定，不能按到达顺序覆盖。
 9. **冲突处理。** 若断网期间云端 desired 已改变，而边缘 outbox 记录了旧授权下的结果，先保留两者：云端意图是当前规划候选，边缘记录是已发生事实候选。可逆低风险动作按策略重算；不可逆或无法证明的动作冻结并转人工，禁止盲重放。
 
 **基于证据的推断**：对于 Agent，云端下发的不是一条无限期“自主运行”开关，而是一个可验证 bundle：`lease_id`、`policy_version`、`model_digest`、`tool_digest`、`device_set`、`risk_ceiling`、`not_before`、`expires_at`、`max_offline_duration`、预算和撤销 epoch。边缘只接受签名有效、版本不降级、设备身份匹配且仍在时间窗内的 bundle。
