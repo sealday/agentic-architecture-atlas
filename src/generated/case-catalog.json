@@ -147,5 +147,31 @@
       "supervision-tree",
       "fault-tolerance"
     ]
+  },
+  {
+    "title": "Kubernetes Reconciliation Loop：让智能体围绕期望状态持续收敛",
+    "slug": "/cases/kubernetes-reconciliation-loop",
+    "summary": "用 spec/status、控制循环和幂等协调分析多智能体系统如何从命令执行转向目标收敛。",
+    "difficulty": "advanced",
+    "series": "classic-distributed",
+    "catalog_order": 7,
+    "featured": false,
+    "source_kinds": [
+      "official-docs",
+      "open-source-project"
+    ],
+    "migration_targets": [
+      "desired-state-convergence",
+      "idempotent-reconciliation",
+      "controller-ownership",
+      "bounded-autonomy"
+    ],
+    "tags": [
+      "Kubernetes",
+      "reconciliation-loop",
+      "desired-state",
+      "idempotency",
+      "controller"
+    ]
   }
 ]
