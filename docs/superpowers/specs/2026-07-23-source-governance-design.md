@@ -90,6 +90,9 @@ GitHub `#L` 锚点或 query/fragment 变体可以引用同一个 source ID，不
       "license_scope": "Page text and diagrams; linked third-party material excluded",
       "license_evidence_url": "https://c4model.com/",
       "license_evidence_note": "No reuse license is declared on the checked page",
+      "license_family_id": "https://c4model.com/",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
       "copyright_policy": "facts-and-short-quotation",
       "usage_boundary": "Defines the model; does not prove that a concrete architecture is fit.",
       "link_policy": "stable",
@@ -228,9 +231,22 @@ license inventory、增加 schema 测试和对应处理策略。
 许可证记录必须配套 `license_scope`，明确它覆盖当前页面、仓库代码、单个图片，还是仅覆盖部分
 材料。仓库许可证不自动覆盖 README 中链接的文章、书籍、视频和图片。
 
-Task 2 迁移前必须先通过 Node inventory gate：严格解析九列表格，校验每行 evidence URL/note、
+Task 2 迁移前必须先通过 Node inventory gate：严格解析十一列表格，校验每行 evidence URL/note、
 exact license、scope 与 migration policy，并证明现有 40 篇文档提取出的每个 candidate source
 family 都有记录。文本 grep 不能代替结构与覆盖校验。
+
+license family identity 规则：
+
+- GitHub URL 规范为 `github:<lowercase-owner>/<lowercase-repo>`；同 repo 的文件、tree、blob、query
+  和多个 `#L` 锚点共享仓库 license family。
+- DOI URL 或 `doi:` identifier 先 percent-decode 一次、Unicode NFC、移除 URL query/fragment，
+  再把 DOI identifier lowercase，规范为 `doi:10.<registrant>/<suffix>`。不同完整 DOI 永不合并。
+- 其他 URL 默认 identity 是 canonical page/work URL：lowercase scheme/host、移除默认端口与
+  fragment，但保留语义 query、path case 和 trailing slash。同一 origin 的两个作品默认是两个
+  family，不能共享 license。
+- 只有 inventory 显式使用 `family_grouping=explicit:<id>` 且提供
+  `grouping_evidence_url`，证据明确覆盖所有 grouped works 的共同版权/许可证范围时才允许合并。
+  普通导航页、同域名或同机构不足以作为 grouping evidence。
 
 `copyright_policy` 的处理规则：
 

@@ -199,11 +199,12 @@ Expected: both test files PASS; one focused commit.
 - [ ] **Step 1: Inventory every current external source family**
 
 从现有 40 篇 MDX 的 frontmatter/body 提取 URL，按作品/仓库而不是锚点去重。inventory 是严格
-Markdown table，每行恰有九列：
+Markdown table，每行恰有十一列：
 
 ```text
 source_family | current_urls | author_or_org | license_evidence_url | license_evidence_note |
-checked_at | exact_license | scope_exclusions | migration_policy
+checked_at | exact_license | scope_exclusions | migration_policy | family_grouping |
+grouping_evidence_url
 ```
 
 网页没有复用许可时，记录页面上的版权证据和
@@ -240,8 +241,10 @@ Unknown 或使用相近许可证代替。
 导出：
 
 ```js
-sourceFamilyForUrl(url)
-// GitHub => https://github.com/<owner>/<repo>; other HTTPS => URL origin
+licenseFamilyIdentity(url)
+// GitHub => github:<lowercase-owner>/<lowercase-repo>
+// DOI URL/identifier => doi:<fully normalized lowercase DOI>
+// other HTTPS => canonical page/work URL with fragment removed and semantic query preserved
 
 validateSourceLicenseInventory(markdown, candidateUrls)
 // => {entries, errors}
@@ -250,20 +253,30 @@ validateSourceLicenseInventory(markdown, candidateUrls)
 测试名：
 
 ```js
-test('accepts nine-column license inventory rows with exact evidence', () => {});
+test('accepts eleven-column license inventory rows with exact evidence', () => {});
 test('rejects missing columns evidence license scope and migration policy', () => {});
 test('covers every migration candidate source family', () => {});
+test('keeps different works and licenses on one origin in separate families', () => {});
+test('groups GitHub anchors by lowercase owner and repository', () => {});
+test('normalizes complete DOI identities without merging distinct DOIs', () => {});
+test('requires shared copyright evidence for explicit family grouping', () => {});
 ```
 
 validator 必须检查：
 
-- 每个 data row 恰九列，禁止额外/缺失 pipe cell；
+- 每个 data row 恰十一列，禁止额外/缺失 pipe cell；
 - source family/current URLs/author 非空；
 - evidence URL 为 HTTPS，evidence note 非空；
 - checked_at 是真实 calendar date；
 - exact license 在 approved allowlist；
 - scope exclusions 与 migration policy 非空；
-- current URLs 都能归入 row source family；
+- GitHub identity 固定到 lowercase owner/repo，同 repo 多文件/锚点归为一族；
+- DOI percent-decode once + NFC + lowercase，并保留完整 registrant/suffix；不同 DOI 分开；
+- 其他 URL 默认 canonical page/work identity，去 fragment、保留语义 query；同 origin 不自动合并；
+- `family_grouping=identity` 时 `grouping_evidence_url=not-applicable`；
+- `family_grouping=explicit:<id>` 时 grouping evidence 必须为 HTTPS，且 evidence note 明确共同版权/
+  license scope；没有证据或只因同域名而 grouping 时失败；
+- current URLs 都能归入 row source family 或有合规 explicit grouping；
 - 从 40 篇文档提取的每个候选 family 至少有一行，inventory orphan family 失败；
 - duplicate family 与 duplicate current URL 失败；
 - diagnostics 按 source family 排序。
@@ -354,6 +367,9 @@ const validSource = {
   license_scope: 'Page text and diagrams; third-party links excluded',
   license_evidence_url: 'https://c4model.com/',
   license_evidence_note: 'No reuse license is declared on the checked page',
+  license_family_id: 'https://c4model.com/',
+  license_family_grouping: 'identity',
+  family_grouping_evidence_url: null,
   copyright_policy: 'facts-and-short-quotation',
   usage_boundary: 'Defines the model; does not prove concrete fitness.',
   link_policy: 'stable',
@@ -395,6 +411,7 @@ const validDocument = {
 - document path 不以 `content/` 开头或不存在；
 - 日期无效；
 - 空作者、空版本、空 license scope、空 usage boundary；
+- license family ID 与 inventory identity 不一致，或 explicit grouping 缺共享范围 evidence；
 - canonical/alias 缺 expected-final approval date/note；
 - alias 对象缺 locator/transport/expected final/superseded_at，或与其他 source canonical/alias 冲突；
 - tombstone replacement 指向不存在 source 或形成 replacement cycle；
@@ -768,7 +785,7 @@ Run:
 node --test tests/source-ledger.test.mjs 2>&1 | tee /tmp/tego-arch-g003-source-ledger-green.tap
 rg -Eq '^# tests [1-9][0-9]*$' /tmp/tego-arch-g003-source-ledger-green.tap
 rg -Eq '^# pass [1-9][0-9]*$' /tmp/tego-arch-g003-source-ledger-green.tap
-test "$(rg -c '^not ok ' /tmp/tego-arch-g003-source-ledger-green.tap)" -eq 0
+! rg -q '^not ok ' /tmp/tego-arch-g003-source-ledger-green.tap
 rg -n "community-index|CC-BY-SA-4.0|vendor-claims-separated|original-illustration" \
   scripts/source-ledger.mjs data/source-ledger.json
 git diff --check
