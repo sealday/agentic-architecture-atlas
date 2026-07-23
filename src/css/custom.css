@@ -290,6 +290,10 @@ button:focus-visible,
 }
 
 @media screen and (max-width: 996px) {
+  .navbar {
+    backdrop-filter: none;
+  }
+
   .theme-doc-markdown {
     max-width: 100%;
   }

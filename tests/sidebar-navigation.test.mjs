@@ -77,3 +77,12 @@ test('gives sidebar rows readable hierarchy and stable active feedback', async (
     /\.menu__link--active:not\(\.menu__link--sublist\)\s*\{[^}]*border-left:/s,
   );
 });
+
+test('keeps the mobile sidebar fixed to the viewport instead of the blurred navbar', async () => {
+  const css = await source('src/css/custom.css');
+
+  assert.match(
+    css,
+    /@media screen and \(max-width: 996px\)\s*\{[^}]*\.navbar\s*\{[^}]*backdrop-filter:\s*none/s,
+  );
+});
