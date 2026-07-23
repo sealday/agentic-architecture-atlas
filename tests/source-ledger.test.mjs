@@ -138,6 +138,129 @@ test('validates canonical source records and document citations', () => {
   assert.deepEqual(cc0Parsed.errors, []);
 });
 
+test('projects only citations that satisfy every manifest primary gate', async (t) => {
+  const cases = [
+    {
+      name: 'primary factual',
+      source: {
+        tier: 'primary',
+        source_kind: 'official-docs',
+        allowed_evidence_roles: ['definition'],
+      },
+      citation: {
+        roles: ['definition'],
+        manifest_primary: true,
+        usage_mode: 'facts-summary',
+      },
+      expectedProjection: true,
+      expectedError: null,
+    },
+    {
+      name: 'secondary comparison',
+      source: {
+        tier: 'secondary',
+        source_kind: 'textbook',
+        allowed_evidence_roles: ['comparison'],
+      },
+      citation: {
+        roles: ['comparison'],
+        manifest_primary: true,
+        usage_mode: 'facts-summary',
+      },
+      expectedProjection: false,
+      expectedError: /cannot be manifest_primary/,
+    },
+    {
+      name: 'community index',
+      source: {
+        tier: 'discovery',
+        source_kind: 'community-index',
+        allowed_evidence_roles: ['learning'],
+      },
+      citation: {
+        roles: ['learning'],
+        manifest_primary: true,
+        usage_mode: 'facts-summary',
+      },
+      expectedProjection: false,
+      expectedError: /cannot be manifest_primary/,
+    },
+    {
+      name: 'navigation only',
+      source: {
+        tier: 'primary',
+        source_kind: 'official-docs',
+        allowed_evidence_roles: ['learning'],
+      },
+      citation: {
+        roles: ['learning'],
+        manifest_primary: true,
+        usage_mode: 'navigation-only',
+      },
+      expectedProjection: false,
+      expectedError: /cannot be manifest_primary/,
+    },
+    {
+      name: 'not explicitly primary',
+      source: {
+        tier: 'primary',
+        source_kind: 'official-docs',
+        allowed_evidence_roles: ['definition'],
+      },
+      citation: {
+        roles: ['definition'],
+        manifest_primary: false,
+        usage_mode: 'facts-summary',
+      },
+      expectedProjection: false,
+      expectedError: null,
+    },
+  ];
+
+  for (const fixture of cases) {
+    await t.test(fixture.name, () => {
+      const source = sourceFixture(
+        `src-projection-${fixture.name.replaceAll(' ', '-')}`,
+        fixture.source,
+      );
+      const citation = citationFixture(source, fixture.citation);
+      const governed = validateSourceGovernance(
+        [
+          document({
+            body: `[Source](${citation.citation_url})`,
+            metadata: {content_type: 'reference'},
+          }),
+        ],
+        {
+          schema_version: 1,
+          sources: [source],
+          documents: {
+            'content/cases/example.mdx': {
+              ...validDocument,
+              citations: [citation],
+            },
+          },
+        },
+      );
+
+      assert.deepEqual(
+        governed.primarySourcesByFile.get('cases/example.mdx'),
+        fixture.expectedProjection ? [citation.citation_url] : [],
+      );
+      if (fixture.expectedError) {
+        assert.match(
+          governed.errors.join('\n'),
+          new RegExp(
+            `content/cases/example\\.mdx: citation "${source.id}" ${fixture.expectedError.source}`,
+          ),
+        );
+      } else {
+        assert.deepEqual(governed.errors, []);
+      }
+    });
+  }
+});
+
 test('rejects duplicate sources invalid enums and dangling citations', () => {
   const malformedSource = {
     ...validSource,

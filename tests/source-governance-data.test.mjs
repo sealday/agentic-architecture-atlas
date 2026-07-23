@@ -246,8 +246,10 @@ test('projects one visible governed primary source for every published learning 
   const sourceByUrl = new Map(
     parsed.ledger.sources.map((source) => [source.canonical_locator, source]),
   );
-  for (const document of documents.filter(({file}) =>
-    /^paths\/\d{2}-.+\.mdx$/.test(file))) {
+  const pathDocuments = documents.filter(({file}) =>
+    /^paths\/\d{2}-.+\.mdx$/.test(file));
+  assert.equal(pathDocuments.length, 10);
+  for (const document of pathDocuments) {
     const projected = governed.primarySourcesByFile.get(document.file);
     assert.ok(projected?.length > 0, `${document.file} primary source`);
     const visible = new Set(extractExternalLinks(document));
