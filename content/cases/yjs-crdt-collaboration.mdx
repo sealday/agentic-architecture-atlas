@@ -62,33 +62,30 @@ official_sources:
 
 # Yjs CRDT Collaboration：让人和多个 Agent 合并共享工作区状态
 
-人和多个 Agent 同时修改同一工作区时，最先暴露的问题往往不是“谁先拿到锁”，而是状态被混成了一类：正文、结构化字段、当前光标、正在处理的段落、模型的临时计划、审批结果和外部副作用都塞进同一个对象。Yjs 提供了一组很有价值、但边界严格的机制：共享类型承载可合并的文档状态，二进制 update 允许乱序和重复交付，provider 负责传输或持久化，Awareness 传播不应跨会话保存的在线状态。
+两个副本拿到同一组 Yjs update 后可以收敛成相同结构，两个使用者却仍可能对内容含义完全不同意。一个 Agent 写“风险可接受”，另一个补上“必须法务审批”，CRDT 能保留并排列这些修改，却不会替产品判断它们是否矛盾。
 
-本案例把它迁移为“人 + 多 Agent 的协同工作区”模型。正文、评论、候选补丁和结构化产物可以进入持久 CRDT 文档；光标、当前关注区、短暂的“正在生成”提示和意图声明进入 Awareness。这个映射只说明如何让特定共享数据最终收敛，不代表 Yjs 会替系统完成鉴权、业务事务、语义冲突判断、审计或外部副作用去重。
+Yjs 适合把协同工作区拆成两条数据通道：共享类型保存可合并的正文、评论和候选补丁，Awareness 传播光标、当前关注区和短暂生成状态。权限、事务、语义裁决、审计与外部副作用属于第三条业务控制通道；CRDT 收敛不提供这些保证。
+
+本文以截至 2026-07-22 的官方文档和固定源码快照为范围。快照处于 14.0.0 候选版本，而固定仓库的支持声明仍指向 13.6.x，因此版本与源码只用于解释机制，不构成选型建议；详细 SHA、符号和字段进入证据卡。
 
 ## 学习问题
 
-1. `Y.Text`、`Y.Array`、`Y.Map` 与 `Y.Xml*` 这样的 shared types 提供了什么，哪些普通 JSON 修改不会被同步？
-2. `update` 的交换律、结合律与幂等性究竟保证什么，为什么不能推广为业务操作、模型结论或工具副作用的幂等？
-3. state vector 如何表达本地已知状态，`encodeStateAsUpdate` 与 `diffUpdate` 如何只交换缺失差异？
-4. network provider、persistence provider 与 Awareness 分别拥有哪种状态，离线副本恢复后怎样追平？
-5. snapshot、删除集合与垃圾回收之间有什么约束，为什么 snapshot 不是审计日志或默认备份机制？
-6. 人和多个 Agent 同时写正文时，如何把可持久内容与短暂 presence/intent 分开，并避免把“正在编辑”误当成排他锁？
-7. 文档分区、鉴权、schema 演进、审计、恶意客户端与资源限制应由哪一层负责？
+1. shared types 与 document update 能保证什么，普通 JSON 修改为什么不会自动同步？
+2. update 收敛为什么不能推广为权限、事务、语义正确或工具副作用幂等？
+3. state vector 和 diff 如何让离线副本只交换缺失状态？
+4. 持久内容、provider 与 Awareness 各自拥有哪类状态？
+5. snapshot、删除集合与 GC 为什么不能替代审计和备份？
+6. Agent 重连后，谁有权把离线产物提升为正式结果？
 
 ## 一页摘要
 
-**已证实事实**：Yjs shared types 类似 Array、Map、Text 与 XML 数据结构，连接到 `Y.Doc` 后可以被观察，并通过 provider 自动同步与持久化。对 shared type 的修改发生在 transaction 中；显式 transaction 可以把多次本地修改合并为一次 observer 通知和一个 update。普通 JSON 对象不会因为被原地修改就产生 Yjs 事件，官方文档明确警告这可能导致副本不再同步。
+**已证实事实**：Yjs shared types 提供 Array、Map、Text 与 XML 类数据结构，接入 `Y.Doc` 后可观察、同步和持久化。修改发生在 transaction 中；显式 transaction 可把多次本地修改合为一次通知和一个 update。普通 JSON 原地修改不会产生 Yjs 事件，可能让副本失去同步。
 
-**已证实事实**：Yjs 文档变更被编码为 `Uint8Array` update。官方 Document Updates 文档对这些 update 给出交换律、结合律和幂等性：同一组有效 update 在兼容的 Yjs 文档中可以乱序、重复应用，收到全部 update 后副本收敛。`applyUpdate` 负责应用 update；`encodeStateVector` 表达各 client 的下一预期 clock，远端可把它交给 `encodeStateAsUpdate` 只编码缺失结构，或对已合并的二进制状态使用 `diffUpdate`。
+**已证实事实**：文档变更被编码为 `Uint8Array` update。同一组有效 update 可乱序、重复应用，兼容副本收到全部 update 后收敛。state vector 表达各 client 的下一预期 clock，`encodeStateAsUpdate` 或 `diffUpdate` 可据此只交换缺失结构。
 
-**边界。已证实事实**：上述代数性质属于 **Yjs document update 的集成**，不是任意 JSON 消息、模型回答、数据库写入、支付或发信的性质。固定源码的 `INTERNALS.md` 还说明 state vector 用于描述本地文档并计算远端缺失结构，不用于追踪业务因果。`Y.Doc.transact` 将本地修改打包为一个 update，也不等于跨数据库、队列和工具的分布式事务。
+**已证实事实**：provider 不属于 CRDT 合并算法。network provider 转发 update，persistence provider 保存 update；二者可接到同一个 `Y.Doc`，离线端先恢复本地内容，重连后再同步缺失变化。Awareness 独立于文档，适合在线状态与光标等跨会话无须保留的信息。
 
-**已证实事实**：provider 不属于 CRDT 合并算法本身。network provider 在节点间转发 update，database provider 把 update 同步到存储。官方离线指南把 `y-indexeddb` 与 network provider 连接到同一个 `Y.Doc`：本地数据库先恢复已知内容，离线修改继续持久化；网络恢复后只同步缺失变化。Awareness 则是 `y-protocols` 中的可选 CRDT，通常由 network provider 实现，不保存在 Yjs 文档中，适合用户在线状态、光标等跨会话无须保留的信息。
-
-**基于证据的推断**：在人与 Agent 的共享工作区中，应把“以后仍需读取、复制或审阅的内容”放进持久文档，把“当前正在看哪里、准备改哪里、一次生成尚未完成”放进 Awareness。离线 Agent 恢复后可以合并其持久草稿，但离线期间的 presence/intent 应过期重建；旧 Awareness 不能当作锁、授权或任务所有权证明。
-
-**个人分析**：Yjs 适合协同正文、白板节点、注释和可独立合并的局部属性，不适合直接代表“批准付款”“任务只执行一次”或“最终结论正确”。两个 Agent 的文本插入可以无人工合并地收敛，却仍可能形成自相矛盾的段落；两个状态字段也可能在数据层得到确定结果，却违反审批顺序。生产系统必须在 CRDT 之外保留权限门禁、语义校验、审批状态机、幂等副作用账本与审计链。
+**边界。个人分析**：update 的代数性质只属于 Yjs 文档集成，不属于模型回答、数据库写入、支付或发信。`Y.Doc.transact` 也不是跨系统事务。持久文档保存以后还要审阅的内容，Awareness 保存会过期的协作提示；权限、语义校验、审批、幂等副作用账本与审计链必须外置。
 
 | 状态或动作 | 建议承载 | 能得到的保证 | 仍需补齐 |
 | --- | --- | --- | --- |
@@ -99,17 +96,30 @@ official_sources:
 
 ## 事实边界
 
-本案例在 2026-07-22 访问 Yjs 官方文档，并以当日 `git ls-remote https://github.com/yjs/yjs.git HEAD` 返回的提交 [`9c1994547d7bc86245a21e1a4c8319f056d05ecf`](https://github.com/yjs/yjs/tree/9c1994547d7bc86245a21e1a4c8319f056d05ecf) 固定源码快照。该提交时间为 2026-07-18，仓库 `package.json` 版本为 `14.0.0-rc.24`。固定 HEAD 用于说明当前源码和内部结构，不是生产采用候选版的建议；同一快照的 `SECURITY.md` 仍只把 13.6.x 列为受支持版本，选型时应另行核对正式支持版本。
+本案例访问日为 2026-07-22。固定源码快照的 `package.json` 为 `14.0.0-rc.24`，而同一快照的 `SECURITY.md` 仍只把 13.6.x 列为受支持版本。这个差异会改变生产选型结论：本文用候选版快照解释当前实现，不建议据此直接采用候选版。
 
-**已证实事实**：`INTERNALS.md` 把 Yjs 核心描述为 list CRDT：数组是任意项目列表，文本是字符、格式标记与嵌入的列表，Map 的同键条目以最后插入条目为可见值，其余重复项标记删除。插入内容由 `(clientID, clock)` 唯一标识，并借助 `origin` 与 `originRight` 在同一位置并发插入时得到一致顺序。删除采用不同路径：删除集合随 update 传播；Yjs 不记录删除发生时间或删除者。
+<details className="evidence-card">
+  <summary>证据：固定快照与支持版本边界</summary>
+
+- **固定提交：** 当日 `git ls-remote https://github.com/yjs/yjs.git HEAD` 返回 [`9c1994547d7bc86245a21e1a4c8319f056d05ecf`](https://github.com/yjs/yjs/tree/9c1994547d7bc86245a21e1a4c8319f056d05ecf)。
+- **提交时间：** 2026-07-18。
+- **仓库版本：** `14.0.0-rc.24`。
+- **支持声明：** 同快照 `SECURITY.md` 只列出 13.6.x。
+- **边界：** 固定 HEAD 用于说明源码和内部结构；正式支持版本必须在生产选型时另行核对。
+
+</details>
+
+**已证实事实**：`INTERNALS.md` 把 Yjs 核心描述为 list CRDT。插入内容由 `(clientID, clock)` 唯一标识，并借助 `origin` 与 `originRight` 排列并发插入。Map 同键条目以最后插入项为可见值，其余标记删除；删除集合随 update 传播，但不记录删除时间或删除者。
 
 **边界。基于证据的推断**：CRDT 的“无合并冲突”只表示算法可以决定结构结果，不表示结果没有产品冲突。比如一个 Agent 把风险等级改为“低”，另一个同时加入“必须法务审批”；Yjs 能收敛字段和文本，却无法判断二者是否矛盾。需要领域约束、审阅者、规则引擎或审批工作流决定语义。
 
-**已证实事实**：Yjs 本身不规定网络拓扑。y-websocket 使用中心 WebSocket 端点分发文档 update 与 Awareness，文档称它适合在中心端处理认证和授权，因为 WebSocket 可携带 header 和 cookie；这只是部署接缝，不是自动鉴权。固定 `THREAT_MODEL.md` 明确把 peer 认证授权、TLS/WSS、服务端访问控制和应用输入校验列为应用责任，并警告任何拥有写权限的恶意 peer 都可能破坏原文档。
+**已证实事实**：Yjs 不规定网络拓扑。y-websocket 用中心端点分发 update 与 Awareness，并可携带认证材料；这是部署接缝，不是自动鉴权。`THREAT_MODEL.md` 把 peer 认证授权、TLS/WSS、服务端访问控制和输入校验列为应用责任。拥有写权限的恶意 peer 仍可破坏文档。
 
 **个人分析**：最安全的权限粒度通常是文档或文档分区，而不是尝试在服务端解析并过滤任意二进制 update。租户、项目、机密级别和“正式文档/建议稿”应映射为不同 room、document 或 fork；只读用户不应获得 update 写入口。细粒度字段权限若不可避免，应通过受信应用命令生成 update，或把高敏感字段移出通用 CRDT 文档。
 
 ## 架构图
+
+先看三条通道是否被混在一起：document update 承载持久协同状态，Awareness 承载可丢失的在线提示，业务状态机承载授权与不可逆动作。三者即使关联同一个任务，也不能共享同一套一致性承诺。
 
 ```mermaid
 flowchart LR
@@ -148,14 +158,22 @@ flowchart LR
 
 ## 控制权与任务流
 
-一个可恢复的多人/多 Agent 编辑回合可以按以下顺序运行：
+**说明性场景**：一名用户和两个 Agent 共同修改一份方案，其中一个 Agent 离线后继续写草稿。这个流程只组合已证实的 Yjs 机制与明确标注的应用层设计，不是上游生产事故或用户案例。
+
+一个可恢复的编辑回合可以按以下顺序运行：
 
 1. 受信客户端先认证用户或 Agent 身份，由服务端依据租户、文档、角色和动作决定能否加入 room 以及能否写 update。文档 ID 必须由服务端映射，不能直接相信客户端自报路径。
+
 2. 客户端加载本地 persistence provider，再连接 network provider。UI 可以先显示本地已知内容，但在确认远端同步前应标注“本地状态”，高风险提交不得以 `synced` 布尔值替代业务版本检查。
+
 3. Agent 在 Awareness 发布短暂 `actor`、`focus`、`intent`、`status` 与过期信息，例如“正在草拟来源摘要”。这些字段不包含秘密推理、长期凭证或必须审计的批准。
+
 4. 需要保留的草稿文本、评论或候选补丁进入 shared types，并在一个本地 transaction 内成组修改。provider 将产生的 update 持久化并转发，重复和乱序投递不要求调用方手工去重。
+
 5. 重连端发送 state vector，远端计算缺失 diff；双方应用完整 update 集后文档状态收敛。离线期间的旧 Awareness 不回放，客户端按当前任务重新声明。
+
 6. 语义验证器检查必填字段、引用、状态机前置条件和跨字段约束。冲突内容可以被标记、请求人工审阅或写到建议 fork，不能把 CRDT 的结构结果直接升级为“已批准”。
+
 7. 发布、发信或其他副作用使用独立命令、幂等键和业务账本。只有服务端授权并原子记录命令后才执行；Yjs transaction origin 可帮助调试 update 来源，但不是经过认证的身份或不可抵赖审计字段。
 
 **已证实事实**：官方 Awareness API 让每个 client 只推进自己的本地状态 clock；状态为 `null` 表示离线，30 秒未收到更新的远端 client 也会被标记离线，因此客户端需要周期广播。Awareness 状态是无 schema 的 JSON 对象，字段不标准化。
@@ -166,7 +184,12 @@ flowchart LR
 
 ## 关键源码导读
 
-固定源码快照为 [`9c1994547d7bc86245a21e1a4c8319f056d05ecf`](https://github.com/yjs/yjs/tree/9c1994547d7bc86245a21e1a4c8319f056d05ecf)。以下只描述该快照以及 2026-07-22 访问到的官方文档；HEAD 之后的实现和文档变化不在结论范围内。
+最短阅读路径从 `Doc` 的 transaction 边界进入，再看 encoding 如何应用 update 和计算差异，最后用 `Snapshot`、`INTERNALS.md` 与威胁模型检查恢复和安全边界。它能证明结构怎样合并以及哪些历史可能被 GC；它不能证明合并结果有业务权限或语义正确性。
+
+固定源码快照为 [`9c1994547d7bc86245a21e1a4c8319f056d05ecf`](https://github.com/yjs/yjs/tree/9c1994547d7bc86245a21e1a4c8319f056d05ecf)。以下只描述该快照以及 2026-07-22 访问到的官方文档。
+
+<details className="evidence-card">
+  <summary>证据：文档更新、快照与威胁模型接缝</summary>
 
 | 源码或文档接缝 | 已证实行为 | 边界 | Agent 协作含义 |
 | --- | --- | --- | --- |
@@ -177,6 +200,10 @@ flowchart LR
 | [Document Updates](https://docs.yjs.dev/api/document-updates) | update 具交换律、结合律、幂等性；二进制 API 可 merge 与 diff | 只 merge 二进制 update 不会 GC 删除内容，仍需加载 `Y.Doc` 缩减 | 离线队列可重复送达，但要监控文档增长并安排受控 compact |
 | [Awareness](https://docs.yjs.dev/api/about-awareness) | 每 client 的 clock + JSON 临时态，超时可标记离线；通常由 provider 维护 | 不进 Yjs 文档、无 state vector、字段无 schema | presence/intent 与正式内容分通道；断线后不回放旧意图 |
 | [`THREAT_MODEL.md`](https://github.com/yjs/yjs/blob/9c1994547d7bc86245a21e1a4c8319f056d05ecf/THREAT_MODEL.md) | 协议假定协作写入端受信；恶意 peer 可写破坏性操作或构造大 update、深层结构造成 DoS | 服务端选择性过滤二进制 update 不是可靠安全边界 | 未受信 Agent 使用独立建议 fork；先鉴权，再授予整文档写能力 |
+
+**边界：** 这些锚点证明 update 集成、差异同步、snapshot/GC 限制和受信 peer 假设，不证明 provider 自动实施 ACL，也不证明业务动作具备事务性。
+
+</details>
 
 **已证实事实**：源码默认 `gc = true`。`INTERNALS.md` 说明删除项可丢弃内容或被替换为轻量 `GC` 对象，snapshot 则需要 state vector 与删除集合判断过去可见性。固定 `Snapshot.js` 明确拒绝从启用 GC 的 origin document 恢复 snapshot。
 
@@ -201,6 +228,11 @@ flowchart LR
 
 ## 生产化分析
 
+生产边界应沿着三类失败拆开：CRDT 数据能否解码并收敛、主体是否有权写入、收敛内容是否能成为正式业务结果。只监控“所有副本一致”会漏掉恶意 update、语义矛盾、陈旧离线计划和重复外部动作。
+
+<details className="evidence-card">
+  <summary>证据：生产限额、观测字段与恢复动作</summary>
+
 | 生产维度 | 最小控制 | 可观测信号 | 失败处置 |
 | --- | --- | --- | --- |
 | 身份与授权 | WSS、会话认证、服务端派生 tenant/doc、room 级读写 ACL、短期令牌 | 主体、租户、文档、动作、允许/拒绝原因、连接实例 | 拒绝未授权 room；撤销连接与令牌；不要只信 clientID |
@@ -213,6 +245,10 @@ flowchart LR
 | 审计 | 独立追加日志记录认证主体、时间、doc、update 哈希/大小、schema、命令结果 | 缺失审计关联、异常删除、回放差异、日志完整性 | 冻结高风险写入、从 checkpoint + 日志调查；不可只看最终状态 |
 | GC 与容量 | 明确 `gc` 策略、合并/compact 周期、文档大小预算、保留 checkpoint | tombstone/结构增长、合并后字节、内存峰值、冷启动时延 | 受控加载 Y.Doc compact；拆分或归档文档；避免无限 update 日志 |
 | 外部副作用 | 服务端命令、幂等键、fencing/版本检查、原子业务账本、补偿 | 命令状态、重复键、迟到结果、账本/文档关联 | 查询真实结果、拒绝旧 owner、补偿或转人工；不重放 Yjs update 触发动作 |
+
+**边界：** 表中 ACL、审计、schema 迁移、幂等账本和资源治理都是应用层控制，不是 Yjs update 的收敛保证。
+
+</details>
 
 **安全。已证实事实**：固定 threat model 明确指出未受信 peer 不应写原始文档，建议只写独立 fork；选择性过滤二进制 update 容易被利用，不是可靠安全边界。它还列出超大 update、深层嵌套和高计算消息导致拒绝服务的风险。y-websocket 文档只提供可接入认证授权的中心端点，生产实现仍须显式完成这些控制。
 

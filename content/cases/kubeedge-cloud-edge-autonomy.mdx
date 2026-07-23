@@ -78,9 +78,11 @@ official_sources:
 
 # KubeEdge Cloud-Edge Autonomy：在断网边界上划分规划权与执行权
 
-边缘自治不是把云端控制面复制到每个现场，也不是让边缘节点在断网后获得无限权限。KubeEdge 把 Kubernetes 期望状态和设备配置留在云端规划，把已下发工作负载、局部 metadata、设备交互和运行时健康留在边缘执行；CloudHub 与 EdgeHub 恢复连接后，再通过资源版本、确认消息、状态上报和同步控制器继续收敛。
+云边连接消失时，真正的问题不是“进程还能不能跑”，而是边缘还被授权做什么。KubeEdge 能让已下发工作负载和节点局部状态继续工作，却不会把云端控制权完整复制到现场；新凭证、跨节点协调、集中审批和未缓存依赖仍可能停住。
 
-这条边界适合物理 Agent：云端决定任务、策略和版本，边缘只能在预先签发的权限租约内继续低风险动作。本文先还原 KubeEdge v1.20.0 的事实，再把离线权限、审计 outbox、冲突处置和反回滚设计明确标为跨域推断，而不是 KubeEdge 的内建能力。
+KubeEdge 把 Kubernetes 期望和设备配置留在云端规划，把已下发工作负载、局部 metadata、设备交互和运行健康留在边缘执行。恢复连接后，CloudHub 与 EdgeHub 通过资源版本、确认消息、状态上报和同步控制器继续协调，而不是简单让最后到达的状态覆盖一切。
+
+本文固定在 KubeEdge v1.20.0。迁移到物理 Agent 时，云边 Agent 离线自治必须有明确授权、风险预算、过期和回滚边界；离线权限租约、审计 outbox、反回滚和人工接管均标为应用设计，不冒充 KubeEdge 内建能力。
 
 ## 学习问题
 
@@ -93,17 +95,13 @@ official_sources:
 
 ## 一页摘要
 
-**已证实事实**：KubeEdge v1.20.0 的 CloudCore 侧由 Kubernetes API 与 controllers 形成规划入口，CloudHub 承担云边消息中介；EdgeHub 建立 WebSocket 或 QUIC 连接并把云端资源更新路由到 EdgeCore 模块，也把节点、pod 和设备状态上报云端。连接读写或 keepalive 失败后，EdgeHub 关闭旧 client、发布 disconnected 状态、等待两个 heartbeat 周期并重连。
+**已证实事实**：CloudCore 以 Kubernetes API 与 controllers 形成规划入口，CloudHub 承担云边消息中介。EdgeHub 通过 WebSocket 或 QUIC 路由资源更新并上报节点、pod 和设备状态；读写或 keepalive 失败后，它关闭旧 client、发布 disconnected 状态并重连。
 
-**已证实事实**：MetaManager 位于 EdgeHub 与 Edged 之间，把 insert/update/delete/response metadata 写入轻量 SQLite。Edged 启动后主动查询本地 pod 列表，把结果作为 `SET` 送给 lite kubelet，并经 CRI 管理容器。断网时需要远端的 ConfigMap、Secret 等查询不再发往云端，而会查询本地 DB；只有此前已经同步且仍适用的数据可用。
+**已证实事实**：MetaManager 把节点 metadata 写入 SQLite，Edged 启动时查询本地 pod 并经 CRI 管理容器。断网后只可使用此前已同步且仍适用的 pod、ConfigMap、Secret 等数据。SQLite 是节点局部 cache，不是 Kubernetes API Server，也不承诺跨节点事务或任意离线创建资源。
 
-**边界。已证实事实**：这个 SQLite 是每个边缘节点的 metadata/cache 与恢复输入，不是云端 Kubernetes 状态的完整副本，不提供任意 list-watch、跨节点事务或离线创建所有控制面资源的承诺。继续运行主要指现有本地工作负载和设备逻辑可以不依赖持续云连接；远端依赖、首次拉取、调度、集中审批和新凭证仍可能失败。
+**已证实事实**：Device CRD 用 `desired` 表达云端意图，以 `reported` 表达设备报告，并用 `observedDesired` 表示 Mapper 已观察到的期望；EdgeCore 内部仍使用 `expected/actual`。CloudHub ACK 只证明需确认资源已在 MetaManager 落地，NO-ACK 消息可丢；DeviceTwin 也没有完整离线 outbox。重连不等于 exactly-once 或语义冲突自动解决。
 
-**已证实事实**：Device v1beta1 在云端以 `spec.properties[].desired` 表达期望值，以 `status.twins[].reported` 表达设备报告值，并用 `observedDesired` 表示 Mapper 已观察到的期望。EdgeCore DeviceTwin 的消息与 SQLite 模型使用 `expected/actual` 以及 cloud/edge version；Mapper 才负责按 desired 操作物理设备并收集 reported，DeviceTwin 不是执行器，也不是不可变事务日志。
-
-**已证实事实**：CloudHub 对需要确认的资源消息等待 EdgeCore 在 MetaManager 成功存储后返回 ACK；未确认消息会重试。ObjectSync/ClusterObjectSync 记录已成功下发的资源版本，SyncController 周期比较云端当前版本并重新生成事件。NO-ACK 消息则允许丢失；DeviceTwin 断网时会跳过发云消息，重连时请求 membership detail，但这不是所有离线 twin update 的持久 outbox，且设备消息成功点仍有源码 TODO。因此重连意味着继续同步与协调，不等于所有消息 exactly-once 或自动解决所有语义冲突。
-
-**基于证据的推断**：Agent 平台可以沿同一边界把云端定义为 policy/model/tool bundle 的签发者，把边缘定义为受租约约束的执行者。每个离线动作带 `lease_id`、策略版本、模型/工具 digest、设备身份、风险级别、输入摘要和本地单调序号；本地 append-only audit/outbox 保存结果，重连后先对账再发布，不能让迟到结果直接覆盖新状态。
+**基于证据的推断**：Agent 平台可把云端定义为 policy/model/tool bundle 签发者，把边缘定义为受租约约束的执行者。每个离线动作绑定 `lease_id`、策略和制品版本、设备身份、风险与预算；结果进入 append-only audit/outbox。重连后先对账再接单，迟到结果不能直接覆盖新意图。
 
 | 关键决策 | 推荐默认 | 边界与退出信号 |
 | --- | --- | --- |
@@ -115,9 +113,18 @@ official_sources:
 
 ## 事实边界
 
-本文于 **2026-07-22** 选择稳定 release **KubeEdge v1.20.0**。固定 tag 为 [`v1.20.0`](https://github.com/kubeedge/kubeedge/releases/tag/v1.20.0)，`git ls-remote` 与本地精确 fetch 均解析到完整提交 [`bae61505d4919c404665f70347ad0646aaa98958`](https://github.com/kubeedge/kubeedge/tree/bae61505d4919c404665f70347ad0646aaa98958)；该提交时间为 2025-01-21 12:40:26 UTC，提交信息为更新 v1.20.0 版本。官方 release blog 记录 v1.20 于 2025-01-21 发布。
+本文于 **2026-07-22** 选择稳定 release **KubeEdge v1.20.0**。架构与组件语义只采用 release-1.20 文档和同一 tag 的源码，不把默认官网或后续分支语义倒灌到结论中。
 
-**版本一致性。已证实事实**：架构与组件语义只采用 [`release-1-20.docs.kubeedge.io`](https://release-1-20.docs.kubeedge.io/docs/) 下的 v1.20 文档，并用同一 `v1.20.0` commit 的源码核对。官网默认 `kubeedge.io/docs` 在访问日包含晚于 v1.20 的页面与组件变化，本文不使用那些后续语义；也不把 `release-1.20` 分支之后的修复倒灌到 tag 快照。
+<details className="evidence-card">
+  <summary>证据：v1.20.0 tag、提交与文档截断</summary>
+
+- **固定 tag：** [`v1.20.0`](https://github.com/kubeedge/kubeedge/releases/tag/v1.20.0)。
+- **完整提交：** `git ls-remote` 与本地精确 fetch 均解析为 [`bae61505d4919c404665f70347ad0646aaa98958`](https://github.com/kubeedge/kubeedge/tree/bae61505d4919c404665f70347ad0646aaa98958)。
+- **提交信息：** 2025-01-21 12:40:26 UTC，更新 v1.20.0 版本；官方 release blog 同样记录 v1.20 于 2025-01-21 发布。
+- **文档范围：** 只使用 [`release-1-20.docs.kubeedge.io`](https://release-1-20.docs.kubeedge.io/docs/)；默认官网和 `release-1.20` 分支后续修复不在本文范围。
+- **边界：** 这些锚点固定版本语义，不证明迁移设计中的 Agent 租约、outbox 或反回滚是 KubeEdge API。
+
+</details>
 
 **已证实事实**：v1.20 Device API 源码明确区分 `desired`、`reported` 与 `observedDesired`；EdgeCore 内部 DeviceTwin 仍沿用 `expected/actual` 命名。本文在谈 Kubernetes CRD 时使用 desired/reported，在谈 EdgeCore 内部消息和 SQLite 时使用 expected/actual，避免把两个层次误写成同一字段。
 
@@ -126,6 +133,8 @@ official_sources:
 **个人分析**：本案例把“离线 Agent 权限租约、模型/工具 bundle、风险分级、审计 outbox、人工接管和反回滚”作为迁移设计。这些都不是 KubeEdge v1.20.0 开箱即用的 API；实现者必须另建签名、持久化、设备安全和治理机制。
 
 ## 架构图
+
+先看规划权与执行权在哪里分开：云端持有 desired 和版本，边缘只持有运行现有工作负载、读取节点 cache 与驱动本地设备所需的状态。断网并不会把这条边界消除，只会迫使系统依据预先授权进入降级模式。
 
 ```mermaid
 flowchart TB
@@ -161,14 +170,24 @@ flowchart TB
 
 ## 控制权与任务流
 
+**说明性场景**：一个边缘 Agent 在断网期间依据未过期租约执行低风险设备调整，同时云端产生了新的 desired。场景只用于追踪已证实的云边机制和明确标注的应用层恢复设计，不是 KubeEdge 官方事故。
+
 1. **云端规划。** Kubernetes API 保存 pod、Device 和相关期望；EdgeController/DeviceController 根据目标 node 与资源版本生成下行消息。Device `spec.properties[].desired` 是设备控制意图，`status.twins[].reported` 是观测结果，两者不能互换。
+
 2. **CloudHub 下发。** CloudHub 把消息按 node ID 放入节点队列。需要 ACK 的资源消息必须带 resource version；EdgeCore 成功存入 MetaManager 后确认，超时会重试。ObjectSync/ClusterObjectSync 保存成功点，SyncController 周期比较云端对象版本，形成后续 reconciliation。
+
 3. **EdgeHub 接收。** EdgeHub 从 WebSocket/QUIC 收取消息并按 group 路由到 MetaManager、DeviceTwin 或 EventBus。它也把边缘状态反向发送。读、写或 heartbeat 错误会触发断开；连接状态广播给 meta/twin/bus group，随后按 heartbeat 配置重连。
+
 4. **metadata 落地。** MetaManager 先把 insert/update/delete/response 写入节点 SQLite，再通知 Edged 或 DeviceTwin。Edged 查询 pod、ConfigMap、Secret 等时，在线且资源类型要求远端查询才会请求云端；断网或不需远端时读取本地 DB。
+
 5. **工作负载执行。** Edged 启动后从 MetaManager 查询本地 pod 列表，向 lite kubelet 提交 `SET`，并通过 CRI 管理容器、探针和 pod lifecycle。它能维持已有工作负载，不代表能在离线时完成新的调度、镜像拉取、存储挂载、Secret 获取或跨节点编排。
+
 6. **设备闭环。** 云端 desired 下发后，EdgeCore 内部转换为 DeviceTwin expected；Mapper 接收并对物理设备执行，采集 actual，再上报为 CRD reported，并回写 observedDesired 表明本轮已观察的期望。DeviceTwin SQLite 保存当前 twin 与版本并生成 delta，但物理效果是否发生仍要由 Mapper/设备回执与安全传感器验证。
+
 7. **断网继续。** EdgeHub 标记 disconnected 后，本地 Edged、CRI、DeviceTwin、Mapper 和应用进程可以继续运行；本地查询使用已有 metadata。云端新意图到不了现场，边缘新状态也暂时上不去。任何依赖云 API、在线授权、远程 Secret 或跨站点共识的动作必须失败关闭或进入降级模式。
+
 8. **重连协调。** EdgeHub 新建连接并广播 connected；需要 ACK 的资源继续按版本同步。Edged/lite kubelet 周期生成 pod status，并经 MetaManager 上报云端。DeviceTwin 从 disconnected 变为 connected 时会请求 membership detail；后续显式 twin sync 或新的设备报告可更新云端 reported/observedDesired，但断网期间被跳过的所有发云消息不会自动变成完整重放日志。重复和迟到消息必须按资源/twin/业务版本判定，不能按到达顺序覆盖。
+
 9. **冲突处理。** 若断网期间云端 desired 已改变，而边缘 outbox 记录了旧授权下的结果，先保留两者：云端意图是当前规划候选，边缘记录是已发生事实候选。可逆低风险动作按策略重算；不可逆或无法证明的动作冻结并转人工，禁止盲重放。
 
 **基于证据的推断**：对于 Agent，云端下发的不是一条无限期“自主运行”开关，而是一个可验证 bundle：`lease_id`、`policy_version`、`model_digest`、`tool_digest`、`device_set`、`risk_ceiling`、`not_before`、`expires_at`、`max_offline_duration`、预算和撤销 epoch。边缘只接受签名有效、版本不降级、设备身份匹配且仍在时间窗内的 bundle。
@@ -177,7 +196,12 @@ flowchart TB
 
 ## 关键源码导读
 
-固定快照：[`kubeedge/kubeedge@bae61505d4919c404665f70347ad0646aaa98958`](https://github.com/kubeedge/kubeedge/tree/bae61505d4919c404665f70347ad0646aaa98958)，tag `v1.20.0`。下表只解释该快照公开行为。
+最短源码路径沿一条消息走：EdgeHub 处理连接，CloudHub dispatcher 和 SyncController 确认可重试资源，MetaManager/Edged 负责节点 cache 与 pod 恢复，Device API 与 DeviceTwin 区分期望和观测。它能证明基础同步与恢复接缝，不能证明物理副作用 exactly-once。
+
+固定快照：[`kubeedge/kubeedge@bae61505d4919c404665f70347ad0646aaa98958`](https://github.com/kubeedge/kubeedge/tree/bae61505d4919c404665f70347ad0646aaa98958)，tag `v1.20.0`。
+
+<details className="evidence-card">
+  <summary>证据：连接、资源同步、本地 cache 与设备状态源码</summary>
 
 | 固定源码 | 可观察事实 | 支持的结论 | 不支持的结论 |
 | --- | --- | --- | --- |
@@ -190,6 +214,10 @@ flowchart TB
 | [`device_instance_types.go`](https://github.com/kubeedge/kubeedge/blob/bae61505d4919c404665f70347ad0646aaa98958/staging/src/github.com/kubeedge/api/apis/devices/v1beta1/device_instance_types.go) | `desired` 在 spec property；`reported/observedDesired` 在 status；注释明确 Mapper 执行设备命令 | 云端意图、Mapper 观察和设备报告分离 | reported 等于命令只执行一次，或 DeviceTwin 直接驱动物理设备 |
 | [`twin.go`](https://github.com/kubeedge/kubeedge/blob/bae61505d4919c404665f70347ad0646aaa98958/edge/pkg/devicetwin/dtmanager/twin.go)、[`communicate.go`](https://github.com/kubeedge/kubeedge/blob/bae61505d4919c404665f70347ad0646aaa98958/edge/pkg/devicetwin/dtmanager/communicate.go) 与 [`types.go`](https://github.com/kubeedge/kubeedge/blob/bae61505d4919c404665f70347ad0646aaa98958/edge/pkg/devicetwin/dttype/types.go) | expected/actual 有 cloud/edge version；更新写 SQLite transaction，失败时从 SQLite 恢复上下文；断网跳过发云，重连请求 membership detail | twin 有局部版本、持久化恢复和连接生命周期反应 | twin 是不可变事务日志、通用 outbox、全量离线重放或物理副作用证明 |
 | [`downstream.go`](https://github.com/kubeedge/kubeedge/blob/bae61505d4919c404665f70347ad0646aaa98958/cloud/pkg/devicecontroller/controller/downstream.go) 与 [`upstream.go`](https://github.com/kubeedge/kubeedge/blob/bae61505d4919c404665f70347ad0646aaa98958/cloud/pkg/devicecontroller/controller/upstream.go) | spec 变化下发设备消息；actual 映射 reported，expected 映射 observedDesired 并 patch status | desired 下行、reported 上行的完整控制链 | 业务安全、设备联锁和冲突政策由 DeviceController 自动决定 |
+
+**边界：** 本卡证明连接、节点 metadata、资源版本和 twin 数据流，不证明设备动作唯一执行，也不证明 Agent 离线授权、审计或业务冲突裁决。
+
+</details>
 
 ## 架构决策与权衡
 
@@ -219,6 +247,11 @@ flowchart TB
 
 ## 生产化分析
 
+生产设计的首要检查是：网络断开、租约过期或本地状态不可信时，边缘是否会自动缩权。节点身份、设备身份、策略版本、物理安全包络和审计容量必须分别可观测；“pod 仍在运行”不是继续执行高风险动作的充分条件。
+
+<details className="evidence-card">
+  <summary>证据：离线权限、设备安全与重连恢复清单</summary>
+
 | 生产维度 | 最小控制 | 关键观测 | 故障与恢复 |
 | --- | --- | --- | --- |
 | 安全与设备身份 | EdgeHub mTLS；每设备独立身份/证书；租约绑定 site/node/device；工具调用点再授权 | 证书指纹、issuer、到期、deny 原因、异常设备切换 | 隔离未知设备；撤销 epoch；无法在线查撤销时缩短高风险离线期 |
@@ -232,6 +265,10 @@ flowchart TB
 | 重连协调 | ACK/resource version + Agent base version；先对账后接单；限制重放速率 | reconnect duration、duplicate/stale/conflict、sync lag | 冲突隔离；补偿或人工；对账完成前保持离线风险上限 |
 | 可观测性 | 云边分开 SLO；本地持久指标/日志/trace；统一 node/task/device/lease/version | heartbeat、连接状态、pod/twin sync、动作延迟、拒绝和人工接管 | 断网缓冲并控制基数；恢复后有界上传，避免挤占控制通道 |
 | 故障恢复 | 已同步 pod 本地恢复；安全状态机；DB/outbox 恢复演练；灾难 runbook | restart、CRI/Mapper error、corruption、恢复点、演练结果 | 优先物理安全；重建 cache；核对实际设备后恢复自动化 |
+
+**边界：** 表中的 lease、设备级身份、hash-chain outbox、模型/工具 digest、风险分级和人工接管是应用层治理，不是 KubeEdge v1.20.0 内建 API。
+
+</details>
 
 **安全。已证实事实**：v1.20 EdgeHub CertManager 加载节点 X.509 certificate/key，首次缺失时用 token 获取 CA 与边缘证书，开启 rotation 后在证书生命周期约 70%–90% 的抖动点申请新证书，并让 EdgeHub 重连使用新材料。这是节点到 CloudCore 的身份链，不是每台物理设备或每个 Agent 工具的自动身份。
 

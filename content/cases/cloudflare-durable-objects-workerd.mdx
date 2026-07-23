@@ -80,33 +80,30 @@ official_sources:
 
 # Cloudflare Durable Objects + workerd：把边缘协调收敛到身份寻址的状态单元
 
-多客户端或多个 Agent 需要围绕同一会话、任务、租户或业务实体协调时，最难的往往不是“在哪里运行代码”，而是怎样把同一份状态稳定地送到同一个协调者。Cloudflare Durable Objects（DO）把一个全局可寻址身份、一个事件循环、私有持久存储、定时唤醒和长连接入口组合成状态单元；大量对象再以业务 key 横向分片。
+把同一业务 key 的请求送到一个 Durable Object，可以把许多并发冲突收敛为一个对象内的串行判定。代价是这个 key 也定义了热点：一个房间、租户或任务若承载过多连接、外呼和状态，平台不会自动把同一 ID 拆成多个协调者。
 
-这个模型的价值来自边界清晰：同一个对象适合收敛必须串行判定的状态，不同对象可以并行扩展。边界也同样严格：单线程不等于没有异步竞态，存储事务不覆盖外部模型或工具，位置 hint 不构成放置承诺，一个热点对象也不会自动拆分。开源 `workerd` 能说明 Workers runtime、I/O gates 与本地 Durable Object 存储的公开实现接缝，却没有公开或复刻 Cloudflare 生产环境的全球放置、对象迁移、复制和存储控制面。
+Cloudflare Durable Objects（DO）把全局可寻址身份、事件循环、私有持久存储、alarm 和长连接入口组合成一个状态单元。不同对象可并行扩展；同一对象只适合承载必须共同判定的最小状态。单线程不消除异步竞态，存储事务也不覆盖模型、工具或付款。
+
+本文依据截至 2026-07-22 的官方文档和固定 `workerd` 快照。开源 `workerd` 能解释 runtime、I/O gates 与本地 Durable Object 存储，却不等于 Cloudflare 全球生产放置实现；托管环境的首次放置、故障迁移、复制和 storage control plane 不能从本地源码反推。
 
 ## 学习问题
 
-1. `idFromName()`、`newUniqueId()`、`get()` 与 stub 分别负责身份、索引保存和调用路由中的哪一步？
-2. “每对象单线程”在 JavaScript 事件循环里保证什么，为什么外部 `fetch()` 等非存储 `await` 仍会引入交错与竞态？
-3. Input Gate、Output Gate、SQLite/KV API、`transaction()` 与 `transactionSync()` 的原子性和可见性边界在哪里？
-4. alarm 的 at-least-once 与有限重试、WebSocket Hibernation 的内存丢失、对象重启分别要求怎样的幂等和恢复协议？
-5. object-per-session、task、tenant、entity 四种 key 如何影响热点、授权半径、状态迁移和重分片成本？
-6. `locationHint`、jurisdiction、对象 ID、class/namespace lifecycle 和代码版本之间哪些是强约束，哪些只是提示或部署协议？
-7. 怎样把 Durable Objects 映射为 Agent 会话/任务协调者，同时不把它误写成工作流引擎、全局事务或自动多租户安全边界？
+1. ID、namespace 与 stub 如何把同一业务 key 路由到同一协调单元？
+2. 每对象单线程保证什么，非 storage `await` 为什么仍会产生交错？
+3. Input/Output Gate 与 SQLite 事务的原子性在哪里停止？
+4. alarm、hibernation 和对象重启要求怎样的幂等恢复？
+5. session、task、tenant 与 entity key 如何改变热点和重分片成本？
+6. `workerd` 本地行为、location hint 与 Cloudflare 全球生产放置之间边界何在？
 
 ## 一页摘要
 
-**已证实事实**：一个 Durable Object class 对应一个 namespace，namespace 内的每个对象有自己的 ID、活动实例和私有持久存储。`idFromName(name)` 从稳定名称得到对象 ID，`newUniqueId()` 生成随机 ID并要求调用方把字符串索引另存；`get(id)` 立即返回 stub，真正的方法调用才触发路由与懒创建。`getByName(name)` 是当前更短的等价入口。stub 是远程调用 client，不是对象本身；同一 stub 的调用具有 E-order 交付顺序，而 stub 一旦抛出异常，后续调用也会失败，调用方要重新取得 stub。
+**已证实事实**：一个 Durable Object class 对应一个 namespace，每个对象有自己的 ID、活动实例和私有持久存储。`idFromName()` 从稳定名称得到 ID，`newUniqueId()` 生成随机 ID，`get()` 返回 stub；真正调用时才路由并懒创建。stub 是远程 client，不是对象本身，失败后应重新获取。
 
-**已证实事实**：单个对象固有单线程，但多个事件可以在异步边界交错。异步 storage 操作默认启用 Input Gate，storage 完成前暂停其他 I/O 事件；同步 SQLite 操作不让出事件循环。非存储 I/O，例如 `fetch()` 或写 R2，会允许其他请求运行，因而“读状态 → 调外部服务 → 写状态”仍可能竞态。`blockConcurrencyWhile()` 可以扩大关键区，但回调抛错或超过 30 秒会重置对象，不适合包住长时间模型推理。
+**已证实事实**：单个对象固有单线程，但事件可在异步边界交错。异步 storage 默认受 Input Gate 保护，同步 SQLite 不让出事件循环；`fetch()` 等非存储 I/O 会允许其他请求运行。因此“读状态 → 外呼 → 写状态”仍会竞态，长时间模型推理也不应放进 `blockConcurrencyWhile()`。
 
-**已证实事实**：当前新 `exports` namespace 只能选择 SQLite backend。2026-07-09 官方 changelog 对 legacy `migrations` 给出更窄的兼容例外：账户只要已有至少一个 KV-backed namespace，目前仍可用 `new_classes` 新建 KV namespace；没有既有 KV-backed namespace 的账户不能再新建，已有 KV namespace 继续受支持。SQLite-backed 对象同时有 SQL、同步 KV、异步 KV 和 PITR。`transactionSync()` 仅 SQLite 可用且回调必须同步；`transaction()` 仍可用，但 SQLite 下 `txn` 参数已经 obsolete，直接在 `ctx.storage` 上执行的 storage 操作属于该事务。连续、无中间 `await` 的写会自动合并并原子提交。
+**已证实事实**：SQLite-backed 对象提供 SQL、同步/异步 KV、事务与 PITR。Input Gate 控制 storage await 期间的输入交错，Output Gate 延迟写入后的外发消息，直到 durable write 确认。Output Gate 不会撤销写入前已发出的 HTTP 请求，也不会把 LLM、R2、队列、付款或邮件纳入对象事务。
 
-**边界。已证实事实**：Output Gate 只把写入后的外发网络消息延迟到 durable write 确认；写失败时外发消息被丢弃、对象重置、调用方收到错误。它不撤销已经在写入前发出的 HTTP 请求，不把 LLM、R2、队列、支付或邮件纳入对象存储事务，也不能给这些系统提供 exactly-once。
-
-**已证实事实**：每个对象同一时间只能有一个已安排 alarm。handler 是 at-least-once，未捕获异常触发从 2 秒开始的指数退避，最多 6 次 retry；因此 handler 必须幂等，有限重试耗尽后也不能假设任务完成。Hibernation WebSocket API 可以让服务端对象离开内存而连接留在 Cloudflare 网络；唤醒会重新执行 constructor，普通内存状态消失。
-
-**基于证据的推断**：Agent 平台可把 session/task/entity ID 规范化后映射为对象名，让一个对象持有 run 状态、消息 barrier、审批版本、WebSocket 连接和 alarm。模型与工具调用仍是外部非存储 I/O，必须用 operation ID、状态版本、outbox/receipt、重试预算和补偿完成端到端恢复。
+**基于证据的推断**：Agent 平台可把 session、task 或 entity key 映射为一个协调对象，让它持有 run 状态、审批版本、WebSocket 与 alarm。alarm 至少执行一次，hibernation 会丢失普通内存；模型和工具又位于事务外。端到端恢复因此需要 operation ID、状态版本、outbox/receipt、重试预算和补偿。
 
 | 关键决策 | 推荐默认 | 原因 | 退出信号 |
 | --- | --- | --- | --- |
@@ -118,11 +115,23 @@ official_sources:
 
 ## 事实边界
 
-本案例于 **2026-07-22** 访问 Cloudflare Durable Objects 官方文档和官方 control/data plane reference architecture。同日 `git ls-remote https://github.com/cloudflare/workerd.git HEAD` 返回 [`14894eccbb339da199d772fcadd337b6d0902128`](https://github.com/cloudflare/workerd/tree/14894eccbb339da199d772fcadd337b6d0902128)；该提交题为 `Release 2026-07-22`，提交时间为 2026-07-22 00:59:49 UTC。`workerd` README 说明其版本号是日期，并对应该版本支持的最大 compatibility date；本文把固定提交视为 **2026-07-22 runtime snapshot**，不外推其后的 API 或 Cloudflare 平台行为。
+本案例的证据截止日为 **2026-07-22**。官方产品文档用于说明托管 Durable Objects 合同，固定 `workerd` 快照只用于解释公开 runtime 接缝。两者不能合并成“本地运行结果等于全球生产行为”的证据。
 
-**已证实事实**：`workerd` 是基于 Cloudflare Workers 同源代码的开源 JavaScript/Wasm server runtime，可用于 self-host、应用服务器和本地 Wrangler 开发。固定 README 同时警告它自身不是 hardened sandbox；固定 `workerd.capnp` 更明确写出 Durable Objects 当前始终位于单个 runtime instance，本地存储可用进程内或实验性 local-disk SQLite，并留有“未来支持跨 cluster 分布”的 TODO。
+<details className="evidence-card">
+  <summary>证据：runtime 快照、存储版本与重试参数</summary>
 
-**边界。已证实事实**：这些源码能支持 I/O gate、actor cache、SQLite、本地 ID namespace 和事件循环方面的陈述，不能证明 Cloudflare 托管服务如何执行全球首次放置、故障迁移、复制、法域约束、负载调度或 storage control plane。本文不会从 `workerd` 的 local-disk 文件布局反推生产存储实现，也不会声称 self-host `workerd` 可获得托管 Durable Objects 的全球唯一性与位置语义。
+- **固定快照：** `git ls-remote https://github.com/cloudflare/workerd.git HEAD` 返回 [`14894eccbb339da199d772fcadd337b6d0902128`](https://github.com/cloudflare/workerd/tree/14894eccbb339da199d772fcadd337b6d0902128)。
+- **提交信息：** `Release 2026-07-22`，时间为 2026-07-22 00:59:49 UTC。README 说明日期版本对应最大 compatibility date。
+- **新建 namespace：** 当前新 `exports` namespace 只能选择 SQLite backend。2026-07-09 changelog 的 legacy `migrations` 例外，仅允许已有 KV-backed namespace 的账户继续用 `new_classes` 新建 KV namespace；已有 KV namespace 继续受支持。
+- **SQLite 合同：** 支持 SQL、同步/异步 KV 与 PITR。`transactionSync()` 仅 SQLite 可用且回调必须同步；SQLite 下 `transaction()` 的 `txn` 参数已 obsolete，直接使用 `ctx.storage`。连续且无中间 `await` 的写会自动合并并原子提交。
+- **alarm：** 每对象同时只有一个已安排 alarm；handler 至少执行一次。未捕获异常从 2 秒开始指数退避，最多 6 次 retry。
+- **边界：** 这些固定参数支持本文的版本与恢复分析，不承诺后续平台行为，也不证明有限重试后外部动作必然完成。
+
+</details>
+
+**已证实事实**：`workerd` 是与 Cloudflare Workers 同源的开源 JavaScript/Wasm server runtime，可用于 self-host 和本地开发。README 警告它不是 hardened sandbox。固定 `workerd.capnp` 则说明本地 Durable Objects 当前位于单个 runtime instance，并为跨 cluster 分布保留 TODO。
+
+**边界。已证实事实**：源码能支持 I/O gate、actor cache、SQLite、本地 ID namespace 和事件循环方面的陈述。它不能证明托管服务怎样执行全球首次放置、故障迁移、复制、法域约束或负载调度。本文也不从 local-disk 布局反推生产存储实现。
 
 **已证实事实**：官方 Data location 当前称对象创建后不会改变 location；默认靠近首次 `get()` 的请求，`locationHint` 只在该对象第一次 `get()` 时考虑，而且是 best effort、不是保证。jurisdiction 则是运行和持久化区域的约束，但 Worker 仍可从世界其他位置访问对象，且 ID 会因计费/调试在 jurisdiction 外记录。location、host 与内存生命周期不可混为一谈：对象仍会因更新、空闲或 runtime 决策被重启或换 host。
 
@@ -131,6 +140,8 @@ official_sources:
 **个人分析**：Durable Object ID 应被视为路由身份，不是认证令牌、tenant ACL 或永不变化的业务主键。外部 API 仍要认证主体，服务端派生 namespace/key，并在对象内再次校验 tenant、resource 与动作；日志可以记录 ID 或不可逆 tenant hash，但不要把用户可控 name 直接当授权事实。
 
 ## 架构图
+
+先检查图中的串行边界是否画得足够小：只有同一业务 key 的状态进入一个对象，模型、工具、队列和跨对象索引仍留在事务外。目录控制面可以帮助找对象，却不应成为每次数据请求都必须经过的全局热点。
 
 ```mermaid
 flowchart TB
@@ -166,13 +177,22 @@ flowchart TB
 
 ## 控制权与任务流
 
+**说明性场景**：一个 Agent 任务在等待模型结果时收到取消请求，随后旧模型结果迟到。这个场景用已证实的事件交错和 storage gate 机制说明恢复设计，不代表 Cloudflare 官方事故或生产测量。
+
 1. **认证与 key 派生。** 入口验证用户/Agent token，读取可信 tenant、workspace、session、task 或 entity ID，做规范化与长度限制，再组合版本化 key，例如 `v2:tenant-17:task-42`。不要直接采用 query string 作为 `idFromName()` 输入，更不要把“知道 name/ID”当作已授权。
+
 2. **选择 ID 策略。** 稳定且可重算的业务实体使用 `idFromName()` 或 `getByName()`；不可预测的新会话可用 `newUniqueId()`。“原子保存”只表示目录对象能在它自己的私有 storage transaction 中保存 ID string 和目录记录，不会让目录对象与目标对象的首次初始化形成跨对象原子事务。目标对象的初始化必须以稳定 receipt / initialization key 做幂等检查；调用超时或重试后，系统通过目录记录、目标对象 receipt 和 reconciliation 收敛。若把 ID string 返回给已认证客户端，也不能把它当授权凭证。ID 只在原 namespace 有效，`idFromString()` 会拒绝其他 namespace 生成的 ID。
+
 3. **取得并调用 stub。** `get()` 立即返回 client；真正 RPC/HTTP 调用才建立连接并懒创建对象。按调用方和业务协议携带 `request_id` / `operation_id`，不要仅靠 stub E-order 代替跨调用方全局顺序。stub 抛错后重建 stub，再依据 receipt 判断是否重试。
+
 4. **对象内判定。** 同步 SQLite 读写在当前事件循环内执行；异步 KV storage 默认通过 Input Gate 防止 storage await 期间其他事件交错。连续无 `await` 写入可自动 coalesce；需要明确同步原子区时使用 `transactionSync()`，需要兼容异步 storage API 时使用 `transaction()`。
+
 5. **外部调用。** 在调用 LLM/tool 前把 `operation_id`、input hash、state version、deadline、attempt 与 `PENDING` 写入对象 storage；提交后再发外部请求。`await fetch()` 会允许其他事件交错，返回时必须重新读取/检查版本和 ownership，再把 receipt 原子写回。若另一个请求已经取消或接管任务，迟到结果只作为候选记录，不覆盖 current state。
+
 6. **响应与 Output Gate。** storage write 后的响应或后续 fetch 默认等待写盘确认；失败会阻止外界看到“已提交”消息。但在写入前已经发出的副作用不会被撤销，设置 `allowUnconfirmed` 也会主动放弃默认可见性保护。高风险流程不使用它。
+
 7. **alarm 与 WebSocket。** alarm payload/进度存 storage，handler 先按稳定 operation key 去重，再执行可重入步骤；`retryCount` 只说明平台 retry attempt，不证明外部动作未发生。WebSocket 使用 `acceptWebSocket()` 进入 hibernation API；必要的会话态写 storage，小型连接态可用 attachment，唤醒 constructor 只重建 cache。
+
 8. **故障恢复。** 对象没有 shutdown hook，持续写 checkpoint。遇到对象 reset、overloaded、stub error、alarm retry 或客户端重连时，先查询 durable state 与外部 receipt；不能判断时转人工。客户端使用退避、deadline 和幂等键，禁止无界重试制造热点。
 
 **基于证据的推断**：Agent task DO 的最小状态机可为 `created -> running -> waiting_external -> result_received -> validated -> completed`，另有 `cancel_requested / failed / manual_review`。每个状态转移带单调 `state_version`；外部 worker 的回调必须同时匹配 `task_id`、`operation_id`、attempt 和 base version。
@@ -181,7 +201,12 @@ flowchart TB
 
 ## 关键源码导读
 
-固定快照：[`cloudflare/workerd@14894eccbb339da199d772fcadd337b6d0902128`](https://github.com/cloudflare/workerd/tree/14894eccbb339da199d772fcadd337b6d0902128)，Release 2026-07-22。下表只解释公开 runtime 接缝，不把本地实现描述成 Cloudflare 托管控制面。
+最短源码路径是 I/O gate、actor cache、SQLite actor storage 与本地 namespace 配置。它们证明 storage await、写入可见性、事务和本地 ID 的 runtime 关系；它们不公开 Cloudflare 托管控制面如何选择全球 host、复制或迁移数据。
+
+固定快照：[`cloudflare/workerd@14894eccbb339da199d772fcadd337b6d0902128`](https://github.com/cloudflare/workerd/tree/14894eccbb339da199d772fcadd337b6d0902128)，Release 2026-07-22。
+
+<details className="evidence-card">
+  <summary>证据：I/O gates、actor storage 与本地 namespace 接缝</summary>
 
 | 固定源码 | 可观察事实 | 可以支持的结论 | 不能支持的结论 |
 | --- | --- | --- | --- |
@@ -191,6 +216,10 @@ flowchart TB
 | [`src/workerd/io/actor-cache.h`](https://github.com/cloudflare/workerd/blob/14894eccbb339da199d772fcadd337b6d0902128/src/workerd/io/actor-cache.h) | actor cache 假定自己是底层 storage 唯一 client；写先入 cache，并让 Output Gate 等待确认 | 私有 storage、写 buffer 与 output gating 的实现关系 | 生产 storage 的复制拓扑、物理磁盘布局或跨对象事务 |
 | [`src/workerd/io/actor-sqlite.c++`](https://github.com/cloudflare/workerd/blob/14894eccbb339da199d772fcadd337b6d0902128/src/workerd/io/actor-sqlite.c%2B%2B) | SQLite actor storage 维护 implicit/explicit transaction、savepoint 与 alarm metadata | 本地 SQLite 事务和 alarm 状态有 runtime 实现 | Cloudflare 全球 storage control plane 使用同一文件/提交协议 |
 | [`src/workerd/server/workerd.capnp`](https://github.com/cloudflare/workerd/blob/14894eccbb339da199d772fcadd337b6d0902128/src/workerd/server/workerd.capnp) | namespace `uniqueKey` 参与 ID 派生；改 class name 只要 key 稳定可保留 storage；本地 DO 数据可 in-memory/localDisk；对象当前只在单 runtime instance | class/namespace/ID 在 local runtime 的稳定连接，workerd 的本地范围 | 自动跨 cluster placement、migration、replication 或 production parity |
+
+**边界：** 本卡只验证开源 runtime 合同。Cloudflare 全球生产 placement、migration、replication、SLO 与 storage control plane 不在这些源码的证明范围内。
+
+</details>
 
 **已证实事实**：固定 `workerd.capnp` 说明 Durable Object ID 与稳定 namespace `uniqueKey` 关联，class name 变化不必破坏既有 storage；Cloudflare 当前托管配置则用 `exports` 对 provisioned namespace 做 create/delete/rename/transfer reconciliation。两个证据都说明 class lifecycle 与单个对象 ID 不是同一概念，但本地 `uniqueKey` 不是用户在 Cloudflare 控制面手工操作的迁移 API。
 
@@ -219,6 +248,11 @@ flowchart TB
 
 ## 生产化分析
 
+生产控制应围绕对象粒度来组织：身份决定谁被路由到同一串行单元，容量决定这个单元何时成为热点，恢复协议决定迟到结果和外部副作用怎样对账。对象数量可以增长，并不意味着单个对象的吞吐会自动增长。
+
+<details className="evidence-card">
+  <summary>证据：生产控制、观测字段与故障处置</summary>
+
 | 生产维度 | 最小控制 | 关键观测 | 故障处置 |
 | --- | --- | --- | --- |
 | 身份与租户隔离 | 入口认证；服务端 canonical key；tenant/resource/action ACL 在入口与对象双检；ID/name 不作 bearer secret | allow/deny、tenant hash、namespace、object ID/name、actor、policy version | 拒绝客户端自报跨租户 key；撤销连接；隔离错误 namespace/binding |
@@ -230,6 +264,10 @@ flowchart TB
 | 部署与迁移 | 前后兼容 RPC；schema version；class `exports` 三阶段安全 rename；shard epoch/tombstone | code/class/schema version、reconciliation、old/new API error、旧 epoch write | 停止 rollout；前向修复；lifecycle change 前备份，因 rollback 不能跨界 |
 | 故障恢复 | 增量 checkpoint、无 shutdown-hook 假设；stub error 后重建；客户端有界退避 | object reset/restart、storage exception、in-flight age、orphan operation、reconnect | 先 reconcile storage/outbox/downstream；无法判定转人工，禁止盲重放 |
 | 可观测性 | 官方 namespace/per-object metrics + Workers logs/traces；统一 task/operation/version 字段 | `$workers.durableObjectId`、invocation/storage/subrequest/WebSocket metrics、cost、deny rate | 从热点 object drill-down；保护 PII；为 control/data plane 分开 SLO |
+
+**边界：** 表中 canonical key、outbox、shard epoch、人工升级和跨系统对账属于应用设计，不是 Durable Objects 自动提供的 workflow 能力。
+
+</details>
 
 **安全。已证实事实**：每个对象的 attached storage 是私有的，其他对象不能直接访问。官方 Data security 说明全部 Durable Object 数据及其 metadata 都会自动静态加密，Worker / Cloudflare network node 与 Durable Object 之间的传输由 TLS/SSL 保护。官方 best practices 把 Worker 放在认证、校验和响应格式层；这些平台能力不等于应用授权。
 
