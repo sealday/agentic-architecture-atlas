@@ -168,6 +168,7 @@
 - AWS Cell Architecture + Shuffle Sharding：租户隔离与故障半径。
 - Cloudflare Durable Objects + workerd：身份寻址的状态单元与热点边界。
 - New API Channel Pool Routing：能力路由、Key 池、故障恢复和合规隔离。
+- LiteLLM Virtual Keys：分层权限、预算限流、Guardrail 时序和供应商凭据托管。
 - Microsoft 多智能体参考架构：身份、网络、数据、评估和平台治理。
 
 **检查点**
@@ -211,13 +212,17 @@
 
 围绕多人或多 Agent 的共享状态、业务所有权、运行时组合和语义冲突展开。本站连接 Yjs 与 Micro Frontends 案例。
 
+外部入口使用 Yjs 官方文档和 Awesome Software Architecture 的 Micro-Frontend 专题。
+
 ### 边缘与物理智能体
 
 围绕断网自治、通信语义、生命周期、实时性和独立安全链展开。本站连接 KubeEdge 与 ROS 2 + DDS 案例。
 
+外部入口使用 KubeEdge 官方文档和固定到 Jazzy 的 ROS 2 基础概念文档。
+
 ### Agent 平台与模型网关
 
-围绕能力路由、租户隔离、身份与权限、成本、评估和可观测性展开。本站连接 New API、Microsoft、OpenAI、LangGraph 和 Google ADK/A2A 案例。
+围绕能力路由、租户隔离、身份与权限、成本、评估和可观测性展开。本站连接 New API、LiteLLM、Microsoft、OpenAI、LangGraph 和 Google ADK/A2A 案例，以 LiteLLM Virtual Keys 官方文档作为网关治理入口。
 
 ## 阶段卡片契约
 

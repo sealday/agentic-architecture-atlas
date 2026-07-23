@@ -3,6 +3,7 @@ import {readFile} from 'node:fs/promises';
 import test from 'node:test';
 import {fileURLToPath} from 'node:url';
 
+import {extractMarkdownBody} from '../scripts/content-metadata.mjs';
 import {requiredCaseSlugs} from '../scripts/content-schema.mjs';
 
 const learningPathFile = fileURLToPath(
@@ -33,15 +34,40 @@ const stageFields = [
   '**下一步**',
 ];
 
+const branchHeadings = [
+  '### 云原生与平台',
+  '### 协作状态与前端架构',
+  '### 边缘与物理智能体',
+  '### Agent 平台与模型网关',
+];
+
 const externalAnchors = [
   'https://github.com/mehdihadeli/awesome-software-architecture',
   'https://github.com/donnemartin/system-design-primer',
+  'https://roadmap.sh/software-architect',
   'https://c4model.com/',
   'https://arc42.org/',
   'https://sre.google/workbook/table-of-contents/',
   'https://github.com/cncf/curriculum',
   'https://kubernetes.io/docs/tutorials/kubernetes-basics/',
 ];
+
+function markdownExternalLinks(source) {
+  return [...source.matchAll(/\[[^\]]+\]\((https:\/\/[^)\s]+)\)/g)].map(
+    ([, href]) => href,
+  );
+}
+
+function toChineseNumber(value) {
+  const digits = ['', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
+  if (value < 10) {
+    return digits[value];
+  }
+
+  const tens = Math.floor(value / 10);
+  const ones = value % 10;
+  return `${tens === 1 ? '' : digits[tens]}十${digits[ones]}`;
+}
 
 test('structures the architecture roadmap as six complete stages', async () => {
   const source = await readFile(learningPathFile, 'utf8');
@@ -57,23 +83,54 @@ test('structures the architecture roadmap as six complete stages', async () => {
     assert.ok(end > start, `Stage has no bounded body: ${heading}`);
 
     const stage = source.slice(start, end);
+    let previousOffset = -1;
     for (const field of stageFields) {
       assert.match(stage, new RegExp(field.replaceAll('*', '\\*')));
+      const offset = stage.indexOf(field);
+      assert.ok(offset > previousOffset, `${field} is out of order in ${heading}`);
+      previousOffset = offset;
+    }
+    for (const label of ['必读起点', '查漏补缺', '深入拓展']) {
+      assert.match(stage, new RegExp(`\\*\\*${label}\\*\\*`));
     }
   }
 });
 
 test('labels external resources and links every canonical case', async () => {
   const source = await readFile(learningPathFile, 'utf8');
+  const body = extractMarkdownBody(source);
+  const externalLinks = markdownExternalLinks(body);
 
   for (const label of ['必读起点', '查漏补缺', '深入拓展']) {
-    assert.match(source, new RegExp(`\\*\\*${label}\\*\\*`));
+    assert.match(body, new RegExp(`\\*\\*${label}\\*\\*`));
   }
   for (const anchor of externalAnchors) {
-    assert.ok(source.includes(anchor), `Missing external resource: ${anchor}`);
+    assert.ok(
+      externalLinks.some((href) => href.startsWith(anchor)),
+      `Missing clickable external resource: ${anchor}`,
+    );
   }
   for (const slug of requiredCaseSlugs) {
-    assert.ok(source.includes(`](${slug})`), `Missing canonical case: ${slug}`);
+    assert.ok(body.includes(`](${slug})`), `Missing canonical case: ${slug}`);
+  }
+});
+
+test('provides four optional branches with external starting points', async () => {
+  const body = extractMarkdownBody(await readFile(learningPathFile, 'utf8'));
+
+  for (const [index, heading] of branchHeadings.entries()) {
+    const start = body.indexOf(heading);
+    const end =
+      index === branchHeadings.length - 1
+        ? body.indexOf('## 如何把阅读变成架构能力', start)
+        : body.indexOf(branchHeadings[index + 1], start);
+
+    assert.notEqual(start, -1, `Missing branch heading: ${heading}`);
+    assert.ok(end > start, `Branch has no bounded body: ${heading}`);
+    assert.ok(
+      markdownExternalLinks(body.slice(start, end)).length > 0,
+      `Branch has no external starting point: ${heading}`,
+    );
   }
 });
 
@@ -85,8 +142,9 @@ test('describes one staged roadmap and the current catalog size', async () => {
 
   assert.match(homepage, /沿软件架构主干开始/);
   assert.doesNotMatch(homepage, /选择一条专题学习路径/);
-  assert.match(homepage, /17 个跨生态案例/);
-  assert.doesNotMatch(homepage, /(?:15|16) 个跨生态案例/);
-  assert.match(caseIndex, /十七篇中的首发五篇/);
-  assert.doesNotMatch(caseIndex, /十[五六]篇中的首发五篇/);
+  assert.match(homepage, new RegExp(`${requiredCaseSlugs.length} 个跨生态案例`));
+  assert.match(
+    caseIndex,
+    new RegExp(`${toChineseNumber(requiredCaseSlugs.length)}篇中的首发五篇`),
+  );
 });

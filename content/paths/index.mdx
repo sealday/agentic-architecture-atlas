@@ -43,6 +43,10 @@ official_sources:
   - https://sre.google/workbook/table-of-contents/
   - https://github.com/cncf/curriculum
   - https://kubernetes.io/docs/tutorials/kubernetes-basics/
+  - https://docs.yjs.dev/
+  - https://kubeedge.io/docs/
+  - https://docs.ros.org/en/jazzy/Concepts/Basic.html
+  - https://docs.litellm.ai/docs/proxy/virtual_keys
   - https://openai.github.io/openai-agents-python/multi_agent/
   - https://docs.langchain.com/oss/python/langgraph/overview
   - https://google.github.io/adk-docs/agents/multi-agents/
@@ -61,6 +65,8 @@ official_sources:
 - **必读起点**：建立进入本站案例所需的共同语言。
 - **查漏补缺**：补齐当前阶段的单个知识缺口。
 - **深入拓展**：准备在真实项目中采用相关机制时继续阅读。
+
+如果想先横向查看软件架构师常见能力域，可以把 [roadmap.sh Software Architect](https://roadmap.sh/software-architect) 作为**查漏补缺**的索引；它帮助发现知识空白，不替代下面按依赖关系组织的主干。
 
 ## 第一阶段：架构思维与表达
 
@@ -277,15 +283,15 @@ Agentic 系统把非确定性决策、工具副作用和长时状态带入同一
 
 ### 协作状态与前端架构
 
-围绕共享状态、所有权、运行时组合和语义冲突学习。先读 [Yjs CRDT Collaboration](/cases/yjs-crdt-collaboration)，再用 [Micro Frontends + single-spa](/cases/micro-frontends-single-spa) 比较状态边界、业务边界和交付边界。
+围绕共享状态、所有权、运行时组合和语义冲突学习。以 [Yjs 文档](https://docs.yjs.dev/) 作为**必读起点**，再读 [Yjs CRDT Collaboration](/cases/yjs-crdt-collaboration)；需要扩展运行时组合知识时，通过 [Awesome Software Architecture 的 Micro-Frontend 专题](https://github.com/mehdihadeli/awesome-software-architecture#micro-frontend) **查漏补缺**，并用 [Micro Frontends + single-spa](/cases/micro-frontends-single-spa) 比较状态边界、业务边界和交付边界。
 
 ### 边缘与物理智能体
 
-围绕断网自治、通信语义、生命周期、实时性和独立安全链学习。依次阅读 [KubeEdge Cloud-Edge Autonomy](/cases/kubeedge-cloud-edge-autonomy) 与 [ROS 2 + DDS Agent Lifecycle](/cases/ros2-dds-agent-lifecycle)，比较云边状态同步与物理执行授权。
+围绕断网自治、通信语义、生命周期、实时性和独立安全链学习。先用 [KubeEdge 文档](https://kubeedge.io/docs/) 建立云边组件和离线自治的**必读起点**，再阅读 [KubeEdge Cloud-Edge Autonomy](/cases/kubeedge-cloud-edge-autonomy)；进入物理执行前，用 [ROS 2 Jazzy 基础概念](https://docs.ros.org/en/jazzy/Concepts/Basic.html) **查漏补缺**，然后阅读 [ROS 2 + DDS Agent Lifecycle](/cases/ros2-dds-agent-lifecycle)，比较通信可达、节点生命周期和物理执行授权。
 
 ### Agent 平台与模型网关
 
-围绕能力路由、租户隔离、身份权限、成本、评估和可观测性学习。先比较 [New API Channel Pool Routing](/cases/new-api-channel-pool-routing) 与 [LiteLLM Virtual Keys](/cases/litellm-virtual-keys-governance) 的路由和治理边界，再组合阅读 [Microsoft 多智能体参考架构](/cases/microsoft-multi-agent-reference-architecture)、[OpenAI Agents SDK](/cases/openai-agents-sdk)、[LangGraph Supervisor](/cases/langgraph-supervisor) 与 [Google ADK/A2A](/cases/google-adk-a2a)。
+围绕能力路由、租户隔离、身份权限、成本、评估和可观测性学习。以 [LiteLLM Virtual Keys 文档](https://docs.litellm.ai/docs/proxy/virtual_keys) 作为网关治理的**必读起点**，再比较 [New API Channel Pool Routing](/cases/new-api-channel-pool-routing) 与 [LiteLLM Virtual Keys](/cases/litellm-virtual-keys-governance) 的路由和治理边界；最后组合阅读 [Microsoft 多智能体参考架构](/cases/microsoft-multi-agent-reference-architecture)、[OpenAI Agents SDK](/cases/openai-agents-sdk)、[LangGraph Supervisor](/cases/langgraph-supervisor) 与 [Google ADK/A2A](/cases/google-adk-a2a)。
 
 ## 如何把阅读变成架构能力
 
