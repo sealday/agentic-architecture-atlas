@@ -473,6 +473,18 @@ test('defines ordered slugs and non-empty article sections', async () => {
   }
 });
 
+test('stops automatic pagination after the final main stage', async () => {
+  const finalStageFile = path.join(pathDirectory, mainStages.at(-1)[0]);
+  const source = await readRequiredFile(finalStageFile, 'final main stage');
+  const metadata = parseFrontMatter(source);
+
+  assert.equal(
+    metadata.pagination_next,
+    'null',
+    'Final main stage must declare pagination_next: null',
+  );
+});
+
 test('bounds topic gaps and links each topic to its prerequisite stage', async () => {
   const topics = (await readRoadmapDocuments()).slice(mainStages.length);
 
