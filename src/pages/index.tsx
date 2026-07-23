@@ -104,7 +104,7 @@ function Hero(): ReactNode {
             <dl>
               <div>
                 <dt>样本</dt>
-                <dd>17 个跨生态案例</dd>
+                <dd>18 个跨生态案例</dd>
               </div>
               <div>
                 <dt>观察轴</dt>

@@ -13,8 +13,14 @@
 - Keep Docusaurus native sidebar links, expansion state, keyboard behavior, and screen-reader semantics.
 - Do not change content URLs, document titles, or catalog titles.
 - Do not add dependencies or a custom sidebar component.
-- Do not modify or commit the untracked `content/cases/kong-ai-gateway-routing-resilience.mdx`.
+- Preserve the user-authored `content/cases/kong-ai-gateway-routing-resilience.mdx`;
+  do not publish it while untracked, and integrate it if the user commits it.
 - Publish only after the full `npm run verify` command succeeds.
+
+Execution note: after this plan was committed, `5dac465` added the Kong case to
+`main`. The implementation therefore preserves that commit and integrates the
+case into the canonical manifest, generated catalog, counts, and concise sidebar
+labels instead of treating it as untracked work.
 
 ---
 

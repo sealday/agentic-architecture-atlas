@@ -250,12 +250,50 @@ button:focus-visible,
   background: var(--atlas-paper-raised);
 }
 
-.menu__link--active:not(.menu__link--sublist) {
-  border-left: 2px solid var(--ifm-color-primary);
-  border-radius: 0;
+.theme-doc-sidebar-menu {
+  --ifm-menu-color: var(--atlas-ink-soft);
+  --ifm-menu-color-active: var(--ifm-color-primary);
+  --ifm-menu-color-background-active: var(--atlas-paper-muted);
+  padding: 0.75rem 0.5rem 1.5rem;
+}
+
+.theme-doc-sidebar-menu .menu__link {
+  min-height: 2.5rem;
+  padding: 0.55rem 0.75rem;
+  border-radius: 3px;
+  line-height: 1.35;
+}
+
+.theme-doc-sidebar-menu .menu__link--sublist {
+  color: var(--atlas-ink);
+  font-weight: 650;
+}
+
+.theme-doc-sidebar-menu .menu__list .menu__list {
+  margin-top: 0.2rem;
+  padding-left: 0.75rem;
+}
+
+.theme-doc-sidebar-menu .menu__list .menu__list .menu__link:not(.menu__link--sublist) {
+  overflow: hidden;
+  color: var(--atlas-ink-soft);
+  font-size: 0.875rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.theme-doc-sidebar-menu .menu__link--active:not(.menu__link--sublist) {
+  background: var(--atlas-paper-muted);
+  box-shadow: inset 2px 0 var(--ifm-color-primary);
+  color: var(--ifm-color-primary);
+  font-weight: 650;
 }
 
 @media screen and (max-width: 996px) {
+  .navbar {
+    backdrop-filter: none;
+  }
+
   .theme-doc-markdown {
     max-width: 100%;
   }
