@@ -32,7 +32,7 @@ export function findBacklogTopicCandidates(source) {
   const candidates = [];
   for (const [index, line] of source.split(/\r?\n/).entries()) {
     const match = line.match(
-      /^-\s+\[[ xX]\]\s+(?:\*\*)?([A-Z][A-Z0-9-]*)\b/,
+      /^\s*[-*+]\s+\[[ xX]\]\s+(?:\*\*)?([A-Z][A-Z0-9-]*)\b/,
     );
     if (match && !match[1].startsWith('E0-')) {
       candidates.push({id: match[1], line: index + 1, source: line});
@@ -114,7 +114,7 @@ export function parseBacklogTopics(source, file) {
     if (!topicsById.has(id)) {
       for (const candidate of entries) {
         errors.push(
-          `${location(file, candidate.line)}: topic candidate ${id} was not parsed: ${candidate.source}`,
+          `${location(file, candidate.line)}: malformed topic candidate ${id}: ${candidate.source}`,
         );
       }
     }

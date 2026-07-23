@@ -131,9 +131,28 @@ test('rejects malformed or unknown topic candidates instead of dropping them', (
       source: '- [ ] FND-04 P0｜缺少粗体。',
       expected: /FND-04/,
     },
+    {
+      name: 'indented checklist shell',
+      source: '  - [ ] **FND-05 P0｜缩进外壳**。',
+      expected: /malformed topic candidate FND-05/,
+      candidateId: 'FND-05',
+    },
+    {
+      name: 'asterisk checklist shell',
+      source: '* [ ] **QA-03 P0｜星号外壳**。',
+      expected: /malformed topic candidate QA-03/,
+      candidateId: 'QA-03',
+    },
   ];
 
   for (const fixture of cases) {
+    if (fixture.candidateId) {
+      assert.deepEqual(
+        findBacklogTopicCandidates(fixture.source).map(({id}) => id),
+        [fixture.candidateId],
+        fixture.name,
+      );
+    }
     const result = parseBacklogTopics(fixture.source, 'malformed.md');
     assert.ok(result.errors.length > 0, fixture.name);
     assert.match(result.errors.join('\n'), /malformed\.md:1/, fixture.name);
@@ -158,13 +177,27 @@ test('rejects malformed or unknown topic candidates instead of dropping them', (
     ],
     errors: [],
   });
+
+  const ordinaryReferences = [
+    '正文提到 FND-06，但这不是主题任务。',
+    '- 普通列表引用 **QA-04**，同样不是 checklist。',
+  ].join('\n');
+  assert.deepEqual(findBacklogTopicCandidates(ordinaryReferences), []);
+  assert.deepEqual(parseBacklogTopics(ordinaryReferences, 'references.md'), {
+    topics: [],
+    errors: [],
+  });
 });
 
 test('covers the complete real backlog topic set', async () => {
-  const source = await readFile(
-    new URL('../docs/content-backlog.md', import.meta.url),
-    'utf8',
-  );
+  const [source, expectedTopicIdsSource] = await Promise.all([
+    readFile(new URL('../docs/content-backlog.md', import.meta.url), 'utf8'),
+    readFile(
+      new URL('./fixtures/backlog-topic-ids.json', import.meta.url),
+      'utf8',
+    ),
+  ]);
+  const expectedTopicIds = JSON.parse(expectedTopicIdsSource);
   const candidates = findBacklogTopicCandidates(source);
   const candidateIds = new Set(candidates.map(({id}) => id));
   const result = parseBacklogTopics(source, 'docs/content-backlog.md');
@@ -175,6 +208,10 @@ test('covers the complete real backlog topic set', async () => {
   assert.deepEqual(
     new Set(result.topics.map(({id}) => id)),
     candidateIds,
+  );
+  assert.deepEqual(
+    result.topics.map(({id}) => id).sort(),
+    expectedTopicIds,
   );
   assert.deepEqual(result.errors, []);
   for (const id of ['FND-01', 'QA-00', 'PAT-DC-09', 'AGT-06', 'CASE-20', 'QST-10']) {
