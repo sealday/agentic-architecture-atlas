@@ -34,6 +34,7 @@ const expectedCaseCatalog = [
   {slug: '/cases/cloudflare-durable-objects-workerd', catalog_order: 13},
   {slug: '/cases/kubeedge-cloud-edge-autonomy', catalog_order: 14},
   {slug: '/cases/ros2-dds-agent-lifecycle', catalog_order: 15},
+  {slug: '/cases/new-api-channel-pool-routing', catalog_order: 16},
 ];
 
 const expectedLaunchCases = expectedCaseCatalog.slice(0, 5);

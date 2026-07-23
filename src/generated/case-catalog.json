@@ -397,5 +397,58 @@
       "生命周期",
       "物理智能体"
     ]
+  },
+  {
+    "title": "New API Channel Pool Routing：把模型请求分解为能力、层级与故障隔离",
+    "slug": "/cases/new-api-channel-pool-routing",
+    "summary": "用 Ability 索引、优先级层、权重选择和多 Key 状态分析统一模型网关如何路由、重试与隔离故障。",
+    "difficulty": "advanced",
+    "series": "ai-native",
+    "catalog_order": 16,
+    "featured": false,
+    "source_kinds": [
+      "official-docs",
+      "open-source-project"
+    ],
+    "migration_targets": [
+      "capability-indexed-routing",
+      "tiered-failover",
+      "weighted-selection",
+      "credential-fault-isolation"
+    ],
+    "tags": [
+      "New-API",
+      "channel-pool",
+      "capability-routing",
+      "weighted-routing",
+      "multi-key"
+    ]
+  },
+  {
+    "title": "LiteLLM Virtual Keys：把模型网关变成权限与预算的交汇点",
+    "slug": "/cases/litellm-virtual-keys-governance",
+    "summary": "用虚拟 Key、分层模型权限、预算与限流、Guardrail 时序和双轨日志分析多租户模型网关的治理边界。",
+    "difficulty": "advanced",
+    "series": "ai-native",
+    "catalog_order": 17,
+    "featured": false,
+    "source_kinds": [
+      "official-docs",
+      "open-source-project"
+    ],
+    "migration_targets": [
+      "virtual-key-governance",
+      "layered-authorization",
+      "multi-level-budgeting",
+      "guardrail-timing",
+      "provider-key-custody"
+    ],
+    "tags": [
+      "LiteLLM",
+      "virtual-keys",
+      "authorization",
+      "budgets",
+      "guardrails"
+    ]
   }
 ]
