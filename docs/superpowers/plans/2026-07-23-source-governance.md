@@ -1,0 +1,1276 @@
+# 全站来源、版权与外链治理 Implementation Plan
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+
+**Goal:** 建立覆盖全部文章的单一 source ledger、可执行版权与署名门槛、离线可重复且失败可见的外链检查，并强制学习索引不能充当事实证据。
+
+**Architecture:** `data/source-ledger.json` 是来源元数据和文档使用关系的唯一机器真源；内容、topic manifest 和 `/references` 都消费同一验证快照。`data/source-link-health.json` 仅保存网络观测，默认 CI 离线校验，显式命令和定时 workflow 执行 live 检查。
+
+**Tech Stack:** Node.js 24 ESM、`node:test`、Docusaurus 3.10、React 19、TypeScript 6、JSON、GitHub Actions
+
+## Global Constraints
+
+- `docs/content-backlog.md` checkbox 是唯一人工任务状态；实现 worker 不修改 checkbox、发布基线或 Ultragoal 状态。
+- 不增加 npm 依赖；使用 Node.js 24 内置 `fetch`、`AbortSignal.timeout`、`crypto` 和 `fs/promises`。
+- 所有来源元数据和文档使用关系只人工维护在 `data/source-ledger.json`。
+- `data/source-link-health.json` 是观测缓存，不得被解释为来源真相或任务状态。
+- `community-index` 和 `tier=discovery` 只能承担 `discovery` 或 `learning`，不能满足事实证据门槛。
+- 生成文件继续使用 G002 的 staging + digest + fixed-order replace 恢复协议。
+- 生成的 topic `status` 继续只投影 backlog checkbox 或内容生命周期，来源与链接状态不得参与。
+- 默认 `npm run verify` 不访问网络。
+- 实现 worker 不 push、不部署、不 checkpoint，也不在部署前勾选 E0-03、E0-05、E0-11、E0-12。
+
+---
+
+## File map
+
+### New files
+
+- `data/source-ledger.json`：全站来源记录、文档使用关系和版权审查记录的 canonical source。
+- `data/source-link-health.json`：已提交的外链观测缓存。
+- `scripts/source-ledger.mjs`：ledger schema、正文 URL 提取、使用关系和证据门槛校验。
+- `scripts/source-link-health.mjs`：离线缓存校验、live HTTP 检查和 CLI。
+- `tests/source-ledger.test.mjs`：ledger schema、覆盖、版权和索引证据边界。
+- `tests/source-link-health.test.mjs`：缓存及可注入 live checker。
+- `tests/source-ledger-rendering.test.mjs`：资料库组件和页面连接。
+- `src/components/SourceLedger/index.tsx`：渲染全站来源。
+- `src/components/SourceLedger/styles.module.css`：资料库响应式样式。
+- `.github/pull_request_template.md`：发布版权与来源检查清单。
+- `.github/workflows/link-health.yml`：月度和手工 live 外链检查。
+
+### Modified files
+
+- `scripts/backlog-topics.mjs`：空白标题 fail closed。
+- `scripts/content-schema.mjs`：移除 `official_sources` 必需字段。
+- `scripts/validate-content.mjs`：接入来源治理验证结果。
+- `scripts/topic-manifest.mjs`：从 ledger 投影 primary sources，并直接拒绝非 HTTPS。
+- `scripts/generate-content-platform.mjs`：读取 ledger，生成四个 artifact。
+- `package.json`：来源与链接命令以及 verify gate。
+- `content/**/*.mdx`：移除 `official_sources`；正文 URL 保留并由 ledger 登记。
+- `content/references/index.mdx`：从手写来源清单改为生成资料库入口。
+- `src/generated/source-ledger.json`：生成后的公开来源投影。
+- `src/generated/topic-manifest.json`、`src/generated/topic-indexes.json`：来源投影更新。
+- `tests/backlog-topics.test.mjs`、`tests/topic-manifest.test.mjs`：G002 两个审查小项。
+- `tests/content-validation.test.mjs`、`tests/content-platform-generation.test.mjs`、
+  `tests/topic-index.test.mjs`：新接口与四文件生成事务。
+- `.github/workflows/deploy.yml`：保持默认 verify，无 live 网络访问；只补充显式注释。
+
+---
+
+### Task 1: Close the two G002 fail-closed gaps
+
+**Files:**
+- Modify: `tests/backlog-topics.test.mjs`
+- Modify: `scripts/backlog-topics.mjs`
+- Modify: `tests/topic-manifest.test.mjs`
+- Modify: `scripts/topic-manifest.mjs`
+
+**Interfaces:**
+- Consumes: `parseBacklogTopics(source, file)`
+- Produces: 空白标题错误；`buildTopicManifest()` 对每个 projected primary source 执行 HTTPS 检查。
+
+- [ ] **Step 1: Add the backlog blank-title RED fixture**
+
+在 `rejects malformed or unknown topic candidates instead of dropping them` 的 cases 中加入：
+
+```js
+{
+  name: 'blank title',
+  source: '- [ ] **FND-06 P0｜   **。',
+  expected: /FND-06.*title.*non-empty|non-empty.*FND-06/i,
+  candidateId: 'FND-06',
+},
+```
+
+并断言 `parseBacklogTopics()` 不返回 `FND-06` topic。
+
+- [ ] **Step 2: Run the backlog RED test**
+
+Run:
+
+```bash
+node --test --test-name-pattern="rejects malformed or unknown topic candidates instead of dropping them" tests/backlog-topics.test.mjs
+```
+
+Expected: FAIL because the parser currently accepts a whitespace-only captured title.
+
+- [ ] **Step 3: Reject the blank title before adding the topic**
+
+在 `parseBacklogTopics()` 中规范化标题并 fail closed：
+
+```js
+const title = rawTitle.trim().replace(/[。.]\s*$/, '');
+if (title === '') {
+  errors.push(
+    `${location(file, index + 1)}: topic ${id} title must be non-empty`,
+  );
+  continue;
+}
+
+topics.push({
+  id,
+  type,
+  title,
+  slug: `/${route}/${id.toLowerCase()}`,
+  priority,
+  complete: checked.toLowerCase() === 'x',
+  line: index + 1,
+});
+```
+
+- [ ] **Step 4: Add direct manifest non-HTTPS RED cases**
+
+在 `tests/topic-manifest.test.mjs` 的
+`rejects invalid published source and review metadata` 中加入：
+
+```js
+for (const invalidSources of [
+  ['http://example.com/insecure'],
+  ['/img/local-only.png'],
+  [42],
+]) {
+  const invalid = buildTopicManifest({
+    backlogSource: source,
+    documents: [publishedConcept({official_sources: invalidSources})],
+  });
+  assert.match(
+    invalid.errors.join('\n'),
+    /content\/concepts\/architecture-scale\.mdx: published topic "FND-01" primary source .* must be an HTTPS URL/,
+  );
+}
+```
+
+- [ ] **Step 5: Run the manifest RED test**
+
+Run:
+
+```bash
+node --test --test-name-pattern="rejects invalid published source and review metadata" tests/topic-manifest.test.mjs
+```
+
+Expected: FAIL because `buildTopicManifest()` currently checks only array non-emptiness.
+
+- [ ] **Step 6: Validate every projected URL inside `buildTopicManifest()`**
+
+在现有 non-empty check 后加入：
+
+```js
+for (const primarySource of projected.primary_sources ?? []) {
+  if (
+    typeof primarySource !== 'string' ||
+    !primarySource.startsWith('https://')
+  ) {
+    errors.push(
+      `content/${file}: published topic "${id}" primary source "${primarySource}" must be an HTTPS URL`,
+    );
+  }
+}
+```
+
+该保护在 Task 4 改用 `primarySourcesByFile` 后仍保留。
+
+- [ ] **Step 7: Verify GREEN and commit**
+
+Run:
+
+```bash
+node --test tests/backlog-topics.test.mjs tests/topic-manifest.test.mjs
+git diff --check
+git add scripts/backlog-topics.mjs scripts/topic-manifest.mjs \
+  tests/backlog-topics.test.mjs tests/topic-manifest.test.mjs
+git commit -m "fix: fail closed on malformed content sources"
+```
+
+Expected: both test files PASS; one focused commit.
+
+---
+
+### Task 2: Define and validate the canonical source ledger
+
+**Files:**
+- Create: `scripts/source-ledger.mjs`
+- Create: `tests/source-ledger.test.mjs`
+- Create: `data/source-ledger.json`
+- Modify: `scripts/content-schema.mjs`
+- Modify: `tests/content-validation.test.mjs`
+
+**Interfaces:**
+- Produces:
+
+```js
+parseSourceLedger(value, file = 'data/source-ledger.json')
+// => {ledger: {schema_version, sources, documents}, errors: string[]}
+
+extractExternalLinks(document)
+// => string[] sorted unique HTTPS URLs, excluding frontmatter, code fences,
+//    HTML comments, and content/references/index.mdx generated cards
+
+validateSourceGovernance(documents, ledger)
+// => {
+//   errors: string[],
+//   publicLedger: {schema_version: 1, sources: Array, documents: Object},
+//   primarySourcesByFile: Map<string, string[]>
+// }
+```
+
+- [ ] **Step 1: Write source-ledger schema RED tests**
+
+创建 `tests/source-ledger.test.mjs`，加入精确测试名：
+
+```js
+test('validates canonical source records and document uses', () => {});
+test('rejects duplicate sources invalid enums and dangling uses', () => {});
+test('extracts visible external links without code or comment false positives', () => {});
+test('requires complete copyright review records', () => {});
+```
+
+有效 fixture 使用：
+
+```js
+const validSource = {
+  id: 'src-c4-model',
+  locator: 'https://c4model.com/',
+  title: 'C4 model',
+  author_or_org: 'Simon Brown',
+  published_at: null,
+  checked_at: '2026-07-23',
+  version: 'current page checked on 2026-07-23',
+  source_kind: 'official-docs',
+  tier: 'primary',
+  allowed_evidence_roles: ['definition', 'method'],
+  license: 'all-rights-reserved',
+  license_scope: 'Page text and diagrams; third-party links excluded',
+  copyright_policy: 'facts-and-short-quotation',
+  attribution: 'C4 model, Simon Brown, https://c4model.com/',
+  usage_boundary: 'Defines the model; does not prove concrete fitness.',
+  link_policy: 'stable',
+};
+
+const validDocument = {
+  reviewed_at: '2026-07-23',
+  copyright_checks: [
+    'original-structure',
+    'quotation-boundary',
+    'attribution-complete',
+    'illustration-rights',
+  ],
+  uses: [{source_id: 'src-c4-model', roles: ['definition']}],
+};
+```
+
+错误 fixtures 必须覆盖：
+
+- duplicate `id` 和 duplicate `locator`；
+- 未知字段；
+- 非法 `source_kind`、`tier`、role、license、copyright policy、link policy；
+- `community-index` 使用非 discovery tier 或事实 role；
+- use 指向不存在 source；
+- use role 不在 source allowed roles；
+- document path 不以 `content/` 开头或不存在；
+- 日期无效；
+- 空作者、空版本、空 license scope、空 usage boundary；
+- retired source 缺 replacement/archived locator；
+- HTTPS source 缺 link policy；
+- 本地 illustration 使用事实角色。
+
+- [ ] **Step 2: Run source-ledger RED**
+
+Run:
+
+```bash
+node --test tests/source-ledger.test.mjs
+```
+
+Expected: FAIL with `ERR_MODULE_NOT_FOUND` for `scripts/source-ledger.mjs`.
+
+- [ ] **Step 3: Implement constants, strict-object validation, and normalization**
+
+在 `scripts/source-ledger.mjs` 导出：
+
+```js
+export const sourceKinds = [
+  'standard',
+  'paper',
+  'official-docs',
+  'official-repository',
+  'source-code',
+  'engineering-blog',
+  'incident-report',
+  'vendor-reference-architecture',
+  'textbook',
+  'independent-blog',
+  'community-index',
+  'original-illustration',
+];
+
+export const sourceTiers = ['primary', 'first-party', 'secondary', 'discovery'];
+export const evidenceRoles = [
+  'definition',
+  'method',
+  'runtime-fact',
+  'case-evidence',
+  'implementation',
+  'historical-context',
+  'comparison',
+  'learning',
+  'discovery',
+  'illustration',
+];
+export const linkPolicies = ['stable', 'floating', 'auth-required', 'retired'];
+export const requiredCopyrightChecks = [
+  'original-structure',
+  'quotation-boundary',
+  'attribution-complete',
+  'illustration-rights',
+];
+```
+
+实现 `isCalendarDate()`、`validateExactKeys()`、稳定排序和错误累积。解析失败返回
+`{ledger: {schema_version: 1, sources: [], documents: {}}, errors}`，不抛出第一处错误并丢失其余
+上下文。JSON 语法错误由调用方加文件名后报告。
+
+- [ ] **Step 4: Implement visible-link extraction**
+
+复用 `readContentDocuments()` 已提供的 `body`。扫描器按行维护 code fence 与 HTML comment 状态，
+从可见文本提取：
+
+```js
+const markdownLink = /\]\((https:\/\/[^)\s]+)(?:\s+["'][^"']*["'])?\)/g;
+const autoLink = /<(https:\/\/[^>\s]+)>/g;
+const mdxHref = /\bhref=(?:["'])(https:\/\/[^"']+)(?:["'])/g;
+```
+
+去掉 URL fragment 之外的 Markdown 尾随标点，保留 query 和 fragment，返回
+`localeCompare('en')` 排序的唯一数组。frontmatter 不参与提取。
+
+- [ ] **Step 5: Seed the ledger from every current document**
+
+创建一次性本地迁移脚本只用于生成工作副本，执行后删除，不提交脚本。最终
+`data/source-ledger.json` 必须：
+
+- 为当前 40 篇 MDX 建立 `documents` 条目；
+- 登记全部正文可见 HTTPS URL 和学习路线原创图片；
+- 把 Awesome Software Architecture、System Design Primer、roadmap.sh、面试站和博客索引标为
+  `community-index` / `discovery`；
+- 固定 GitHub commit URL 标为 `source-code` 或 `official-repository` / `primary`；
+- 工程团队官方博客标为 `engineering-blog` / `first-party`；
+- 厂商参考架构标为 `vendor-reference-architecture` / `first-party`；
+- 对发布日期未知使用 JSON `null`，不能用访问日期代替；
+- 每条 source 填写具体作者/机构、版本、许可证范围、署名和使用边界；
+- 每篇 document 填写四个 copyright checks；
+- `sources`、documents keys、uses 均稳定排序。
+
+禁止提交形如 `"Unknown"`, `"generated entry"`, `"review later"` 的自动迁移残留。
+
+- [ ] **Step 6: Remove `official_sources` from the schema and all content**
+
+从 `requiredFields` 删除 `'official_sources'`。删除全部 40 篇 MDX frontmatter 的
+`official_sources` 块，正文链接保持不变。若一个索引来源原先只存在于 frontmatter，则在该索引
+正文增加一个简短的“外部学习起点”链接，使 ledger use 仍有可见消费点。删除 `validateContent()` 针对
+`official_sources` 的旧 URL 检查；来源完整性在 `validateSourceGovernance()` 中统一处理。
+
+更新 `tests/content-validation.test.mjs`：
+
+- 将 `validCaseFrontMatter()` 移除 `official_sources`；
+- 删除旧的空数组/HTTP frontmatter 断言；
+- 把测试名 `accepts all five valid launch cases with HTTPS official sources`
+  改为 `accepts all five structurally valid launch cases`；
+- 保留 Task 1 对 `buildTopicManifest()` 直接调用的 HTTPS 单元测试。
+
+- [ ] **Step 7: Implement cross-document governance validation**
+
+`validateSourceGovernance()` 必须验证：
+
+```js
+const factualRoles = new Set([
+  'definition',
+  'method',
+  'runtime-fact',
+  'case-evidence',
+  'implementation',
+]);
+
+const factRequiredTypes = new Set(['case', 'principle', 'pattern']);
+```
+
+- 每个非 references 文档有一个 ledger document 条目；
+- ledger 不含不存在文档；
+- 每个可见 HTTPS URL 有 source 和 use；
+- 每个 use 的 HTTPS locator 在正文出现；
+- references 页面由生成卡片展示，允许 use 不在自身正文重复；
+- use roles 是 source allowed roles 子集；
+- `community-index` 只能使用 discovery/learning；
+- 非 index 的 case/principle/pattern 至少有 primary/first-party factual source；
+- 四个 copyright checks 完整且没有重复；
+- `primarySourcesByFile` 投影 tier 不为 discovery、source kind 不为 community-index 的 HTTPS
+  URL；case/principle/pattern 的 factual role 门槛单独执行，避免学习路径的可信官方学习资料被
+  manifest 误删。
+
+同时把 `validateContent()` 返回值从裁剪后的 `{file, metadata}` 改为完整的
+`{filePath, file, source, body, metadata, headings}` document snapshot。现有消费者继续只读取
+所需字段；Task 4 必须直接复用该 snapshot，不能二次扫描 content。
+
+错误按 document path、source ID、URL 排序。
+
+- [ ] **Step 8: Verify GREEN and commit**
+
+Run:
+
+```bash
+node --test tests/source-ledger.test.mjs tests/content-validation.test.mjs
+node --input-type=module - <<'EOF'
+import {readFile} from 'node:fs/promises';
+import {readContentDocuments} from './scripts/content-metadata.mjs';
+import {
+  parseSourceLedger,
+  validateSourceGovernance,
+} from './scripts/source-ledger.mjs';
+const documents = await readContentDocuments('content');
+const parsed = parseSourceLedger(
+  JSON.parse(await readFile('data/source-ledger.json', 'utf8')),
+);
+const governed = validateSourceGovernance(documents, parsed.ledger);
+if (parsed.errors.length || governed.errors.length) {
+  throw new Error([...parsed.errors, ...governed.errors].join('\n'));
+}
+console.log(`Validated ${parsed.ledger.sources.length} sources across ${documents.length} documents.`);
+EOF
+git diff --check
+git add data/source-ledger.json scripts/source-ledger.mjs \
+  scripts/content-schema.mjs scripts/validate-content.mjs \
+  tests/source-ledger.test.mjs tests/content-validation.test.mjs content
+git commit -m "feat: establish the canonical source ledger"
+```
+
+Expected: tests PASS; command reports 40 documents and a non-zero source count; no
+`official_sources:` remains under `content/`.
+
+---
+
+### Task 3: Enforce evidence and copyright policies adversarially
+
+**Files:**
+- Modify: `tests/source-ledger.test.mjs`
+- Modify: `scripts/source-ledger.mjs`
+- Create: `.github/pull_request_template.md`
+
+**Interfaces:**
+- Consumes: validated ledger shape from Task 2.
+- Produces: fail-closed evidence boundary and a human publication checklist.
+
+- [ ] **Step 1: Add RED tests for index laundering and license boundaries**
+
+新增测试：
+
+```js
+test('does not treat learning indexes as factual evidence', () => {});
+test('enforces license-specific copyright policies', () => {});
+test('keeps vendor claims and illustration rights explicit', () => {});
+```
+
+fixtures 必须覆盖：
+
+- 一个 case 同时使用三个 `community-index`，仍因缺 factual source 失败；
+- `community-index` 伪装为 `tier=secondary` 失败；
+- independent blog 可做 comparison，但不能独自满足 case factual gate；
+- CC BY 缺 `adapt-with-attribution` 失败；
+- CC BY-SA 缺 `adapt-sharealike-review` 失败；
+- US government work 缺 `public-domain-with-provenance` 失败；
+- unknown/all-rights-reserved 使用改编策略失败；
+- vendor reference architecture 缺 `vendor-claims-separated` 失败；
+- original illustration 缺 `illustration` role 或 document `illustration-rights` 失败。
+
+- [ ] **Step 2: Run RED**
+
+Run:
+
+```bash
+node --test --test-name-pattern="does not treat learning indexes as factual evidence|enforces license-specific copyright policies|keeps vendor claims and illustration rights explicit" tests/source-ledger.test.mjs
+```
+
+Expected: at least one test FAIL because Task 2 only validates enums and generic role subsets.
+
+- [ ] **Step 3: Implement the policy matrix**
+
+在 `scripts/source-ledger.mjs` 使用确切映射：
+
+```js
+const requiredPolicyByLicense = new Map([
+  ['CC-BY-4.0', 'adapt-with-attribution'],
+  ['CC-BY-SA-4.0', 'adapt-sharealike-review'],
+  ['US-GOV-PUBLIC-DOMAIN', 'public-domain-with-provenance'],
+  ['all-rights-reserved', 'facts-and-short-quotation'],
+  ['unknown', 'facts-and-short-quotation'],
+]);
+
+const requiredPolicyByKind = new Map([
+  ['vendor-reference-architecture', 'vendor-claims-separated'],
+  ['original-illustration', 'original-atlas'],
+]);
+```
+
+当 kind 与 license 都有要求时，kind 规则优先。错误必须同时包含 source ID、实际值和期望值。
+
+- [ ] **Step 4: Add the exact PR checklist**
+
+创建 `.github/pull_request_template.md`：
+
+```markdown
+## 来源与版权发布检查
+
+- [ ] 新增或修改的外部来源已登记到 `data/source-ledger.json`，正文链接与 document use 闭合。
+- [ ] Awesome、路线图、面试站、博客索引只标为 discovery/learning，没有承担事实证据。
+- [ ] 事实、跨来源推断、厂商自述和本站分析在正文中可区分。
+- [ ] CC BY/CC BY-SA/政府作品/许可不明材料按 ledger policy 处理，署名与修改说明完整。
+- [ ] 短引用没有扩展成逐段翻译，仓库许可证没有被错误套用到第三方链接或图片。
+- [ ] 插图为本站原创或有明确授权，来源、许可证和修改情况已记录。
+- [ ] `npm run verify` 已通过；需要联网复核时另行运行 `npm run check:links:live`。
+```
+
+- [ ] **Step 5: Verify GREEN and commit**
+
+Run:
+
+```bash
+node --test tests/source-ledger.test.mjs
+rg -n "community-index|CC-BY-SA-4.0|vendor-claims-separated|original-illustration" \
+  scripts/source-ledger.mjs data/source-ledger.json
+git diff --check
+git add scripts/source-ledger.mjs tests/source-ledger.test.mjs \
+  data/source-ledger.json .github/pull_request_template.md
+git commit -m "feat: enforce source evidence and copyright policy"
+```
+
+Expected: all source-ledger tests PASS and policy terms appear in implementation and real data.
+
+---
+
+### Task 4: Feed the ledger into manifest and the recoverable generator
+
+**Files:**
+- Modify: `scripts/topic-manifest.mjs`
+- Modify: `scripts/generate-content-platform.mjs`
+- Modify: `tests/topic-manifest.test.mjs`
+- Modify: `tests/content-platform-generation.test.mjs`
+- Modify: `src/generated/topic-manifest.json`
+- Modify: `src/generated/topic-indexes.json`
+- Modify: `src/generated/case-catalog.json`
+- Create: `src/generated/source-ledger.json`
+
+**Interfaces:**
+- `buildTopicManifest({backlogSource, documents, relations, primarySourcesByFile})`
+- `serializePublicSourceLedger(publicLedger) => string`
+- `generatedPaths.sourceLedger = 'src/generated/source-ledger.json'`
+
+- [ ] **Step 1: Convert manifest fixtures to `primarySourcesByFile` RED tests**
+
+在 `tests/topic-manifest.test.mjs` 增加 helper：
+
+```js
+const primarySources = (...entries) =>
+  new Map(entries.length ? entries : [
+    [
+      'concepts/architecture-scale.mdx',
+      ['https://example.com/architecture-scale'],
+    ],
+  ]);
+```
+
+所有 published document 调用显式传 `primarySourcesByFile`。新增：
+
+```js
+test('projects only validated ledger sources into the manifest', () => {});
+```
+
+验证：
+
+- metadata 中即使残留 `official_sources` 也被忽略；
+- 映射值成为 `primary_sources`；
+- 缺 file key 产生 non-empty primary source error；
+- `http://`、站内路径和非字符串仍由 `buildTopicManifest()` 自身拒绝。
+
+- [ ] **Step 2: Add four-artifact RED tests**
+
+更新 `tests/content-platform-generation.test.mjs` fixture，复制
+`data/source-ledger.json` fixture，并断言：
+
+```js
+assert.deepEqual(Object.keys(first), [
+  generatedPaths.sourceLedger,
+  generatedPaths.manifest,
+  generatedPaths.indexes,
+  generatedPaths.caseCatalog,
+]);
+```
+
+staging 期望文件增加 `source-ledger.json`。中断测试仍在第二次 replace 抛错，并验证四个 target 可
+重放恢复。source document reads 仍只发生一次；ledger 只读一次。
+
+- [ ] **Step 3: Run RED**
+
+Run:
+
+```bash
+node --test tests/topic-manifest.test.mjs tests/content-platform-generation.test.mjs
+```
+
+Expected: FAIL because signatures and generated path still use G002 three-artifact shape.
+
+- [ ] **Step 4: Change the manifest projection boundary**
+
+把 `projectDocument()` 改为接受 `primarySources`：
+
+```js
+function projectDocument(id, file, metadata, existing, primarySources) {
+  // existing case-catalog projection remains unchanged
+  return {
+    id,
+    type: metadata.content_type,
+    title: metadata.title,
+    slug: metadata.slug,
+    priority: existing?.priority ?? metadata.priority ?? null,
+    status: existing?.status ?? contentStatus(file, metadata.status),
+    dependencies: copyArray(metadata.depends_on ?? []),
+    primary_sources: copyArray(primarySources ?? []),
+    related_cases: copyArray(metadata.related_cases ?? []),
+    reviewed_at: metadata.analyzed_at,
+    published: true,
+    presentation,
+  };
+}
+```
+
+`buildTopicManifest()` 查找：
+
+```js
+const primarySources = primarySourcesByFile.get(file) ?? [];
+const projected = projectDocument(id, file, metadata, existing, primarySources);
+```
+
+保留 Task 1 的逐 URL HTTPS 验证。`projectPublishedDocuments()` 新增可选
+`primarySourcesByFile = new Map()` 参数，兼容 case catalog 测试，但不回读 frontmatter URL。
+
+- [ ] **Step 5: Extend the generation snapshot**
+
+`buildContentArtifacts()`：
+
+1. 读取和 JSON.parse `data/source-ledger.json`；
+2. `parseSourceLedger()`；
+3. 让 `validateContent()` 返回已有 document snapshot；
+4. `validateSourceGovernance(validation.documents, ledger)`；
+5. 将 `primarySourcesByFile` 传给 manifest；
+6. 将 `publicLedger` 序列化为第一个 artifact。
+
+固定 `generatedPaths`：
+
+```js
+export const generatedPaths = {
+  sourceLedger: 'src/generated/source-ledger.json',
+  manifest: 'src/generated/topic-manifest.json',
+  indexes: 'src/generated/topic-indexes.json',
+  caseCatalog: 'src/generated/case-catalog.json',
+};
+```
+
+所有 write/check/staging/recovery 循环继续使用 `Object.values(generatedPaths)`，固定顺序即上面声明
+顺序。
+
+- [ ] **Step 6: Generate and verify GREEN**
+
+Run:
+
+```bash
+node --test tests/topic-manifest.test.mjs tests/content-platform-generation.test.mjs
+npm run generate:content
+npm run check:content
+node --input-type=module - <<'EOF'
+import manifest from './src/generated/topic-manifest.json' with {type: 'json'};
+for (const topic of manifest.topics.filter(({published}) => published)) {
+  if (topic.primary_sources.some((url) => !url.startsWith('https://'))) {
+    throw new Error(`Non-HTTPS manifest source for ${topic.id}`);
+  }
+}
+console.log(`Checked ${manifest.topics.length} manifest topics.`);
+EOF
+```
+
+Expected: tests PASS; four artifacts current; every manifest primary source is HTTPS.
+
+- [ ] **Step 7: Commit**
+
+```bash
+git add scripts/topic-manifest.mjs scripts/generate-content-platform.mjs \
+  scripts/source-ledger.mjs tests/topic-manifest.test.mjs \
+  tests/content-platform-generation.test.mjs src/generated
+git commit -m "feat: generate source-governed content artifacts"
+```
+
+---
+
+### Task 5: Render the complete source library from the generated ledger
+
+**Files:**
+- Create: `src/components/SourceLedger/index.tsx`
+- Create: `src/components/SourceLedger/styles.module.css`
+- Create: `tests/source-ledger-rendering.test.mjs`
+- Modify: `content/references/index.mdx`
+- Modify: `tests/topic-index.test.mjs`
+
+**Interfaces:**
+
+```ts
+type SourceLedgerProps = {
+  tier?: 'primary' | 'first-party' | 'secondary' | 'discovery';
+};
+```
+
+- [ ] **Step 1: Write rendering RED tests**
+
+创建三个精确测试：
+
+```js
+test('renders the generated source ledger instead of a hand-maintained catalog', async () => {});
+test('shows provenance copyright evidence roles and usage boundaries', async () => {});
+test('labels discovery indexes as navigation rather than factual evidence', async () => {});
+```
+
+断言：
+
+- component imports `@site/src/generated/source-ledger.json`；
+- references page imports and renders `<SourceLedger />`；
+- manual `### C4 Model` 等来源条目从 MDX 删除；
+- component renders author/org、source kind、tier、version、checked_at、license、copyright policy、
+  usage boundary、evidence roles 和 used-by links；
+- community index card 显示“选题/学习导航，不是事实证据”；
+- local illustration 不渲染成外链；
+- HTTPS locator 使用 `<a href>`；
+- document path 转换为对应 metadata slug，而不是猜测文件 URL。
+
+- [ ] **Step 2: Run RED**
+
+Run:
+
+```bash
+node --test tests/source-ledger-rendering.test.mjs
+```
+
+Expected: FAIL because component does not exist.
+
+- [ ] **Step 3: Implement `SourceLedger`**
+
+组件导入 generated JSON，按 tier 顺序
+`primary → first-party → secondary → discovery` 和 source kind、title 排序。每个卡片输出：
+
+```tsx
+<article className={styles.card} key={source.id}>
+  <h3>
+    {source.locator.startsWith('https://') ? (
+      <a href={source.locator}>{source.title}</a>
+    ) : (
+      source.title
+    )}
+  </h3>
+  <dl className={styles.metadata}>
+    <dt>作者或机构</dt><dd>{source.author_or_org}</dd>
+    <dt>来源层级</dt><dd>{tierLabels[source.tier]}</dd>
+    <dt>来源类型</dt><dd>{kindLabels[source.source_kind]}</dd>
+    <dt>版本</dt><dd>{source.version}</dd>
+    <dt>核查日期</dt><dd>{source.checked_at}</dd>
+    <dt>许可证</dt><dd>{source.license}</dd>
+    <dt>使用边界</dt><dd>{source.usage_boundary}</dd>
+  </dl>
+</article>
+```
+
+为 source 构造 uses 时读取 generated documents，将 document slug 和 title 一并放入 public ledger；
+组件不从文件名猜 slug。
+
+- [ ] **Step 4: Replace the hand-maintained reference cards**
+
+`content/references/index.mdx` 保留：
+
+- 来源层级解释；
+- “索引不等于证据”规则；
+- 版权处理表；
+- link policy 说明；
+- 如何登记来源。
+
+删除全部手写来源 `###` 卡片，加入：
+
+```mdx
+import SourceLedger from '@site/src/components/SourceLedger';
+
+## 全站来源清单
+
+以下条目由 `data/source-ledger.json` 生成。条目显示来源能够支持什么，也显示它不能单独证明什么。
+
+<SourceLedger />
+```
+
+- [ ] **Step 5: Add responsive and accessible styling**
+
+CSS 使用 semantic article/dl，移动端单列，`min-width: 768px` 两列；不固定高度，不隐藏 overflow，
+链接继承站点 focus 样式。tier heading 和 discovery warning 必须为可见文本，不只用颜色表达。
+
+- [ ] **Step 6: Verify GREEN**
+
+Run:
+
+```bash
+node --test tests/source-ledger-rendering.test.mjs tests/topic-index.test.mjs
+npm run typecheck
+npm run build
+```
+
+Expected: tests/typecheck/build PASS; `/references` is generated by one component and has no broken links.
+
+- [ ] **Step 7: Commit**
+
+```bash
+git add src/components/SourceLedger content/references/index.mdx \
+  tests/source-ledger-rendering.test.mjs tests/topic-index.test.mjs \
+  src/generated/source-ledger.json
+git commit -m "feat: render the canonical source library"
+```
+
+---
+
+### Task 6: Add deterministic cached and injectable live link checks
+
+**Files:**
+- Create: `scripts/source-link-health.mjs`
+- Create: `tests/source-link-health.test.mjs`
+- Create: `data/source-link-health.json`
+- Modify: `package.json`
+
+**Interfaces:**
+
+```js
+validateLinkHealthCache(ledger, cache, {now = new Date()})
+// => {errors: string[]}
+
+checkSourceLink(
+  source,
+  {fetchImpl = fetch, now = new Date(), timeoutMs = 10000} = {},
+)
+// => Promise<LinkHealthResult>
+
+checkLiveLinks(
+  ledger,
+  {fetchImpl = fetch, now = new Date(), timeoutMs = 10000, concurrency = 4} = {},
+)
+// => Promise<{cache, errors}>
+```
+
+CLI:
+
+```text
+node scripts/source-link-health.mjs --check-cache
+node scripts/source-link-health.mjs --live
+node scripts/source-link-health.mjs --refresh
+```
+
+- [ ] **Step 1: Write cache RED tests**
+
+测试名：
+
+```js
+test('validates complete deterministic link-health cache coverage', () => {});
+test('rejects missing duplicate stale and policy-incompatible cache results', () => {});
+```
+
+fixtures 覆盖：
+
+- active HTTPS source 恰有一个 result；
+- local illustration 无 result；
+- cache 超过 120 calendar days；
+- requested URL 与 ledger locator 不同；
+- stable source 的 final transport URL 不同；比较前用
+  `const transportUrl = new URL(locator); transportUrl.hash = ''` 移除 fragment；
+- floating source 接受 HTTPS final URL；
+- auth-required 只接受 `outcome=auth-required` 与 401/403；
+- retired 只接受 `outcome=retired` 与 404/410；
+- healthy 只接受 200–299；
+- unknown outcome、duplicate source、orphan result 均失败。
+
+- [ ] **Step 2: Write live-check RED tests**
+
+测试名：
+
+```js
+test('follows bounded HTTPS redirects and records every hop', async () => {});
+test('falls back from unsupported HEAD to ranged GET', async () => {});
+test('classifies auth retired timeout server and redirect failures', async () => {});
+test('does not reuse an old healthy result when the live request fails', async () => {});
+```
+
+使用可注入 `fetchImpl` 返回真实 `Response`：
+
+```js
+const fetchImpl = async (url, options) => {
+  calls.push({url, options});
+  return new Response(null, {status: 200});
+};
+```
+
+断言 `HEAD`、`Range: bytes=0-0`、最多 5 跳、`AbortSignal`、HTTPS downgrade 拒绝、按 source ID
+排序，以及失败 result 仍进入新 cache 且 errors 非空。
+
+- [ ] **Step 3: Run RED**
+
+Run:
+
+```bash
+node --test tests/source-link-health.test.mjs
+```
+
+Expected: FAIL with `ERR_MODULE_NOT_FOUND`.
+
+- [ ] **Step 4: Implement cache validation**
+
+严格检查：
+
+```js
+const maxCacheAgeMs = 120 * 24 * 60 * 60 * 1000;
+const activeHttpsSources = ledger.sources.filter(
+  ({locator, link_policy}) =>
+    locator.startsWith('https://') && link_policy !== 'retired',
+);
+```
+
+`retired` HTTPS source 仍需 result；仅 local source 排除。所有 errors 按 source ID 排序，不依赖 JSON
+输入顺序。
+
+- [ ] **Step 5: Implement live checking**
+
+请求 helper：
+
+```js
+const response = await fetchImpl(url, {
+  method,
+  redirect: 'manual',
+  headers: method === 'GET'
+    ? {'Range': 'bytes=0-0', 'User-Agent': 'agentic-architecture-atlas-link-check/1'}
+    : {'User-Agent': 'agentic-architecture-atlas-link-check/1'},
+  signal: AbortSignal.timeout(timeoutMs),
+});
+```
+
+规则：
+
+- 301/302/303/307/308 读取 Location，最多 5 跳；
+- relative Location 用 `new URL(location, currentUrl)`；
+- final URL 必须 HTTPS；
+- `requested_url` 保留 ledger locator；请求、重定向与 final URL 比较使用移除 fragment 后的
+  transport URL；
+- HEAD 405/501 时回退 ranged GET；
+- stable 的 final URL 变化为 `redirect-changed`；
+- floating 的 HTTPS redirect 可 healthy；
+- auth-required 的 401/403 为 `auth-required`；
+- retired 的 404/410 为 `retired`；
+- 429/5xx/timeout/DNS/TLS/loop 为 error；
+- 任一 error 使 live/refresh CLI exit 1；
+- refresh 即使失败也原子写入本次 cache，不能保留旧 healthy 伪装成功。
+
+- [ ] **Step 6: Add exact package commands**
+
+```json
+"check:links": "node scripts/source-link-health.mjs --check-cache",
+"check:links:live": "node scripts/source-link-health.mjs --live",
+"refresh:links": "node scripts/source-link-health.mjs --refresh",
+"verify": "npm run test && npm run validate:content && npm run check:content && npm run check:links && npm run typecheck && npm run build"
+```
+
+CLI 缺 mode、多 mode、未知 mode 均打印 usage 并 exit 1。
+
+- [ ] **Step 7: Produce the first reviewed cache**
+
+Run:
+
+```bash
+npm run refresh:links
+npm run check:links
+```
+
+如果 live 网络中有登录墙、永久重定向、retired URL 或真实失败，按观测更新 ledger 的
+`link_policy`、locator、replacement/archived locator；不得把失败 URL 简单删除或伪写为 200。
+重复执行 refresh 直到没有未解释错误，然后离线 check 必须 PASS。
+
+- [ ] **Step 8: Verify GREEN and commit**
+
+Run:
+
+```bash
+node --test tests/source-link-health.test.mjs
+npm run check:links
+git diff --check
+git add scripts/source-link-health.mjs tests/source-link-health.test.mjs \
+  data/source-link-health.json data/source-ledger.json package.json
+git commit -m "feat: add reproducible source link health checks"
+```
+
+Expected: tests PASS; cache covers every ledger HTTPS source; default check makes no network calls.
+
+---
+
+### Task 7: Put source and link gates into validation and CI
+
+**Files:**
+- Modify: `scripts/validate-content.mjs`
+- Modify: `tests/content-validation.test.mjs`
+- Create: `.github/workflows/link-health.yml`
+- Modify: `.github/workflows/deploy.yml`
+- Modify: `package.json`
+
+**Interfaces:**
+- `validate:content` remains the public structural + source governance CLI.
+- `verify` remains the deployment gate and remains offline.
+
+- [ ] **Step 1: Add CLI integration RED tests**
+
+在 `tests/content-validation.test.mjs` 增加：
+
+```js
+test('the repository validator fails on unregistered article sources', async () => {});
+test('the repository validator reports source-ledger errors with file context', async () => {});
+```
+
+fixture root 包含 `content/` 与 `data/source-ledger.json`。第一个 fixture 在正文加入
+`[unregistered](https://example.com/unregistered)`；第二个让 use 指向 missing source。
+spawn CLI 并断言 exit 1 和精确 URL/path。
+
+- [ ] **Step 2: Run RED**
+
+Run:
+
+```bash
+node --test --test-name-pattern="the repository validator fails on unregistered article sources|the repository validator reports source-ledger errors with file context" tests/content-validation.test.mjs
+```
+
+Expected: FAIL because current CLI only validates MDX structure.
+
+- [ ] **Step 3: Integrate ledger loading without rereading content**
+
+`runCli()` 根据 content root 的父目录读取 `data/source-ledger.json`，调用
+`parseSourceLedger()` 和 `validateSourceGovernance(result.documents, ledger)`。Task 2 已让
+`validateContent()` 返回的 documents 保留 `body`、`source` 和 metadata；本任务直接复用该
+snapshot，不再次读取 MDX。
+
+CLI success 输出：
+
+```text
+Validated 40 content document(s) and N registered source(s).
+```
+
+JSON parse、ledger schema、document governance errors 与 content errors 合并后稳定排序输出。
+
+- [ ] **Step 4: Add the scheduled live workflow**
+
+创建 `.github/workflows/link-health.yml`：
+
+```yaml
+name: Check external source links
+
+on:
+  schedule:
+    - cron: '17 2 1 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check-links:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run check:links:live
+```
+
+checkout 与 setup-node 必须保持上述 40 位 immutable commit，不得改为 mutable tag。
+
+- [ ] **Step 5: Make the offline boundary explicit**
+
+`.github/workflows/deploy.yml` 的 Verify step 前增加注释：
+
+```yaml
+# npm run verify uses the committed link-health cache and does not access external sites.
+- name: Verify site
+  run: npm run verify
+```
+
+`package.json` 的 `verify` 保持 Task 6 确定顺序，不调用 `check:links:live` 或 `refresh:links`。
+
+- [ ] **Step 6: Verify GREEN and workflow syntax**
+
+Run:
+
+```bash
+node --test tests/content-validation.test.mjs
+npm run validate:content
+npm run check:content
+npm run check:links
+node --input-type=module - <<'EOF'
+import {readFile} from 'node:fs/promises';
+for (const file of ['.github/workflows/deploy.yml', '.github/workflows/link-health.yml']) {
+  const source = await readFile(file, 'utf8');
+  if (/uses:\\s+actions\\/(checkout|setup-node)@v\\d/.test(source)) {
+    throw new Error(`${file}: mutable action tag`);
+  }
+}
+console.log('Workflow action references are immutable.');
+EOF
+```
+
+Expected: all checks PASS; workflows use pinned action commits.
+
+- [ ] **Step 7: Commit**
+
+```bash
+git add scripts/validate-content.mjs tests/content-validation.test.mjs \
+  .github/workflows/deploy.yml .github/workflows/link-health.yml package.json
+git commit -m "ci: enforce source governance and link health"
+```
+
+---
+
+### Task 8: Full verification, adversarial review, and leader handoff
+
+**Files:**
+- Modify only when verification exposes a defect: files listed in Tasks 1–7.
+- Do not modify: `docs/content-backlog.md`, `.omx/`, publication baseline.
+
+**Interfaces:**
+- Produces: reviewed local commits and evidence for the Ultragoal leader.
+- Does not produce: push, Pages deployment, checkbox updates, release metadata, checkpoint.
+
+- [ ] **Step 1: Run targeted governance tests**
+
+Run:
+
+```bash
+node --test tests/backlog-topics.test.mjs \
+  tests/content-validation.test.mjs \
+  tests/source-ledger.test.mjs \
+  tests/source-link-health.test.mjs \
+  tests/topic-manifest.test.mjs \
+  tests/content-platform-generation.test.mjs \
+  tests/source-ledger-rendering.test.mjs \
+  tests/topic-index.test.mjs
+npm run validate:content
+npm run check:content
+npm run check:links
+```
+
+Expected: all tests and offline checks PASS.
+
+- [ ] **Step 2: Run the complete repository gate**
+
+Run:
+
+```bash
+npm run verify
+git diff --check
+git status --short
+```
+
+Expected: tests, content/source validation, generated artifact check, offline links, typecheck and Docusaurus
+build PASS.
+
+- [ ] **Step 3: Perform an adversarial review**
+
+Review with fresh eyes against E0-03/E0-05/E0-11/E0-12 and the design:
+
+- sample at least one source of every `source_kind`;
+- sample one case, one path, pattern index and references page;
+- verify Awesome/System Design Primer/roadmap/community indexes cannot satisfy factual gate;
+- verify a source URL added only to article body fails;
+- verify a ledger source added without document use fails or is explicitly permitted as discovery inventory;
+- verify CC BY, CC BY-SA, US government, unknown and vendor policies;
+- verify GitHub repository license scope does not claim linked third-party material;
+- verify local roadmap image provenance;
+- verify stable redirect changes, floating redirects, auth wall, retired link, timeout and 5xx;
+- verify default `npm run verify` performs no live fetch;
+- verify manifest status remains backlog/content lifecycle only;
+- verify four-artifact interrupted replacement recovery;
+- verify references page shows every ledger source.
+
+Any blocking finding gets a new RED test, minimal fix, targeted test, full verify and separate review-fix commit.
+
+- [ ] **Step 4: Scan for migration residue and accidental second writers**
+
+Run:
+
+```bash
+test -z "$(rg -n '^official_sources:' content --glob '*.mdx' || true)"
+test -z "$(rg -n 'T[B]D|T[O]DO|generated entry|review later|Unknown author' \
+  data/source-ledger.json data/source-link-health.json \
+  scripts/source-ledger.mjs scripts/source-link-health.mjs || true)"
+test -z "$(rg -n 'writeFile.*content-backlog|content-backlog.*writeFile|ultragoal checkpoint' \
+  scripts/source-ledger.mjs scripts/source-link-health.mjs || true)"
+git diff --check
+```
+
+Expected: all commands exit 0. A legitimate prose occurrence must be rewritten precisely rather than excluded
+with a broad ignore.
+
+- [ ] **Step 5: Commit review fixes if needed**
+
+If review required changes:
+
+```bash
+npm run verify
+git diff --check
+git add data/source-ledger.json data/source-link-health.json \
+  scripts/source-ledger.mjs scripts/source-link-health.mjs \
+  scripts/content-schema.mjs scripts/validate-content.mjs \
+  scripts/topic-manifest.mjs scripts/generate-content-platform.mjs \
+  src/generated src/components/SourceLedger content \
+  tests .github package.json
+git commit -m "fix: address source governance review"
+```
+
+If no tracked diff exists, do not create an empty commit.
+
+- [ ] **Step 6: Hand off evidence and stop**
+
+Report:
+
+- implementation and review commit SHAs;
+- total source count and document count;
+- targeted and full verification results;
+- `npm run check:content` and `npm run check:links` exact success output;
+- independent review verdict;
+- post-push routes:
+  - `/references`
+  - `/paths`
+  - `/cases`
+  - `/patterns`
+
+The Ultragoal leader then performs the remaining story gate:
+
+1. review and push the implementation commits;
+2. wait for the matching Pages run;
+3. inspect the four routes and confirm source cards, discovery warnings and existing content;
+4. separately delegate the docs-only backlog checkbox and publication-baseline update after successful deployment;
+5. review, commit, push and deploy that metadata update;
+6. take a fresh active `get_goal` snapshot and checkpoint G003;
+7. continue to G004 without marking the aggregate goal complete.
+
+## Plan self-review
+
+- **Spec coverage:** Tasks 2–5 cover source ledger, evidence roles, copyright and generated library; Tasks 6–7
+  cover offline/live links and CI; Task 1 covers both G002 minor findings; Task 8 covers final adversarial evidence.
+- **Placeholder scan:** Every task names exact files, interfaces, test names, commands, expected failure/success and
+  commit boundaries. Migration records forbid unresolved auto-generated values.
+- **Type consistency:** `primarySourcesByFile` is a `Map<string, string[]>` from
+  `validateSourceGovernance()` through `buildTopicManifest()`; public source ledger is the fourth generated
+  artifact input and first replacement target; link cache remains independent.
+- **Publication boundary:** No worker task pushes, deploys, checks backlog items, updates release baseline or
+  checkpoints Ultragoal.

@@ -1,0 +1,366 @@
+# 全站来源、版权与外链治理设计
+
+**日期：** 2026-07-23  
+**状态：** Approved for planning  
+**范围：** `docs/content-backlog.md` 的 E0-03、E0-05、E0-11、E0-12，以及 G002 最终审查留下的两个小项  
+**非目标：** 本设计不勾选 backlog、不推送、不部署、不更新发布基线，也不改变 Ultragoal 状态
+
+## 1. 背景与成功标准
+
+当前站点有 40 篇 MDX 文档，frontmatter 中共有 289 个去重后的
+`official_sources` URL，正文中约有 443 个去重后的 HTTPS URL。资料库页面主要服务学习路线，
+大量案例证据只存在于各篇文章，来源类型、证据用途、许可证、署名、版本和链接状态没有统一的
+机器可读登记。`official_sources` 还混合了官方文档、源码、工程博客、社区索引和教程，名称与实际
+语义不一致。
+
+G003 完成后必须满足：
+
+1. 每个站内文章使用的外部来源都在一个机器可读 source ledger 中登记；资料库页面由该 ledger
+   生成，不再手工维护第二份来源目录。
+2. 每个来源明确记录来源层级、类型、允许的证据用途、作者或机构、版本或发布日期、核查日期、
+   许可证与使用边界。
+3. 原则、模式和案例内容不能仅由 Awesome 列表、面试站、博客索引或其他聚合页支撑；学习索引
+   只能承担选题发现和导航用途。
+4. 版权审查有机器可检查的记录和发布者可勾选的清单，明确 CC BY、CC BY-SA、美国政府作品、
+   许可不明和厂商材料的处理边界。
+5. 外链检查能区分稳定永久链接、会漂移的 latest 文档、登录墙和已失效页面；网络失败、重定向
+   变化和缓存缺失都不能静默通过。
+6. 默认 CI 检查离线、确定、可重复；显式 live 检查才访问网络。
+7. G002 的 backlog 空白标题和 `buildTopicManifest()` 直接调用非 HTTPS 来源都 fail closed。
+8. backlog checkbox 仍是唯一人工任务状态。来源 ledger、链接观测缓存和内容生命周期都不能写入
+   或推导 backlog 完成状态。
+
+## 2. 方案比较
+
+### 方案 A：继续扩展 `content/references/index.mdx`
+
+在现有资料库中手工增加表格，并让测试扫描正文 URL 是否出现在该页。
+
+优点是改动小、作者容易直接编辑。缺点是结构化信息难以可靠解析，同一 URL 的作者、许可证和
+用途会在正文、frontmatter、资料库三处重复；manifest 和外链检查还要各自重新解析 MDX。该方案
+会把展示页面误当数据源，不满足单一来源要求。
+
+### 方案 B：把完整来源对象放入每篇 frontmatter
+
+每篇文章直接维护来源 URL、类型、许可证、证据角色和署名。
+
+它让文章自包含，但同一官方文档被多篇文章引用时会复制全部元数据。当前
+`parseFrontMatter()` 只支持标量和标量数组，嵌套对象需要扩大 YAML 解析范围；即使引入完整 YAML
+解析器，也无法消除跨文章重复和漂移。该方案不采用。
+
+### 方案 C：集中 source ledger + 文档使用关系 + 生成投影（推荐）
+
+新增 `data/source-ledger.json`，同时保存唯一来源记录和按文档路径组织的使用关系。文章正文保留
+可读的来源链接，但不再用 `official_sources` 复制 URL 清单。校验器保证正文外链、ledger 使用关系
+和来源记录闭合；生成器从同一次验证快照产出资料库投影与 topic manifest 的
+`primary_sources` 兼容字段。
+
+优点是来源元数据只有一个真源、使用关系可按文章审查、资料库和 manifest 不会漂移。代价是
+G003 需要一次性迁移现有 40 篇文档和约 443 个 URL。该迁移是建立全站治理闭环所需的成本，且可用
+脚本生成初稿后逐条审校。
+
+## 3. 数据模型
+
+### 3.1 Canonical ledger
+
+`data/source-ledger.json` 是来源元数据与文档使用关系的唯一机器可读真源：
+
+```json
+{
+  "schema_version": 1,
+  "sources": [
+    {
+      "id": "src-c4-model",
+      "locator": "https://c4model.com/",
+      "title": "C4 model",
+      "author_or_org": "Simon Brown",
+      "published_at": null,
+      "checked_at": "2026-07-23",
+      "version": "current page checked on 2026-07-23",
+      "source_kind": "official-docs",
+      "tier": "primary",
+      "allowed_evidence_roles": ["definition", "method"],
+      "license": "all-rights-reserved",
+      "license_scope": "Page text and diagrams; linked third-party material excluded",
+      "copyright_policy": "facts-and-short-quotation",
+      "attribution": "C4 model, Simon Brown, https://c4model.com/",
+      "usage_boundary": "Defines the model; does not prove that a concrete architecture is fit.",
+      "link_policy": "stable"
+    }
+  ],
+  "documents": {
+    "content/paths/01-architecture-thinking.mdx": {
+      "reviewed_at": "2026-07-23",
+      "copyright_checks": [
+        "original-structure",
+        "quotation-boundary",
+        "attribution-complete",
+        "illustration-rights"
+      ],
+      "uses": [
+        {
+          "source_id": "src-c4-model",
+          "roles": ["definition", "learning"]
+        }
+      ]
+    }
+  }
+}
+```
+
+`sources` 按 `id` 排序，`documents` 按路径排序，每个 `uses` 按 `source_id` 排序。稳定 ID 不从标题
+自动重算；URL 改版时保留 ID 并更新 locator/version。一个来源只能有一条记录，同一文档对同一
+来源只能有一个 use。
+
+`locator` 允许 HTTPS URL 和站内绝对资产路径。站内资产只用于记录原创或获授权插图，不进入网络
+健康检查。首个本地记录是
+`/img/paths/software-architecture-learning-roadmap.png`，类型为
+`original-illustration`，用途为 `illustration`。
+
+### 3.2 来源层级与类型
+
+`tier` 只允许：
+
+- `primary`：标准、原作者材料、论文、官方文档、官方仓库、固定源码。
+- `first-party`：工程团队的一手博客、事故报告、演讲、厂商参考架构。
+- `secondary`：高质量教材、独立技术文章、第三方教程。
+- `discovery`：Awesome 列表、路线图、面试站、博客索引和其他聚合导航。
+
+`source_kind` 只允许：
+
+- `standard`
+- `paper`
+- `official-docs`
+- `official-repository`
+- `source-code`
+- `engineering-blog`
+- `incident-report`
+- `vendor-reference-architecture`
+- `textbook`
+- `independent-blog`
+- `community-index`
+- `original-illustration`
+
+`source_kind=community-index` 必须使用 `tier=discovery`，其
+`allowed_evidence_roles` 只能包含 `discovery` 与 `learning`。Awesome Software Architecture、
+System Design Primer、roadmap.sh、面试站和博客索引都归入这一规则。它们可以帮助读者发现材料，
+但不能支持运行行为、保证、性能数字、协议语义或案例结论。
+
+### 3.3 证据用途
+
+文档 use 的 `roles` 只允许：
+
+- `definition`
+- `method`
+- `runtime-fact`
+- `case-evidence`
+- `implementation`
+- `historical-context`
+- `comparison`
+- `learning`
+- `discovery`
+- `illustration`
+
+每个 use 的角色必须是来源 `allowed_evidence_roles` 的子集。`case`、`principle` 和非索引
+`pattern` 文档至少有一个 `tier` 为 `primary` 或 `first-party`、且角色包含
+`definition`、`runtime-fact`、`case-evidence`、`implementation` 或 `method` 的来源。
+`community-index`、`tier=discovery`、面试材料和聚合页即使与其他索引组合，也不能满足该门槛。
+
+对现有索引页保留兼容例外：路径以 `/index.mdx` 结尾的导航页可以只使用 `learning` 或
+`discovery`，但不得被 manifest 标成事实主来源。正文文章的 `## 来源` 区域和 frontmatter
+之外的外链仍必须在 ledger 中登记。
+
+## 4. 版权与署名治理
+
+### 4.1 许可证记录
+
+`license` 使用 SPDX 标识或以下受控值：
+
+- `CC-BY-4.0`
+- `CC-BY-SA-4.0`
+- `US-GOV-PUBLIC-DOMAIN`
+- `Apache-2.0`
+- `MIT`
+- `all-rights-reserved`
+- `proprietary-standard`
+- `unknown`
+- `original-atlas`
+
+许可证记录必须配套 `license_scope`，明确它覆盖当前页面、仓库代码、单个图片，还是仅覆盖部分
+材料。仓库许可证不自动覆盖 README 中链接的文章、书籍、视频和图片。
+
+`copyright_policy` 的处理规则：
+
+| 许可证/材料 | 允许策略 |
+| --- | --- |
+| CC BY | `adapt-with-attribution`；保留作者、原链接、许可证和修改说明 |
+| CC BY-SA | `adapt-sharealike-review`；确认本站许可证兼容后才改编，否则仅短引用和原创总结 |
+| 美国政府作品 | `public-domain-with-provenance`；仍记录机构、入口和改动 |
+| 许可不明 / All rights reserved | `facts-and-short-quotation`；只做事实核验、短引用和原创总结 |
+| 厂商材料 | `vendor-claims-separated`；把通用机制、厂商实现和厂商自述结果分开 |
+| 原创站内插图 | `original-atlas`；记录生成/绘制方式和资产路径 |
+
+### 4.2 文档发布审查
+
+每个 ledger 文档条目都必须有 `reviewed_at` 和四个
+`copyright_checks`：
+
+1. `original-structure`
+2. `quotation-boundary`
+3. `attribution-complete`
+4. `illustration-rights`
+
+缺少任一项时，验证失败。`.github/pull_request_template.md` 同时提供人类可勾选的发布检查：
+来源登记、证据角色、短引用/改编边界、署名、插图权利和厂商自述标注。这个清单是审查入口，
+ledger 是机器门槛；二者都不表示 backlog 任务完成。
+
+## 5. 来源发现、正文与资料库闭环
+
+新增 `scripts/source-ledger.mjs`，负责解析、规范化和验证 ledger，并从已经由
+`readContentDocuments()` 读取的同一批文档中提取可见 HTTPS 链接。提取器忽略 frontmatter、
+代码围栏和 HTML 注释，接受 Markdown 链接、自动链接和 MDX `href`。
+
+闭环规则：
+
+1. 每个文档正文外链必须对应 ledger 的一条 source 和该文档的一条 use。
+2. 每个文档 use 必须在正文或该文档的生成展示中实际出现，禁止孤儿使用关系。
+3. `content/references/index.mdx` 是生成展示入口，不要求把所有 ledger URL 再写回自身正文。
+4. `official_sources` 从全部 40 篇文档移除，`requiredFields` 继续要求
+   `source_cutoff`，来源完整性由 ledger 承担；原先只在 frontmatter 出现的索引来源改写为正文
+   可见的简短来源入口，不能在迁移中消失。
+5. `content/references/index.mdx` 保留治理说明和版权规则，来源卡片由
+   `SourceLedger` 组件读取 `src/generated/source-ledger.json` 渲染。
+6. 资料库按 tier 与 source kind 分组，显示作者/机构、用途、版本、核查日期、许可证、使用边界、
+   被哪些文章使用和链接健康分类。
+
+这保证“所有文章来源维护在资料库”不是靠复制 URL，而是由同一 ledger 同时驱动机器校验和页面
+展示。
+
+## 6. Manifest 与 G002 单写约束
+
+`buildContentArtifacts()` 仍是生成管线入口。它读取一次内容文档、一次 backlog、一次关系表和一次
+source ledger；先验证内容与来源，再生成：
+
+1. `src/generated/source-ledger.json`
+2. `src/generated/topic-manifest.json`
+3. `src/generated/topic-indexes.json`
+4. `src/generated/case-catalog.json`
+
+`buildTopicManifest()` 新增必需参数 `primarySourcesByFile`。该映射由验证后的 ledger 使用关系投影，
+只包含 HTTPS、tier 不为 `discovery` 且 source kind 不为 `community-index` 的 URL；文章级事实
+门槛再单独要求 factual role。函数本身仍逐项检查 URL；即使测试或其他调用方
+绕过 `validateContent()` 直接传入 `http://`、站内资产或非字符串，也返回带文件上下文的错误。
+这样修复 G002 审查提出的直接调用缺口。
+
+topic `status` 完全保持 G002 约定：
+
+- backlog topic 的状态只从 `docs/content-backlog.md` checkbox 投影；
+- legacy published document 的状态只描述 content lifecycle；
+- ledger 的 `reviewed_at`、链接缓存 outcome 或版权检查不得写入 topic status；
+- generator 不回写 backlog。
+
+生成事务沿用 G002 的可恢复 staging 协议，固定替换顺序为 source ledger → topic manifest →
+topic indexes → case catalog。中断时保留完整 staging，重跑按 digest 恢复。
+
+## 7. 外链健康检查
+
+### 7.1 Link policy
+
+每个 HTTPS source 必须声明：
+
+- `stable`：固定版本、固定 commit、标准页面或预期永久 URL。
+- `floating`：`latest`、产品当前文档、无版本官方入口，允许最终 URL 随版本变化。
+- `auth-required`：预期返回登录墙或 401/403，不能标为健康，只能显式标为需要人工访问。
+- `retired`：已失效但为历史证据保留；必须有 `replacement_source_id` 或
+  `archived_locator`。
+
+### 7.2 确定性缓存
+
+`data/source-link-health.json` 是网络观测缓存，不是来源真源：
+
+```json
+{
+  "schema_version": 1,
+  "checked_at": "2026-07-23",
+  "results": [
+    {
+      "source_id": "src-c4-model",
+      "requested_url": "https://c4model.com/",
+      "final_url": "https://c4model.com/",
+      "http_status": 200,
+      "outcome": "healthy",
+      "redirects": []
+    }
+  ]
+}
+```
+
+`npm run check:links` 只读 ledger 与已提交缓存，不访问网络。它检查 schema、每个活跃 HTTPS source
+恰有一个结果、URL 与 ledger 一致、outcome 与 link policy 相容、缓存不超过 120 天。输出按
+source ID 排序，因此本地和 CI 可重复。缺失、重复、过期、意外 4xx/5xx、timeout 或解析错误都
+退出 1。
+
+### 7.3 Live 检查
+
+`npm run refresh:links` 显式联网并重写缓存；`npm run check:links:live` 显式联网但不写文件，供
+定时 CI 使用。实现使用 Node 24 全局 `fetch`，并提供可注入的
+`checkSourceLink(source, {fetchImpl, now, timeoutMs = 10000})`：
+
+- 最多跟随 5 次重定向，逐跳记录状态与 Location；
+- 先发 `HEAD`，遇到 405 或 501 再发带 `Range: bytes=0-0` 的 `GET`；
+- 每次请求使用 `AbortSignal.timeout(10000)`；
+- 请求和缓存保留原始 locator，但 HTTP 最终 URL 比较移除 fragment，因为 fragment 不会传给服务端；
+- `stable` 的最终 URL 或永久重定向链改变时结果为 `redirect-changed`，要求人工更新 ledger；
+- `floating` 可接受同协议 HTTPS 的重定向，但仍记录最终 URL；
+- 401/403 只有 `auth-required` 可得到 `auth-required` outcome；
+- 404/410 只有 `retired` 可得到 `retired` outcome；
+- 429、5xx、超时、DNS/TLS 错误和重定向循环都失败。
+
+网络检查不把上一次 healthy 缓存当作本次成功。失败结果写入 refresh 产物并让命令退出 1，因此
+失败不会静默。
+
+### 7.4 CI
+
+`npm run verify` 加入离线 `npm run check:links`。部署工作流因此不依赖互联网可用性。
+新增 `.github/workflows/link-health.yml`，每月 1 日和手工触发时运行
+`npm run check:links:live`；它不改仓库，不自动接受重定向，失败直接显示在 Actions。
+
+## 8. 错误处理与迁移
+
+所有错误使用确定顺序并包含来源：
+
+- ledger schema：`data/source-ledger.json: source "id" ...`
+- 文档使用：`content/...mdx: source use "id" ...`
+- 未登记正文链接：`content/...mdx: unregistered external source "URL"`
+- 证据门槛：`content/...mdx: case content requires a primary or first-party factual source`
+- link cache：`data/source-link-health.json: source "id" ...`
+
+一次性迁移由脚本从 40 篇文档的 frontmatter 与正文 URL 收集候选，生成稳定 ID 初稿；实现者必须
+逐条补齐作者、类型、证据用途、许可证和使用边界，不能提交 `unknown` 作者、空边界、模板文字或
+未审校的自动分类。迁移完成后删除临时脚本，避免形成第二个生成入口。
+
+先修 G002 两个 fail-closed 小项，再建立 ledger schema；之后迁移来源、接入 manifest 与资料库，
+最后加入外链与 CI。每一步用 RED → GREEN 测试独立提交。
+
+## 9. 验证与发布边界
+
+实现完成时必须通过：
+
+- backlog 空白标题和 manifest 非 HTTPS 的定向测试；
+- source ledger schema、覆盖、证据用途、版权检查和索引不等于证据测试；
+- 生成事务与资料库渲染测试；
+- link cache 与注入式 live checker 测试；
+- `npm run verify`；
+- `git diff --check`；
+- 独立审查。
+
+实现 worker 只提交代码和验证证据。Ultragoal leader 负责 push、等待 Pages、检查
+`/references` 以及受影响索引、更新 backlog checkbox 与发布基线、再次发布并 checkpoint。
+
+## 10. 自审结论
+
+- 没有未决占位符；数据字段、枚举、命令和失败语义均已确定。
+- source ledger 是来源元数据与使用关系的唯一真源；link cache 只保存观测，不与其竞争。
+- backlog checkbox 的任务状态单写规则保持不变。
+- 聚合索引的发现用途与事实证据用途已通过类型、tier、role 和文章门槛四层约束隔离。
+- 网络检查与默认部署解耦，同时由缓存覆盖检查和定时 live workflow 保证失败可见。
