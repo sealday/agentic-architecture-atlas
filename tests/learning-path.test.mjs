@@ -689,7 +689,7 @@ test('defines the overview metadata, links, image, and exact Mermaid flowchart',
   const body = extractMarkdownBody(source);
 
   assert.equal(metadata.slug, '/paths');
-  assert.equal(metadata.sidebar_position, 5);
+  assert.equal(metadata.sidebar_position, 11);
   for (const [, slug] of roadmapDocuments) {
     assertLinksTo(body, slug, 'roadmap overview');
   }
