@@ -139,7 +139,7 @@ flowchart TD
     K -->|"是"| MK --> UP
     UP -->|"成功"| OK
     UP -->|"失败"| ERR
-    ERR -->|"请求错误 / skip-retry"| STOP
+    ERR -->|"非 channel error 且 skip-retry / 不可重试"| STOP
     ERR -->|"渠道错误或配置命中"| ISO
     ERR --> RETRY
     ISO --> RETRY
@@ -159,7 +159,7 @@ flowchart TD
 
 若 K3 返回被配置为渠道故障的错误，错误处理可把 K3 标为自动禁用。因为 K1 仍启用，A 可以保持渠道级启用；如果最后一个可用 Key 也被禁用，A 才转为自动禁用，相关 Ability 退出后续候选集。
 
-当前请求是否继续由重试策略单独判定。若错误允许重试且仍有次数，下一轮按较低优先级索引选择 C，而不是回到 A、B 同层“换一条再试”。若错误带 skip-retry、绑定了指定渠道，或预算耗尽，请求终止。
+当前请求是否继续由重试策略单独判定。若错误允许重试且外层循环仍有次数，下一轮按较低优先级索引选择 C，而不是回到 A、B 同层“换一条再试”。只有错误尚未被分类为 channel error 时，skip-retry 或绑定指定渠道才会在 `shouldRetry` 的相应分支停止重试；channel error 更早返回 true，但仍受外层重试循环约束，渠道亲和失败的专用停止条件则先于它生效。
 
 该场景只组合固定提交支持的机制，不是事故记录，也不声称每次失败都会命中某个渠道。它揭示的设计判断是：同层负载分配、跨层故障转移和渠道内凭据隔离必须分别建模。
 
@@ -173,7 +173,7 @@ flowchart TD
 
 `GetNextEnabledKey` 在渠道锁内读取 Key 状态。random 从启用索引中等概率抽取；polling 从保存的游标向后环形扫描，选中后推进游标。没有可用 Key 时返回显式渠道错误，不会回退到已经禁用的第一个 Key。
 
-relay 在每轮重新选渠道并重新设置请求体，成功立即返回。失败后先记录和处理渠道错误，再由 `shouldRetry` 根据错误类型、skip-retry、剩余次数、指定渠道和状态码规则决定是否继续。
+relay 在每轮重新选渠道并重新设置请求体，成功立即返回。失败后先记录和处理渠道错误，再由 `shouldRetry` 按固定顺序判断：渠道亲和失败的停止条件优先；channel error 随后直接允许继续；仅其余错误再检查 skip-retry、剩余次数、指定渠道和状态码规则。
 
 <details className="evidence-card">
   <summary>证据：Ability、渠道选择与请求重试源码接缝</summary>
