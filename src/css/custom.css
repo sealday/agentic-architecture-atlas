@@ -179,6 +179,30 @@ button:focus-visible,
   box-shadow: none;
 }
 
+.theme-doc-markdown details.evidence-card {
+  margin: 1.25rem 0;
+  border: 1px solid var(--atlas-line);
+  border-radius: 3px;
+  background: var(--atlas-paper-muted);
+  padding: 0.85rem 1rem;
+}
+
+.theme-doc-markdown details.evidence-card > summary {
+  cursor: pointer;
+  color: var(--atlas-ink-soft);
+  font-weight: 650;
+}
+
+.theme-doc-markdown details.evidence-card > summary:focus-visible {
+  border-radius: 2px;
+  outline: 3px solid var(--atlas-focus);
+  outline-offset: 3px;
+}
+
+.theme-doc-markdown details.evidence-card[open] > summary {
+  margin-bottom: 0.75rem;
+}
+
 .theme-doc-markdown > table {
   display: block;
   width: max-content;
