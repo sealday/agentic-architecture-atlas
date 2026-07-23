@@ -173,8 +173,10 @@ async function checkExpectedArtifacts(root, artifacts) {
 }
 
 export function serializePublicSourceLedger(governedLedger, documents) {
-  if (documents === undefined) {
-    return `${JSON.stringify(governedLedger, null, 2)}\n`;
+  if (!Array.isArray(documents)) {
+    throw new TypeError(
+      'Public source ledger validated document snapshot is required',
+    );
   }
 
   const metadataByLedgerPath = new Map(
@@ -184,12 +186,19 @@ export function serializePublicSourceLedger(governedLedger, documents) {
     Object.entries(governedLedger.documents).map(
       ([documentPath, governedDocument]) => {
         const metadata = metadataByLedgerPath.get(documentPath);
-        if (
-          typeof metadata?.title !== 'string' ||
-          typeof metadata.slug !== 'string'
-        ) {
+        if (metadata === undefined) {
           throw new Error(
             `Public source ledger document metadata missing for ${documentPath}`,
+          );
+        }
+        if (typeof metadata.title !== 'string' || metadata.title.length === 0) {
+          throw new Error(
+            `Public source ledger document title missing for ${documentPath}`,
+          );
+        }
+        if (typeof metadata.slug !== 'string' || metadata.slug.length === 0) {
+          throw new Error(
+            `Public source ledger document slug missing for ${documentPath}`,
           );
         }
         return [

@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
+import {spawnSync} from 'node:child_process';
 import {readFile} from 'node:fs/promises';
 import test from 'node:test';
+import {fileURLToPath} from 'node:url';
 
 const root = new URL('../', import.meta.url);
 
@@ -10,6 +12,39 @@ async function source(path) {
 
 async function generatedLedger() {
   return JSON.parse(await source('src/generated/source-ledger.json'));
+}
+
+function attributeValue(tag, name) {
+  const match = tag.match(
+    new RegExp(`${name}=(?:"([^"]+)"|'([^']+)'|([^\\s>]+))`),
+  );
+  return match?.[1] ?? match?.[2] ?? match?.[3] ?? null;
+}
+
+function sourceArticles(html) {
+  return [...html.matchAll(/<article\b[^>]*data-source-id=[^>]+>/g)].map(
+    (match) => {
+      const end = html.indexOf('</article>', match.index);
+      assert.notEqual(end, -1, `source article is not closed: ${match[0]}`);
+      return {
+        id: attributeValue(match[0], 'data-source-id'),
+        tier: attributeValue(match[0], 'data-source-tier'),
+        kind: attributeValue(match[0], 'data-source-kind'),
+        html: html.slice(match.index, end + '</article>'.length),
+      };
+    },
+  );
+}
+
+function fieldMarkup(article, field) {
+  const marker = new RegExp(
+    `<dd\\b[^>]*data-source-field=(?:"${field}"|'${field}'|${field})[^>]*>`,
+  );
+  const match = article.match(marker);
+  assert.ok(match, `missing rendered field ${field}`);
+  const start = match.index + match[0].length;
+  const end = article.indexOf('<dt', start);
+  return article.slice(start, end === -1 ? article.length : end);
 }
 
 test('renders the generated source ledger instead of a hand-maintained catalog', async () => {
@@ -150,4 +185,108 @@ test('labels discovery indexes as navigation rather than factual evidence', asyn
     component,
     /source\.externalHref \? \([\s\S]*?<a href=\{source\.externalHref\}>/,
   );
+});
+
+test('renders the complete sorted ledger in production HTML', async () => {
+  const build = spawnSync('npm', ['run', 'build'], {
+    cwd: fileURLToPath(root),
+    encoding: 'utf8',
+  });
+  assert.equal(
+    build.status,
+    0,
+    `production build failed:\n${build.stdout}\n${build.stderr}`,
+  );
+
+  const [html, ledger] = await Promise.all([
+    source('build/references.html'),
+    generatedLedger(),
+  ]);
+  const tierOrder = ['primary', 'first-party', 'secondary', 'discovery'];
+  const kindOrder = [
+    'standard',
+    'paper',
+    'official-docs',
+    'official-repository',
+    'source-code',
+    'engineering-blog',
+    'incident-report',
+    'vendor-reference-architecture',
+    'textbook',
+    'independent-blog',
+    'community-index',
+    'original-illustration',
+  ];
+  const expectedSources = [...ledger.sources].sort(
+    (left, right) =>
+      tierOrder.indexOf(left.tier) - tierOrder.indexOf(right.tier) ||
+      kindOrder.indexOf(left.source_kind) -
+        kindOrder.indexOf(right.source_kind) ||
+      left.title.localeCompare(right.title, 'en'),
+  );
+  const articles = sourceArticles(html);
+
+  assert.equal(articles.length, 361);
+  assert.deepEqual(
+    articles.map(({id}) => id),
+    expectedSources.map(({id}) => id),
+  );
+  assert.deepEqual(
+    tierOrder.map((tier) => [
+      tier,
+      articles.filter((article) => article.tier === tier).length,
+    ]),
+    [
+      ['primary', 329],
+      ['first-party', 22],
+      ['secondary', 3],
+      ['discovery', 7],
+    ],
+  );
+  assert.deepEqual(
+    [...html.matchAll(/<section\b[^>]*data-source-tier-section=[^>]+>/g)].map(
+      (match) => attributeValue(match[0], 'data-source-tier-section'),
+    ),
+    tierOrder,
+  );
+  assert.ok(
+    articles.every(
+      ({html: article}) =>
+        [...article.matchAll(/data-source-field=/g)].length === 12,
+    ),
+  );
+
+  const c4 = articles.find(({id}) => id === 'src-c4model-f5342a5e8659');
+  assert.ok(c4);
+  assert.match(
+    c4.html,
+    /<h4><a href=https:\/\/c4model\.com\/>C4 Model<\/a><\/h4>/,
+  );
+  assert.match(fieldMarkup(c4.html, 'author'), /Simon Brown/);
+  assert.match(fieldMarkup(c4.html, 'tier'), /一手来源/);
+  assert.match(fieldMarkup(c4.html, 'kind'), /官方文档/);
+  assert.match(fieldMarkup(c4.html, 'version'), /2026-07-24/);
+  assert.match(fieldMarkup(c4.html, 'checked-at'), /2026-07-24/);
+  assert.match(fieldMarkup(c4.html, 'license'), /CC-BY-4.0/);
+  assert.match(fieldMarkup(c4.html, 'copyright-policy'), /允许改编，必须署名/);
+  assert.match(fieldMarkup(c4.html, 'evidence-roles'), /定义/);
+  assert.match(fieldMarkup(c4.html, 'attribution'), /C4 Model, Simon Brown/);
+  assert.match(
+    fieldMarkup(c4.html, 'usage-boundary'),
+    /Supports documented semantics/,
+  );
+  assert.match(fieldMarkup(c4.html, 'used-by'), /href=.*\/references/);
+  assert.match(fieldMarkup(c4.html, 'used-by'), /文档复核：.*2026-07-24/);
+  assert.match(fieldMarkup(c4.html, 'health'), /Task 6 接入后显示/);
+
+  const illustration = articles.find(
+    ({kind}) => kind === 'original-illustration',
+  );
+  assert.ok(illustration);
+  assert.doesNotMatch(illustration.html.match(/<h4>[\s\S]*?<\/h4>/)[0], /<a\b/);
+
+  const discoverySection = html.slice(
+    html.indexOf('data-source-tier-section=discovery'),
+  );
+  assert.match(discoverySection, /选题\/学习导航，不是事实证据/);
 });

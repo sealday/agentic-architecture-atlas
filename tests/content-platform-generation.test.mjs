@@ -264,20 +264,32 @@ test('builds all artifacts from one validated snapshot', async () => {
     ]);
     assert.equal(
       first[generatedPaths.sourceLedger],
-      serializePublicSourceLedger({
-        schema_version: 1,
-        sources: [governedSource],
-        documents: {
-          'content/cases/example.mdx': publicGovernedDocument(
-            'Example case',
-            '/cases/example',
-          ),
-          'content/concepts/example.mdx': publicGovernedDocument(
-            'Example concept',
-            '/concepts/example',
-          ),
+      serializePublicSourceLedger(
+        {
+          schema_version: 1,
+          sources: [governedSource],
+          documents: {
+            'content/cases/example.mdx': governedDocument,
+            'content/concepts/example.mdx': governedDocument,
+          },
         },
-      }),
+        [
+          {
+            file: 'cases/example.mdx',
+            metadata: {
+              title: 'Example case',
+              slug: '/cases/example',
+            },
+          },
+          {
+            file: 'concepts/example.mdx',
+            metadata: {
+              title: 'Example concept',
+              slug: '/concepts/example',
+            },
+          },
+        ],
+      ),
     );
     assert.deepEqual(second, first);
     for (const serialized of Object.values(first)) {
@@ -316,6 +328,47 @@ test('publishes document title and slug from the validated snapshot', () => {
       'Validated example case',
       '/validated/example-case',
     ),
+  );
+});
+
+test('requires complete validated document metadata for public serialization', () => {
+  const governedLedger = {
+    schema_version: 1,
+    sources: [governedSource],
+    documents: {
+      'content/cases/example.mdx': governedDocument,
+    },
+  };
+  const snapshot = (metadata) => [
+    {
+      file: 'cases/example.mdx',
+      metadata,
+    },
+  ];
+
+  assert.throws(
+    () => serializePublicSourceLedger(governedLedger),
+    /validated document snapshot is required/i,
+  );
+  assert.throws(
+    () => serializePublicSourceLedger(governedLedger, []),
+    /document metadata missing for content\/cases\/example\.mdx/i,
+  );
+  assert.throws(
+    () =>
+      serializePublicSourceLedger(
+        governedLedger,
+        snapshot({slug: '/cases/example'}),
+      ),
+    /document title missing for content\/cases\/example\.mdx/i,
+  );
+  assert.throws(
+    () =>
+      serializePublicSourceLedger(
+        governedLedger,
+        snapshot({title: 'Example case'}),
+      ),
+    /document slug missing for content\/cases\/example\.mdx/i,
   );
 });
 
