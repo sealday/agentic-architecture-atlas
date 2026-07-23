@@ -45,3 +45,30 @@ test('gives every canonical case a concise navigation-only label', async () => {
     assert.doesNotMatch(label, /[：:]/, `Sidebar label contains a subtitle for ${slug}`);
   }
 });
+
+test('gives sidebar rows readable hierarchy and stable active feedback', async () => {
+  const css = await source('src/css/custom.css');
+
+  assert.match(css, /\.theme-doc-sidebar-menu\s*\{/);
+  assert.match(
+    css,
+    /\.theme-doc-sidebar-menu \.menu__link\s*\{[^}]*min-height:\s*2\.5rem/s,
+  );
+  assert.match(
+    css,
+    /\.theme-doc-sidebar-menu \.menu__link--sublist\s*\{[^}]*font-weight:\s*650/s,
+  );
+  assert.match(
+    css,
+    /\.theme-doc-sidebar-menu \.menu__list \.menu__list\s*\{[^}]*padding-left:\s*0\.75rem/s,
+  );
+  assert.match(css, /text-overflow:\s*ellipsis/);
+  assert.match(
+    css,
+    /\.theme-doc-sidebar-menu \.menu__link--active:not\(\.menu__link--sublist\)\s*\{[^}]*box-shadow:\s*inset 2px 0/s,
+  );
+  assert.doesNotMatch(
+    css,
+    /\.menu__link--active:not\(\.menu__link--sublist\)\s*\{[^}]*border-left:/s,
+  );
+});
