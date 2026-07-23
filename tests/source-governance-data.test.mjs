@@ -160,6 +160,64 @@ test('keeps Yjs documentation conservative because license.md only licenses Yjs 
   }
 });
 
+test('records LiteLLM documentation families as MIT from the official docs repository', async () => {
+  const {inventory, ledger} = await governedData();
+  const rows = inventory.entries.filter((entry) =>
+    entry.source_family.startsWith('https://docs.litellm.ai'));
+  const sources = ledger.sources.filter((source) =>
+    source.license_family_id.startsWith('https://docs.litellm.ai'));
+  assert.equal(rows.length, 6);
+  assert.equal(sources.length, 6);
+  for (const item of [...rows, ...sources]) {
+    assert.equal(item.exact_license ?? item.license, 'MIT');
+    assert.equal(
+      item.license_evidence_url,
+      'https://github.com/BerriAI/litellm-docs/blob/main/LICENSE',
+    );
+  }
+});
+
+test('records the New API documentation repository and live-footer license conflict', async () => {
+  const {inventory, ledger} = await governedData();
+  const rows = inventory.entries.filter((entry) =>
+    entry.source_family.startsWith('https://docs.newapi.pro'));
+  const sources = ledger.sources.filter((source) =>
+    source.license_family_id.startsWith('https://docs.newapi.pro'));
+  assert.equal(rows.length, 2);
+  assert.equal(sources.length, 2);
+  for (const item of [...rows, ...sources]) {
+    assert.equal(
+      item.exact_license ?? item.license,
+      'LicenseRef-New-API-Docs-License-Conflict',
+    );
+    assert.equal(
+      item.license_evidence_url,
+      'https://github.com/QuantumNous/new-api-docs-v1/blob/main/LICENSE',
+    );
+    assert.match(
+      item.license_evidence_note,
+      /(?:content\/docs.*CC0-1\.0|CC0-1\.0.*content\/docs)/i,
+    );
+    assert.match(item.license_evidence_note, /live.*footer.*All Rights Reserved/i);
+    assert.match(item.license_scope ?? item.scope_exclusions, /no adaptation/i);
+    assert.doesNotMatch(item.license_evidence_note, /no reusable license notice.*found/i);
+  }
+});
+
+test('describes ros2 repository scope without claiming a nonexistent repository-wide LICENSE', async () => {
+  const {inventory, ledger} = await governedData();
+  const row = inventory.entries.find((entry) => entry.source_family === 'github:ros2/ros2');
+  const sources = ledger.sources.filter((source) => source.license_family_id === 'github:ros2/ros2');
+  assert.equal(sources.length, 3);
+  assert.match(row.license_evidence_note, /no single repository-wide LICENSE/i);
+  assert.match(row.scope_exclusions, /component repositories.*excluded/i);
+  assert.doesNotMatch(row.scope_exclusions, /covered by the evidenced LICENSE/i);
+  for (const source of sources) {
+    assert.equal(source.license_evidence_note, row.license_evidence_note);
+    assert.equal(source.license_scope, row.scope_exclusions);
+  }
+});
+
 test('keeps the migration inventory snapshot aligned with runtime ledger authority', async () => {
   const {inventory, ledger} = await governedData();
   const consistency = validateInventoryLedgerConsistency(inventory.entries, ledger.sources);

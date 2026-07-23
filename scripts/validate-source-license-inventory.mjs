@@ -18,6 +18,7 @@ export const approvedInventoryLicenses = [
   'CC0-1.0',
   'LicenseRef-CC-BY-NC-ND-Unversioned',
   'LicenseRef-MCP-Specification-Transition',
+  'LicenseRef-New-API-Docs-License-Conflict',
   'LicenseRef-US-Gov-Public-Domain',
   'LicenseRef-All-Rights-Reserved',
   'LicenseRef-Proprietary-Standard',
@@ -375,39 +376,108 @@ export function validateSourceLicenseInventory(markdown, candidateUrls) {
  * The source ledger is the runtime authority. The inventory remains a migration
  * audit snapshot, so fields represented in both artifacts must not drift.
  */
-export function validateInventoryLedgerConsistency(inventoryEntries, sources) {
+export function validateInventoryLedgerConsistency(
+  inventoryEntries,
+  sources,
+  documents = {},
+) {
   const errors = [];
-  const inventoryByFamily = new Map(
-    inventoryEntries.map((entry) => [entry.source_family, entry]),
-  );
+  const sourcesByFamily = new Map();
   for (const source of sources) {
-    const entry = inventoryByFamily.get(source.license_family_id);
-    if (!entry) {
+    const familySources = sourcesByFamily.get(source.license_family_id) ?? [];
+    familySources.push(source);
+    sourcesByFamily.set(source.license_family_id, familySources);
+  }
+
+  const normalizedTransport = (locator, queryInsensitive) => {
+    if (typeof locator !== 'string') return '';
+    if (locator.startsWith('/')) return locator.split('#', 1)[0];
+    try {
+      const url = new URL(locator);
+      url.protocol = url.protocol.toLowerCase();
+      url.hostname = url.hostname.toLowerCase();
+      if (url.protocol === 'https:' && url.port === '443') url.port = '';
+      if (url.protocol === 'http:' && url.port === '80') url.port = '';
+      url.hash = '';
+      if (queryInsensitive) url.search = '';
+      return url.href;
+    } catch {
+      return '';
+    }
+  };
+  const currentUrlMatchesSource = (currentUrl, source) => {
+    const current = normalizedTransport(currentUrl, source.query_insensitive === true);
+    const transports = [
+      source.transport_locator,
+      source.canonical_locator,
+      ...(source.locator_aliases ?? []).flatMap((alias) => [
+        alias.transport_locator,
+        alias.locator,
+      ]),
+    ];
+    return transports.some(
+      (locator) =>
+        normalizedTransport(locator, source.query_insensitive === true) === current,
+    );
+  };
+  const sourceById = new Map(
+    sources.filter((source) => source.id).map((source) => [source.id, source]),
+  );
+  const citationUrlsByFamily = new Map();
+  for (const document of Object.values(documents)) {
+    for (const citation of document?.citations ?? []) {
+      const source = sourceById.get(citation.source_id);
+      if (!source) continue;
+      const values = citationUrlsByFamily.get(source.license_family_id) ?? [];
+      values.push({url: citation.citation_url, source});
+      citationUrlsByFamily.set(source.license_family_id, values);
+    }
+  }
+
+  for (const entry of inventoryEntries) {
+    const familySources = sourcesByFamily.get(entry.source_family) ?? [];
+    if (familySources.length === 0) {
       errors.push(
-        `runtime source ledger is authoritative: source "${source.canonical_locator}" has no inventory family "${source.license_family_id}"`,
+        `migration snapshot family "${entry.source_family}" is missing from the runtime source ledger`,
       );
       continue;
     }
-    const sharedFields = [
-      ['author_or_org', entry.author_or_org, source.author_or_org],
-      ['checked_at', entry.checked_at, source.checked_at],
-      ['license', entry.exact_license, source.license],
-      ['license_evidence_url', entry.license_evidence_url, source.license_evidence_url],
-      ['license_evidence_note', entry.license_evidence_note, source.license_evidence_note],
-      ['license_scope', entry.scope_exclusions, source.license_scope],
-      ['license_family_grouping', entry.family_grouping, source.license_family_grouping],
-      [
-        'family_grouping_evidence_url',
-        entry.grouping_evidence_url === 'not-applicable'
-          ? null
-          : entry.grouping_evidence_url,
-        source.family_grouping_evidence_url,
-      ],
-    ];
-    for (const [field, inventoryValue, ledgerValue] of sharedFields) {
-      if (inventoryValue !== ledgerValue) {
+    for (const source of familySources) {
+      const sharedFields = [
+        ['author_or_org', entry.author_or_org, source.author_or_org],
+        ['checked_at', entry.checked_at, source.checked_at],
+        ['license', entry.exact_license, source.license],
+        ['license_evidence_url', entry.license_evidence_url, source.license_evidence_url],
+        ['license_evidence_note', entry.license_evidence_note, source.license_evidence_note],
+        ['license_scope', entry.scope_exclusions, source.license_scope],
+        ['license_family_grouping', entry.family_grouping, source.license_family_grouping],
+        [
+          'family_grouping_evidence_url',
+          entry.grouping_evidence_url === 'not-applicable'
+            ? null
+            : entry.grouping_evidence_url,
+          source.family_grouping_evidence_url,
+        ],
+      ];
+      for (const [field, inventoryValue, ledgerValue] of sharedFields) {
+        if (inventoryValue === ledgerValue) continue;
         errors.push(
           `runtime source ledger is authoritative: family "${source.license_family_id}" field "${field}" differs from the migration inventory snapshot`,
+        );
+      }
+    }
+    for (const currentUrl of entry.current_urls) {
+      const representedBySource = familySources.some(
+        (source) => currentUrlMatchesSource(currentUrl, source),
+      );
+      const representedByCitation = (
+        citationUrlsByFamily.get(entry.source_family) ?? []
+      ).some(({url, source}) =>
+        normalizedTransport(url, source.query_insensitive === true) ===
+        normalizedTransport(currentUrl, source.query_insensitive === true));
+      if (!representedBySource && !representedByCitation) {
+        errors.push(
+          `migration snapshot current URL "${currentUrl}" is not represented by a runtime source locator or alias`,
         );
       }
     }

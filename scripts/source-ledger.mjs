@@ -46,6 +46,7 @@ export const approvedLicenses = [
   'CC0-1.0',
   'LicenseRef-CC-BY-NC-ND-Unversioned',
   'LicenseRef-MCP-Specification-Transition',
+  'LicenseRef-New-API-Docs-License-Conflict',
   'LicenseRef-US-Gov-Public-Domain',
   'LicenseRef-All-Rights-Reserved',
   'LicenseRef-Proprietary-Standard',
@@ -739,12 +740,16 @@ function visibleMdxLines(document) {
   return lines;
 }
 
+export function isTopLevelSourceLedgerMount(line) {
+  return /^ {0,3}<SourceLedger(?:[ \t]+[^>\r\n]*)?\/> *$/.test(String(line));
+}
+
 export function extractExternalLinks(document) {
   const urls = new Set();
   for (const visible of visibleMdxLines(document)) {
     if (
       document?.file === 'references/index.mdx' &&
-      /<SourceLedger\b/.test(visible)
+      isTopLevelSourceLedgerMount(visible)
     ) {
       continue;
     }
@@ -763,8 +768,7 @@ export function extractExternalLinks(document) {
 }
 
 function hasVisibleSourceLedgerMount(document) {
-  return visibleMdxLines(document).some((line) =>
-    /^\s*<SourceLedger(?:\s[^>]*)?\s*\/>\s*$/.test(line));
+  return visibleMdxLines(document).some(isTopLevelSourceLedgerMount);
 }
 
 function documentLedgerPath(document) {

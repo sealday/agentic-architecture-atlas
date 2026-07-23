@@ -5,6 +5,7 @@ import {
   canonicalizeTransportLocator,
   citationMatchesSource,
   extractExternalLinks,
+  isTopLevelSourceLedgerMount,
   parseSourceLedger,
   validateSourceGovernance,
 } from '../scripts/source-ledger.mjs';
@@ -285,6 +286,42 @@ test('extracts visible external links without code or comment false positives', 
     }),
     [],
   );
+
+  for (const falseMount of [
+    '`<SourceLedger />`',
+    '\\<SourceLedger />',
+    '{/* example string: "<SourceLedger />" */}',
+    '    <SourceLedger />',
+    '\t<SourceLedger />',
+  ]) {
+    assert.deepEqual(
+      extractExternalLinks({
+        file: 'references/index.mdx',
+        body: `${falseMount} [Visible](https://example.com/still-visible)`,
+      }),
+      ['https://example.com/still-visible'],
+    );
+  }
+});
+
+test('recognizes only line-exclusive top-level SourceLedger mounts', () => {
+  assert.equal(isTopLevelSourceLedgerMount('<SourceLedger />'), true);
+  assert.equal(
+    isTopLevelSourceLedgerMount('   <SourceLedger mode="compact" />'),
+    true,
+  );
+  for (const line of [
+    '    <SourceLedger />',
+    '\t<SourceLedger />',
+    '`<SourceLedger />`',
+    '\\<SourceLedger />',
+    '"<SourceLedger />"',
+    '{const example = "<SourceLedger />"}',
+    '<SourceLedger></SourceLedger>',
+    '<SourceLedger /> trailing text',
+  ]) {
+    assert.equal(isTopLevelSourceLedgerMount(line), false, line);
+  }
 });
 
 test('requires complete copyright review records', () => {

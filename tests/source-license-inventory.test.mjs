@@ -69,6 +69,7 @@ test('accepts eleven-column license inventory rows with exact evidence', () => {
     'CC-BY-NC-ND-4.0',
     'LicenseRef-CC-BY-NC-ND-Unversioned',
     'LicenseRef-MCP-Specification-Transition',
+    'LicenseRef-New-API-Docs-License-Conflict',
   ]) {
     const controlled = [...c4Row];
     controlled[6] = license;
@@ -282,6 +283,75 @@ test('keeps inventory snapshot and runtime ledger authority fields aligned', () 
   assert.match(joined, /license_evidence_url/i);
   assert.match(joined, /license_scope/i);
   assert.match(joined, /checked_at/i);
+});
+
+test('treats inventory membership as a frozen migration snapshot', () => {
+  const inventory = validateSourceLicenseInventory(
+    table([c4Row]),
+    ['https://c4model.com/#SystemContextDiagram'],
+  );
+  const matchingSource = {
+    canonical_locator: 'https://c4model.com/',
+    transport_locator: 'https://c4model.com/',
+    query_insensitive: false,
+    locator_aliases: [],
+    license_family_id: 'https://c4model.com/',
+    author_or_org: c4Row[2],
+    checked_at: c4Row[5],
+    license: c4Row[6],
+    license_scope: c4Row[7],
+    license_evidence_url: c4Row[3],
+    license_evidence_note: c4Row[4],
+    license_family_grouping: c4Row[9],
+    family_grouping_evidence_url: null,
+  };
+  const futureLedgerOnly = {
+    ...matchingSource,
+    canonical_locator: 'https://future.example.com/work',
+    transport_locator: 'https://future.example.com/work',
+    license_family_id: 'https://future.example.com/work',
+  };
+  assert.deepEqual(
+    validateInventoryLedgerConsistency(
+      inventory.entries,
+      [matchingSource, futureLedgerOnly],
+    ).errors,
+    [],
+  );
+
+  assert.match(
+    validateInventoryLedgerConsistency(inventory.entries, []).errors.join('\n'),
+    /snapshot family.*missing from.*ledger/i,
+  );
+
+  const wrongLocator = {
+    ...matchingSource,
+    canonical_locator: 'https://c4model.com/other',
+    transport_locator: 'https://c4model.com/other',
+  };
+  assert.match(
+    validateInventoryLedgerConsistency(
+      inventory.entries,
+      [wrongLocator],
+    ).errors.join('\n'),
+    /current URL.*not represented.*locator|snapshot URL.*missing/i,
+  );
+
+  assert.deepEqual(
+    validateInventoryLedgerConsistency(
+      inventory.entries,
+      [{...wrongLocator, id: 'src-c4-snapshot'}],
+      {
+        'content/example.mdx': {
+          citations: [{
+            source_id: 'src-c4-snapshot',
+            citation_url: 'https://c4model.com/#SystemContextDiagram',
+          }],
+        },
+      },
+    ).errors,
+    [],
+  );
 });
 
 test('requires shared copyright evidence for explicit family grouping', () => {
