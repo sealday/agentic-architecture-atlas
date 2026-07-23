@@ -908,6 +908,13 @@ test('enforces citation-level quotation adaptation and attribution records', () 
   }
 
   const conservativeLicenses = [
+    'Apache-2.0',
+    'MIT',
+    'BSD-3-Clause',
+    'EPL-2.0',
+    'MPL-2.0',
+    'GPL-3.0-only',
+    'AGPL-3.0-only',
     'LicenseRef-All-Rights-Reserved',
     'LicenseRef-Proprietary-Standard',
     'CC-BY-NC-ND-4.0',
@@ -1140,7 +1147,15 @@ test('matches normalized quotation excerpts in the corresponding visible documen
   );
   assert.equal(
     normalizeVisibleQuotation('`foo_bar` and v1~beta remain distinct from foobar and v1beta'),
-    '`foo_bar` and v1~beta remain distinct from foobar and v1beta',
+    'foo_bar and v1~beta remain distinct from foobar and v1beta',
+  );
+  assert.equal(normalizeVisibleQuotation('`v1~~beta~~`'), 'v1~~beta~~');
+  assert.notEqual(normalizeVisibleQuotation('`v1~~beta~~`'), 'v1beta');
+  assert.equal(normalizeVisibleQuotation('`**literal**`'), '**literal**');
+  assert.notEqual(normalizeVisibleQuotation('`**literal**`'), 'literal');
+  assert.equal(
+    normalizeVisibleQuotation('Use ``a `tick` and **literal**`` exactly'),
+    'Use a `tick` and **literal** exactly',
   );
   assert.equal(
     normalizeVisibleQuotation('**strong** _emphasis_ and ~~reviewed removal~~'),
@@ -1184,4 +1199,27 @@ test('matches normalized quotation excerpts in the corresponding visible documen
     missing.errors.join('\n'),
     /content\/cases\/example\.mdx.*src-c4-model.*excerpt.*visible/i,
   );
+
+  const inlineQuotation = {
+    ...quotation,
+    excerpt: 'Use `v1~~beta~~` and ``**literal**``.',
+  };
+  const inlineParsed = parseSourceLedger(ledger({
+    documents: {
+      'content/cases/example.mdx': {
+        ...validDocument,
+        citations: [inlineQuotation],
+      },
+    },
+  }));
+  const inlineVisible = validateSourceGovernance(
+    [document({
+      body: [
+        '[C4](https://c4model.com/#SystemContextDiagram)',
+        '> Use `v1~~beta~~` and ``**literal**``.',
+      ].join('\n'),
+    })],
+    inlineParsed.ledger,
+  );
+  assert.deepEqual(inlineVisible.errors, []);
 });

@@ -861,10 +861,60 @@ function visibleMdxLines(document) {
   return lines;
 }
 
+function protectInlineCodeSpans(text) {
+  const spans = [];
+  let protectedText = '';
+  let cursor = 0;
+  while (cursor < text.length) {
+    const openingStart = text.indexOf('`', cursor);
+    if (openingStart === -1) {
+      protectedText += text.slice(cursor);
+      break;
+    }
+    protectedText += text.slice(cursor, openingStart);
+    let openingEnd = openingStart;
+    while (text[openingEnd] === '`') {
+      openingEnd += 1;
+    }
+    const fenceLength = openingEnd - openingStart;
+    let closingStart = openingEnd;
+    while (closingStart < text.length) {
+      const candidateStart = text.indexOf('`', closingStart);
+      if (candidateStart === -1) {
+        closingStart = -1;
+        break;
+      }
+      let candidateEnd = candidateStart;
+      while (text[candidateEnd] === '`') {
+        candidateEnd += 1;
+      }
+      if (candidateEnd - candidateStart === fenceLength) {
+        closingStart = candidateStart;
+        break;
+      }
+      closingStart = candidateEnd;
+    }
+    if (closingStart === -1) {
+      protectedText += text.slice(openingStart);
+      break;
+    }
+    const token = `\uE000CODE${spans.length}\uE001`;
+    spans.push({
+      token,
+      content: text.slice(openingEnd, closingStart),
+    });
+    protectedText += token;
+    cursor = closingStart + fenceLength;
+  }
+  return {protectedText, spans};
+}
+
 export function normalizeVisibleQuotation(text) {
-  return visibleMdxLines({body: text})
+  const visibleText = visibleMdxLines({body: text})
     .join('\n')
-    .normalize('NFC')
+    .normalize('NFC');
+  const {protectedText, spans} = protectInlineCodeSpans(visibleText);
+  let normalized = protectedText
     .replace(/\[([^\]]+)\]\((?:[^()]|\([^)]*\))*\)/gu, '$1')
     .replace(/<(https:\/\/[^>\s]+)>/gu, '$1')
     .replace(/^\s{0,3}>\s?/gmu, '')
@@ -878,9 +928,11 @@ export function normalizeVisibleQuotation(text) {
       /(^|[\s([{>"'])_(?=\S)(.+?\S)_(?=$|[\s)\]}>.,!?;:'"])/gmu,
       '$1$2',
     )
-    .replace(/~~(?=\S)(.+?\S)~~/gsu, '$1')
-    .replace(/\s+/gu, ' ')
-    .trim();
+    .replace(/~~(?=\S)(.+?\S)~~/gsu, '$1');
+  for (const {token, content} of spans) {
+    normalized = normalized.replace(token, () => content);
+  }
+  return normalized.replace(/\s+/gu, ' ').trim();
 }
 
 export function isTopLevelSourceLedgerMount(line) {
