@@ -1,7 +1,8 @@
 # 软件架构学习路线改造设计
 
-**状态：** Superseded（已取代；单页学习路线仅保留为历史设计记录）
-**替代文档：** 当前多文章路线设计见
+**Lifecycle：** Superseded（已取代；单页学习路线仅保留为历史设计记录）
+
+**Successor：** 当前多文章路线设计见
 [`2026-07-23-multi-article-learning-roadmap-design.md`](2026-07-23-multi-article-learning-roadmap-design.md)，
 长期任务状态见 [`docs/content-backlog.md`](../../content-backlog.md)。
 

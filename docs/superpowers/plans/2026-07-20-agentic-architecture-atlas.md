@@ -1,8 +1,9 @@
 # Agentic Architecture Atlas Implementation Plan
 
-> **Status:** Superseded（已取代；仅保留五篇首发案例的历史实施记录）。
-> 当前任务与案例基线见
-> [`docs/content-backlog.md`](../../content-backlog.md)。
+> **Lifecycle:** Superseded（已取代；仅保留五篇首发案例的历史实施记录）。
+> **Successor:** 后续案例实施记录见
+> [`2026-07-22-second-batch-architecture-cases.md`](2026-07-22-second-batch-architecture-cases.md)；
+> 当前任务状态见 [`docs/content-backlog.md`](../../content-backlog.md)。
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 

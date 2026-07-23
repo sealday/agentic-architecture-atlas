@@ -1,7 +1,7 @@
 # Architecture Learning Roadmap Implementation Plan
 
-> **Status:** Superseded（已取代；单页学习路线仅保留为历史实施记录）。
-> 当前多文章路线实施记录见
+> **Lifecycle:** Superseded（已取代；单页学习路线仅保留为历史实施记录）。
+> **Successor:** 当前多文章路线实施记录见
 > [`2026-07-23-multi-article-learning-roadmap.md`](2026-07-23-multi-article-learning-roadmap.md)，
 > 长期任务状态见 [`docs/content-backlog.md`](../../content-backlog.md)。
 

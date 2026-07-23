@@ -7,9 +7,10 @@
 
 ## 进度跟踪与恢复
 
-- **唯一任务状态：** 以本文件 checkbox 为准；历史 spec/plan 只保存设计与实施背景，不恢复为活任务。
-- **本地执行层：** Ultragoal 由负责人运行 `omx ultragoal status` 查看当前故事、运行 `omx ultragoal complete-goals` 取得下一步，并在验证后用 `omx ultragoal checkpoint` 写入本地审计。执行者不得自行改写 `.omx/ultragoal/`。
-- **远端持久层：** 完成项必须同时有本文件的 `[x]`、对应 Git commit，以及适用时的 GitHub Pages 部署或线上 URL；本地状态丢失时，从最近远端 commit 与本文件未完成 checkbox 恢复。
+- **唯一人工任务状态：** 只人工维护本文件 checkbox。历史 spec/plan 只保存设计与实施背景，不恢复为活任务；未来 manifest 的 `status` 必须是由本 backlog/content metadata 生成的只读投影，或只描述内容生命周期，不能成为第二个人工任务进度源。
+- **本地执行层：** Ultragoal 由负责人运行 `omx ultragoal status` 查看当前故事、运行 `omx ultragoal complete-goals` 取得下一步。执行者不得自行改写 `.omx/ultragoal/`，也不得在父故事尚未通过全部门槛时 checkpoint。
+- **每个父故事的完成门槛：** 依次完成 targeted verification、`npm run verify`、独立审查、提交到 `main`、推送 `origin/main`、等待 GitHub Pages 成功、检查受影响的线上 route，再把成功部署日期和 commit 更新到“当前发布基线”。基线记录也必须提交并推送到 `origin/main`；上述证据齐全后，负责人才能运行 `omx ultragoal checkpoint` 并进入下一故事。
+- **远端持久层：** 完成项必须同时有本文件的 `[x]`、对应 Git commit、成功部署和线上 route 证据。任一门槛失败时保持当前 story 未完成；本地状态丢失时，从本文件第一个未完成 story 和“当前发布基线”所指的最后成功部署 commit 恢复，不以未部署的本地提交或历史 plan checkbox 推断完成。
 - **当前发布基线：** 2026-07-23，commit [`6b0ef13`](https://github.com/sealday/agentic-architecture-atlas/commit/6b0ef133868a1b831cbc04962d7fda861648fc95)。
 
 ## 目标与停止条件
@@ -134,7 +135,7 @@
 ## E0：内容工程与现有债务
 
 - [ ] **E0-01 P0｜建立内容类型契约**：扩展 `scripts/content-schema.mjs`，支持 `concept`、`principle`、`quality-attribute`、`method`、`modeling` 和 `style`，并为每类定义必需章节和元数据。
-- [ ] **E0-02 P0｜建立唯一主题清单**：新增机器可读 manifest，记录 ID、类型、slug、优先级、状态、依赖、主要来源、相关案例和最近复核日期；由它生成各类型索引。
+- [ ] **E0-02 P0｜建立唯一主题清单**：新增机器可读 manifest，记录 ID、类型、slug、优先级、状态、依赖、主要来源、相关案例和最近复核日期；由它生成各类型索引。其中任务 `status` 只能由本 backlog 生成只读投影；若字段描述内容生命周期，则不得表达任务完成进度。
 - [ ] **E0-03 P0｜建立全站 source ledger**：把当前只服务学习路线的资料库升级为全站来源登记，区分定义来源、事实来源、案例证据和插图来源。
 - [ ] **E0-04 P0｜落实五类文章模板**：为原则、模式、风格、方法/建模、质量属性各写一篇 fixture，并建立章节顺序测试。
 - [ ] **E0-05 P0｜建立版权与署名检查表**：记录 CC BY、CC BY-SA、政府作品、许可不明和厂商材料的处理方式；发布审查必须可勾选。

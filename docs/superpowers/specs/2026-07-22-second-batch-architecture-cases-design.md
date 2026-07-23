@@ -1,9 +1,14 @@
 # 第二批十个架构案例与可扩展目录设计规格
 
 **日期：** 2026-07-22
-**状态：** Superseded（已取代；十五篇案例目标已实现并继续扩展）
-**替代文档：** 当前任务与 18 篇案例基线见
-[`docs/content-backlog.md`](../../content-backlog.md)。
+
+**状态：** 已批准，待实施
+
+**Lifecycle：** Superseded（已取代；十五篇案例目标已实现并继续扩展）
+
+**Successor：** 18 篇案例阶段的增量设计见
+[`2026-07-23-agent-gateway-architecture-cases-design.md`](2026-07-23-agent-gateway-architecture-cases-design.md)；
+当前任务状态见 [`docs/content-backlog.md`](../../content-backlog.md)。
 **仓库：** `sealday/agentic-architecture-atlas`
 **本地根目录：** `/Users/seal/projects/tego-arch`
 **站点：** `https://sealday.github.io/agentic-architecture-atlas/`
