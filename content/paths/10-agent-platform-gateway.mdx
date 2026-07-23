@@ -1,0 +1,111 @@
+---
+title: Agent 平台与模型网关
+sidebar_position: 15
+slug: /paths/agent-platform-gateway
+content_type: path
+status: reviewed
+difficulty: advanced
+analyzed_at: 2026-07-23
+source_cutoff: 2026-07-23
+confidence: high
+domains:
+  - multi-agent-systems
+  - platform-engineering
+  - ai-gateway
+agent_patterns:
+  - manager
+  - handoff
+  - supervisor
+protocols:
+  - A2A
+  - MCP
+quality_attributes:
+  - security
+  - observability
+  - interoperability
+  - operability
+tags:
+  - 模型网关
+  - Agent 平台
+  - 平台治理
+official_sources:
+  - https://docs.litellm.ai/docs/proxy/virtual_keys
+  - https://openai.github.io/openai-agents-python/multi_agent/
+  - https://a2a-protocol.org/latest/
+  - https://modelcontextprotocol.io/docs/getting-started/intro
+  - https://aigateway.envoyproxy.io/docs/getting-started/
+  - https://github.com/EthicalML/awesome-agentic-engineering-resources
+---
+
+# Agent 平台与模型网关
+
+## 为什么学
+
+模型网关处理的不只是统一 API，Agent 平台处理的也不只是框架托管。模型与能力路由、租户身份、预算、Guardrail、长时状态、协议、评估和隔离分布在不同控制点；如果不先划清责任，单个“平台层”会掩盖失败与越权路径。
+
+## 前置能力与跳过条件
+
+读者应先理解 Agentic 控制权、生产隔离和恢复责任。如果已经能为一次 Agent 调用链说明路由依据、调用者身份、虚拟 Key、配额与成本归属、Guardrail 时序、状态所有者、A2A/MCP 边界、评估信号和执行隔离，可以跳过必读起点。
+
+## 核心问题
+
+- 模型、供应商和工具能力由谁路由，回退如何避免改变语义或合规边界？
+- 用户、服务、Agent、虚拟 Key 和上游凭据如何关联，配额与成本记到谁名下？
+- 输入、输出、工具调用和人工审批的 Guardrail 应分别放在哪个强制点？
+- 编排状态、业务事实、长期记忆、A2A 任务与 MCP 工具会话如何分界？
+- 质量、延迟、成本、安全事件和租户故障半径如何被观察和隔离？
+
+## 推荐学习顺序
+
+1. 先定义模型与能力目录、路由约束、回退条件和不可跨越的合规边界。
+2. 再串起调用者身份、虚拟 Key、上游凭据、配额、预算和成本归属。
+3. 然后标出输入、输出、工具执行前后与人工审批位置，明确每道 Guardrail 能阻止什么。
+4. 接着划分编排状态、业务事实与长期记忆，再判断 A2A 或 MCP 是否对应真实的跨 Agent 或工具接入边界。
+5. 最后建立评估、追踪、成本和安全信号，并用租户、任务和执行环境隔离故障。
+
+## 必读起点
+
+[LiteLLM Virtual Keys](https://docs.litellm.ai/docs/proxy/virtual_keys) 用于理解虚拟 Key、预算与网关治理入口；[OpenAI Agents SDK 多智能体文档](https://openai.github.io/openai-agents-python/multi_agent/) 用于理解 Manager 与 Handoff 等控制原语；[A2A 文档](https://a2a-protocol.org/latest/) 与 [MCP 入门](https://modelcontextprotocol.io/docs/getting-started/intro) 用于区分跨 Agent 任务互操作和工具或数据接入。它们描述各自机制，不共同构成一套开箱即用的平台架构。
+
+## 查漏补缺
+
+[Envoy AI Gateway 入门](https://aigateway.envoyproxy.io/docs/getting-started/) 可用于比较基于网关基础设施的模型流量入口，[Awesome Agentic Engineering Resources](https://github.com/EthicalML/awesome-agentic-engineering-resources) 可用于发现评估、安全、编排和平台材料。后者是社区索引；二者都不替代对目标版本、供应商契约和本地风险的核验。
+
+## 深入拓展
+
+只有在真实平台需求出现后，才沿官方文档和上游仓库核对路由 API、身份传播、状态存储、协议版本、追踪字段和失败恢复。不要从案例或索引推导供应商等价性，也不要把协议互通写成权限、事务或结果质量保证。
+
+## 用本站案例深化
+
+- [New API Channel Pool Routing](/cases/new-api-channel-pool-routing)：检查能力路由、渠道池、Key 管理、失败恢复和合规隔离。
+- [LiteLLM Virtual Keys](/cases/litellm-virtual-keys-governance)：检查虚拟 Key、分层权限、预算限流、Guardrail 时序和供应商凭据托管。
+- [Kong AI Gateway](/cases/kong-ai-gateway-routing-resilience)：检查模型路由、插件执行点、可观测性和弹性边界。
+- [OpenAI Agents SDK](/cases/openai-agents-sdk)：检查 Manager、Handoff、工具调用与控制权。
+- [LangGraph Supervisor](/cases/langgraph-supervisor)：检查显式图状态、检查点和可恢复编排。
+- [Google ADK 与 A2A](/cases/google-adk-a2a)：区分本地层级编排和跨运行时任务互操作。
+- [Microsoft 多智能体参考架构](/cases/microsoft-multi-agent-reference-architecture)：检查身份、网络、数据、评估和企业平台治理。
+
+## 当前已覆盖
+
+本站案例已经覆盖模型与能力路由、渠道和虚拟 Key 治理、预算与 Guardrail 执行点、Kong 网关插件边界、Manager/Handoff/Supervisor 控制方式、显式编排状态、A2A 互操作，以及企业参考架构中的身份、网络、评估和隔离。案例之间的机制可以比较，但没有证据支持把它们拼成唯一或完整的平台蓝图。
+
+## 后续待补
+
+- 补充跨供应商模型能力声明、语义回退和数据驻留约束的验证案例。
+- 补充端用户、服务、Agent、工具和上游模型之间的身份委托与撤销链路。
+- 补充输入、输出、工具执行和人工审批多层 Guardrail 的绕过测试与审计。
+- 补充 A2A 与 MCP 版本协商、发现、授权和失败恢复的互操作测试。
+- 补充离线评估、在线反馈、追踪、成本和安全事件关联到同一任务的观测案例。
+- 补充多租户执行沙箱、缓存与记忆泄漏以及故障半径验证案例。
+
+## 实践产出
+
+为一次端到端 Agent 请求保留一张平台控制表：记录路由依据、身份和凭据、配额与成本、每道 Guardrail、状态所有者、协议边界、评估与追踪信号，以及租户和执行环境隔离。
+
+## 检查点
+
+追踪一次带工具副作用的 Agent 请求，说明网关和编排器各自决定什么、身份和预算如何传播、Guardrail 在何处强制、状态在哪里恢复、A2A/MCP 是否必要，以及哪项本地证据仍不足以支持生产结论。
+
+## 继续学习
+
+回到[路线总览](/paths)选择其他专题，或回看[Agentic 架构专项](/paths/agentic-architecture)，重新检查控制权、状态、权限、恢复和协议边界。

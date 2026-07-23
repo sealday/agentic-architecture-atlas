@@ -1,0 +1,96 @@
+---
+title: 协作状态与前端
+sidebar_position: 13
+slug: /paths/collaborative-state-frontend
+content_type: path
+status: reviewed
+difficulty: intermediate
+analyzed_at: 2026-07-23
+source_cutoff: 2026-07-23
+confidence: high
+domains:
+  - frontend-architecture
+  - distributed-systems
+  - organizational-architecture
+agent_patterns: []
+protocols: []
+quality_attributes:
+  - consistency
+  - maintainability
+  - interoperability
+tags:
+  - 协作状态
+  - CRDT
+  - 微前端
+official_sources:
+  - https://docs.yjs.dev/
+  - https://github.com/greatfrontend/awesome-front-end-system-design
+  - https://github.com/mehdihadeli/awesome-software-architecture#micro-frontend
+---
+
+# 协作状态与前端
+
+## 为什么学
+
+多人协作前端同时跨越浏览器、网络、共享文档和业务权限边界。数据结构最终收敛，不代表业务冲突已经解决；多个前端可以独立部署，也不代表共享状态和团队责任已经自然分开。
+
+## 前置能力与跳过条件
+
+读者应先理解模块所有权和跨网络失败。如果已经能为一个协作功能指出权威状态、离线副本、重连协议、收敛机制、语义冲突处理、授权检查点，以及前端运行时和团队的所有权，可以跳过必读起点。
+
+## 核心问题
+
+- 文档、presence、业务事实和界面派生状态分别由谁拥有？
+- 断线、重连、重复更新和乱序到达时，传输层承诺到哪里为止？
+- OT 与 CRDT 分别怎样处理并发更新，收敛保证没有覆盖哪些业务语义？
+- 删除、审批、额度和权限变化等语义冲突由谁拒绝、合并或转交人工？
+- 运行时组合、独立交付、共享依赖和团队所有权应如何对齐？
+
+## 推荐学习顺序
+
+1. 先列出共享文档、业务记录、presence 与本地界面状态，并为每类状态指定所有者。
+2. 再画出连接、断线、离线编辑、重连和更新重放，区分传输确认与业务接受。
+3. 然后比较 OT/CRDT 的并发模型和收敛条件，不把数据结构收敛写成事务或语义正确。
+4. 为审批、删除、权限撤销和不可合并操作定义授权检查与冲突升级路径。
+5. 最后检查微前端或其他运行时组合方式是否保留业务边界、生命周期契约和团队所有权。
+
+## 必读起点
+
+[Yjs 文档](https://docs.yjs.dev/) 用来建立共享类型、更新传播与 provider 边界的共同语言。它说明可用机制，不替应用定义业务授权、持久化权威或语义冲突政策。
+
+## 查漏补缺
+
+[Awesome Front-end System Design](https://github.com/greatfrontend/awesome-front-end-system-design) 可用于查找协作编辑、离线同步和大型前端案例，[Awesome Software Architecture 的 Micro-Frontend 专题](https://github.com/mehdihadeli/awesome-software-architecture#micro-frontend) 可用于定位运行时组合材料。两者都是社区索引，不应作为架构结论的唯一证据。
+
+## 深入拓展
+
+只有在当前产品确实需要多人并发编辑或跨团队运行时组合时，才从索引进入具体的一手论文、产品工程文章和框架文档，逐项核对并发模型、持久化、权限和生命周期。本站当前不对 OT/CRDT 或微前端给出通用选型结论。
+
+## 用本站案例深化
+
+- [Yjs CRDT Collaboration](/cases/yjs-crdt-collaboration)：区分共享类型收敛、更新传播、业务语义批准和事务边界。
+- [Micro Frontends + single-spa](/cases/micro-frontends-single-spa)：比较垂直业务切片、独立交付、共享 shell 与 bootstrap/mount/unmount 生命周期。
+
+## 当前已覆盖
+
+本站案例已经覆盖 Yjs 更新传播和 CRDT 数据结构收敛的边界，以及 single-spa 中应用注册、生命周期和运行时组合对团队边界的影响。现有内容没有证明某一种同步协议或微前端框架适合所有协作产品。
+
+## 后续待补
+
+- 补充 OT 与主流 CRDT 在同一编辑场景中的操作语义和失败窗口对照。
+- 补充离线队列、快照压缩、增量同步和服务端持久化恢复的完整案例。
+- 补充权限撤销与离线编辑相遇时的重新授权、拒绝和审计流程。
+- 补充评论、审批、删除和唯一约束等不可仅靠结构收敛解决的语义冲突案例。
+- 补充共享依赖升级、跨微前端通信和 shell 故障隔离的生产复盘。
+
+## 实践产出
+
+为一个协作功能保留一张状态与冲突表：逐项记录状态所有者、离线副本、更新标识、重连动作、收敛范围、授权执行点、语义冲突负责人，以及运行时模块和团队所有者。
+
+## 检查点
+
+模拟两名用户离线修改同一业务对象后重连，说明哪些更新会在数据结构层收敛，哪些动作必须重新授权或人工处理，再解释前端运行时边界是否与业务所有权一致。
+
+## 继续学习
+
+回到[路线总览](/paths)选择其他专题，或回看[模块边界与应用架构](/paths/module-boundaries)，重新检查状态、运行时和团队边界是否因同一变化原因而划分。
