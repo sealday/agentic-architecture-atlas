@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
-import {chmod, mkdtemp, mkdir, rm, writeFile} from 'node:fs/promises';
+import {chmod, mkdtemp, mkdir, readFile, rm, writeFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
@@ -40,6 +40,103 @@ test('reports empty evidence cards', () => {
     '<details className="evidence-card"><summary>证据</summary></details>',
   );
   assert.equal(result.warnings[0].kind, 'empty-evidence-card');
+});
+
+test('reports duplicate evidence summaries and consecutive evidence labels', () => {
+  const source = `**已证实事实**：第一条机制说明。
+
+**已证实事实**：第二条机制说明。
+
+<details className="evidence-card">
+  <summary>证据：固定版本</summary>
+
+  - **版本：** \`v1.2.3\`
+</details>
+
+<details className="evidence-card">
+  <summary>证据：固定版本</summary>
+
+  - **源码：** \`src/runtime.ts\`
+</details>
+`;
+
+  const result = analyzeCaseText(source);
+  assert.equal(
+    result.warnings.filter(({kind}) => kind === 'repeated-evidence-label').length,
+    1,
+  );
+  assert.equal(
+    result.warnings.filter(({kind}) => kind === 'duplicate-evidence-summary').length,
+    1,
+  );
+});
+
+test('reports scenario sections that omit an illustrative label', () => {
+  const source = `## 控制权与任务流
+
+一个请求进入执行器，失败后由另一个执行器接管。
+
+## 生产化分析
+
+生产环境还要检查恢复结果。
+`;
+
+  const result = analyzeCaseText(source);
+  assert.deepEqual(
+    result.warnings
+      .filter(({kind}) => kind === 'missing-illustrative-label')
+      .map(({line}) => line),
+    [1],
+  );
+});
+
+test('accepts a labeled illustrative exercise in scenario sections', () => {
+  const source = `## 控制权与任务流
+
+**说明性演练**：一个请求进入执行器，失败后由另一个执行器接管。
+
+## 生产化分析
+
+生产环境还要检查恢复结果。
+`;
+
+  const result = analyzeCaseText(source);
+  assert.equal(
+    result.warnings.filter(({kind}) => kind === 'missing-illustrative-label').length,
+    0,
+  );
+});
+
+test('reports evidence cards that state only a conclusion without an anchor', () => {
+  const source = `<details className="evidence-card">
+  <summary>证据：恢复边界</summary>
+
+  - **结论：** 这说明系统可以恢复，但不能证明业务效果只发生一次。
+</details>
+`;
+
+  const result = analyzeCaseText(source);
+  assert.equal(
+    result.warnings.filter(({kind}) => kind === 'unanchored-evidence-card').length,
+    1,
+  );
+});
+
+test('reports inline identifier density with a configurable limit', () => {
+  const source =
+    '这一段依次引入 `tenant_id`、`run_id`、`operation_id` 和 `policy_version` 来解释调用合同。';
+
+  const defaultResult = analyzeCaseText(source);
+  assert.equal(
+    defaultResult.warnings.filter(({kind}) => kind === 'identifier-density').length,
+    1,
+  );
+
+  const relaxedResult = analyzeCaseText(source, {identifierLimit: 4});
+  assert.equal(
+    relaxedResult.warnings.filter(({kind}) => kind === 'identifier-density').length,
+    0,
+  );
 });
 
 test('uses 80 characters as the default sentence limit', () => {
@@ -149,6 +246,63 @@ test('reports long paragraphs and one warning for a consecutive dense run', () =
   assert.deepEqual(
     result.warnings.filter(({kind}) => kind === 'dense-run').map(({line}) => line),
     [1],
+  );
+});
+
+test('functional boundaries interrupt consecutive dense prose runs', () => {
+  const boundaries = [
+    '## 新的控制问题',
+    '- 一个列表项',
+    '```text\ncode boundary\n```',
+    '| 列 | 值 |\n| --- | --- |\n| 表格 | 边界 |',
+    `<details className="evidence-card">
+  <summary>证据：固定版本</summary>
+
+  - **版本：** \`v1.2.3\`
+</details>`,
+  ];
+
+  for (const boundary of boundaries) {
+    const source = [
+      '第一个叙事段落包含足够多的文字来超过限制。',
+      '',
+      boundary,
+      '',
+      '第二个叙事段落同样包含足够多的文字来超过限制。',
+    ].join('\n');
+    const result = analyzeCaseText(source, {
+      paragraphLimit: 10,
+      consecutiveDenseLimit: 2,
+    });
+
+    assert.equal(
+      result.warnings.filter(({kind}) => kind === 'dense-run').length,
+      0,
+      `boundary must break a dense run: ${boundary.split('\n')[0]}`,
+    );
+  }
+});
+
+test('documents identifier density and functional reporter boundaries', async () => {
+  const skillRoot = new URL(
+    '../.codex/skills/writing-architecture-cases/',
+    import.meta.url,
+  );
+  const sources = await Promise.all([
+    readFile(new URL('SKILL.md', skillRoot), 'utf8'),
+    readFile(new URL('references/article-contract.md', skillRoot), 'utf8'),
+    readFile(new URL('references/review-checklist.md', skillRoot), 'utf8'),
+  ]);
+  const guidance = sources.join('\n');
+
+  assert.match(guidance, /identifier-density/u);
+  assert.match(guidance, /duplicate-evidence-summary/u);
+  assert.match(guidance, /repeated-evidence-label/u);
+  assert.match(guidance, /missing-illustrative-label/u);
+  assert.match(guidance, /unanchored-evidence-card/u);
+  assert.match(
+    guidance,
+    /heading、table、code、list 与 evidence card.*中断.*dense-run/u,
   );
 });
 

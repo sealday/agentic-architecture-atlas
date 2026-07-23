@@ -1,9 +1,9 @@
 # 架构案例双层写作与项目级 Skill 设计规格
 
-**日期：** 2026-07-23  
-**状态：** 待用户审阅  
-**方案：** B——双层阅读结构  
-**仓库：** `sealday/agentic-architecture-atlas`  
+**日期：** 2026-07-23
+**状态：** 待用户审阅
+**方案：** B——双层阅读结构
+**仓库：** `sealday/agentic-architecture-atlas`
 **本地根目录：** `/Users/seal/projects/tego-arch`
 
 ## 1. 背景

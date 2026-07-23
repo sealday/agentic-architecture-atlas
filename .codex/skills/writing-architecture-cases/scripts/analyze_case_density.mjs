@@ -7,6 +7,7 @@ import {fileURLToPath} from 'node:url';
 const DEFAULT_SENTENCE_LIMIT = 80;
 const DEFAULT_PARAGRAPH_LIMIT = 200;
 const DEFAULT_CONSECUTIVE_DENSE_LIMIT = 2;
+const DEFAULT_IDENTIFIER_LIMIT = 3;
 
 function measuredLength(value) {
   return Array.from(value.replace(/\s+/gu, '')).length;
@@ -86,26 +87,86 @@ function scanSource(source) {
   return {excluded, lines, maskedSource};
 }
 
+function evidenceCardLineIndexes(maskedSource) {
+  const indexes = new Set();
+  const evidenceCard =
+    /<details\b(?=[^>]*\bclassName=["'][^"']*\bevidence-card\b[^"']*["'])[^>]*>[\s\S]*?<\/details>/giu;
+
+  for (const match of maskedSource.matchAll(evidenceCard)) {
+    const startLine = maskedSource.slice(0, match.index).split('\n').length - 1;
+    const lineCount = match[0].split('\n').length;
+    for (let offset = 0; offset < lineCount; offset += 1) {
+      indexes.add(startLine + offset);
+    }
+  }
+
+  return indexes;
+}
+
+function evidenceAnchorExists(content) {
+  return (
+    /https?:\/\/\S+/iu.test(content) ||
+    /\[[^\]\n]+\]\((?:https?:\/\/|\/|\.{1,2}\/)[^)\n]+\)/iu.test(content) ||
+    /`[^`\n]+`/u.test(content) ||
+    /\b[0-9a-f]{7,40}\b/iu.test(content) ||
+    /\bv?\d+\.\d+(?:\.\d+)?(?:[-+][\w.-]+)?\b/iu.test(content) ||
+    /\*\*(?:来源|源码|文件|符号|版本|提交|路径|锚点|文档|仓库|接口|固定[^：*]*)：\*\*\s*\S+/iu.test(
+      content,
+    )
+  );
+}
+
 function evidenceCardWarnings(maskedSource) {
   const warnings = [];
+  const seenSummaries = new Set();
   const evidenceCard =
     /<details\b(?=[^>]*\bclassName=["'][^"']*\bevidence-card\b[^"']*["'])[^>]*>([\s\S]*?)<\/details>/giu;
 
   for (const match of maskedSource.matchAll(evidenceCard)) {
-    const content = match[1]
-      .replace(/<summary\b[^>]*>[\s\S]*?<\/summary>/giu, '')
+    const line = maskedSource.slice(0, match.index).split('\n').length;
+    const summaryMatch = match[1].match(
+      /<summary\b[^>]*>([\s\S]*?)<\/summary>/iu,
+    );
+    const summary = summaryMatch?.[1]
+      .replace(/<[^>]+>/gu, '')
+      .replace(/\s+/gu, ' ')
+      .trim();
+
+    if (summary) {
+      if (seenSummaries.has(summary)) {
+        warnings.push({
+          kind: 'duplicate-evidence-summary',
+          line,
+          message: `Evidence summary is repeated: ${summary}`,
+        });
+      } else {
+        seenSummaries.add(summary);
+      }
+    }
+
+    const anchoredContent = match[1].replace(
+      /<summary\b[^>]*>[\s\S]*?<\/summary>/giu,
+      '',
+    );
+    const visibleContent = anchoredContent
       .replace(/<!--[\s\S]*?-->/gu, '')
       .replace(/<[^>]+>/gu, '')
       .trim();
 
-    if (content) continue;
-
-    const line = maskedSource.slice(0, match.index).split('\n').length;
-    warnings.push({
-      kind: 'empty-evidence-card',
-      line,
-      message: 'Evidence card has no content beyond its summary.',
-    });
+    if (!visibleContent) {
+      warnings.push({
+        kind: 'empty-evidence-card',
+        line,
+        message: 'Evidence card has no content beyond its summary.',
+      });
+    } else if (!evidenceAnchorExists(anchoredContent)) {
+      warnings.push({
+        kind: 'unanchored-evidence-card',
+        line,
+        message:
+          'Evidence card has content but no source, file, symbol, version, or concrete evidence anchor.',
+      });
+    }
   }
 
   return warnings;
@@ -122,9 +183,15 @@ function isNonProseLine(line) {
   );
 }
 
-function collectParagraphs(lines, excluded) {
+function isListLine(line) {
+  return /^\s*(?:[-+*]\s+|\d+[.)]\s+)/u.test(line);
+}
+
+function collectParagraphs(lines, excluded, evidenceLines) {
   const paragraphs = [];
   let paragraph;
+  let segment = 0;
+  let inList = false;
 
   function flushParagraph() {
     if (!paragraph) return;
@@ -138,17 +205,27 @@ function collectParagraphs(lines, excluded) {
     const line = lines[index];
     const trimmed = line.trim();
 
-    if (excluded.has(index)) {
+    if (!trimmed) {
       flushParagraph();
+      inList = false;
       continue;
     }
 
-    if (!trimmed || isNonProseLine(line)) {
+    if (
+      excluded.has(index) ||
+      evidenceLines.has(index) ||
+      isNonProseLine(line) ||
+      isListLine(line) ||
+      (inList && /^\s{2,}\S/u.test(line))
+    ) {
       flushParagraph();
+      segment += 1;
+      inList = isListLine(line) || (inList && /^\s{2,}\S/u.test(line));
       continue;
     }
 
-    if (!paragraph) paragraph = {line: index + 1, parts: []};
+    inList = false;
+    if (!paragraph) paragraph = {line: index + 1, parts: [], segment};
     paragraph.parts.push(trimmed);
   }
 
@@ -162,6 +239,81 @@ function maskInlineTechnicalSyntax(value) {
     .replace(/(!?\[[^\]\n]*\])\((?:\\.|[^)\n])*\)/gu, (_match, label) =>
       label.startsWith('!') ? '' : label.slice(1, -1),
     );
+}
+
+function inlineIdentifiers(value) {
+  const identifiers = new Set();
+
+  for (const match of value.matchAll(/(`+)([^\n]*?)\1/gu)) {
+    const identifier = match[2].trim();
+    if (!identifier || !/[A-Za-z0-9_./:()[\]{}=+*-]/u.test(identifier)) continue;
+    identifiers.add(identifier);
+  }
+
+  return identifiers;
+}
+
+function evidenceLabel(paragraph) {
+  return paragraph.text.match(
+    /^\*\*(已证实事实|基于证据的推断|个人分析)\*\*[：:]/u,
+  )?.[1];
+}
+
+function repeatedEvidenceLabelWarnings(paragraphs) {
+  const warnings = [];
+
+  for (let index = 1; index < paragraphs.length; index += 1) {
+    const previous = paragraphs[index - 1];
+    const current = paragraphs[index];
+    const label = evidenceLabel(current);
+
+    if (
+      current.segment === previous.segment &&
+      label &&
+      label === evidenceLabel(previous)
+    ) {
+      warnings.push({
+        kind: 'repeated-evidence-label',
+        line: current.line,
+        message: `Consecutive prose paragraphs repeat the evidence label: ${label}`,
+      });
+    }
+  }
+
+  return warnings;
+}
+
+function missingIllustrativeLabelWarnings(lines) {
+  const sectionStarts = [];
+
+  for (let index = 0; index < lines.length; index += 1) {
+    const match = lines[index].match(/^##\s+(.+?)\s*$/u);
+    if (match) sectionStarts.push({heading: match[1], index});
+  }
+
+  const relevant = sectionStarts.filter(({heading}) =>
+    ['控制权与任务流', '生产化分析'].includes(heading),
+  );
+  if (relevant.length === 0) return [];
+
+  const hasLabel = relevant.some(({index}) => {
+    const nextHeading = sectionStarts.find(({index: candidate}) => candidate > index);
+    const end = nextHeading?.index ?? lines.length;
+    return lines.slice(index + 1, end).some((line) =>
+      /说明性(?:场景|演练)/u.test(line),
+    );
+  });
+
+  if (hasLabel) return [];
+
+  return [
+    {
+      kind: 'missing-illustrative-label',
+      line: relevant[0].index + 1,
+      message:
+        'Control-flow and production sections have no explicit 说明性场景 or 说明性演练 label.',
+    },
+  ];
 }
 
 function sentenceWarnings(paragraph, analysisText, sentenceLimit) {
@@ -191,6 +343,7 @@ function sentenceWarnings(paragraph, analysisText, sentenceLimit) {
  *   sentenceLimit?: number;
  *   paragraphLimit?: number;
  *   consecutiveDenseLimit?: number;
+ *   identifierLimit?: number;
  * }} [options]
  */
 export function analyzeCaseText(source, options = {}) {
@@ -206,14 +359,31 @@ export function analyzeCaseText(source, options = {}) {
     options.consecutiveDenseLimit,
     DEFAULT_CONSECUTIVE_DENSE_LIMIT,
   );
+  const identifierLimit = normalizedLimit(
+    options.identifierLimit,
+    DEFAULT_IDENTIFIER_LIMIT,
+  );
   const {excluded, lines, maskedSource} = scanSource(source);
-  const paragraphs = collectParagraphs(lines, excluded);
-  const warnings = evidenceCardWarnings(maskedSource);
+  const evidenceLines = evidenceCardLineIndexes(maskedSource);
+  const paragraphs = collectParagraphs(lines, excluded, evidenceLines);
+  const warnings = [
+    ...evidenceCardWarnings(maskedSource),
+    ...missingIllustrativeLabelWarnings(lines),
+    ...repeatedEvidenceLabelWarnings(paragraphs),
+  ];
   const denseParagraphs = [];
 
   for (const paragraph of paragraphs) {
     const analysisText = maskInlineTechnicalSyntax(paragraph.text);
     warnings.push(...sentenceWarnings(paragraph, analysisText, sentenceLimit));
+    const identifiers = inlineIdentifiers(paragraph.text);
+    if (identifiers.size > identifierLimit) {
+      warnings.push({
+        kind: 'identifier-density',
+        line: paragraph.line,
+        message: `Paragraph introduces ${identifiers.size} unique inline identifiers (limit ${identifierLimit}).`,
+      });
+    }
 
     const length = measuredLength(analysisText);
     if (length > paragraphLimit) {
@@ -222,26 +392,32 @@ export function analyzeCaseText(source, options = {}) {
         line: paragraph.line,
         message: `Paragraph has ${length} characters (limit ${paragraphLimit}).`,
       });
-      denseParagraphs.push(paragraph);
+      denseParagraphs.push({paragraph, segment: paragraph.segment});
     } else {
-      denseParagraphs.push(undefined);
+      denseParagraphs.push({paragraph: undefined, segment: paragraph.segment});
     }
   }
 
   for (let index = 0; index < denseParagraphs.length; ) {
-    if (!denseParagraphs[index]) {
+    if (!denseParagraphs[index].paragraph) {
       index += 1;
       continue;
     }
 
     const start = index;
-    while (denseParagraphs[index]) index += 1;
+    const segment = denseParagraphs[start].segment;
+    while (
+      denseParagraphs[index]?.paragraph &&
+      denseParagraphs[index].segment === segment
+    ) {
+      index += 1;
+    }
     const count = index - start;
 
     if (count >= consecutiveDenseLimit) {
       warnings.push({
         kind: 'dense-run',
-        line: denseParagraphs[start].line,
+        line: denseParagraphs[start].paragraph.line,
         message: `${count} consecutive paragraphs exceed the paragraph limit.`,
       });
     }

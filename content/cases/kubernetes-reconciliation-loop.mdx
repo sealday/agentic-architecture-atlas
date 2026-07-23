@@ -192,13 +192,13 @@ Agent 中的 owner 也要分层：任务 owner 负责最终不变量，artifact 
 <details className="evidence-card">
   <summary>证据：固定提交中的 controller、kubelet 与 Lease seam</summary>
 
-  - [`deployment_controller.go` 53–116](https://github.com/kubernetes/kubernetes/blob/39c618b5c30ced3969862e0b4b5acce7a7f8cecb/pkg/controller/deployment/deployment_controller.go#L53-L116)：15 次重试常量、lister 与限速队列。
+  - [`deployment_controller.go` 53–116](https://github.com/kubernetes/kubernetes/blob/39c618b5c30ced3969862e0b4b5acce7a7f8cecb/pkg/controller/deployment/deployment_controller.go#L53-L116)：`maxRetries = 15`、lister 与限速队列。
   - [`deployment_controller.go` 123–165](https://github.com/kubernetes/kubernetes/blob/39c618b5c30ced3969862e0b4b5acce7a7f8cecb/pkg/controller/deployment/deployment_controller.go#L123-L165)：Deployment、ReplicaSet 与 Pod informer handler。
-  - [`deployment_controller.go` 399–427](https://github.com/kubernetes/kubernetes/blob/39c618b5c30ced3969862e0b4b5acce7a7f8cecb/pkg/controller/deployment/deployment_controller.go#L399-L427)：立即、限速与延迟入队。
+  - [`deployment_controller.go` 399–427](https://github.com/kubernetes/kubernetes/blob/39c618b5c30ced3969862e0b4b5acce7a7f8cecb/pkg/controller/deployment/deployment_controller.go#L399-L427)：立即入队、`AddRateLimited` 与 `AddAfter` 三条重排接缝。
   - [`deployment_controller.go` 479–519](https://github.com/kubernetes/kubernetes/blob/39c618b5c30ced3969862e0b4b5acce7a7f8cecb/pkg/controller/deployment/deployment_controller.go#L479-L519)：同 key 串行及 success/error 路径。
   - [`deployment_controller.go` 521–548](https://github.com/kubernetes/kubernetes/blob/39c618b5c30ced3969862e0b4b5acce7a7f8cecb/pkg/controller/deployment/deployment_controller.go#L521-L548)：owner adoption 前的 fresh read。
-  - [`deployment_controller.go` 572–659](https://github.com/kubernetes/kubernetes/blob/39c618b5c30ced3969862e0b4b5acce7a7f8cecb/pkg/controller/deployment/deployment_controller.go#L572-L659)：重读 Deployment、重建 owned 状态与非 re-entrant rollback 边界。
-  - [`sync.go` 220–299](https://github.com/kubernetes/kubernetes/blob/39c618b5c30ced3969862e0b4b5acce7a7f8cecb/pkg/controller/deployment/sync.go#L220-L299) 与 [`sync.go` 478–531](https://github.com/kubernetes/kubernetes/blob/39c618b5c30ced3969862e0b4b5acce7a7f8cecb/pkg/controller/deployment/sync.go#L478-L531)：ReplicaSet 身份校验、collision status、status no-op 与 `ObservedGeneration`。
+  - [`deployment_controller.go` 572–659](https://github.com/kubernetes/kubernetes/blob/39c618b5c30ced3969862e0b4b5acce7a7f8cecb/pkg/controller/deployment/deployment_controller.go#L572-L659)：`syncDeployment` 重读 Deployment、重建 `ownerReferences` 约束下的 owned 状态，并暴露非 re-entrant rollback 边界。
+  - [`sync.go` 220–299](https://github.com/kubernetes/kubernetes/blob/39c618b5c30ced3969862e0b4b5acce7a7f8cecb/pkg/controller/deployment/sync.go#L220-L299) 与 [`sync.go` 478–531](https://github.com/kubernetes/kubernetes/blob/39c618b5c30ced3969862e0b4b5acce7a7f8cecb/pkg/controller/deployment/sync.go#L478-L531)：ReplicaSet 身份校验、collision status、status no-op，以及 `calculateStatus` 写入 `ObservedGeneration` 的接缝。
   - [`kubelet.go` 2018–2067](https://github.com/kubernetes/kubernetes/blob/39c618b5c30ced3969862e0b4b5acce7a7f8cecb/pkg/kubelet/kubelet.go#L2018-L2067)：可重入 `SyncPod`。
   - [`kubelet.go` 2680–2725](https://github.com/kubernetes/kubernetes/blob/39c618b5c30ced3969862e0b4b5acce7a7f8cecb/pkg/kubelet/kubelet.go#L2680-L2725)：多配置源与 runtime 100ms 到 5s 退避。
   - [`kubelet.go` 2728–2877](https://github.com/kubernetes/kubernetes/blob/39c618b5c30ced3969862e0b4b5acce7a7f8cecb/pkg/kubelet/kubelet.go#L2728-L2877)：多事件 channel 与无处理顺序保证。
@@ -231,9 +231,18 @@ Agent 中的 owner 也要分层：任务 owner 负责最终不变量，artifact 
 
 每次 observation 应携带 source version、采集时间、TTL 与来源；提交动作时带 expected goal generation 和 external version。冲突后重读、重算，不能盲目重放上次工具调用。
 
-自动动作需要稳定 operation ID，可由 `goal_id + generation + logical_step_id + canonical_intent` 派生。外部系统支持时把它作为 idempotency key；不支持时查结果登记表。超时结果是 `Unknown`，不是自动可重试的 `Failed`。
+自动动作需要稳定 operation ID。规范合同是 `operation_id = hash(goal_id, generation, logical_step_id, canonical_action_intent)`；同一逻辑动作重试复用 ID，不同动作使用稳定 step ID 与规范化意图区分。外部系统支持时把它作为 idempotency key；不支持时查结果登记表。超时结果是 `Unknown`，不是自动可重试的 `Failed`。
 
 预算要在顶层原子扣减模型调用、工具调用、token、费用、deadline、外部写与无进展轮数。Deployment 的 15 次和 kubelet 的 5 秒上限只描述各自实现；它们不能直接授权昂贵模型重采样。
+
+<details className="evidence-card">
+  <summary>证据：Agent reconcile 的版本、退避与顶层预算字段</summary>
+
+  - **状态提交：** 用 compare-and-swap 提交 `observed_version → new_status`，并携带 expected goal generation 与 external version。
+  - **分层退避：** 网络瞬时失败使用指数退避和 jitter；供应商限流遵守 `Retry-After`；外部结果不确定时冻结写入，而不是延时后盲重放。
+  - **顶层预算：** 原子扣减 `max_model_calls`、`max_tool_calls`、`max_tokens`、`max_cost`、`deadline`、`max_external_writes` 与 `max_no_progress_rounds`；子目标只能领取剩余额度。
+  - **边界：** 这些字段是迁移设计，不是 Kubernetes API 原生字段；其作用是防止每层 controller 各自重置预算。
+</details>
 
 人工接管包应包含目标 generation、最后可靠 observation、actions 与 operation IDs、外部资源、冲突字段、累计预算和建议选项。接管前递增 fencing epoch，并要求所有目标端校验；撤销 Lease 只能降低并发概率。
 

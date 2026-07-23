@@ -56,4 +56,6 @@ test('makes evidence summaries interactive and keyboard-visible', async () => {
   assert.equal(declarations.get('font-weight'), '650');
   assert.equal(declarations.get('color'), 'var(--atlas-ink-soft)');
   assert.ok(focusDeclarations, 'keyboard focus must remain visible on evidence summaries');
+  assert.equal(focusDeclarations.get('outline'), '3px solid var(--atlas-focus)');
+  assert.equal(focusDeclarations.get('outline-offset'), '3px');
 });

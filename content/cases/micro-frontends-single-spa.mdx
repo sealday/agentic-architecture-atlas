@@ -270,6 +270,8 @@ sequenceDiagram
 <details className="evidence-card">
   <summary>证据：生产控制、观测字段与恢复动作</summary>
 
+**来源锚点：** [single-spa Applications API](https://single-spa.js.org/docs/api/) 与固定提交的 [`navigation/reroute.js`](https://github.com/single-spa/single-spa/blob/297483c11265050542d7ef107d14c44936c51883/src/navigation/reroute.js) 支持生命周期、路由与失败状态；授权、审计和 Agent 字段是应用补充。
+
 | 生产维度 | 最小控制 | 可观测信号 | 失败处置 |
 | --- | --- | --- | --- |
 | 制品与组合 | 制品内容哈希、import map 变更审查、原子发布、兼容窗口 | 每个应用的解析 URL、版本、加载耗时、缓存命中 | 回滚映射或固定到上一制品；不要现场覆盖不可追溯文件 |

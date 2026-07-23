@@ -35,8 +35,12 @@ Run these gates in order. A later gate cannot compensate for failure in an earli
 - [ ] Normal narrative paragraphs contain about 2–4 sentences; review any paragraph above 6 sentences.
 - [ ] Review sentences above roughly 80 Chinese characters; split mixed claims while preserving identifiers and links that legitimately add length.
 - [ ] Review paragraphs above roughly 200 Chinese characters for a second topic, changed control owner, contrast, exception, or layer transition.
-- [ ] Avoid introducing more than roughly three new identifiers in a normal narrative paragraph; stage or move verification-only names to evidence cards.
+- [ ] Review `identifier-density` above the default of three unique inline identifiers in a normal narrative paragraph; stage names or move verification-only fields to evidence cards without deleting facts.
 - [ ] After two dense paragraphs, provide a functional pause: short explanation, labeled micro-scenario, checkpoint, diagram/table guide, or concise synthesis.
+- [ ] Confirm heading、table、code、list 与 evidence card 中断相邻叙事的 `dense-run`; investigate any warning that appears to cross a functional boundary.
+- [ ] Review `duplicate-evidence-summary` and `repeated-evidence-label`; keep summaries topic-specific and let one epistemic label govern a short coherent block instead of repeating it mechanically.
+- [ ] Resolve `missing-illustrative-label` by labeling the supported micro-scenario `说明性场景` or `说明性演练`, not by inventing a story.
+- [ ] Resolve `empty-evidence-card`; review `unanchored-evidence-card` and add a source, file, symbol, version, commit, link, or other concrete anchor when the block claims to be evidence.
 - [ ] Remove empty setup, fake suspense, slogans, repeated conclusions, mechanical parallelism, synonym chains, and exhaustive name dumping.
 - [ ] Confirm the ending states a decision, trade-off, or transfer condition without a generic inspirational close.
 - [ ] Review rendered desktop and mobile views for opening value, paragraph rhythm, overflow, evidence-card usability, and table/code readability.

@@ -248,14 +248,14 @@ flowchart LR
 
   - **LLM Activity 输入：** `task_id`、`step_id`、业务对象版本、提示/模型/参数/工具 schema 版本、权限和输入快照哈希。
   - **Temporal 身份：** Activity ID 应由稳定步骤键重建，不使用当前时间或随机串；它在一个 Workflow Run 的打开 Activity Executions 中唯一。
-  - **外部身份：** 可采用 `tenant_id:business_task_id:step_name:step_version`。相同键与相同输入返回原结果，相同键与不同输入应拒绝冲突。
+  - **外部身份：** 逻辑组成可写为 `tenant + operation + business_object + step_version`；一个具体编码是 `tenant_id:business_task_id:step_name:step_version`。相同键与相同输入返回原结果，相同键与不同输入应拒绝冲突。
   - **边界：** `Workflow Run ID + Activity ID` 可稳定标识同一 Run 的重试；跨 Run 仍需不随 Run 改变的业务键，且由目标系统强制。
 </details>
 
 <details className="evidence-card">
   <summary>证据：快速取消的固定实现条件</summary>
 
-  - **服务端条件：** 已开始 Activity 记录 control queue/clock 后，取消处理可按 queue 汇集 `CancelActivityCommand` 并创建 Worker Commands tasks。
+  - **服务端条件：** 已开始 Activity 记录 `WorkerControlTaskQueue`/clock 后，取消处理可按 queue 汇集 `CancelActivityCommand` 并创建 Worker Commands tasks。
   - **SDK 条件：** 固定 Go SDK 读取 Worker Heartbeats/Commands capabilities 并把 task token 映射到 Activity context cancel callback；固定 Java SDK 仅在 `isWorkerCommands()` 时启动 command worker，并将 token 交给运行上下文。
   - **边界：** 该路径证明“callback 可更早触发”，不证明 Activity 被强杀、远端请求停止或副作用回滚。
 </details>
@@ -272,7 +272,7 @@ flowchart LR
   <summary>证据：Command 与 Activity 持久状态接缝</summary>
 
   - [`workflow_task_completed_handler.go` 275–330](https://github.com/temporalio/temporal/blob/955948007cc6d9d94fa8ef484225954bd9328451/service/history/api/respondworkflowtaskcompleted/workflow_task_completed_handler.go#L275-L330)：`handleCommand` 分派 Activity、Timer、Child Workflow、Signal、取消与终止等 Commands。
-  - [`workflow_task_completed_handler.go` 467–571](https://github.com/temporalio/temporal/blob/955948007cc6d9d94fa8ef484225954bd9328451/service/history/api/respondworkflowtaskcompleted/workflow_task_completed_handler.go#L467-L571)：校验 Activity 属性、队列和输入，再写 scheduled event；当前重复 Activity ID 会使 Workflow Task 失败。
+  - [`workflow_task_completed_handler.go` 467–571](https://github.com/temporalio/temporal/blob/955948007cc6d9d94fa8ef484225954bd9328451/service/history/api/respondworkflowtaskcompleted/workflow_task_completed_handler.go#L467-L571)：校验 Activity 属性、队列和输入，再调用 `AddActivityTaskScheduledEvent`；当前重复 Activity ID 会使 Workflow Task 失败。
   - [`mutable_state_impl.go` 4187–4283](https://github.com/temporalio/temporal/blob/955948007cc6d9d94fa8ef484225954bd9328451/service/history/workflow/mutable_state_impl.go#L4187-L4283)：持久化 Activity ID、scheduled event、队列、四类 timeout、cancel 标志、attempt 与 retry policy。
   - **边界：** 这些锚点证明 Temporal 的持久调度状态，不证明目标服务已经按 Activity ID 去重。
 </details>
@@ -292,8 +292,8 @@ flowchart LR
   <summary>证据：Go/Java SDK 的取消 callback 接缝</summary>
 
   - [`workflow_task_completed_handler.go` 670–768](https://github.com/temporalio/temporal/blob/955948007cc6d9d94fa8ef484225954bd9328451/service/history/api/respondworkflowtaskcompleted/workflow_task_completed_handler.go#L670-L768)：取消请求入历史，并在能力条件满足时创建 Worker Commands tasks。
-  - [`internal_worker_heartbeat.go` 88–117、172–185、239–327](https://github.com/temporalio/sdk-go/blob/3cebc26908119368df3911df6146f756bad3882b/internal/internal_worker_heartbeat.go#L88-L117) 与 [`internal_task_handlers.go` 2122–2147、2388–2398](https://github.com/temporalio/sdk-go/blob/3cebc26908119368df3911df6146f756bad3882b/internal/internal_task_handlers.go#L2122-L2147)：固定 Go SDK 的 capability、control queue 与 context cancel 路径。
-  - [`WorkerFactory.java` 291–349](https://github.com/temporalio/sdk-java/blob/6d09a341c14daeddf9b3795cd43721de770fec2c/temporal-sdk/src/main/java/io/temporal/worker/WorkerFactory.java#L291-L349)、[`WorkerCommandTaskHandler.java` 28–126](https://github.com/temporalio/sdk-java/blob/6d09a341c14daeddf9b3795cd43721de770fec2c/temporal-sdk/src/main/java/io/temporal/internal/worker/WorkerCommandTaskHandler.java#L28-L126)、[`ActivityExecutionContextFactoryImpl.java` 71–80](https://github.com/temporalio/sdk-java/blob/6d09a341c14daeddf9b3795cd43721de770fec2c/temporal-sdk/src/main/java/io/temporal/internal/activity/ActivityExecutionContextFactoryImpl.java#L71-L80) 与 [`HeartbeatContextImpl.java` 239–247](https://github.com/temporalio/sdk-java/blob/6d09a341c14daeddf9b3795cd43721de770fec2c/temporal-sdk/src/main/java/io/temporal/internal/activity/HeartbeatContextImpl.java#L239-L247)：固定 Java SDK 的能力门、handler 与本地取消请求。
+  - [`sdk-go/internal_worker_heartbeat.go` 88–117、172–185、239–327](https://github.com/temporalio/sdk-go/blob/3cebc26908119368df3911df6146f756bad3882b/internal/internal_worker_heartbeat.go#L88-L117) 与 [`internal_task_handlers.go` 2122–2147、2388–2398](https://github.com/temporalio/sdk-go/blob/3cebc26908119368df3911df6146f756bad3882b/internal/internal_task_handlers.go#L2122-L2147)：固定 Go SDK 的 capability、control queue 与 context cancel 路径。
+  - [`sdk-java/WorkerFactory.java` 291–349](https://github.com/temporalio/sdk-java/blob/6d09a341c14daeddf9b3795cd43721de770fec2c/temporal-sdk/src/main/java/io/temporal/worker/WorkerFactory.java#L291-L349)、[`WorkerCommandTaskHandler.java` 28–126](https://github.com/temporalio/sdk-java/blob/6d09a341c14daeddf9b3795cd43721de770fec2c/temporal-sdk/src/main/java/io/temporal/internal/worker/WorkerCommandTaskHandler.java#L28-L126)、[`ActivityExecutionContextFactoryImpl.java` 71–80](https://github.com/temporalio/sdk-java/blob/6d09a341c14daeddf9b3795cd43721de770fec2c/temporal-sdk/src/main/java/io/temporal/internal/activity/ActivityExecutionContextFactoryImpl.java#L71-L80) 与 [`HeartbeatContextImpl.java` 239–247](https://github.com/temporalio/sdk-java/blob/6d09a341c14daeddf9b3795cd43721de770fec2c/temporal-sdk/src/main/java/io/temporal/internal/activity/HeartbeatContextImpl.java#L239-L247)：固定 Java SDK 仅在能力门满足时启动 command worker，运行上下文最终调用 `cancelFromWorkerCommand` 请求本地取消。
   - **边界：** 只证明固定提交中的 callback 路径，不外推到旧版本、其他 SDK 或强制终止。
 </details>
 
@@ -318,7 +318,7 @@ flowchart LR
 
 业务允许剩余步骤最终完成时可向前恢复，但必须保证代码和输入可用，并设置终止预算。用户撤回、风险越界或流程不可继续时才向后补偿。
 
-第三个决策是补偿是否能自动化。原始 Saga 的顺序为 `T1...Tj,Cj...C1`，但 `Ci` 只是业务修复。每个补偿都需要原 `effect_ref`、独立幂等键、前置状态、时窗、最小权限、重试上限与成功证据；若 `Cj` 永久失败，不能默认跳过它继续 `Cj-1`。
+第三个决策是补偿是否能自动化。原始 Saga 的顺序为 `T1...Tj,Cj...C1`，但 `Ci` 只是业务修复。把重试、补偿与未知效果压成一个 `failed=true` 会在最危险的窗口触发错误动作。每个补偿都需要原 `effect_ref`、独立幂等键、前置状态、时窗、最小权限、重试上限与成功证据；若 `Cj` 永久失败，不能默认跳过它继续 `Cj-1`。
 
 **个人分析**：人工介入不是耐久执行失败，而是明确的恢复分支。`needs_reconciliation`、`needs_compensation_approval`、`compensation_failed` 应可查询且有 owner/SLA；审批结果作为新历史事件进入 Workflow，而不是运维人员删除历史或修改内部状态。
 
@@ -329,6 +329,8 @@ flowchart LR
 **外部结果未知。** 每个步骤至少区分 `not_scheduled`、`running`、`succeeded`、`failed_retryable`、`failed_permanent`、`unknown`、`compensating`、`compensated`、`compensation_failed`。
 
 只有 `succeeded + effect_ref` 可入补偿栈；`unknown` 禁止新写并必须对账。对账 Activity 应只读或使用独立权限，返回 `not_found/confirmed/rejected/pending/ambiguous`，不能在查询路径发起第二次写入。
+
+每个已承诺副作用还必须成为整体成功的一部分，或最终抵达 `compensated/已批准保留`。这个不变量把“补偿完成”和“经授权接受残余事实”都变成可查询终态。
 
 其中 `not_found` 只有在来源权威、同一目标侧幂等键仍受强制，且一致性与保留期覆盖原请求窗口时才允许重试。其他无法证明“未发生”的结果继续保持 `unknown`，进入定时对账或人工处置。
 

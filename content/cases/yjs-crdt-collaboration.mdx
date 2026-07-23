@@ -235,6 +235,8 @@ flowchart LR
 <details className="evidence-card">
   <summary>证据：生产限额、观测字段与恢复动作</summary>
 
+**来源锚点：** [Document Updates](https://docs.yjs.dev/api/document-updates)、[y-websocket](https://docs.yjs.dev/ecosystem/connection-provider/y-websocket) 与固定提交的 [`THREAT_MODEL.md`](https://github.com/yjs/yjs/blob/9c1994547d7bc86245a21e1a4c8319f056d05ecf/THREAT_MODEL.md) 支持同步、服务端接缝和受信写入端边界；审批与业务发布规则是应用补充。
+
 | 生产维度 | 最小控制 | 可观测信号 | 失败处置 |
 | --- | --- | --- | --- |
 | 身份与授权 | WSS、会话认证、服务端派生 tenant/doc、room 级读写 ACL、短期令牌 | 主体、租户、文档、动作、允许/拒绝原因、连接实例 | 拒绝未授权 room；撤销连接与令牌；不要只信 clientID |

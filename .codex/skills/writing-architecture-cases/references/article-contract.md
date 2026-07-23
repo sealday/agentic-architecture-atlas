@@ -60,3 +60,17 @@ Use this shape:
 Open with a concrete conflict or counterintuitive result, a transferable lens, and the evidence scope within three paragraphs. Keep one principal reader question per section. Use a labeled micro-scenario in `控制权与任务流` or `生产化分析`; trace actual supported mechanisms and return to a decision.
 
 Introduce every table, diagram, and code block with the question it answers. Follow it with the conclusion or boundary the reader should retain. End the article by synthesizing the decision, trade-off, and transfer condition rather than repeating section summaries.
+
+## Density reporter contract
+
+The reporter uses 80/200 as advisory prose thresholds and reports more than 3 unique inline identifiers as `identifier-density` by default. Inline identifiers are excluded from prose-length measurement but retained for this separate warning; callers may pass `identifierLimit` to `analyzeCaseText`.
+
+It also reports:
+
+- `duplicate-evidence-summary` when one case repeats the same normalized evidence-card summary;
+- `repeated-evidence-label` when adjacent narrative paragraphs repeat the same epistemic label;
+- `missing-illustrative-label` when the scenario-bearing sections contain neither `说明性场景` nor `说明性演练`;
+- `empty-evidence-card` for a card with no body;
+- `unanchored-evidence-card` for a non-empty card with no source, file, symbol, version, commit, link, or other concrete evidence anchor.
+
+A heading、table、code、list 与 evidence card 必须中断相邻叙事段落的 `dense-run`。The reporter does not combine dense prose across these functional boundaries, and warnings remain editorial review inputs rather than CI failures.
