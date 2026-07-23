@@ -460,8 +460,7 @@
     "catalog_order": 18,
     "featured": false,
     "source_kinds": [
-      "official-docs",
-      "open-source-project"
+      "official-docs"
     ],
     "migration_targets": [
       "model-routing",
