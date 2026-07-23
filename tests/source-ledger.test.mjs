@@ -6,6 +6,7 @@ import {
   citationMatchesSource,
   extractExternalLinks,
   isTopLevelSourceLedgerMount,
+  normalizeVisibleQuotation,
   parseSourceLedger,
   validateSourceGovernance,
 } from '../scripts/source-ledger.mjs';
@@ -80,6 +81,30 @@ function document(overrides = {}) {
     body: '[C4](https://c4model.com/#SystemContextDiagram)',
     metadata: {content_type: 'case'},
     headings: [],
+    ...overrides,
+  };
+}
+
+function sourceFixture(id, overrides = {}) {
+  const canonical = `https://example.com/${id}`;
+  return {
+    ...validSource,
+    id,
+    canonical_locator: canonical,
+    transport_locator: canonical,
+    license_family_id: canonical,
+    expected_final_transport_locator: canonical,
+    ...overrides,
+  };
+}
+
+function citationFixture(source, overrides = {}) {
+  return {
+    ...validCitation,
+    source_id: source.id,
+    citation_url: source.canonical_locator,
+    roles: [source.allowed_evidence_roles[0]],
+    manifest_primary: false,
     ...overrides,
   };
 }
@@ -658,4 +683,377 @@ test('keeps stable source identity across citation anchors queries and locator m
     },
   );
   assert.deepEqual(exclusiveComponent.errors, []);
+});
+
+test('does not treat learning indexes as factual evidence', () => {
+  const indexes = ['src-index-one', 'src-index-two', 'src-index-three'].map((id) =>
+    sourceFixture(id, {
+      source_kind: 'community-index',
+      tier: 'discovery',
+      allowed_evidence_roles: ['discovery', 'learning'],
+    }));
+  const indexCitations = indexes.map((source) =>
+    citationFixture(source, {
+      roles: ['learning'],
+      usage_mode: 'navigation-only',
+    }));
+  const governed = validateSourceGovernance(
+    [document({
+      body: indexes.map((source) => `[Index](${source.canonical_locator})`).join('\n'),
+    })],
+    ledger({
+      sources: indexes,
+      documents: {
+        'content/cases/example.mdx': {...validDocument, citations: indexCitations},
+      },
+    }),
+  );
+  assert.match(
+    governed.errors.join('\n'),
+    /case requires a primary\/first-party factual source/i,
+  );
+
+  const disguised = parseSourceLedger(ledger({
+    sources: [{
+      ...indexes[0],
+      tier: 'secondary',
+      allowed_evidence_roles: ['definition'],
+    }],
+    documents: {},
+  }));
+  assert.match(disguised.errors.join('\n'), /community-index must use discovery tier/i);
+  assert.match(disguised.errors.join('\n'), /community-index role "definition"/i);
+
+  const blog = sourceFixture('src-independent-blog', {
+    source_kind: 'independent-blog',
+    tier: 'secondary',
+    allowed_evidence_roles: ['comparison'],
+  });
+  const blogGoverned = validateSourceGovernance(
+    [document({body: `[Comparison](${blog.canonical_locator})`})],
+    ledger({
+      sources: [blog],
+      documents: {
+        'content/cases/example.mdx': {
+          ...validDocument,
+          citations: [citationFixture(blog, {roles: ['comparison']})],
+        },
+      },
+    }),
+  );
+  assert.match(
+    blogGoverned.errors.join('\n'),
+    /case requires a primary\/first-party factual source/i,
+  );
+});
+
+test('enforces license-specific copyright policies', () => {
+  const cases = [
+    ['CC-BY-4.0', 'facts-and-short-quotation', 'adapt-with-attribution'],
+    ['CC-BY-SA-4.0', 'facts-and-short-quotation', 'adapt-sharealike-review'],
+    [
+      'LicenseRef-US-Gov-Public-Domain',
+      'facts-and-short-quotation',
+      'public-domain-with-provenance',
+    ],
+    ['LicenseRef-All-Rights-Reserved', 'adapt-with-attribution', 'facts-and-short-quotation'],
+    [
+      'LicenseRef-MCP-Specification-Transition',
+      'adapt-with-attribution',
+      'facts-and-short-quotation',
+    ],
+    [
+      'LicenseRef-CC-BY-NC-ND-Unversioned',
+      'adapt-with-attribution',
+      'facts-and-short-quotation',
+    ],
+    [
+      'LicenseRef-New-API-Docs-License-Conflict',
+      'adapt-with-attribution',
+      'facts-and-short-quotation',
+    ],
+  ];
+  for (const [license, actual, expected] of cases) {
+    const source = sourceFixture(`src-policy-${cases.indexOf(cases.find((item) => item[0] === license))}`, {
+      license,
+      copyright_policy: actual,
+    });
+    const parsed = parseSourceLedger(ledger({sources: [source], documents: {}}));
+    assert.match(parsed.errors.join('\n'), new RegExp(source.id));
+    assert.match(parsed.errors.join('\n'), new RegExp(actual));
+    assert.match(parsed.errors.join('\n'), new RegExp(expected));
+  }
+
+  const vendor = sourceFixture('src-vendor', {
+    source_kind: 'vendor-reference-architecture',
+    tier: 'first-party',
+    license: 'CC-BY-4.0',
+    copyright_policy: 'adapt-with-attribution',
+  });
+  assert.match(
+    parseSourceLedger(ledger({sources: [vendor], documents: {}})).errors.join('\n'),
+    /src-vendor.*adapt-with-attribution.*vendor-claims-separated/i,
+  );
+
+  const original = sourceFixture('src-original', {
+    canonical_locator: '/img/original.png',
+    transport_locator: '/img/original.png',
+    license_family_id: '/img/original.png',
+    expected_final_transport_locator: '/img/original.png',
+    source_kind: 'original-illustration',
+    allowed_evidence_roles: ['illustration'],
+    license: 'LicenseRef-Atlas-Original',
+    copyright_policy: 'facts-and-short-quotation',
+    link_policy: null,
+  });
+  assert.match(
+    parseSourceLedger(ledger({sources: [original], documents: {}})).errors.join('\n'),
+    /src-original.*facts-and-short-quotation.*original-atlas/i,
+  );
+
+  const cc0 = sourceFixture('src-cc0-approved', {
+    source_kind: 'community-index',
+    tier: 'discovery',
+    allowed_evidence_roles: ['discovery', 'learning'],
+    license: 'CC0-1.0',
+    copyright_policy: 'facts-and-short-quotation',
+  });
+  assert.deepEqual(
+    parseSourceLedger(ledger({sources: [cc0], documents: {}})).errors,
+    [],
+  );
+});
+
+test('keeps vendor claims and illustration rights explicit', () => {
+  const vendor = sourceFixture('src-vendor-claim', {
+    source_kind: 'vendor-reference-architecture',
+    tier: 'first-party',
+    copyright_policy: 'vendor-claims-separated',
+    allowed_evidence_roles: ['case-evidence'],
+  });
+  const original = sourceFixture('src-original-art', {
+    canonical_locator: '/img/original-art.png',
+    transport_locator: '/img/original-art.png',
+    license_family_id: '/img/original-art.png',
+    expected_final_transport_locator: '/img/original-art.png',
+    source_kind: 'original-illustration',
+    allowed_evidence_roles: ['illustration'],
+    license: 'LicenseRef-Atlas-Original',
+    copyright_policy: 'original-atlas',
+    link_policy: null,
+  });
+  const missingRights = parseSourceLedger(ledger({
+    sources: [vendor, original],
+    documents: {
+      'content/cases/example.mdx': {
+        ...validDocument,
+        copyright_checks: validDocument.copyright_checks.filter(
+          (check) => check !== 'illustration-rights',
+        ),
+        citations: [
+          citationFixture(vendor, {roles: ['case-evidence']}),
+          citationFixture(original, {
+            roles: ['definition'],
+            usage_mode: 'original-illustration',
+            modification_note: 'Drawn by Atlas',
+            quotation_reviewed: true,
+          }),
+        ],
+      },
+    },
+  }));
+  const errors = missingRights.errors.join('\n');
+  assert.match(errors, /illustration-rights/i);
+  assert.match(errors, /original-illustration.*illustration role|citation role "definition"/i);
+});
+
+test('enforces citation-level quotation adaptation and attribution records', () => {
+  const adaptedLicenses = [
+    'Apache-2.0',
+    'MIT',
+    'BSD-3-Clause',
+    'EPL-2.0',
+    'MPL-2.0',
+    'GPL-3.0-only',
+    'AGPL-3.0-only',
+    'LicenseRef-All-Rights-Reserved',
+    'LicenseRef-Proprietary-Standard',
+    'CC-BY-NC-ND-4.0',
+    'LicenseRef-CC-BY-NC-ND-Unversioned',
+    'LicenseRef-MCP-Specification-Transition',
+    'LicenseRef-New-API-Docs-License-Conflict',
+    'CC0-1.0',
+  ];
+  for (const [index, license] of adaptedLicenses.entries()) {
+    const source = sourceFixture(`src-no-adapt-${index}`, {
+      license,
+      source_kind: license === 'CC0-1.0' ? 'community-index' : 'official-docs',
+      tier: license === 'CC0-1.0' ? 'discovery' : 'primary',
+      allowed_evidence_roles: license === 'CC0-1.0' ? ['learning'] : ['implementation'],
+    });
+    const citation = citationFixture(source, {
+      roles: [source.allowed_evidence_roles[0]],
+      usage_mode: 'adapted-text',
+      modification_note: 'Translated and condensed',
+      quotation_reviewed: true,
+    });
+    const parsed = parseSourceLedger(ledger({
+      sources: [source],
+      documents: {
+        'content/cases/example.mdx': {...validDocument, citations: [citation]},
+      },
+    }));
+    assert.match(parsed.errors.join('\n'), new RegExp(`${source.id}.*${license}.*adapted-text`, 'i'));
+  }
+
+  for (const [index, license] of [
+    'CC-BY-4.0',
+    'CC-BY-SA-4.0',
+    'LicenseRef-US-Gov-Public-Domain',
+    'LicenseRef-Atlas-Original',
+  ].entries()) {
+    const isOriginal = license === 'LicenseRef-Atlas-Original';
+    const source = sourceFixture(`src-adapt-${index}`, {
+      canonical_locator: isOriginal ? '/img/adapt.png' : `https://example.com/adapt-${index}`,
+      transport_locator: isOriginal ? '/img/adapt.png' : `https://example.com/adapt-${index}`,
+      license_family_id: isOriginal ? '/img/adapt.png' : `https://example.com/adapt-${index}`,
+      expected_final_transport_locator: isOriginal ? '/img/adapt.png' : `https://example.com/adapt-${index}`,
+      source_kind: isOriginal ? 'original-illustration' : 'official-docs',
+      allowed_evidence_roles: [isOriginal ? 'illustration' : 'implementation'],
+      license,
+      copyright_policy: [
+        'adapt-with-attribution',
+        'adapt-sharealike-review',
+        'public-domain-with-provenance',
+        'original-atlas',
+      ][index],
+      link_policy: isOriginal ? null : 'stable',
+    });
+    const valid = citationFixture(source, {
+      roles: source.allowed_evidence_roles,
+      usage_mode: isOriginal ? 'adapted-illustration' : 'adapted-text',
+      modification_note: license === 'CC-BY-SA-4.0'
+        ? 'Condensed; share-alike compatibility reviewed and approved'
+        : 'Condensed with changes recorded',
+      quotation_reviewed: true,
+    });
+    assert.deepEqual(
+      parseSourceLedger(ledger({
+        sources: [source],
+        documents: {
+          'content/cases/example.mdx': {...validDocument, citations: [valid]},
+        },
+      })).errors,
+      [],
+    );
+    const missingModification = {
+      ...valid,
+      modification_note: null,
+      quotation_reviewed: false,
+    };
+    assert.match(
+      parseSourceLedger(ledger({
+        sources: [source],
+        documents: {
+          'content/cases/example.mdx': {
+            ...validDocument,
+            citations: [missingModification],
+          },
+        },
+      })).errors.join('\n'),
+      /modification_note.*non-empty|quotation_reviewed.*true/i,
+    );
+  }
+
+  const quoteSource = validSource;
+  for (const invalid of [
+    {...validCitation, usage_mode: 'short-quotation', excerpt: null},
+    {
+      ...validCitation,
+      usage_mode: 'short-quotation',
+      excerpt: 'quoted words',
+      attribution_note: '',
+    },
+    {
+      ...validCitation,
+      usage_mode: 'short-quotation',
+      excerpt: 'quoted words',
+      quotation_reviewed: false,
+    },
+    {...validCitation, usage_mode: 'facts-summary', excerpt: 'not allowed'},
+    {...validCitation, usage_mode: 'navigation-only', excerpt: 'not allowed'},
+    {...validCitation, usage_mode: 'navigation-only', roles: ['definition']},
+  ]) {
+    const parsed = parseSourceLedger(ledger({
+      sources: [quoteSource],
+      documents: {
+        'content/cases/example.mdx': {...validDocument, citations: [invalid]},
+      },
+    }));
+    assert.notEqual(parsed.errors.length, 0);
+  }
+
+  for (const usage_mode of ['facts-summary', 'short-quotation']) {
+    const allowed = {
+      ...validCitation,
+      usage_mode,
+      excerpt: usage_mode === 'short-quotation' ? 'quoted words' : null,
+      quotation_reviewed: usage_mode === 'short-quotation',
+    };
+    assert.deepEqual(
+      parseSourceLedger(ledger({
+        documents: {
+          'content/cases/example.mdx': {...validDocument, citations: [allowed]},
+        },
+      })).errors,
+      [],
+    );
+  }
+});
+
+test('matches normalized quotation excerpts in the corresponding visible document body', () => {
+  assert.equal(
+    normalizeVisibleQuotation(
+      '**Visible** [label](https://example.com/destination) <https://example.com/auto>',
+    ),
+    'Visible label https://example.com/auto',
+  );
+
+  const quotation = {
+    ...validCitation,
+    usage_mode: 'short-quotation',
+    excerpt: '这是 C4 的 规范化 摘录。',
+    quotation_reviewed: true,
+  };
+  const parsed = parseSourceLedger(ledger({
+    documents: {
+      'content/cases/example.mdx': {...validDocument, citations: [quotation]},
+    },
+  }));
+  assert.deepEqual(parsed.errors, []);
+
+  const visible = validateSourceGovernance(
+    [document({
+      body: [
+        `[C4](https://c4model.com/#SystemContextDiagram)`,
+        '> 这是 **C4** 的',
+        '> [规范化](https://c4model.com/#SystemContextDiagram) 摘录。',
+        '<!-- 示例占位摘录 -->',
+        '```md',
+        '示例占位摘录',
+        '```',
+      ].join('\n'),
+    })],
+    parsed.ledger,
+  );
+  assert.deepEqual(visible.errors, []);
+
+  const missing = validateSourceGovernance(
+    [document({body: '[C4](https://c4model.com/#SystemContextDiagram)'})],
+    parsed.ledger,
+  );
+  assert.match(
+    missing.errors.join('\n'),
+    /content\/cases\/example\.mdx.*src-c4-model.*excerpt.*visible/i,
+  );
 });

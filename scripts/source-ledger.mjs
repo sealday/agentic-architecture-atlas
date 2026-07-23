@@ -78,6 +78,49 @@ const usageModes = [
   'navigation-only',
 ];
 
+const requiredPolicyByLicense = new Map([
+  ['CC-BY-4.0', 'adapt-with-attribution'],
+  ['CC-BY-SA-4.0', 'adapt-sharealike-review'],
+  ['LicenseRef-US-Gov-Public-Domain', 'public-domain-with-provenance'],
+  ['LicenseRef-All-Rights-Reserved', 'facts-and-short-quotation'],
+  ['CC-BY-NC-ND-4.0', 'facts-and-short-quotation'],
+  ['LicenseRef-Proprietary-Standard', 'facts-and-short-quotation'],
+  ['LicenseRef-MCP-Specification-Transition', 'facts-and-short-quotation'],
+  ['LicenseRef-CC-BY-NC-ND-Unversioned', 'facts-and-short-quotation'],
+  ['LicenseRef-New-API-Docs-License-Conflict', 'facts-and-short-quotation'],
+]);
+
+const requiredPolicyByKind = new Map([
+  ['vendor-reference-architecture', 'vendor-claims-separated'],
+  ['original-illustration', 'original-atlas'],
+]);
+
+const adaptedModes = new Set(['adapted-text', 'adapted-illustration']);
+
+const noAdaptLicenses = new Set([
+  'Apache-2.0',
+  'MIT',
+  'BSD-3-Clause',
+  'EPL-2.0',
+  'MPL-2.0',
+  'GPL-3.0-only',
+  'AGPL-3.0-only',
+  'CC-BY-NC-ND-4.0',
+  'CC0-1.0',
+  'LicenseRef-All-Rights-Reserved',
+  'LicenseRef-Proprietary-Standard',
+  'LicenseRef-MCP-Specification-Transition',
+  'LicenseRef-CC-BY-NC-ND-Unversioned',
+  'LicenseRef-New-API-Docs-License-Conflict',
+]);
+
+const explicitAdaptLicenses = new Set([
+  'CC-BY-4.0',
+  'CC-BY-SA-4.0',
+  'LicenseRef-US-Gov-Public-Domain',
+  'LicenseRef-Atlas-Original',
+]);
+
 const sourceKeys = [
   'id',
   'canonical_locator',
@@ -454,6 +497,17 @@ function validateSource(source, index, errors) {
     `${label}: copyright_policy`,
     errors,
   );
+  const expectedCopyrightPolicy =
+    requiredPolicyByKind.get(source.source_kind) ??
+    requiredPolicyByLicense.get(source.license);
+  if (
+    expectedCopyrightPolicy !== undefined &&
+    source.copyright_policy !== expectedCopyrightPolicy
+  ) {
+    errors.push(
+      `${label}: copyright_policy actual "${source.copyright_policy}" must equal expected "${expectedCopyrightPolicy}"`,
+    );
+  }
   if (isHttps(source.canonical_locator)) {
     validateEnum(source.link_policy, linkPolicies, `${label}: link_policy`, errors);
   } else if (source.link_policy !== null) {
@@ -521,6 +575,73 @@ function validateCitation(citation, documentPath, index, sourcesById, errors) {
   for (const role of citation.roles ?? []) {
     if (!source.allowed_evidence_roles?.includes(role)) {
       errors.push(`${label}: citation role "${role}" is not allowed by source "${source.id}"`);
+    }
+  }
+  if (citation.usage_mode === 'short-quotation') {
+    const excerptLength = typeof citation.excerpt === 'string'
+      ? [...citation.excerpt.normalize('NFC')].length
+      : 0;
+    if (excerptLength < 1 || excerptLength > 300) {
+      errors.push(`${label}: short-quotation excerpt must contain 1–300 Unicode code points`);
+    }
+    if (citation.quotation_reviewed !== true) {
+      errors.push(`${label}: short-quotation quotation_reviewed must be true`);
+    }
+    if (citation.modification_note !== null) {
+      errors.push(`${label}: short-quotation modification_note must be null`);
+    }
+  }
+  if (adaptedModes.has(citation.usage_mode)) {
+    if (!nonEmpty(citation.modification_note)) {
+      errors.push(`${label}: ${citation.usage_mode} modification_note must be non-empty`);
+    }
+    if (citation.quotation_reviewed !== true) {
+      errors.push(`${label}: ${citation.usage_mode} quotation_reviewed must be true`);
+    }
+    if (!explicitAdaptLicenses.has(source.license)) {
+      const reason = noAdaptLicenses.has(source.license)
+        ? 'no-adaptation license policy'
+        : 'explicit adaptation policy required';
+      errors.push(
+        `${label}: source "${source.id}" license "${source.license}" usage_mode "${citation.usage_mode}" is forbidden: ${reason}`,
+      );
+    }
+    if (
+      source.license === 'CC-BY-SA-4.0' &&
+      !/share[- ]alike.*(?:review|compatib)|(?:review|compatib).*share[- ]alike/iu.test(
+        citation.modification_note ?? '',
+      )
+    ) {
+      errors.push(
+        `${label}: source "${source.id}" CC-BY-SA-4.0 adaptation requires a share-alike compatibility review in modification_note`,
+      );
+    }
+  }
+  if (
+    ['facts-summary', 'navigation-only'].includes(citation.usage_mode) &&
+    citation.excerpt !== null
+  ) {
+    errors.push(`${label}: ${citation.usage_mode} excerpt must be null`);
+  }
+  if (
+    citation.usage_mode === 'navigation-only' &&
+    citation.roles?.some((role) => !['discovery', 'learning'].includes(role))
+  ) {
+    errors.push(`${label}: navigation-only roles must be discovery/learning`);
+  }
+  if (citation.usage_mode === 'original-illustration') {
+    if (
+      source.source_kind !== 'original-illustration' ||
+      source.license !== 'LicenseRef-Atlas-Original' ||
+      !isLocalLocator(citation.citation_url) ||
+      citation.roles?.some((role) => role !== 'illustration')
+    ) {
+      errors.push(
+        `${label}: original-illustration usage requires a local LicenseRef-Atlas-Original source and illustration role`,
+      );
+    }
+    if (!nonEmpty(citation.modification_note)) {
+      errors.push(`${label}: original-illustration modification_note must describe its creation`);
     }
   }
 }
@@ -740,6 +861,18 @@ function visibleMdxLines(document) {
   return lines;
 }
 
+export function normalizeVisibleQuotation(text) {
+  return visibleMdxLines({body: text})
+    .join('\n')
+    .normalize('NFC')
+    .replace(/\[([^\]]+)\]\((?:[^()]|\([^)]*\))*\)/gu, '$1')
+    .replace(/<(https:\/\/[^>\s]+)>/gu, '$1')
+    .replace(/^\s{0,3}>\s?/gmu, '')
+    .replace(/[*_~]+/gu, '')
+    .replace(/\s+/gu, ' ')
+    .trim();
+}
+
 export function isTopLevelSourceLedgerMount(line) {
   return /^ {0,3}<SourceLedger(?:[ \t]+[^>\r\n]*)?\/> *$/.test(String(line));
 }
@@ -880,6 +1013,18 @@ export function validateSourceGovernance(documents, ledger) {
         errors.push(
           `${documentPath}: local citation "${citation.source_id}" URL "${citation.citation_url}" is not visible in the document`,
         );
+      }
+      if (citation.usage_mode === 'short-quotation' && nonEmpty(citation.excerpt)) {
+        const normalizedBody = normalizeVisibleQuotation(document.body);
+        const normalizedExcerpt = normalizeVisibleQuotation(citation.excerpt);
+        if (
+          normalizedExcerpt.length === 0 ||
+          !normalizedBody.includes(normalizedExcerpt)
+        ) {
+          errors.push(
+            `${documentPath}: citation "${citation.source_id}" excerpt is not present in the visible document body`,
+          );
+        }
       }
     }
 
