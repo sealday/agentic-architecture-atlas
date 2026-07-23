@@ -9,7 +9,7 @@ description: Use when drafting, rewriting, expanding, or reviewing architecture 
 
 Write two cooperating layers: **the visible narrative helps a first-time reader understand; labeled evidence cards let a reviewer verify**. Folding every evidence card must still leave a complete, accurate argument.
 
-Write for an engineer with software experience who is meeting this architecture for the first time. Preserve supported facts, evidence labels, sources, pinned versions or commits, conclusions, critical boundaries, front matter, slugs, and required headings. Delete only repetition. Never invent customers, incidents, benchmarks, production experience, or upstream guarantees.
+Write for an engineer with software experience who is meeting this architecture for the first time. Preserve supported facts, evidence labels, sources, pinned versions or commits, conclusions, critical boundaries, front matter, slugs, and required headings. Delete only repetition. Never invent users, customers, incidents, metrics, benchmarks, first-person experiences or narration, production experience, or upstream guarantees.
 
 For a complete case, **read `references/article-contract.md` before drafting or rewriting**. Before declaring any case complete, **read `references/review-checklist.md` and pass its four gates in order**.
 

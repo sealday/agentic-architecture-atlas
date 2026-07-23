@@ -8,6 +8,7 @@ Run these gates in order. A later gate cannot compensate for failure in an earli
 - [ ] Preserve front matter, stable slug, the ten required H2 headings, and all three migration H3 headings when they are in scope.
 - [ ] Preserve supplied excerpt headings and evidence-bearing items even when reviewing or rewriting only part of a case.
 - [ ] Keep fact, evidence-based inference, and personal analysis distinguishable.
+- [ ] Invent no user, customer, incident, metric, benchmark, first-person experience or narration, production experience, or upstream guarantee.
 - [ ] `FACT_LOSS`: no fixed anchor, required structure, explicit boundary, or supported detail disappeared merely to improve flow.
 - [ ] `INVENTED_SCENE`: every unsourced scene is labeled `说明性场景`, uses only supported mechanisms, and makes no invented customer, incident, number, experience, or guarantee.
 
