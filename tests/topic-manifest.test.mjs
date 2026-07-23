@@ -299,6 +299,107 @@ test('rejects manifest identity and relation conflicts', () => {
   );
 });
 
+test('rejects duplicate slugs with both projection sources', () => {
+  const result = buildTopicManifest({
+    backlogSource: backlog(
+      topic('FND-01', 'P0'),
+      topic('FND-02', 'P0'),
+    ),
+    documents: [
+      publishedConcept({
+        topic_id: 'FND-02',
+        slug: '/concepts/fnd-01',
+      }),
+    ],
+  });
+
+  assert.match(
+    result.errors.join('\n'),
+    /duplicate slug "\/concepts\/fnd-01"/,
+  );
+  assert.match(
+    result.errors.join('\n'),
+    /topic "FND-01" \(docs\/content-backlog\.md:1\)/,
+  );
+  assert.match(
+    result.errors.join('\n'),
+    /topic "FND-02" \(content\/concepts\/architecture-scale\.mdx\)/,
+  );
+});
+
+test('reports relationship failures with edge provenance', () => {
+  const source = backlog(
+    topic('FND-01', 'P0'),
+    topic('FND-02', 'P0'),
+  );
+
+  const frontMatter = buildTopicManifest({
+    backlogSource: source,
+    documents: [
+      publishedConcept({
+        depends_on: ['FND-01', 'MISSING'],
+        related_cases: ['/cases/not-published'],
+      }),
+    ],
+  });
+  assert.match(
+    frontMatter.errors.join('\n'),
+    /content\/concepts\/architecture-scale\.mdx: topic "FND-01" cannot depend on itself/,
+  );
+  assert.match(
+    frontMatter.errors.join('\n'),
+    /content\/concepts\/architecture-scale\.mdx: dependency "MISSING" for "FND-01" does not exist/,
+  );
+  assert.match(
+    frontMatter.errors.join('\n'),
+    /content\/concepts\/architecture-scale\.mdx: related case "\/cases\/not-published" for "FND-01" is not a published case/,
+  );
+
+  const override = buildTopicManifest({
+    backlogSource: source,
+    documents: [],
+    relations: {
+      'FND-01': {
+        dependencies: ['FND-01', 'MISSING'],
+        related_cases: ['/cases/not-published'],
+      },
+    },
+  });
+  assert.match(
+    override.errors.join('\n'),
+    /data\/topic-relations\.json: topic "FND-01" cannot depend on itself/,
+  );
+  assert.match(
+    override.errors.join('\n'),
+    /data\/topic-relations\.json: dependency "MISSING" for "FND-01" does not exist/,
+  );
+  assert.match(
+    override.errors.join('\n'),
+    /data\/topic-relations\.json: related case "\/cases\/not-published" for "FND-01" is not a published case/,
+  );
+
+  const cycle = buildTopicManifest({
+    backlogSource: source,
+    documents: [publishedConcept({depends_on: ['FND-02']})],
+    relations: {
+      'FND-02': {dependencies: ['FND-01']},
+    },
+  });
+  const cycleErrors = cycle.errors.join('\n');
+  assert.match(
+    cycleErrors,
+    /dependency cycle FND-01 -> FND-02 -> FND-01/,
+  );
+  assert.match(
+    cycleErrors,
+    /FND-01 -> FND-02 \(content\/concepts\/architecture-scale\.mdx\)/,
+  );
+  assert.match(
+    cycleErrors,
+    /FND-02 -> FND-01 \(data\/topic-relations\.json\)/,
+  );
+});
+
 test('rejects invalid published source and review metadata', () => {
   const source = topic('FND-01', 'P0');
 

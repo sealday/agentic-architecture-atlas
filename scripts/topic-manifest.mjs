@@ -167,7 +167,11 @@ function validateRelationArray(topicId, field, value, errors) {
   return normalizedStrings(value);
 }
 
-function findDependencyCycles(topicsById, errors) {
+function edgeKey(topicId, target) {
+  return `${topicId}\0${target}`;
+}
+
+function findDependencyCycles(topicsById, dependencySources, errors) {
   const visiting = new Set();
   const visited = new Set();
   const stack = [];
@@ -177,8 +181,14 @@ function findDependencyCycles(topicsById, errors) {
     if (visiting.has(id)) {
       const cycleStart = stack.indexOf(id);
       const path = [...stack.slice(cycleStart), id];
+      const edges = path
+        .slice(0, -1)
+        .map((from, index) => {
+          const to = path[index + 1];
+          return `${from} -> ${to} (${dependencySources.get(edgeKey(from, to))})`;
+        });
       errors.push(
-        `data/topic-relations.json: dependency cycle ${path.join(' -> ')}`,
+        `manifest: dependency cycle ${path.join(' -> ')}; edges: ${edges.join(', ')}`,
       );
       return;
     }
@@ -213,8 +223,16 @@ export function buildTopicManifest({
   const topicsById = new Map(
     parsed.topics.map((topic) => [topic.id, projectBacklogTopic(topic)]),
   );
+  const topicSources = new Map(
+    parsed.topics.map((topic) => [
+      topic.id,
+      `docs/content-backlog.md:${topic.line}`,
+    ]),
+  );
   const documentIds = new Map();
   const publishedRelations = new Map();
+  const dependencySources = new Map();
+  const relatedCaseSources = new Map();
 
   for (const {file, metadata} of documents) {
     if (file === 'index.mdx' || file.endsWith('/index.mdx')) {
@@ -254,11 +272,18 @@ export function buildTopicManifest({
 
     const projected = projectDocument(id, file, metadata, existing);
     topicsById.set(id, projected);
+    topicSources.set(id, `content/${file}`);
     publishedRelations.set(id, {
       file,
       dependencies: normalizedStrings(projected.dependencies),
       related_cases: normalizedStrings(projected.related_cases),
     });
+    for (const dependency of projected.dependencies) {
+      dependencySources.set(edgeKey(id, dependency), `content/${file}`);
+    }
+    for (const relatedCase of projected.related_cases) {
+      relatedCaseSources.set(edgeKey(id, relatedCase), `content/${file}`);
+    }
 
     if (
       !Array.isArray(projected.primary_sources) ||
@@ -326,9 +351,33 @@ export function buildTopicManifest({
     const topic = topicsById.get(id);
     if (normalized.dependencies) {
       topic.dependencies = normalized.dependencies;
+      for (const dependency of normalized.dependencies) {
+        dependencySources.set(
+          edgeKey(id, dependency),
+          'data/topic-relations.json',
+        );
+      }
     }
     if (normalized.related_cases) {
       topic.related_cases = normalized.related_cases;
+      for (const relatedCase of normalized.related_cases) {
+        relatedCaseSources.set(
+          edgeKey(id, relatedCase),
+          'data/topic-relations.json',
+        );
+      }
+    }
+  }
+
+  const slugOwners = new Map();
+  for (const topic of topicsById.values()) {
+    const owner = slugOwners.get(topic.slug);
+    if (owner) {
+      errors.push(
+        `manifest: duplicate slug "${topic.slug}" for topic "${owner.id}" (${topicSources.get(owner.id)}) and topic "${topic.id}" (${topicSources.get(topic.id)})`,
+      );
+    } else {
+      slugOwners.set(topic.slug, topic);
     }
   }
 
@@ -344,14 +393,17 @@ export function buildTopicManifest({
     topic.related_cases = normalizedStrings(topic.related_cases);
 
     for (const dependency of topic.dependencies) {
+      const source =
+        dependencySources.get(edgeKey(topic.id, dependency)) ??
+        topicSources.get(topic.id);
       if (!topicsById.has(dependency)) {
         errors.push(
-          `data/topic-relations.json: dependency "${dependency}" for "${topic.id}" does not exist`,
+          `${source}: dependency "${dependency}" for "${topic.id}" does not exist`,
         );
         graphIsValid = false;
       } else if (dependency === topic.id) {
         errors.push(
-          `data/topic-relations.json: topic "${topic.id}" cannot depend on itself`,
+          `${source}: topic "${topic.id}" cannot depend on itself`,
         );
         graphIsValid = false;
       }
@@ -359,15 +411,18 @@ export function buildTopicManifest({
 
     for (const relatedCase of topic.related_cases) {
       if (!publishedCaseSlugs.has(relatedCase)) {
+        const source =
+          relatedCaseSources.get(edgeKey(topic.id, relatedCase)) ??
+          topicSources.get(topic.id);
         errors.push(
-          `data/topic-relations.json: related case "${relatedCase}" for "${topic.id}" is not a published case`,
+          `${source}: related case "${relatedCase}" for "${topic.id}" is not a published case`,
         );
       }
     }
   }
 
   const cycleErrorCount = errors.length;
-  findDependencyCycles(topicsById, errors);
+  findDependencyCycles(topicsById, dependencySources, errors);
   if (errors.length !== cycleErrorCount) {
     graphIsValid = false;
   }
