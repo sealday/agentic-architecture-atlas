@@ -11,6 +11,9 @@ const learningPathFile = fileURLToPath(
 const homepageFile = fileURLToPath(
   new URL('../src/pages/index.tsx', import.meta.url),
 );
+const caseIndexFile = fileURLToPath(
+  new URL('../content/cases/index.mdx', import.meta.url),
+);
 
 const stageHeadings = [
   '## 第一阶段：架构思维与表达',
@@ -74,9 +77,16 @@ test('labels external resources and links every canonical case', async () => {
   }
 });
 
-test('describes the homepage entry as one staged roadmap', async () => {
-  const source = await readFile(homepageFile, 'utf8');
+test('describes one staged roadmap and the current catalog size', async () => {
+  const [homepage, caseIndex] = await Promise.all([
+    readFile(homepageFile, 'utf8'),
+    readFile(caseIndexFile, 'utf8'),
+  ]);
 
-  assert.match(source, /沿软件架构主干开始/);
-  assert.doesNotMatch(source, /选择一条专题学习路径/);
+  assert.match(homepage, /沿软件架构主干开始/);
+  assert.doesNotMatch(homepage, /选择一条专题学习路径/);
+  assert.match(homepage, /16 个跨生态案例/);
+  assert.doesNotMatch(homepage, /15 个跨生态案例/);
+  assert.match(caseIndex, /十六篇中的首发五篇/);
+  assert.doesNotMatch(caseIndex, /十五篇中的首发五篇/);
 });

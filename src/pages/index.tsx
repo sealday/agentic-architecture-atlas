@@ -104,7 +104,7 @@ function Hero(): ReactNode {
             <dl>
               <div>
                 <dt>样本</dt>
-                <dd>15 个跨生态案例</dd>
+                <dd>16 个跨生态案例</dd>
               </div>
               <div>
                 <dt>观察轴</dt>
@@ -208,7 +208,7 @@ export default function Home(): ReactNode {
               ))}
             </ol>
             <Link className={styles.textLink} to="/paths">
-              选择一条专题学习路径 <span aria-hidden="true">→</span>
+              沿软件架构主干开始 <span aria-hidden="true">→</span>
             </Link>
           </div>
         </section>
