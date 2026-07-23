@@ -38,6 +38,8 @@
 - `.github/pull_request_template.md`：发布版权与来源检查清单。
 - `.github/workflows/link-health.yml`：月度和手工 live 外链检查。
 - `docs/source-license-inventory.md`：迁移前逐来源家族的许可证证据与最终映射审计。
+- `scripts/validate-source-license-inventory.mjs`：inventory Markdown 结构、许可证值与候选覆盖校验。
+- `tests/source-license-inventory.test.mjs`：inventory parser 与候选 source-family coverage。
 
 ### Modified files
 
@@ -190,15 +192,18 @@ Expected: both test files PASS; one focused commit.
 
 **Files:**
 - Create: `docs/source-license-inventory.md`
+- Create: `scripts/validate-source-license-inventory.mjs`
+- Create: `tests/source-license-inventory.test.mjs`
 - Inspect: `content/**/*.mdx`
 
 - [ ] **Step 1: Inventory every current external source family**
 
-从现有 40 篇 MDX 的 frontmatter/body 提取 URL，按作品/仓库而不是锚点去重。inventory 每行必须有：
+从现有 40 篇 MDX 的 frontmatter/body 提取 URL，按作品/仓库而不是锚点去重。inventory 是严格
+Markdown table，每行恰有九列：
 
 ```text
-source family | current URLs | author/org | license evidence URL | evidence checked date |
-exact SPDX/LicenseRef | scope exclusions | migration policy
+source_family | current_urls | author_or_org | license_evidence_url | license_evidence_note |
+checked_at | exact_license | scope_exclusions | migration_policy
 ```
 
 网页没有复用许可时，记录页面上的版权证据和
@@ -230,22 +235,58 @@ README 外链、图片、书籍或视频。
 inventory 发现新 SPDX 时，先在本文件加入证据与使用策略，再扩 schema/test；不得把它降级成
 Unknown 或使用相近许可证代替。
 
-- [ ] **Step 3: Enforce the gate**
+- [ ] **Step 3: Write the Node structural validator and RED/GREEN tests**
+
+导出：
+
+```js
+sourceFamilyForUrl(url)
+// GitHub => https://github.com/<owner>/<repo>; other HTTPS => URL origin
+
+validateSourceLicenseInventory(markdown, candidateUrls)
+// => {entries, errors}
+```
+
+测试名：
+
+```js
+test('accepts nine-column license inventory rows with exact evidence', () => {});
+test('rejects missing columns evidence license scope and migration policy', () => {});
+test('covers every migration candidate source family', () => {});
+```
+
+validator 必须检查：
+
+- 每个 data row 恰九列，禁止额外/缺失 pipe cell；
+- source family/current URLs/author 非空；
+- evidence URL 为 HTTPS，evidence note 非空；
+- checked_at 是真实 calendar date；
+- exact license 在 approved allowlist；
+- scope exclusions 与 migration policy 非空；
+- current URLs 都能归入 row source family；
+- 从 40 篇文档提取的每个候选 family 至少有一行，inventory orphan family 失败；
+- duplicate family 与 duplicate current URL 失败；
+- diagnostics 按 source family 排序。
+
+- [ ] **Step 4: Enforce the gate**
 
 Run:
 
 ```bash
-test -z "$(rg -n 'Unknown|待核查|未确定|T[B]D|T[O]DO' docs/source-license-inventory.md || true)"
-rg -q 'license evidence URL' docs/source-license-inventory.md
+node --test tests/source-license-inventory.test.mjs
+node scripts/validate-source-license-inventory.mjs \
+  docs/source-license-inventory.md content
 git diff --check docs/source-license-inventory.md
 ```
 
-Expected: no unresolved license rows. Task 2 cannot start until this gate passes.
+Expected: non-zero test count, all PASS, CLI reports all migration candidate source families covered. Task 2
+cannot start until this gate passes.
 
-- [ ] **Step 4: Commit**
+- [ ] **Step 5: Commit**
 
 ```bash
-git add docs/source-license-inventory.md
+git add docs/source-license-inventory.md scripts/validate-source-license-inventory.mjs \
+  tests/source-license-inventory.test.mjs
 git commit -m "docs: inventory source license evidence"
 ```
 
@@ -620,16 +661,25 @@ fixtures 必须覆盖：
 - facts summary/navigation 带 excerpt 失败；
 - navigation-only 带事实 role 失败；
 - SPDX allowlist 外字符串和未批准的 `LicenseRef-*` 失败。
+- `BSD-3-Clause` adapted text/illustration 失败；
+- `EPL-2.0` adapted text/illustration 失败；
+- `MPL-2.0` adapted text/illustration 失败；
+- `GPL-3.0-only` adapted text/illustration 失败；
+- `AGPL-3.0-only` adapted text/illustration 失败；
+- `Apache-2.0`、`MIT` 以及任何未定义 adapted policy 的 license 同样 fail closed；
+- 上述许可证仍允许 facts-summary、short-quotation、implementation evidence 和链接 citation。
 
 - [ ] **Step 2: Run RED**
 
 Run:
 
 ```bash
-node --test --test-name-pattern="does not treat learning indexes as factual evidence|enforces license-specific copyright policies|keeps vendor claims and illustration rights explicit" tests/source-ledger.test.mjs
+node --test tests/source-ledger.test.mjs 2>&1 | tee /tmp/tego-arch-g003-source-ledger-red.tap
+rg -Eq '^# tests [1-9][0-9]*$' /tmp/tego-arch-g003-source-ledger-red.tap
+test "$(rg -c '^not ok ' /tmp/tego-arch-g003-source-ledger-red.tap)" -ge 1
 ```
 
-Expected: at least one test FAIL because Task 2 only validates enums and generic role subsets.
+Expected: non-zero test count and at least one FAIL from the new index/copyright/citation/excerpt policies.
 
 - [ ] **Step 3: Implement the policy matrix**
 
@@ -656,10 +706,27 @@ const requiredPolicyByKind = new Map([
 ```js
 const adaptedModes = new Set(['adapted-text', 'adapted-illustration']);
 const noAdaptLicenses = new Set([
+  'Apache-2.0',
+  'MIT',
+  'BSD-3-Clause',
+  'EPL-2.0',
+  'MPL-2.0',
+  'GPL-3.0-only',
+  'AGPL-3.0-only',
   'LicenseRef-All-Rights-Reserved',
   'LicenseRef-Proprietary-Standard',
 ]);
+
+const explicitAdaptLicenses = new Set([
+  'CC-BY-4.0',
+  'CC-BY-SA-4.0',
+  'LicenseRef-US-Gov-Public-Domain',
+  'LicenseRef-Atlas-Original',
+]);
 ```
+
+adapted modes 只接受 `explicitAdaptLicenses`；不在该集合中的任何当前或未来 license 都失败。
+`noAdaptLicenses` 用于给当前 inventory 输出具体错误，不能被当成“其他 license 默认允许”。
 
 所有 citation 要求非空 attribution note；short quotation 要求 1–300 Unicode code points excerpt +
 `quotation_reviewed=true`；adapted modes 要求 modification note +
@@ -698,7 +765,10 @@ normalizeVisibleQuotation(text)
 Run:
 
 ```bash
-node --test tests/source-ledger.test.mjs
+node --test tests/source-ledger.test.mjs 2>&1 | tee /tmp/tego-arch-g003-source-ledger-green.tap
+rg -Eq '^# tests [1-9][0-9]*$' /tmp/tego-arch-g003-source-ledger-green.tap
+rg -Eq '^# pass [1-9][0-9]*$' /tmp/tego-arch-g003-source-ledger-green.tap
+test "$(rg -c '^not ok ' /tmp/tego-arch-g003-source-ledger-green.tap)" -eq 0
 rg -n "community-index|CC-BY-SA-4.0|vendor-claims-separated|original-illustration" \
   scripts/source-ledger.mjs data/source-ledger.json
 git diff --check
@@ -1515,6 +1585,8 @@ Review with fresh eyes against E0-03/E0-05/E0-11/E0-12 and the design:
 - verify a source URL added only to article body fails;
 - verify a ledger source added without document citation fails or is explicitly permitted as discovery inventory;
 - verify CC BY, CC BY-SA, US government, all-rights-reserved and vendor policies;
+- verify BSD/EPL/MPL/GPL/AGPL plus Apache/MIT adapted citations fail while non-adapt evidence remains valid;
+- verify Node license inventory gate rejects malformed rows and any uncovered migration candidate family;
 - verify GitHub repository license scope does not claim linked third-party material;
 - verify local roadmap image provenance;
 - verify expected/previous redirect changes, 200 login wall, 403 fallback, bounded Retry-After recovery,

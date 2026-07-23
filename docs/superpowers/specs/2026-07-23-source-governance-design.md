@@ -228,6 +228,10 @@ license inventory、增加 schema 测试和对应处理策略。
 许可证记录必须配套 `license_scope`，明确它覆盖当前页面、仓库代码、单个图片，还是仅覆盖部分
 材料。仓库许可证不自动覆盖 README 中链接的文章、书籍、视频和图片。
 
+Task 2 迁移前必须先通过 Node inventory gate：严格解析九列表格，校验每行 evidence URL/note、
+exact license、scope 与 migration policy，并证明现有 40 篇文档提取出的每个 candidate source
+family 都有记录。文本 grep 不能代替结构与覆盖校验。
+
 `copyright_policy` 的处理规则：
 
 | 许可证/材料 | 允许策略 |
@@ -238,6 +242,19 @@ license inventory、增加 schema 测试和对应处理策略。
 | 许可不明 / All rights reserved | `facts-and-short-quotation`；只做事实核验、短引用和原创总结 |
 | 厂商材料 | `vendor-claims-separated`；把通用机制、厂商实现和厂商自述结果分开 |
 | 原创站内插图 | `original-atlas`；记录生成/绘制方式和资产路径 |
+
+本阶段采用保守的 adapted-mode allowlist：
+
+- `CC-BY-4.0`：允许 adapted modes，但必须 attribution + modification note。
+- `CC-BY-SA-4.0`：允许 adapted modes，但必须 attribution、modification note 和 share-alike
+  compatibility review。
+- `LicenseRef-US-Gov-Public-Domain`：允许 adapted modes，但必须 provenance + modification note。
+- `LicenseRef-Atlas-Original`：允许本站原创资产继续修改，并记录生成/绘制方式。
+- `Apache-2.0`、`MIT`、`BSD-3-Clause`、`EPL-2.0`、`MPL-2.0`、
+  `GPL-3.0-only`、`AGPL-3.0-only` 本阶段只允许 facts summary、short quotation、
+  implementation evidence 和链接等非改编用途；文章不得用其承载 adapted text/illustration。
+- 任何没有在上面明确定义 adapted policy 的新 license 都 fail closed。以后开放前必须先补 policy、
+  RED fixtures、署名/notice/share-alike 义务和站点许可证兼容性审查。
 
 ### 4.2 Citation 级使用与署名
 
