@@ -11,7 +11,7 @@
 - **本地执行层：** Ultragoal 由负责人运行 `omx ultragoal status` 查看当前故事、运行 `omx ultragoal complete-goals` 取得下一步。执行者不得自行改写 `.omx/ultragoal/`，也不得在父故事尚未通过全部门槛时 checkpoint。
 - **每个父故事的完成门槛：** 依次完成 targeted verification、`npm run verify`、独立审查、提交到 `main`、推送 `origin/main`、等待 GitHub Pages 成功、检查受影响的线上 route，再把成功部署日期和 commit 更新到“当前发布基线”。基线记录也必须提交并推送到 `origin/main`；上述证据齐全后，负责人才能运行 `omx ultragoal checkpoint` 并进入下一故事。
 - **远端持久层：** 完成项必须同时有本文件的 `[x]`、对应 Git commit、成功部署和线上 route 证据。任一门槛失败时保持当前 story 未完成；本地状态丢失时，从本文件第一个未完成 story 和“当前发布基线”所指的最后成功部署 commit 恢复，不以未部署的本地提交或历史 plan checkbox 推断完成。
-- **当前发布基线：** 2026-07-23，commit [`6b0ef13`](https://github.com/sealday/agentic-architecture-atlas/commit/6b0ef133868a1b831cbc04962d7fda861648fc95)。
+- **当前发布基线：** 2026-07-23 成功部署的内容基线为 commit [`285a471`](https://github.com/sealday/agentic-architecture-atlas/commit/285a4714bef46f9cbe077a88b56f5d8c55591228)，发布证据为 [GitHub Actions run 30009628442](https://github.com/sealday/agentic-architecture-atlas/actions/runs/30009628442)；[`/paths`](https://sealday.github.io/agentic-architecture-atlas/paths) 与[路线图片](https://sealday.github.io/agentic-architecture-atlas/img/paths/software-architecture-learning-roadmap.png)均返回 HTTP 200。随后仅承载本记录的 metadata commit 不改变该内容基线。
 
 ## 目标与停止条件
 
