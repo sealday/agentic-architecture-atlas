@@ -17,6 +17,7 @@ test('labels the Google ADK cancellation conclusion as an evidence-based inferen
 
 test('keeps the Microsoft opening artifact role separate from its evidence scope', async () => {
   const source = await readCase('microsoft-multi-agent-reference-architecture.mdx');
+  const opening = source.split('\n## ', 1)[0];
 
   assert.match(
     source,
@@ -27,7 +28,7 @@ test('keeps the Microsoft opening artifact role separate from its evidence scope
     /本文据此只把职责分工视为已证实事实，框架选择和运行合同仍是项目决策。/,
   );
   assert.equal(
-    source.match(/实施团队/g)?.length ?? 0,
+    opening.match(/实施团队/g)?.length ?? 0,
     0,
     'the opening should not repeat the implementation-team formulation',
   );
