@@ -412,6 +412,21 @@ test('rejects invalid published source and review metadata', () => {
     /content\/concepts\/architecture-scale\.mdx: published topic "FND-01" must have at least one primary source/,
   );
 
+  for (const invalidSources of [
+    ['http://example.com/insecure'],
+    ['/img/local-only.png'],
+    [42],
+  ]) {
+    const invalid = buildTopicManifest({
+      backlogSource: source,
+      documents: [publishedConcept({official_sources: invalidSources})],
+    });
+    assert.match(
+      invalid.errors.join('\n'),
+      /content\/concepts\/architecture-scale\.mdx: published topic "FND-01" primary source .* must be an HTTPS URL/,
+    );
+  }
+
   for (const invalidDate of ['2026-02-30', '23-07-2026', 'not-a-date']) {
     const invalidReview = buildTopicManifest({
       backlogSource: source,

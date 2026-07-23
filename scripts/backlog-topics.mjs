@@ -84,10 +84,18 @@ export function parseBacklogTopics(source, file) {
     }
 
     const [type, route] = topicPrefixTypes.get(prefix);
+    const title = rawTitle.trim().replace(/[。.]\s*$/, '');
+    if (title === '') {
+      errors.push(
+        `${location(file, index + 1)}: topic ${id} title must be non-empty`,
+      );
+      continue;
+    }
+
     topics.push({
       id,
       type,
-      title: rawTitle.trim().replace(/[。.]\s*$/, ''),
+      title,
       slug: `/${route}/${id.toLowerCase()}`,
       priority,
       complete: checked.toLowerCase() === 'x',

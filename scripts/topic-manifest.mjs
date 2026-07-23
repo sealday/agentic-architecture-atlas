@@ -311,6 +311,16 @@ export function buildTopicManifest({
         `content/${file}: published topic "${id}" must have at least one primary source`,
       );
     }
+    for (const primarySource of projected.primary_sources ?? []) {
+      if (
+        typeof primarySource !== 'string' ||
+        !primarySource.startsWith('https://')
+      ) {
+        errors.push(
+          `content/${file}: published topic "${id}" primary source "${primarySource}" must be an HTTPS URL`,
+        );
+      }
+    }
     if (!isCalendarDate(projected.reviewed_at)) {
       errors.push(
         `content/${file}: published topic "${id}" has invalid reviewed_at "${projected.reviewed_at}"`,

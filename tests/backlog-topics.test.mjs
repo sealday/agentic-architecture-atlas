@@ -138,6 +138,12 @@ test('rejects malformed or unknown topic candidates instead of dropping them', (
       candidateId: 'FND-05',
     },
     {
+      name: 'blank title',
+      source: '- [ ] **FND-06 P0｜   **。',
+      expected: /FND-06.*title.*non-empty|non-empty.*FND-06/i,
+      candidateId: 'FND-06',
+    },
+    {
       name: 'asterisk checklist shell',
       source: '* [ ] **QA-03 P0｜星号外壳**。',
       expected: /malformed topic candidate QA-03/,
@@ -154,6 +160,13 @@ test('rejects malformed or unknown topic candidates instead of dropping them', (
       );
     }
     const result = parseBacklogTopics(fixture.source, 'malformed.md');
+    if (fixture.candidateId) {
+      assert.equal(
+        result.topics.some(({id}) => id === fixture.candidateId),
+        false,
+        fixture.name,
+      );
+    }
     assert.ok(result.errors.length > 0, fixture.name);
     assert.match(result.errors.join('\n'), /malformed\.md:1/, fixture.name);
     assert.match(result.errors.join('\n'), fixture.expected, fixture.name);
