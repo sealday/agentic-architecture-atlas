@@ -31,6 +31,8 @@ official_sources:
   - https://github.com/awslabs/cli-agent-orchestrator
 ---
 
+import TopicIndex from '@site/src/components/TopicIndex';
+
 # 设计题
 
 设计题不追求唯一答案，而是训练对控制权、状态、失败和成本的显式取舍。每题使用同一格式：
@@ -42,6 +44,10 @@ official_sources:
 - **失败模式**：超时、循环、重复执行、状态丢失、权限越界和降级路径。
 - **证据链接**：把关键判断连接到官方文档、实现或可复现实验。
 - **评审提示**：检查是否真的需要新增智能体、故障由谁恢复、状态如何重放，以及复杂度收益能否被指标证明。
+
+## 题目清单
+
+<TopicIndex type="question" />
 
 ## 1. 单智能体加工具，还是多智能体？
 
