@@ -44,6 +44,11 @@ test('gives every canonical case a concise navigation-only label', async () => {
     assert.ok(label.length <= 42, `Sidebar label is too long for ${slug}`);
     assert.doesNotMatch(label, /[：:]/, `Sidebar label contains a subtitle for ${slug}`);
   }
+
+  assert.match(
+    await source('content/cases/kong-ai-gateway-routing-resilience.mdx'),
+    /^sidebar_label: Kong AI Gateway$/m,
+  );
 });
 
 test('gives sidebar rows readable hierarchy and stable active feedback', async () => {

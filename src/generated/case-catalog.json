@@ -450,5 +450,32 @@
       "budgets",
       "guardrails"
     ]
+  },
+  {
+    "title": "Kong AI Gateway：把模型路由与副作用恢复分成两条控制链",
+    "slug": "/cases/kong-ai-gateway-routing-resilience",
+    "summary": "用多目标路由、失败分类、重试与 fallback、断路器和协议边界分析 AI Gateway 的韧性设计。",
+    "difficulty": "advanced",
+    "series": "ai-native",
+    "catalog_order": 18,
+    "featured": false,
+    "source_kinds": [
+      "official-docs",
+      "open-source-project"
+    ],
+    "migration_targets": [
+      "model-routing",
+      "retry-fallback",
+      "circuit-breaking",
+      "protocol-gateways",
+      "side-effect-isolation"
+    ],
+    "tags": [
+      "Kong",
+      "AI-Gateway",
+      "load-balancing",
+      "failover",
+      "circuit-breaker"
+    ]
   }
 ]

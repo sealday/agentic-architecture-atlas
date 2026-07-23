@@ -36,6 +36,7 @@ const expectedCaseCatalog = [
   {slug: '/cases/ros2-dds-agent-lifecycle', catalog_order: 15},
   {slug: '/cases/new-api-channel-pool-routing', catalog_order: 16},
   {slug: '/cases/litellm-virtual-keys-governance', catalog_order: 17},
+  {slug: '/cases/kong-ai-gateway-routing-resilience', catalog_order: 18},
 ];
 
 const expectedLaunchCases = expectedCaseCatalog.slice(0, 5);
