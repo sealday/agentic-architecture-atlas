@@ -19,6 +19,10 @@ import {
   parseSourceLedger,
   validateSourceGovernance,
 } from './source-ledger.mjs';
+import {
+  mergePublicLedgerHealth,
+  validateLinkHealthCacheStructure,
+} from './source-link-health.mjs';
 import {buildTopicManifest} from './topic-manifest.mjs';
 import {validateContent} from './validate-content.mjs';
 
@@ -245,6 +249,20 @@ export async function buildContentArtifacts(
       `Source ledger failed:\n${parsedLedger.errors.join('\n')}`,
     );
   }
+  const linkHealthCache = JSON.parse(
+    await readFile(path.join(root, 'data/source-link-health.json'), 'utf8'),
+  );
+  const linkHealthStructure = validateLinkHealthCacheStructure(
+    parsedLedger.ledger,
+    linkHealthCache,
+  );
+  if (linkHealthStructure.errors.length) {
+    throw new Error(
+      `Source link health cache failed:\n${linkHealthStructure.errors.join(
+        '\n',
+      )}`,
+    );
+  }
   const validation =
     requiredCollection === null
       ? await validateContent(contentRoot)
@@ -278,7 +296,7 @@ export async function buildContentArtifacts(
   const caseCatalog = buildCaseCatalogFromManifest(built.manifest);
   return {
     [generatedPaths.sourceLedger]: serializePublicSourceLedger(
-      governance.governedLedger,
+      mergePublicLedgerHealth(governance.governedLedger, linkHealthCache),
       validation.documents,
     ),
     [generatedPaths.manifest]: `${JSON.stringify(built.manifest, null, 2)}\n`,

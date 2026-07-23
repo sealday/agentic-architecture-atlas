@@ -3939,6 +3939,7 @@
       },
       "dependencies": [],
       "primary_sources": [
+        "https://dl.acm.org/doi/10.1145/38713.38742",
         "https://docs.temporal.io/activities",
         "https://docs.temporal.io/activity-definition",
         "https://docs.temporal.io/activity-execution",
@@ -3949,7 +3950,6 @@
         "https://docs.temporal.io/temporal-service",
         "https://docs.temporal.io/workflow-definition",
         "https://docs.temporal.io/workflows",
-        "https://doi.org/10.1145/38713.38742",
         "https://github.com/temporalio/sdk-go/blob/3cebc26908119368df3911df6146f756bad3882b/internal/internal_task_handlers.go#L2122-L2147",
         "https://github.com/temporalio/sdk-go/blob/3cebc26908119368df3911df6146f756bad3882b/internal/internal_worker_heartbeat.go#L88-L117",
         "https://github.com/temporalio/sdk-go/tree/3cebc26908119368df3911df6146f756bad3882b",

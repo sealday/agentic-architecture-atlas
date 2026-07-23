@@ -209,13 +209,44 @@ test('shows provenance copyright evidence roles and usage boundaries', async () 
     '使用位置',
     '文档复核',
     '链接状态',
-    'Task 6 接入后显示',
   ]) {
     assert.match(component, new RegExp(label));
   }
   assert.match(component, /<article\b/);
   assert.match(component, /<dl\b/);
   assert.match(component, /<Link to=\{document\.slug\}>/);
+});
+
+test('renders healthy auth-required retired and stale source health', async () => {
+  const component = await source('src/components/SourceLedger/index.tsx');
+  for (const value of ['healthy', 'auth-required', 'retired', 'stale']) {
+    assert.match(component, new RegExp(value));
+  }
+  for (const label of ['最近尝试', '最近成功']) {
+    assert.match(component, new RegExp(label));
+  }
+
+  const {buildSourceLedgerSections} = await import(
+    '../src/components/SourceLedger/sourceLedgerModel.ts'
+  );
+  const governed = await generatedLedger();
+  const fixture = structuredClone(governed);
+  fixture.sources[0].health_summary = 'stale';
+  fixture.sources[0].health_checks = [
+    {
+      transport_locator: fixture.sources[0].transport_locator,
+      status: 'stale',
+      last_attempt_at: '2026-07-24T00:00:00.000Z',
+      last_success_at: '2026-07-23T00:00:00.000Z',
+      http_status: 503,
+      final_transport_locator: fixture.sources[0].transport_locator,
+    },
+  ];
+  const card = buildSourceLedgerSections(fixture)
+    .flatMap(({sources}) => sources)
+    .find(({id}) => id === fixture.sources[0].id);
+  assert.equal(card.healthSummary, 'stale');
+  assert.equal(card.healthChecks[0].httpStatus, 503);
 });
 
 test('labels discovery indexes as navigation rather than factual evidence', async () => {
@@ -378,7 +409,11 @@ test('renders the complete sorted ledger in production HTML', async () => {
   );
   assert.match(c4.fields.get('使用位置').html, /href=.*\/references/);
   assert.match(c4.fields.get('使用位置').text, /文档复核：.*2026-07-24/);
-  assert.equal(c4.fields.get('链接状态').text, 'Task 6 接入后显示');
+  assert.match(
+    c4.fields.get('链接状态').text,
+    /健康|需要登录|已退役|待复核/,
+  );
+  assert.match(c4.fields.get('链接状态').text, /最近尝试/);
 
   const illustration = articles.find(
     ({fields}) => fields.get('来源类型').text === '本站原创插图',

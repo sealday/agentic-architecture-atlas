@@ -26,6 +26,10 @@ import {
   serializePublicSourceLedger,
   writeContentArtifacts,
 } from '../scripts/generate-content-platform.mjs';
+import {
+  evaluateLinkHealthVerdict,
+  validateLinkHealthCacheStructure,
+} from '../scripts/source-link-health.mjs';
 
 const generatorScript = fileURLToPath(
   new URL('../scripts/generate-content-platform.mjs', import.meta.url),
@@ -213,6 +217,42 @@ async function withRepositoryFixture(run) {
           },
         }, null, 2)}\n`,
       ),
+      writeFile(
+        path.join(root, 'data/source-link-health.json'),
+        `${JSON.stringify({
+          schema_version: 1,
+          generated_at: '2026-07-23T00:00:00.000Z',
+          results: [
+            {
+              transport_locator: 'https://c4model.com/',
+              source_ids: ['src-c4-model'],
+              last_attempt: {
+                at: '2026-07-23T00:00:00.000Z',
+                outcome: 'healthy',
+                final_transport_locator: 'https://c4model.com/',
+                http_status: 200,
+                login_wall_detected: false,
+                redirects: [],
+              },
+              last_success: {
+                at: '2026-07-23T00:00:00.000Z',
+                outcome: 'healthy',
+                final_transport_locator: 'https://c4model.com/',
+                http_status: 200,
+              },
+              attempt_history: [
+                {
+                  at: '2026-07-23T00:00:00.000Z',
+                  outcome: 'healthy',
+                  final_transport_locator: 'https://c4model.com/',
+                  http_status: 200,
+                },
+              ],
+              review_status: 'healthy',
+            },
+          ],
+        }, null, 2)}\n`,
+      ),
     ]);
 
     await run(root);
@@ -262,12 +302,31 @@ test('builds all artifacts from one validated snapshot', async () => {
       generatedPaths.indexes,
       generatedPaths.caseCatalog,
     ]);
+    assert.match(
+      first[generatedPaths.sourceLedger],
+      /"health_summary": "healthy"/,
+    );
     assert.equal(
       first[generatedPaths.sourceLedger],
       serializePublicSourceLedger(
         {
           schema_version: 1,
-          sources: [governedSource],
+          sources: [
+            {
+              ...governedSource,
+              health_summary: 'healthy',
+              health_checks: [
+                {
+                  transport_locator: 'https://c4model.com/',
+                  status: 'healthy',
+                  last_attempt_at: '2026-07-23T00:00:00.000Z',
+                  last_success_at: '2026-07-23T00:00:00.000Z',
+                  http_status: 200,
+                  final_transport_locator: 'https://c4model.com/',
+                },
+              ],
+            },
+          ],
           documents: {
             'content/cases/example.mdx': governedDocument,
             'content/concepts/example.mdx': governedDocument,
@@ -297,6 +356,53 @@ test('builds all artifacts from one validated snapshot', async () => {
       assert.ok(!serialized.endsWith('\n\n'));
       assert.ok(!serialized.includes(root));
     }
+  });
+});
+
+test('generates a stale public ledger while the offline link verdict fails', async () => {
+  await withRepositoryFixture(async (root) => {
+    const ledgerPath = path.join(root, 'data/source-ledger.json');
+    const cachePath = path.join(root, 'data/source-link-health.json');
+    const [governed, cached] = await Promise.all([
+      readFile(ledgerPath, 'utf8').then(JSON.parse),
+      readFile(cachePath, 'utf8').then(JSON.parse),
+    ]);
+    const failedAttempt = {
+      at: '2026-07-24T00:00:00.000Z',
+      outcome: 'error',
+      final_transport_locator: 'https://c4model.com/',
+      http_status: 503,
+      login_wall_detected: false,
+      redirects: [],
+      error: 'unexpected HTTP 503',
+    };
+    cached.generated_at = failedAttempt.at;
+    cached.results[0].last_attempt = failedAttempt;
+    cached.results[0].attempt_history.push({
+      at: failedAttempt.at,
+      outcome: failedAttempt.outcome,
+      final_transport_locator: failedAttempt.final_transport_locator,
+      http_status: failedAttempt.http_status,
+    });
+    cached.results[0].review_status = 'stale';
+    await writeFile(cachePath, `${JSON.stringify(cached, null, 2)}\n`);
+
+    assert.deepEqual(
+      validateLinkHealthCacheStructure(governed, cached).errors,
+      [],
+    );
+    assert.match(
+      evaluateLinkHealthVerdict(governed, cached, {
+        now: new Date(failedAttempt.at),
+      }).failures.join('\n'),
+      /stale/,
+    );
+    assert.match(
+      (await buildContentArtifacts(root, {requiredCollection: null}))[
+        generatedPaths.sourceLedger
+      ],
+      /"health_summary": "stale"/,
+    );
   });
 });
 

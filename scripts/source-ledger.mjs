@@ -360,9 +360,12 @@ function validateAlias(alias, source, index, errors) {
     label,
     errors,
   );
-  if (alias.expected_final_transport_locator !== alias.transport_locator) {
-    errors.push(`${label}: expected-final transport must equal approved alias transport`);
-  }
+  validateExpectedFinalTransport(
+    alias.expected_final_transport_locator,
+    alias.transport_locator,
+    label,
+    errors,
+  );
   if (!isCalendarDate(alias.expected_final_approved_at)) {
     errors.push(`${label}: expected-final approval date must be a valid calendar date`);
   }
@@ -371,6 +374,30 @@ function validateAlias(alias, source, index, errors) {
   }
   if (!isCalendarDate(alias.superseded_at)) {
     errors.push(`${label}: superseded_at must be a valid calendar date`);
+  }
+}
+
+function validateExpectedFinalTransport(expected, transport, label, errors) {
+  if (!isHttps(transport)) {
+    if (expected !== transport) {
+      errors.push(
+        `${label}: local expected-final transport must equal its transport`,
+      );
+    }
+    return;
+  }
+  if (!isHttps(expected)) {
+    errors.push(`${label}: expected-final transport must be HTTPS`);
+    return;
+  }
+  try {
+    if (canonicalizeTransportLocator(expected) !== expected) {
+      errors.push(
+        `${label}: expected-final transport must be canonical and omit fragments`,
+      );
+    }
+  } catch {
+    errors.push(`${label}: expected-final transport is invalid`);
   }
 }
 
@@ -450,9 +477,12 @@ function validateSource(source, index, errors) {
   if (!isCalendarDate(source.expected_final_approved_at)) {
     errors.push(`${label}: expected-final approval date must be a valid calendar date`);
   }
-  if (source.expected_final_transport_locator !== source.transport_locator) {
-    errors.push(`${label}: expected-final transport must equal approved canonical transport`);
-  }
+  validateExpectedFinalTransport(
+    source.expected_final_transport_locator,
+    source.transport_locator,
+    label,
+    errors,
+  );
   validateEnum(source.source_kind, sourceKinds, `${label}: source_kind`, errors);
   validateEnum(source.tier, sourceTiers, `${label}: tier`, errors);
   validateStringArray(

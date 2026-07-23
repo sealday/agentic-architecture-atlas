@@ -33,6 +33,23 @@ type RawSource = {
   license: string;
   copyright_policy: string;
   usage_boundary: string;
+  health_summary?: HealthStatus;
+  health_checks?: RawHealthCheck[];
+};
+
+export type HealthStatus =
+  | 'healthy'
+  | 'auth-required'
+  | 'retired'
+  | 'stale';
+
+type RawHealthCheck = {
+  transport_locator: string;
+  status: HealthStatus;
+  last_attempt_at: string;
+  last_success_at: string | null;
+  http_status: number | null;
+  final_transport_locator: string | null;
 };
 
 type SourceLedgerData = {
@@ -68,6 +85,15 @@ export type SourceLedgerCard = {
   usageBoundary: string;
   attributionNotes: string[];
   usedBy: SourceLedgerDocument[];
+  healthSummary: HealthStatus;
+  healthChecks: {
+    transportLocator: string;
+    status: HealthStatus;
+    lastAttemptAt: string;
+    lastSuccessAt: string | null;
+    httpStatus: number | null;
+    finalTransportLocator: string | null;
+  }[];
 };
 
 export type SourceLedgerSection = {
@@ -132,6 +158,12 @@ function isStringArray(value: unknown): value is string[] {
 
 function isTier(value: unknown): value is SourceTier {
   return sourceTiers.some((tier) => tier === value);
+}
+
+function isHealthStatus(value: unknown): value is HealthStatus {
+  return ['healthy', 'auth-required', 'retired', 'stale'].includes(
+    String(value),
+  );
 }
 
 function parseLedger(value: unknown): SourceLedgerData {
@@ -268,6 +300,33 @@ export function buildSourceLedgerSections(
           usedBy: (usage?.documents ?? []).sort((left, right) =>
             left.title.localeCompare(right.title, 'zh-CN'),
           ),
+          healthSummary: isHealthStatus(source.health_summary)
+            ? source.health_summary
+            : 'stale',
+          healthChecks: Array.isArray(source.health_checks)
+            ? source.health_checks
+                .filter(
+                  (check): check is RawHealthCheck =>
+                    isRecord(check) &&
+                    typeof check.transport_locator === 'string' &&
+                    isHealthStatus(check.status) &&
+                    typeof check.last_attempt_at === 'string' &&
+                    (check.last_success_at === null ||
+                      typeof check.last_success_at === 'string') &&
+                    (check.http_status === null ||
+                      typeof check.http_status === 'number') &&
+                    (check.final_transport_locator === null ||
+                      typeof check.final_transport_locator === 'string'),
+                )
+                .map((check) => ({
+                  transportLocator: check.transport_locator,
+                  status: check.status,
+                  lastAttemptAt: check.last_attempt_at,
+                  lastSuccessAt: check.last_success_at,
+                  httpStatus: check.http_status,
+                  finalTransportLocator: check.final_transport_locator,
+                }))
+            : [],
         };
       });
 

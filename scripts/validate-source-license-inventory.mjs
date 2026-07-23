@@ -85,6 +85,11 @@ export function licenseFamilyIdentity(value) {
         // URL query and fragment delimiters are transport metadata. Strip them
         // before decoding so percent-encoded ?/# remain part of the DOI suffix.
         doi = url.pathname.replace(/^\/+/, '');
+      } else if (
+        url.hostname.toLowerCase() === 'dl.acm.org' &&
+        url.pathname.startsWith('/doi/')
+      ) {
+        doi = url.pathname.slice('/doi/'.length);
       } else if (url.hostname.toLowerCase() === 'github.com') {
         const [owner, repository] = url.pathname.split('/').filter(Boolean);
         return owner && repository

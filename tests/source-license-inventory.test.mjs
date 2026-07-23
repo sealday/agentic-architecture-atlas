@@ -170,6 +170,10 @@ test('normalizes complete DOI identities without merging distinct DOIs', () => {
     'doi:10.1145/3368089.3409743',
   );
   assert.equal(
+    licenseFamilyIdentity('https://dl.acm.org/doi/10.1145/38713.38742'),
+    'doi:10.1145/38713.38742',
+  );
+  assert.equal(
     licenseFamilyIdentity('doi:10.1000/ABC%3Ftracking=1'),
     'doi:10.1000/abc?tracking=1',
   );

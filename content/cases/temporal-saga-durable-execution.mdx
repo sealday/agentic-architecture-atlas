@@ -401,7 +401,7 @@ Event History 会持久化输入、结果和部分失败信息，不应直接保
 
 **主要架构来源**
 
-- [Garcia-Molina & Salem, 《Sagas》（ACM SIGMOD 1987）](https://doi.org/10.1145/38713.38742) — 长事务拆分、子事务交错、`T1...Tj,Cj...C1`、向前/向后恢复、补偿错误与人工修复。
+- [Garcia-Molina & Salem, 《Sagas》（ACM SIGMOD 1987）](https://dl.acm.org/doi/10.1145/38713.38742) — 长事务拆分、子事务交错、`T1...Tj,Cj...C1`、向前/向后恢复、补偿错误与人工修复。
 - [Temporal Workflow](https://docs.temporal.io/workflows) 与 [Workflow Definition](https://docs.temporal.io/workflow-definition) — Workflow/Execution、确定性 Command 契约，以及将 API、LLM/AI、DB 与外部交互放入 Activity。
 - [Temporal Event History](https://docs.temporal.io/encyclopedia/event-history) — Command、持久 Event 与崩溃后状态重建。
 - [Temporal Activity](https://docs.temporal.io/activities)、[Activity Definition](https://docs.temporal.io/activity-definition) 与 [Activity Execution](https://docs.temporal.io/activity-execution) — 非确定性 Activity、结果复用、completion RPC 前崩溃、幂等键、Activity ID 与 heartbeat。

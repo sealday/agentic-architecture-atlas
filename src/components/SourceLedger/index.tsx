@@ -3,8 +3,16 @@ import sourceLedger from '@site/src/generated/source-ledger.json';
 import styles from './styles.module.css';
 import {
   buildSourceLedgerSections,
+  type HealthStatus,
   type SourceLedgerProps,
 } from './sourceLedgerModel';
+
+const healthLabels: Record<HealthStatus, string> = {
+  healthy: '健康',
+  'auth-required': '需要登录',
+  retired: '已退役',
+  stale: '待复核',
+};
 
 export default function SourceLedger({tier}: SourceLedgerProps) {
   const sections = buildSourceLedgerSections(sourceLedger, tier);
@@ -75,7 +83,20 @@ export default function SourceLedger({tier}: SourceLedgerProps) {
                         )}
                       </dd>
                       <dt>链接状态</dt>
-                      <dd>Task 6 接入后显示</dd>
+                      <dd>
+                        <strong>{healthLabels[source.healthSummary]}</strong>
+                        {source.healthChecks.length > 0 && (
+                          <ul className={styles.usedBy}>
+                            {source.healthChecks.map((check) => (
+                              <li key={check.transportLocator}>
+                                {healthLabels[check.status]}；最近尝试：
+                                {check.lastAttemptAt}；最近成功：
+                                {check.lastSuccessAt ?? '尚无成功记录'}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </dd>
                     </dl>
                   </article>
                 </li>

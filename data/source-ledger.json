@@ -712,9 +712,9 @@
       "copyright_policy": "facts-and-short-quotation",
       "usage_boundary": "Provides first-party engineering or historical evidence in “Workload isolation using shuffle-sharding”; reported results do not generalize beyond the article's stated system and period.",
       "link_policy": "stable",
-      "expected_final_transport_locator": "https://aws.amazon.com/builders-library/workload-isolation-using-shuffle-sharding/",
+      "expected_final_transport_locator": "https://builder.aws.com/content/3F06NpJ8YeoIGP8VHTw4n81pFn8/workload-isolation-using-shuffle-sharding",
       "expected_final_approved_at": "2026-07-24",
-      "expected_final_approval_note": "Initial reviewed migration transport baseline"
+      "expected_final_approval_note": "Permanent migration to the current official AWS Builder Center page manually reviewed on 2026-07-24"
     },
     {
       "id": "src-c4model-f5342a5e8659",
@@ -788,9 +788,9 @@
       "copyright_policy": "facts-and-short-quotation",
       "usage_boundary": "Provides secondary explanation in “Architecture Patterns with Python：Preface”; it supports learning and comparison, not project-specific runtime facts.",
       "link_policy": "stable",
-      "expected_final_transport_locator": "https://www.cosmicpython.com/book/preface.html",
+      "expected_final_transport_locator": "https://www.cosmicpython.com/book/preface",
       "expected_final_approved_at": "2026-07-24",
-      "expected_final_approval_note": "Initial reviewed migration transport baseline"
+      "expected_final_approval_note": "Same-page .html suffix normalization manually reviewed on 2026-07-24"
     },
     {
       "id": "src-d1-722c6fdba330",
@@ -2850,7 +2850,11 @@
       "transport_locator": "https://docs.aws.amazon.com/prescriptive-guidance/latest/cell-based-architecture/welcome.html",
       "query_insensitive": false,
       "locator_aliases": [],
-      "tombstone": null,
+      "tombstone": {
+        "retired_at": "2026-07-24",
+        "replacement_source_id": "src-docs-fae4b64c535e",
+        "reason": "The historical AWS Prescriptive Guidance URL now returns HTTP 404; the citation is retained and the current Cell-based Architecture on AWS page is recorded separately."
+      },
       "title": "Prescriptive Guidance URL",
       "author_or_org": "Amazon Web Services",
       "published_at": null,
@@ -2877,10 +2881,10 @@
       "family_grouping_evidence_url": null,
       "copyright_policy": "vendor-claims-separated",
       "usage_boundary": "Documents the vendor architecture or claim in “Prescriptive Guidance URL”; it does not independently validate performance, portability, or suitability.",
-      "link_policy": "floating",
+      "link_policy": "retired",
       "expected_final_transport_locator": "https://docs.aws.amazon.com/prescriptive-guidance/latest/cell-based-architecture/welcome.html",
       "expected_final_approved_at": "2026-07-24",
-      "expected_final_approval_note": "Initial reviewed migration transport baseline"
+      "expected_final_approval_note": "Reviewed HTTP 404 retirement on 2026-07-24; historical citation retained and current replacement recorded separately"
     },
     {
       "id": "src-docs-69f7436790fa",
@@ -4290,10 +4294,19 @@
     },
     {
       "id": "src-doi-c4c907db05fa",
-      "canonical_locator": "https://doi.org/10.1145/38713.38742",
-      "transport_locator": "https://doi.org/10.1145/38713.38742",
+      "canonical_locator": "https://dl.acm.org/doi/10.1145/38713.38742",
+      "transport_locator": "https://dl.acm.org/doi/10.1145/38713.38742",
       "query_insensitive": false,
-      "locator_aliases": [],
+      "locator_aliases": [
+        {
+          "locator": "https://doi.org/10.1145/38713.38742",
+          "transport_locator": "https://doi.org/10.1145/38713.38742",
+          "expected_final_transport_locator": "https://doi.org/10.1145/38713.38742",
+          "expected_final_approved_at": "2026-07-24",
+          "expected_final_approval_note": "Historical DOI resolver locator retained as an uncited alias after it began downgrading to insecure HTTP",
+          "superseded_at": "2026-07-24"
+        }
+      ],
       "tombstone": null,
       "title": "Sagas",
       "author_or_org": "Hector Garcia-Molina and Kenneth Salem",
@@ -4321,10 +4334,10 @@
       "family_grouping_evidence_url": null,
       "copyright_policy": "facts-and-short-quotation",
       "usage_boundary": "Provides the original method and historical model in “Sagas”; it does not establish fitness for a modern implementation without separate evidence.",
-      "link_policy": "stable",
-      "expected_final_transport_locator": "https://doi.org/10.1145/38713.38742",
+      "link_policy": "auth-required",
+      "expected_final_transport_locator": "https://dl.acm.org/doi/10.1145/38713.38742",
       "expected_final_approved_at": "2026-07-24",
-      "expected_final_approval_note": "Initial reviewed migration transport baseline"
+      "expected_final_approval_note": "Current official ACM HTTPS page returned HTTP 403 in repeated live checks on 2026-07-24; insecure DOI downgrade remains rejected"
     },
     {
       "id": "src-erlang-28f791c67609",
@@ -11772,9 +11785,9 @@
       "copyright_policy": "facts-and-short-quotation",
       "usage_boundary": "Supports documented semantics in “Google ADK：Multi-agent systems” for the recorded page/version; it does not prove undocumented behavior or behavior in other versions.",
       "link_policy": "stable",
-      "expected_final_transport_locator": "https://google.github.io/adk-docs/agents/multi-agents/",
+      "expected_final_transport_locator": "https://adk.dev/agents/multi-agents/",
       "expected_final_approved_at": "2026-07-24",
-      "expected_final_approval_note": "Initial reviewed migration transport baseline"
+      "expected_final_approval_note": "Official Google ADK documentation migration to adk.dev manually reviewed on 2026-07-24"
     },
     {
       "id": "src-iso-11f3b103e932",
@@ -12721,10 +12734,10 @@
       "family_grouping_evidence_url": null,
       "copyright_policy": "facts-and-short-quotation",
       "usage_boundary": "Provides first-party engineering or historical evidence in “Open-sourcing Kafka, LinkedIn's distributed message queue”; reported results do not generalize beyond the article's stated system and period.",
-      "link_policy": "auth-required",
+      "link_policy": "floating",
       "expected_final_transport_locator": "https://www.linkedin.com/blog/member/archive/open-source-linkedin-kafka",
       "expected_final_approved_at": "2026-07-24",
-      "expected_final_approval_note": "Initial reviewed migration transport baseline"
+      "expected_final_approval_note": "Repeated live checks on 2026-07-24 returned public HTTP 200 without a login wall"
     },
     {
       "id": "src-linkedin-696b93de4c90",
@@ -12759,10 +12772,10 @@
       "family_grouping_evidence_url": null,
       "copyright_policy": "facts-and-short-quotation",
       "usage_boundary": "Provides first-party engineering or historical evidence in “Project Kafka, a distributed publish-subscribe messaging system, reaches v0.6”; reported results do not generalize beyond the article's stated system and period.",
-      "link_policy": "auth-required",
+      "link_policy": "floating",
       "expected_final_transport_locator": "https://www.linkedin.com/blog/engineering/open-source/project-kafka-distributed-publish-subscribe-messaging-system-reaches-v06",
       "expected_final_approved_at": "2026-07-24",
-      "expected_final_approval_note": "Initial reviewed migration transport baseline"
+      "expected_final_approval_note": "Repeated live checks on 2026-07-24 returned public HTTP 200 without a login wall"
     },
     {
       "id": "src-linkedin-d5c87afb9e20",
@@ -12797,10 +12810,10 @@
       "family_grouping_evidence_url": null,
       "copyright_policy": "facts-and-short-quotation",
       "usage_boundary": "Provides first-party engineering or historical evidence in “The Log: What every software engineer should know about real-time data's unifying abstraction”; reported results do not generalize beyond the article's stated system and period.",
-      "link_policy": "auth-required",
+      "link_policy": "floating",
       "expected_final_transport_locator": "https://www.linkedin.com/blog/engineering/distributed-systems/log-what-every-software-engineer-should-know-about-real-time-datas-unifying",
       "expected_final_approved_at": "2026-07-24",
-      "expected_final_approval_note": "Initial reviewed migration transport baseline"
+      "expected_final_approval_note": "Repeated live checks on 2026-07-24 returned public HTTP 200 without a login wall"
     },
     {
       "id": "src-martinfowler-0ec749cd01b8",
@@ -13102,9 +13115,9 @@
       "copyright_policy": "facts-and-short-quotation",
       "usage_boundary": "Provides first-party engineering or historical evidence in “KubeEdge v1.20 is live!”; reported results do not generalize beyond the article's stated system and period.",
       "link_policy": "stable",
-      "expected_final_transport_locator": "https://release-1-20.docs.kubeedge.io/blog/release-v1.20",
+      "expected_final_transport_locator": "https://release-1-20.docs.kubeedge.io/blog/release-v1.20/",
       "expected_final_approved_at": "2026-07-24",
-      "expected_final_approval_note": "Initial reviewed migration transport baseline"
+      "expected_final_approval_note": "Permanent trailing-slash redirect manually reviewed on 2026-07-24"
     },
     {
       "id": "src-release-1-20-6451fbb3eb8d",
@@ -18471,7 +18484,7 @@
         },
         {
           "source_id": "src-doi-c4c907db05fa",
-          "citation_url": "https://doi.org/10.1145/38713.38742",
+          "citation_url": "https://dl.acm.org/doi/10.1145/38713.38742",
           "roles": [
             "runtime-fact"
           ],

@@ -528,6 +528,22 @@ test('keeps stable source identity across citation anchors queries and locator m
     'https://github.com/Org/Repo/blob/main/file.js?plain=1',
   );
 
+  const approvedRedirect = parseSourceLedger(
+    ledger({
+      sources: [
+        {
+          ...validSource,
+          expected_final_transport_locator:
+            'https://docs.example.com/current-page',
+          expected_final_approved_at: '2026-07-24',
+          expected_final_approval_note:
+            'Permanent HTTPS redirect manually reviewed',
+        },
+      ],
+    }),
+  );
+  assert.deepEqual(approvedRedirect.errors, []);
+
   const github = {
     ...validSource,
     id: 'src-github-file',
