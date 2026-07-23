@@ -85,6 +85,8 @@ official_sources:
 | 数据与记忆平面 | Conversation History、Agent State、Registry Storage、Knowledge Layer | 上下文、状态、知识、恢复 | 租户隔离、保留期限、并发一致性 |
 | 保障与治理平面 | 日志/指标/追踪、评估、策略、人工审批 | 质量、安全、合规、发布门禁 | 关联 ID、证据留存、持续评估 |
 
+**已证实事实与实现边界**：MCP Client/Server 标准化能力发现、协商与调用，不自动替应用完成最终用户重新鉴权、业务授权、限流或审计。本文的 `ToolPolicyGateway` 是应用控制点；它可以包裹 MCP Client，也可以保护非 MCP 工具。
+
 **个人分析**：框架选择应跟随右侧这些约束，而不是反过来。跨团队、跨安全域、要求审计和独立版本治理时，控制平面的收益可能覆盖额外跳数、费用和故障面；若单智能体加工具已经可靠，最低必要复杂度仍是更好的起点。
 
 ## 事实边界
@@ -150,13 +152,17 @@ flowchart TB
   subgraph Execution["执行平面"]
     A1["专业智能体 A"]
     A2["专业智能体 B"]
-    Gateway["MCP / 集成策略网关"]
+    Gateway["应用 ToolPolicyGateway\n重新鉴权、业务授权、限流、审计"]
+    MCPClient["MCP Client\n能力协商与调用"]
+    MCPServer["MCP Server\n暴露能力"]
     Tools["外部工具与服务"]
     Supervisor --> A1
     Supervisor --> A2
     A1 --> Gateway
     A2 --> Gateway
-    Gateway --> Tools
+    Gateway --> MCPClient
+    MCPClient --> MCPServer
+    MCPServer --> Tools
   end
 
   subgraph Data["数据与记忆平面"]
@@ -199,7 +205,7 @@ flowchart TB
 
 进入生产环境后，请求不能只携带自然语言。应用先固定用户、租户和用途；Registry 只返回策略允许、健康且版本兼容的候选。Supervisor 还要带上预算、截止时间和完成定义，避免专业智能体把“继续推理”当成无限授权。
 
-专业智能体准备调用写工具时，工具网关必须基于最终用户身份和当前参数再次鉴权。策略拒绝不会被模型解释为“换一种说法再试”；工具超时也不等于副作用未发生，需要用幂等键、结果查询或人工对账判定真实状态。
+专业智能体准备调用写工具时，应用 `ToolPolicyGateway` 必须基于最终用户身份和当前参数再次鉴权，并完成业务授权、参数校验、限流和审计。MCP Client/Server 负责标准化能力发现与调用，不自动提供这些应用控制。策略拒绝不会被模型解释为“换一种说法再试”；工具超时也不等于副作用未发生，需要用幂等键、结果查询或人工对账判定真实状态。
 
 聚合结果通过在线评估、内容安全或人工门禁后才发布。评估失败可以降级或转人工，但不应让另一个智能体在更大权限下盲目重试。
 
@@ -218,7 +224,8 @@ sequenceDiagram
   participant S as Supervisor
   participant A as 专业智能体
   participant M as 记忆/状态
-  participant G as MCP策略网关
+  participant G as 应用 ToolPolicyGateway
+  participant C as MCP Client / Server
   participant T as 外部 Tool
   participant E as 遥测与评估
 
@@ -240,13 +247,16 @@ sequenceDiagram
     A-->>S: 策略拒绝
   else 策略允许
     P-->>G: 允许
-    G->>T: 使用受限凭证调用外部工具
+    G->>C: 已授权调用 + 受限凭证 + 参数
+    C->>T: 标准化能力调用
     alt 下游依赖正常
-      T-->>G: 工具结果
+      T-->>C: 工具结果
+      C-->>G: 标准化结果
       G-->>A: 校验后的工具结果
       A-->>S: 结构化结果与置信信息
     else 下游超时
-      T--xG: 超时或无响应
+      T--xC: 超时或无响应
+      C--xG: 依赖失败
       G->>G: 触发断路器并应用回退
       G-->>A: 依赖失败或回退结果
       A-->>S: 失败/部分结果
@@ -265,7 +275,7 @@ sequenceDiagram
 1. **注册准入**：未通过能力、接口、安全和质量验证的智能体不进入可发现集合。
 2. **路由约束**：Classifier/Orchestrator 只把任务交给策略允许且健康的版本，而不是让任意智能体自由结盟。
 3. **上下文约束**：Orchestrator 决定传播最小必要上下文；记忆按会话、用户和租户分区。
-4. **行动约束**：MCP/集成层在工具执行前重新鉴权、校验参数、限流并记录审计，不能只信任上游智能体的判断。
+4. **行动约束**：应用 `ToolPolicyGateway` 在工具执行前重新鉴权、校验参数、限流并记录审计，不能只信任上游智能体的判断；MCP Client/Server 只承载标准化能力发现与调用。
 5. **发布约束**：在线评估、内容安全或人工审批可阻止结果直接到达用户。
 
 这些约束减少局部智能体的行动自由，却换来撤权、追责、灰度和故障隔离。框架可以优化“领域内部怎样推理”，不可逆行动、跨租户访问、版本准入和结果发布仍应由确定性控制点裁决。
@@ -403,14 +413,22 @@ sequenceDiagram
 
 以下均为官方或上游来源。访问日期与来源截断日期：**2026-07-20**。
 
+### 主要架构
+
 - [Microsoft Multi-Agent Reference Architecture 仓库与 README](https://github.com/microsoft/multi-agent-reference-architecture/tree/ed3613b54b46b595dd223aaff8772def376a8c37) — 固定提交下的项目定位、适用人群、框架无关声明与章节入口。
 - [Introduction](https://github.com/microsoft/multi-agent-reference-architecture/blob/ed3613b54b46b595dd223aaff8772def376a8c37/docs/Introduction.md) — 关注点分离、安全、可追踪、注册与生命周期、故障隔离、上下文管理等原则。
 - [Building Blocks](https://github.com/microsoft/multi-agent-reference-architecture/blob/ed3613b54b46b595dd223aaff8772def376a8c37/docs/building-blocks/Building-Blocks.md) — Orchestrator、专业智能体、Registry 与默认通信控制。
 - [Reference Architecture](https://github.com/microsoft/multi-agent-reference-architecture/blob/ed3613b54b46b595dd223aaff8772def376a8c37/docs/reference-architecture/Reference-Architecture.md) — 主架构构件、存储、MCP 集成和官方端到端序列。
+
+### 源码
+
 - [Agent Registry](https://github.com/microsoft/multi-agent-reference-architecture/blob/ed3613b54b46b595dd223aaff8772def376a8c37/docs/agent-registry/Agent-Registry.md) — 集中/分布注册、发现、存储、查询、监测和注册评估。
 - [Memory](https://github.com/microsoft/multi-agent-reference-architecture/blob/ed3613b54b46b595dd223aaff8772def376a8c37/docs/memory/Memory.md) — 短期/长期记忆及同步、所有权、隐私、一致性问题。
 - [Agents Communication](https://github.com/microsoft/multi-agent-reference-architecture/blob/ed3613b54b46b595dd223aaff8772def376a8c37/docs/agents-communication/Agents-Communication.md) 与 [Message-Driven](https://github.com/microsoft/multi-agent-reference-architecture/blob/ed3613b54b46b595dd223aaff8772def376a8c37/docs/agents-communication/Message-Driven.md) — 请求式、消息驱动与混合通信权衡。
 - [Observability](https://github.com/microsoft/multi-agent-reference-architecture/blob/ed3613b54b46b595dd223aaff8772def376a8c37/docs/observability/Observability.md) 与 [Evaluation](https://github.com/microsoft/multi-agent-reference-architecture/blob/ed3613b54b46b595dd223aaff8772def376a8c37/docs/evaluation/Evaluation.md) — 智能体特有遥测、确定性/语义评估及离线/在线阶段。
+
+### 补充说明
+
 - [Security](https://github.com/microsoft/multi-agent-reference-architecture/blob/ed3613b54b46b595dd223aaff8772def376a8c37/docs/security/Security.md) — 身份、能力约束、加密、工具策略、记忆、审计、版本与回滚。
 - [Governance](https://github.com/microsoft/multi-agent-reference-architecture/blob/ed3613b54b46b595dd223aaff8772def376a8c37/docs/governance/Governance.md) — 数据来源、输出责任、运行边界、模型监督、RAI 与红队流程。
 - [Patterns](https://github.com/microsoft/multi-agent-reference-architecture/blob/ed3613b54b46b595dd223aaff8772def376a8c37/docs/reference-architecture/Patterns.md) — 动态注册、MCP、分层、上下文和智能体通信模式。

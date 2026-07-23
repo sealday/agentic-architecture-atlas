@@ -79,6 +79,8 @@ Supervisor 可以在模型上下文里记住“下一步找谁”，但进程退
 
 **已证实事实**：`StateGraph` 以 State、Node、Edge 表达运行。同一 super-step 的节点可并行，每个 state key 通过自己的 reducer 接收更新；checkpointer 按 `thread_id` 保存图状态，并支持 interrupt、检查、重放和失败恢复。
 
+**已证实事实**：Supervisor 模式不等于 `langgraph-supervisor` 包。官方 Subagents 文档说明该包已不再积极维护，新项目优先直接采用 subagents-as-tools；本文只把固定仓库快照作为既有 `create_supervisor`、handoff 和历史输出实现的参考。
+
 Supervisor 通过工具调用 subagent，决定传入什么并综合结果；Router 通常只做一次分类或分解。图可用 `Command` 做路由、用 `Send` 扇出任务，但 fan-in、去重、顺序和停止条件仍要由 state schema 与 policy 明确定义。
 
 **基于证据的推断**：耐久编排的实质，是把“已完成什么、下一步是什么、哪些结果可复用”从自然语言记忆提升为运行时状态。Supervisor 保留开放式分解，显式图固定审批、并发、重试和恢复边界。
@@ -465,14 +467,22 @@ sequenceDiagram
 
 以下均为官方 LangChain/LangGraph 文档或上游仓库；无二手博客。建议按此顺序阅读：
 
+### 主要架构
+
 1. [Subagents](https://docs.langchain.com/oss/python/langchain/multi-agent/subagents)：Supervisor 与 subagent 的控制权、上下文工程、并行与 checkpoint 模式。
 2. [Router](https://docs.langchain.com/oss/python/langchain/multi-agent/router)：Router 的一次性分类、多路并行、综合与有状态变体；用于和 Supervisor 对照。
 3. [Graph API](https://docs.langchain.com/oss/python/langgraph/graph-api) 与 [Use the Graph API](https://docs.langchain.com/oss/python/langgraph/use-graph-api)：State、Node、Edge、super-step、reducer、`Send`、`Command`、重执行与并行 fan-in。
 4. [Persistence](https://docs.langchain.com/oss/python/langgraph/persistence) 与 [Thinking in LangGraph](https://docs.langchain.com/oss/python/langgraph/thinking-in-langgraph)：checkpointer 与 Store 的范围、`thread_id`、pending writes，以及 `sync`、默认 `async`、`exit` durability 的提交时机与取舍。
-5. [Interrupts](https://docs.langchain.com/oss/python/langgraph/interrupts)：暂停/恢复、`Command(resume=...)`、节点重执行与副作用幂等规则。
-6. [Fault tolerance](https://docs.langchain.com/oss/python/langgraph/fault-tolerance)：`RetryPolicy` 与失败处理；节点 timeout 和 error handler 要求 `langgraph>=1.2`，并有 Python-only、timeout 仅支持 async 节点等限制。
+
+### 源码
+
 7. [`langgraph` 固定仓库快照](https://github.com/langchain-ai/langgraph/tree/49ae27c2ae983cfb92091b0dea9f7bc37a716479)：README、Graph API 与 checkpointer 接口的上游实现，提交 `49ae27c2ae983cfb92091b0dea9f7bc37a716479`。
 8. [Subagents 的迁移说明](https://docs.langchain.com/oss/python/langchain/multi-agent/subagents) 与 [`langgraph-supervisor-py` 固定仓库快照](https://github.com/langchain-ai/langgraph-supervisor-py/tree/88859b34017ac3569bbd4a3092c7e77593a0a960)：官方说明该包已不再积极维护，新项目优先直接工具/subagent 模式；固定仓库只作为 handoff、历史管理与既有实现参考，提交 `88859b34017ac3569bbd4a3092c7e77593a0a960`。
+
+### 补充说明
+
+5. [Interrupts](https://docs.langchain.com/oss/python/langgraph/interrupts)：暂停/恢复、`Command(resume=...)`、节点重执行与副作用幂等规则。
+6. [Fault tolerance](https://docs.langchain.com/oss/python/langgraph/fault-tolerance)：`RetryPolicy` 与失败处理；节点 timeout 和 error handler 要求 `langgraph>=1.2`，并有 Python-only、timeout 仅支持 async 节点等限制。
 
 来源访问日期与截断日期：**2026-07-20**。事实陈述限定于上述固定提交与当日官方文档；文中的生产拓扑、`merge_by_task_id`、租户标识、业务账本设计、durability 选择、幂等键、指标阈值和部署策略均属于明确标注的实现建议或分析，不是 LangGraph 框架自动保证。
 
