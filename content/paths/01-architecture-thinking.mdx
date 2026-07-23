@@ -1,0 +1,80 @@
+---
+title: 架构思维与表达
+sidebar_position: 6
+slug: /paths/architecture-thinking
+content_type: path
+status: reviewed
+difficulty: intermediate
+analyzed_at: 2026-07-23
+source_cutoff: 2026-07-23
+confidence: high
+domains:
+  - software-architecture
+  - application-architecture
+agent_patterns: []
+protocols: []
+quality_attributes:
+  - maintainability
+  - reliability
+tags:
+  - 架构决策
+  - C4
+  - ADR
+official_sources:
+  - https://github.com/mehdihadeli/awesome-software-architecture#architectural-design-principles
+  - https://c4model.com/
+  - https://arc42.org/
+  - https://github.com/mehdihadeli/awesome-software-architecture/blob/main/docs/architecture-documententation.md
+---
+
+# 架构思维与表达
+
+## 为什么学
+
+架构工作的起点是识别约束和质量属性，并让关键决策可以沟通、复查和演进。先建立这套表达方式，后续学习模式、分布式机制或 Agent 框架时，才不会退化成技术名词和组件清单。
+
+## 前置能力与跳过条件
+
+读者应能读懂一个熟悉系统的主要调用关系，并能区分业务目标与实现手段。如果已经能独立写出主要约束、三项关键质量属性、一张上下文图，以及一条包含备选方案和取舍的 ADR，并能说明它们如何约束后续设计，可以跳过必读起点。
+
+## 核心问题
+
+- 功能需求、质量属性和硬约束如何共同形成架构决策？
+- C4、ADR 和质量属性场景分别回答什么问题？
+- 代码设计、应用结构和系统架构的决策尺度有什么不同？
+
+## 推荐学习顺序
+
+1. 为一个熟悉系统列出业务目标、硬约束和关键质量属性。
+2. 用 C4 上下文图明确系统、用户与外部依赖的边界。
+3. 用 ADR 记录一个真实决策的备选方案、取舍和适用前提。
+4. 对照本站案例检查治理或团队边界如何改变组件设计。
+
+## 必读起点
+
+[Awesome Software Architecture 的设计原则主题](https://github.com/mehdihadeli/awesome-software-architecture#architectural-design-principles) 用来建立耦合、内聚、依赖和权衡的术语入口。
+
+## 查漏补缺
+
+[C4 Model](https://c4model.com/) 与 [arc42](https://arc42.org/) 分别补架构图层级和结构化文档方法。
+
+## 深入拓展
+
+[Architecture Documentation](https://github.com/mehdihadeli/awesome-software-architecture/blob/main/docs/architecture-documententation.md) 汇集 ADR、C4、arc42 和完整示例，适合在需要建立团队文档约定时继续阅读。
+
+## 用本站案例深化
+
+- [Microsoft 多智能体参考架构](/cases/microsoft-multi-agent-reference-architecture)：观察治理、身份、网络和可观测性约束如何改变组件设计。
+- [Micro Frontends + single-spa](/cases/micro-frontends-single-spa)：观察业务边界、团队所有权和运行时边界为何不能自动画等号。
+
+## 实践产出
+
+保留一张系统上下文图和一条 ADR。ADR 至少写明决策背景、备选方案、选择理由、代价与重新评估条件。
+
+## 检查点
+
+为一个熟悉系统写出主要约束、三项关键质量属性、一张上下文图，以及一条包含备选方案和取舍的 ADR。能够解释这些产出如何约束后续设计，即可进入下一阶段。
+
+## 继续学习
+
+下一阶段是[模块边界与应用架构](/paths/module-boundaries)。如果已经能稳定划分模块并解释依赖方向，可以直接进入[分布式系统基础](/paths/distributed-systems)。

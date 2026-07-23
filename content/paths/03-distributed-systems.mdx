@@ -1,0 +1,84 @@
+---
+title: 分布式系统基础
+sidebar_position: 8
+slug: /paths/distributed-systems
+content_type: path
+status: reviewed
+difficulty: intermediate
+analyzed_at: 2026-07-23
+source_cutoff: 2026-07-23
+confidence: high
+domains:
+  - distributed-systems
+  - event-driven-architecture
+agent_patterns: []
+protocols:
+  - HTTP
+quality_attributes:
+  - availability
+  - consistency
+  - scalability
+  - latency
+tags:
+  - 分布式系统
+  - 消息
+  - 一致性
+official_sources:
+  - https://github.com/donnemartin/system-design-primer#system-design-topics-start-here
+  - https://github.com/mehdihadeli/awesome-software-architecture
+  - https://github.com/donnemartin/system-design-primer#system-design-interview-questions-with-solutions
+---
+
+# 分布式系统基础
+
+## 为什么学
+
+一旦状态跨越进程或网络，调用就可能超时、重复、乱序或只完成一部分。分布式系统的核心不是组件数量，而是明确一致性、可用性、延迟和恢复之间不可消除的取舍。
+
+## 前置能力与跳过条件
+
+读者应能说明模块的数据所有者和依赖方向。如果已经能画出一次跨服务写入的状态变化，指出至少三个失败窗口，为重试、去重或补偿指定责任方，并解释网络超时为何不能证明远端没有执行，可以跳过必读起点。
+
+## 核心问题
+
+- 延迟、吞吐、可用性、一致性和扩展性如何互相约束？
+- 复制、分片、缓存、消息和重放分别引入哪些失败窗口？
+- 同步调用与异步消息如何改变任务所有权和错误处理？
+- 最终一致性、CQRS 和分布式事务分别适用于什么边界？
+
+## 推荐学习顺序
+
+1. 沿一次跨服务写入标出状态所有者和网络边界。
+2. 分别推演超时、重复、乱序与部分完成。
+3. 为重试、去重、补偿和重放指定唯一责任方。
+4. 用案例比较同步调用、消息、事件历史和 CRDT 的不同保证。
+
+## 必读起点
+
+[System Design Primer](https://github.com/donnemartin/system-design-primer#system-design-topics-start-here) 按扩展性、延迟与吞吐、一致性与可用性、缓存、队列和通信建立概念地图。
+
+## 查漏补缺
+
+使用 [Awesome Software Architecture](https://github.com/mehdihadeli/awesome-software-architecture) 中的 Messaging、Eventual Consistency、Caching、Sharding、CQRS 与 Distributed Transactions 专题补齐当前缺口。
+
+## 深入拓展
+
+[System Design Primer 的真实架构和练习](https://github.com/donnemartin/system-design-primer#system-design-interview-questions-with-solutions) 可以用同一套问题比较不同系统，而不是背组件答案。
+
+## 用本站案例深化
+
+- [Apache Kafka Consumer Groups](/cases/apache-kafka-consumer-groups)：理解分区所有权、offset、重放、rebalance 和背压。
+- [Temporal Durable Execution + Saga](/cases/temporal-saga-durable-execution)：区分事件历史、重试、补偿和外部副作用。
+- [Yjs CRDT Collaboration](/cases/yjs-crdt-collaboration)：区分数据结构收敛、业务语义批准和事务保证。
+
+## 实践产出
+
+保留一份跨服务失败窗口轨迹。它应按顺序记录请求、远端状态变化、响应与本地状态，并标明超时、重复、乱序或部分完成时由谁重试、去重或补偿。
+
+## 检查点
+
+画出一次跨服务写入的状态变化，指出至少三个失败窗口，并为重试、去重或补偿指定明确责任方。能够解释网络超时为什么不能直接证明远端“没有执行”，即可进入下一阶段。
+
+## 继续学习
+
+回看[模块边界与应用架构](/paths/module-boundaries)，或继续进入[可靠性与状态管理](/paths/reliability-state)，把单个失败窗口组织成可恢复的运行协议。

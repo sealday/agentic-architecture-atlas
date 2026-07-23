@@ -1,0 +1,86 @@
+---
+title: 扩展、隔离与生产治理
+sidebar_position: 10
+slug: /paths/production-governance
+content_type: path
+status: reviewed
+difficulty: intermediate
+analyzed_at: 2026-07-23
+source_cutoff: 2026-07-23
+confidence: high
+domains:
+  - cloud-native
+  - platform-engineering
+  - distributed-systems
+agent_patterns: []
+protocols: []
+quality_attributes:
+  - scalability
+  - observability
+  - security
+  - operability
+tags:
+  - 故障隔离
+  - 降级
+  - 生产治理
+official_sources:
+  - https://github.com/donnemartin/system-design-primer#how-to-approach-a-system-design-interview-question
+  - https://github.com/mehdihadeli/awesome-software-architecture
+  - https://sre.google/workbook/table-of-contents/
+---
+
+# 扩展、隔离与生产治理
+
+## 为什么学
+
+系统规模扩大后，平均性能不再足以描述风险。架构需要限制热点和失控行为的影响范围，并把容量、发布、安全、成本和可观测性放进正常控制路径。
+
+## 前置能力与跳过条件
+
+读者应能定义任务的恢复状态与停止边界。如果已经能针对热点租户、关键依赖故障和失败发布各设计一道隔离边界，说明监控信号、容量限制、降级动作、恢复负责人，以及隔离带来的利用率或运维成本，可以跳过必读起点。
+
+## 核心问题
+
+- 分区、cell、配额、薄路由和负载隔离如何控制容量与故障半径？
+- 可观测性、安全、合规、成本和发布策略如何成为架构约束？
+- 平台能力与业务能力应如何分工？
+- 热点租户、依赖故障和失败发布分别由什么信号触发降级或回滚？
+
+## 推荐学习顺序
+
+1. 选取热点租户、依赖故障和失败发布三个场景。
+2. 为每个场景标出容量边界、故障半径和可观察信号。
+3. 定义限流、隔离、降级或回滚动作及其负责人。
+4. 记录隔离造成的利用率、复杂度与运维成本。
+
+## 必读起点
+
+[System Design Primer 的解题流程](https://github.com/donnemartin/system-design-primer#how-to-approach-a-system-design-interview-question) 用来练习从约束、规模和瓶颈出发扩展系统。
+
+## 查漏补缺
+
+使用 [Awesome Software Architecture](https://github.com/mehdihadeli/awesome-software-architecture) 中的 Microservices、Observability、Security 与 Cloud Design Patterns 专题补齐当前缺口。
+
+## 深入拓展
+
+继续阅读 [Google SRE Workbook](https://sre.google/workbook/table-of-contents/) 中的 SLO、告警、发布和事件管理章节，把生产治理落实为日常信号与控制动作。
+
+## 用本站案例深化
+
+- [AWS Cell Architecture + Shuffle Sharding](/cases/aws-cell-shuffle-sharding)：研究租户隔离、容量边界和故障半径。
+- [Cloudflare Durable Objects + workerd](/cases/cloudflare-durable-objects-workerd)：研究身份寻址的状态单元、热点 key 和重分片边界。
+- [New API Channel Pool Routing](/cases/new-api-channel-pool-routing)：研究能力路由、Key 池、故障恢复和合规隔离。
+- [LiteLLM Virtual Keys](/cases/litellm-virtual-keys-governance)：研究分层权限、预算限流、Guardrail 时序和供应商凭据托管。
+- [Microsoft 多智能体参考架构](/cases/microsoft-multi-agent-reference-architecture)：研究身份、网络、数据、评估和平台治理。
+
+## 实践产出
+
+保留一份隔离与降级工作表。每个场景至少记录触发信号、容量限制、隔离边界、降级或回滚动作、恢复负责人，以及利用率或运维成本。
+
+## 检查点
+
+针对热点租户、关键依赖故障和失败发布各设计一道隔离边界，并说明监控信号、容量限制、降级动作和恢复负责人。能够指出隔离带来的利用率或运维成本，即可进入下一阶段。
+
+## 继续学习
+
+回看[可靠性与状态管理](/paths/reliability-state)，或继续进入[Agentic 架构专项](/paths/agentic-architecture)。如果当前工作与智能体无关，也可以回到[路线总览](/paths)，按职责选择云原生、协作状态或边缘物理专题。

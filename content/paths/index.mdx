@@ -13,290 +13,70 @@ domains:
   - software-architecture
   - distributed-systems
   - multi-agent-systems
-  - cloud-native
 agent_patterns:
-  - agents-as-tools
   - supervisor
   - handoff
-  - hierarchical-teams
 protocols:
   - A2A
   - MCP
 quality_attributes:
   - reliability
-  - scalability
   - maintainability
-  - observability
-  - security
-  - interoperability
   - operability
 tags:
   - 软件架构
   - 学习路线
   - 系统设计
-  - 分布式系统
-  - 生产架构
 official_sources:
+  - https://roadmap.sh/software-architect
   - https://github.com/mehdihadeli/awesome-software-architecture
   - https://github.com/donnemartin/system-design-primer
-  - https://roadmap.sh/software-architect
-  - https://c4model.com/
-  - https://arc42.org/
-  - https://sre.google/workbook/table-of-contents/
-  - https://github.com/cncf/curriculum
-  - https://kubernetes.io/docs/tutorials/kubernetes-basics/
-  - https://docs.yjs.dev/
-  - https://kubeedge.io/docs/
-  - https://docs.ros.org/en/jazzy/Concepts/Basic.html
-  - https://docs.litellm.ai/docs/proxy/virtual_keys
-  - https://openai.github.io/openai-agents-python/multi_agent/
-  - https://docs.langchain.com/oss/python/langgraph/overview
-  - https://google.github.io/adk-docs/agents/multi-agents/
-  - https://a2a-protocol.org/latest/
-  - https://modelcontextprotocol.io/docs/getting-started/intro
 ---
 
 # 软件架构学习路线
 
 这条路线写给已经做过软件开发、但架构知识仍然零散的工程师。它不从语言、Git 或 HTTP 基础开始，也不要求把所有外部链接依次读完；路线负责说明知识依赖和学习边界，外部资料负责建立通用概念，本站案例负责把概念放回真实系统验证。
 
-每个阶段都以一个检查点结束。已经能够独立完成检查点的读者，可以跳过该阶段的“必读起点”，直接阅读不熟悉的案例或进入下一阶段。遇到陌生术语时再使用“查漏补缺”，只有工作需要采用该机制时才进入“深入拓展”。
-
-外部资源有三种用途：
-
-- **必读起点**：建立进入本站案例所需的共同语言。
-- **查漏补缺**：补齐当前阶段的单个知识缺口。
-- **深入拓展**：准备在真实项目中采用相关机制时继续阅读。
-
-如果想先横向查看软件架构师常见能力域，可以把 [roadmap.sh Software Architect](https://roadmap.sh/software-architect) 作为**查漏补缺**的索引；它帮助发现知识空白，不替代下面按依赖关系组织的主干。
-
-## 第一阶段：架构思维与表达
-
-**为什么学**
-
-架构工作的起点是识别约束和质量属性，并让关键决策可以沟通、复查和演进。先建立这套表达方式，后续学习模式、分布式机制或 Agent 框架时，才不会退化成技术名词和组件清单。
-
-**掌握这些问题**
-
-- 功能需求、质量属性和硬约束如何共同形成架构决策？
-- C4、ADR 和质量属性场景分别回答什么问题？
-- 代码设计、应用结构和系统架构的决策尺度有什么不同？
-
-**外部补充**
-
-- **必读起点**：[Awesome Software Architecture 的设计原则主题](https://github.com/mehdihadeli/awesome-software-architecture#architectural-design-principles)，用来建立耦合、内聚、依赖和权衡的术语入口。
-- **查漏补缺**：[C4 Model](https://c4model.com/) 与 [arc42](https://arc42.org/)，分别补架构图层级和结构化文档方法。
-- **深入拓展**：[Architecture Documentation](https://github.com/mehdihadeli/awesome-software-architecture/blob/main/docs/architecture-documententation.md)，继续查找 ADR、C4、arc42 和完整示例。
-
-**用本站案例深化**
-
-- [Microsoft 多智能体参考架构](/cases/microsoft-multi-agent-reference-architecture)：观察治理、身份、网络和可观测性约束如何改变组件设计。
-- [Micro Frontends + single-spa](/cases/micro-frontends-single-spa)：观察业务边界、团队所有权和运行时边界为何不能自动画等号。
-
-**检查点**
-
-为一个熟悉系统写出主要约束、三项关键质量属性、一张上下文图，以及一条包含备选方案和取舍的 ADR。能够解释这些产出如何约束后续设计，即可进入下一阶段。
-
-**下一步**
-
-继续学习模块边界；如果已经能稳定划分模块并解释依赖方向，可以直接进入第三阶段。
-
-## 第二阶段：模块边界与应用架构
-
-**为什么学**
-
-多数系统不是先被流量压垮，而是先被变化成本拖慢。模块边界决定哪些代码一起变化、哪些知识可以隐藏，也决定未来拆分服务时能否保留清楚的所有权。
-
-**掌握这些问题**
-
-- 内聚、耦合、依赖方向和信息隐藏如何影响变化成本？
-- 分层、Hexagonal、Clean、Vertical Slice 和模块化单体分别在约束什么？
-- DDD 的限界上下文如何帮助划分责任，而不是增加一套名词？
-- 什么证据足以支持拆分服务，什么情况应继续保持模块化单体？
-
-**外部补充**
-
-- **必读起点**：[Architectural Design Principles](https://github.com/mehdihadeli/awesome-software-architecture#architectural-design-principles) 与 [Modular Monolith](https://github.com/mehdihadeli/awesome-software-architecture#modular-monolith)，先建立边界、依赖和部署单元的区别。
-- **查漏补缺**：[Domain Driven Design](https://github.com/mehdihadeli/awesome-software-architecture#domain-driven-design)、[Hexagonal Architecture](https://github.com/mehdihadeli/awesome-software-architecture#hexagonal-architecture)、[Clean Architecture](https://github.com/mehdihadeli/awesome-software-architecture#clean-architecture) 与 [Vertical Slice Architecture](https://github.com/mehdihadeli/awesome-software-architecture#vertical-slice-architecture)，按当前项目的缺口选读。
-- **深入拓展**：从上述专题进入模式原作者、示例项目和重构材料，用具体代码核对依赖方向是否真的成立。
-
-**用本站案例深化**
-
-- [Micro Frontends + single-spa](/cases/micro-frontends-single-spa)：检查按业务切片、独立交付与共享运行时之间的张力。
-- [OpenAI Agents SDK](/cases/openai-agents-sdk)：比较 Manager、Handoff 与确定性代码编排，观察控制权也是一种职责边界。
-
-**检查点**
-
-为一个熟悉应用画出模块图，标明公开接口、数据所有者和依赖方向，并解释为什么当前应该或不应该拆成独立服务。能够用变化原因而不是技术栈名称说明边界，即可进入下一阶段。
-
-**下一步**
-
-进入分布式系统基础，学习进程和网络边界带来的新状态与失败模型。
-
-## 第三阶段：分布式系统基础
-
-**为什么学**
-
-一旦状态跨越进程或网络，调用就可能超时、重复、乱序或只完成一部分。分布式系统的核心不是组件数量，而是明确一致性、可用性、延迟和恢复之间不可消除的取舍。
-
-**掌握这些问题**
-
-- 延迟、吞吐、可用性、一致性和扩展性如何互相约束？
-- 复制、分片、缓存、消息和重放分别引入哪些失败窗口？
-- 同步调用与异步消息如何改变任务所有权和错误处理？
-- 最终一致性、CQRS 和分布式事务分别适用于什么边界？
-
-**外部补充**
-
-- **必读起点**：[System Design Primer](https://github.com/donnemartin/system-design-primer#system-design-topics-start-here)，按扩展性、延迟与吞吐、一致性与可用性、缓存、队列和通信建立概念地图。
-- **查漏补缺**：[Awesome Software Architecture](https://github.com/mehdihadeli/awesome-software-architecture) 中的 Messaging、Eventual Consistency、Caching、Sharding、CQRS 与 Distributed Transactions 专题。
-- **深入拓展**：[System Design Primer 的真实架构和练习](https://github.com/donnemartin/system-design-primer#system-design-interview-questions-with-solutions)，用同一套问题比较不同系统，而不是背组件答案。
-
-**用本站案例深化**
-
-- [Apache Kafka Consumer Groups](/cases/apache-kafka-consumer-groups)：理解分区所有权、offset、重放、rebalance 和背压。
-- [Temporal Durable Execution + Saga](/cases/temporal-saga-durable-execution)：区分事件历史、重试、补偿和外部副作用。
-- [Yjs CRDT Collaboration](/cases/yjs-crdt-collaboration)：区分数据结构收敛、业务语义批准和事务保证。
-
-**检查点**
-
-画出一次跨服务写入的状态变化，指出至少三个失败窗口，并为重试、去重或补偿指定明确责任方。能够解释网络超时为什么不能直接证明远端“没有执行”，即可进入下一阶段。
-
-**下一步**
-
-进入可靠性与状态管理，把单个失败窗口组织成可恢复的运行协议。
-
-## 第四阶段：可靠性与状态管理
-
-**为什么学**
-
-重试只能再次发起动作，不能自动恢复正确状态。可靠系统需要知道什么可以重做、状态如何观察、恢复何时停止，以及无法自动判断时由谁接管。
-
-**掌握这些问题**
-
-- 重试、幂等、监督、协调循环和耐久执行分别处理哪类失败？
-- 期望状态、观察状态、事件历史和业务事实应该保存在哪里？
-- 背压、取消、重试预算和人工终态如何限制自动恢复？
-- 恢复完成后用什么证据确认系统重新满足约束？
-
-**外部补充**
-
-- **必读起点**：[Google SRE Workbook](https://sre.google/workbook/table-of-contents/) 的 Foundations 与 Practices，用 SLO、监控和故障响应连接设计与运行结果。
-- **查漏补缺**：[Awesome Software Architecture 的 Microservices Resiliency](https://github.com/mehdihadeli/awesome-software-architecture#microservices)、[Cloud Design Patterns](https://github.com/mehdihadeli/awesome-software-architecture#cloud-design-patterns) 与 [Back Pressure](https://github.com/mehdihadeli/awesome-software-architecture#back-pressure)。
-- **深入拓展**：继续阅读 SRE Workbook 中的告警、事件响应和复盘章节，把“可恢复”落实为信号、动作与负责人。
-
-**用本站案例深化**
-
-- [Erlang/OTP Supervision Tree](/cases/erlang-otp-supervision-tree)：比较局部重启、向上升级和重启强度。
-- [Kubernetes Reconciliation Loop](/cases/kubernetes-reconciliation-loop)：理解 spec/status、幂等协调和持续收敛。
-- [Temporal Durable Execution + Saga](/cases/temporal-saga-durable-execution)：检查确定性重放、Activity、副作用和补偿边界。
-- [Apache Kafka Consumer Groups](/cases/apache-kafka-consumer-groups)：检查 rebalance、在途动作、重复执行和背压。
-
-**检查点**
-
-为一个长时任务定义状态机、超时、重试预算、幂等键、人工终态和恢复验证方法。能够说明每项状态由谁写入、谁观察、何时失效，即可进入下一阶段。
-
-**下一步**
-
-进入扩展、隔离与生产治理，处理故障从单个任务扩散到租户、区域和平台的问题。
-
-## 第五阶段：扩展、隔离与生产治理
-
-**为什么学**
-
-系统规模扩大后，平均性能不再足以描述风险。架构需要限制热点和失控行为的影响范围，并把容量、发布、安全、成本和可观测性放进正常控制路径。
-
-**掌握这些问题**
-
-- 分区、cell、配额、薄路由和负载隔离如何控制容量与故障半径？
-- 可观测性、安全、合规、成本和发布策略如何成为架构约束？
-- 平台能力与业务能力应如何分工？
-- 热点租户、依赖故障和失败发布分别由什么信号触发降级或回滚？
-
-**外部补充**
-
-- **必读起点**：[System Design Primer 的解题流程](https://github.com/donnemartin/system-design-primer#how-to-approach-a-system-design-interview-question)，练习从约束、规模和瓶颈出发扩展系统。
-- **查漏补缺**：[Awesome Software Architecture](https://github.com/mehdihadeli/awesome-software-architecture) 中的 Microservices、Observability、Security 与 Cloud Design Patterns 专题。
-- **深入拓展**：[Google SRE Workbook](https://sre.google/workbook/table-of-contents/) 中的 SLO、告警、发布和事件管理章节。
-
-**用本站案例深化**
-
-- [AWS Cell Architecture + Shuffle Sharding](/cases/aws-cell-shuffle-sharding)：研究租户隔离、容量边界和故障半径。
-- [Cloudflare Durable Objects + workerd](/cases/cloudflare-durable-objects-workerd)：研究身份寻址的状态单元、热点 key 和重分片边界。
-- [New API Channel Pool Routing](/cases/new-api-channel-pool-routing)：研究能力路由、Key 池、故障恢复和合规隔离。
-- [LiteLLM Virtual Keys](/cases/litellm-virtual-keys-governance)：研究分层权限、预算限流、Guardrail 时序和供应商凭据托管。
-- [Microsoft 多智能体参考架构](/cases/microsoft-multi-agent-reference-architecture)：研究身份、网络、数据、评估和平台治理。
-
-**检查点**
-
-针对热点租户、关键依赖故障和失败发布各设计一道隔离边界，并说明监控信号、容量限制、降级动作和恢复负责人。能够指出隔离带来的利用率或运维成本，即可进入下一阶段。
-
-**下一步**
-
-进入 Agentic 架构专项；如果当前工作与智能体无关，也可以直接选择云原生、协作状态或边缘物理分支。
-
-## 第六阶段：Agentic 架构专项
-
-**为什么学**
-
-Agentic 系统把非确定性决策、工具副作用和长时状态带入同一条任务流。是否拆成多个 Agent 只是表面问题，更重要的是谁掌握下一步控制权、谁拥有状态，以及失败后谁对结果负责。
-
-**掌握这些问题**
-
-- 单智能体、Manager、Handoff、Supervisor 和确定性工作流如何选择？
-- 图状态、检查点、业务数据库和长期记忆分别承担什么责任？
-- A2A 与 MCP 连接的对象和信任边界有什么不同？
-- 权限、评估、人工接管和执行隔离应在哪一层强制实施？
-
-**外部补充**
-
-- **必读起点**：[OpenAI Agents SDK 多智能体文档](https://openai.github.io/openai-agents-python/multi_agent/) 与 [LangGraph 文档](https://docs.langchain.com/oss/python/langgraph/overview)，先理解控制原语和显式状态。
-- **查漏补缺**：[Google ADK 多智能体文档](https://google.github.io/adk-docs/agents/multi-agents/)、[A2A 协议](https://a2a-protocol.org/latest/) 与 [MCP 入门](https://modelcontextprotocol.io/docs/getting-started/intro)，补齐层级协作、跨 Agent 任务协议和工具/数据接入的区别。
-- **深入拓展**：从上述官方文档进入对应上游仓库和示例，核对实际类型、状态结构和失败边界。
-
-**用本站案例深化**
-
-- [OpenAI Agents SDK](/cases/openai-agents-sdk)：学习最小控制原语。
-- [LangGraph Supervisor](/cases/langgraph-supervisor)：学习显式状态和可恢复编排。
-- [Google ADK 与 A2A](/cases/google-adk-a2a)：区分本地层级编排与跨运行时互操作。
-- [AWS CLI Agent Orchestrator](/cases/aws-cli-agent-orchestrator)：检查进程、工作区、副作用和结果验收。
-- [Microsoft 多智能体参考架构](/cases/microsoft-multi-agent-reference-architecture)：把控制模式放回企业治理。
-
-**检查点**
-
-为一个 Agentic 场景比较单智能体、Manager、Handoff 和确定性工作流，明确状态所有者、权限、失败恢复、人工接管和评估方式。能够解释为什么增加 Agent 会带来新的协调成本，即完成主干。
-
-**下一步**
-
-根据实际系统选择一个专题分支；不要为了覆盖路线而学习与当前职责无关的工具。
-
-## 专题分支
-
-六阶段主干建立共同语言，不要求每位读者继续学习所有分支。根据工作中的系统边界选择一条，遇到新的职责再回来扩展。
-
-### 云原生与平台
-
-按“容器化与部署 → 服务与网络 → 扩缩容与发布 → 可观测性与 SLO → GitOps/IaC → 安全”推进。
-
-- **必读起点**：[Kubernetes Basics](https://kubernetes.io/docs/tutorials/kubernetes-basics/)，用一次部署、暴露、扩缩容和更新建立操作闭环。
-- **查漏补缺**：[CNCF Curriculum](https://github.com/cncf/curriculum)，按 Kubernetes、GitOps、OpenTelemetry、Prometheus 和平台工程能力域查缺口。
-- **深入拓展**：[Google SRE Workbook](https://sre.google/workbook/table-of-contents/)，把部署能力扩展到 SLO、告警、事件响应和发布流程。
-- 本站案例：[Kubernetes Reconciliation Loop](/cases/kubernetes-reconciliation-loop)、[AWS Cell Architecture + Shuffle Sharding](/cases/aws-cell-shuffle-sharding)、[Cloudflare Durable Objects + workerd](/cases/cloudflare-durable-objects-workerd)。
-
-### 协作状态与前端架构
-
-围绕共享状态、所有权、运行时组合和语义冲突学习。以 [Yjs 文档](https://docs.yjs.dev/) 作为**必读起点**，再读 [Yjs CRDT Collaboration](/cases/yjs-crdt-collaboration)；需要扩展运行时组合知识时，通过 [Awesome Software Architecture 的 Micro-Frontend 专题](https://github.com/mehdihadeli/awesome-software-architecture#micro-frontend) **查漏补缺**，并用 [Micro Frontends + single-spa](/cases/micro-frontends-single-spa) 比较状态边界、业务边界和交付边界。
-
-### 边缘与物理智能体
-
-围绕断网自治、通信语义、生命周期、实时性和独立安全链学习。先用 [KubeEdge 文档](https://kubeedge.io/docs/) 建立云边组件和离线自治的**必读起点**，再阅读 [KubeEdge Cloud-Edge Autonomy](/cases/kubeedge-cloud-edge-autonomy)；进入物理执行前，用 [ROS 2 Jazzy 基础概念](https://docs.ros.org/en/jazzy/Concepts/Basic.html) **查漏补缺**，然后阅读 [ROS 2 + DDS Agent Lifecycle](/cases/ros2-dds-agent-lifecycle)，比较通信可达、节点生命周期和物理执行授权。
-
-### Agent 平台与模型网关
-
-围绕能力路由、租户隔离、身份权限、成本、评估和可观测性学习。以 [LiteLLM Virtual Keys 文档](https://docs.litellm.ai/docs/proxy/virtual_keys) 作为网关治理的**必读起点**，再比较 [New API Channel Pool Routing](/cases/new-api-channel-pool-routing)、[LiteLLM Virtual Keys](/cases/litellm-virtual-keys-governance) 与 [Kong AI Gateway](/cases/kong-ai-gateway-routing-resilience) 的路由、治理和失败恢复边界；最后组合阅读 [Microsoft 多智能体参考架构](/cases/microsoft-multi-agent-reference-architecture)、[OpenAI Agents SDK](/cases/openai-agents-sdk)、[LangGraph Supervisor](/cases/langgraph-supervisor) 与 [Google ADK/A2A](/cases/google-adk-a2a)。
-
-## 如何把阅读变成架构能力
-
-不要用“看完多少链接”衡量进度。每完成一个阶段，保留一份可以复查的产出：上下文图、ADR、模块边界、失败窗口、状态机、隔离方案或 Agent 控制权比较。再用本站案例反问三件事：它解决了什么约束，代价是什么，迁移到自己的系统时哪项前提并不成立。
-
-外部合集会持续变化，本站记录的核查日期是 `2026-07-23`。当链接结构或上游结论发生变化时，应回到官方资料重新确认，不把路线中的摘要当作永久保证。
+每个阶段都以可观察的检查点结束。已经能够独立完成检查点的读者，可以跳过该阶段的“必读起点”，直接阅读不熟悉的案例或进入下一阶段。遇到陌生术语时再使用“查漏补缺”，只有工作需要采用该机制时才进入“深入拓展”。
+
+![软件架构六阶段主干与四个专题分支](/img/paths/software-architecture-learning-roadmap.png)
+
+```mermaid
+flowchart LR
+  S1["1 架构表达"] --> S2["2 模块边界"]
+  S2 --> S3["3 分布式基础"]
+  S3 --> S4["4 可靠性与状态"]
+  S4 --> S5["5 生产治理"]
+  S5 --> S6["6 Agentic 架构"]
+  S5 -.按职责选择.-> T1["云原生与平台"]
+  S5 -.按职责选择.-> T2["协作状态与前端"]
+  S5 -.按职责选择.-> T3["边缘与物理智能体"]
+  S6 -.按职责选择.-> T4["Agent 平台与模型网关"]
+```
+
+## 六阶段主干
+
+1. [架构思维与表达](/paths/architecture-thinking)：从约束、质量属性、C4 与 ADR 建立共同语言；保留一张上下文图和一条 ADR。
+2. [模块边界与应用架构](/paths/module-boundaries)：用变化原因、所有权和依赖方向判断模块边界；保留一张标明所有权与依赖方向的模块图。
+3. [分布式系统基础](/paths/distributed-systems)：识别跨进程状态中的超时、重复、乱序与部分完成；保留一份跨服务失败窗口轨迹。
+4. [可靠性与状态管理](/paths/reliability-state)：把重试、幂等、取消、预算与人工接管组织成恢复协议；保留一个长时任务状态机。
+5. [扩展、隔离与生产治理](/paths/production-governance)：把容量、隔离、降级、安全、成本和可观测性纳入正常控制路径；保留一份隔离与降级工作表。
+6. [Agentic 架构专项](/paths/agentic-architecture)：比较控制权、状态、权限与恢复边界，而不是只比较 Agent 数量；保留一份控制、状态、权限与恢复对照表。
+
+## 按职责选择专题
+
+- [云原生与平台](/paths/cloud-native-platform)：面向容器化、服务与网络、扩缩容、发布、可观测性、SLO、GitOps/IaC 和安全。
+- [协作状态与前端](/paths/collaborative-state-frontend)：面向共享状态、语义冲突、业务所有权与运行时组合。
+- [边缘与物理智能体](/paths/edge-physical-agents)：面向断网自治、通信语义、生命周期、实时性与独立安全链。
+- [Agent 平台与模型网关](/paths/agent-platform-gateway)：面向能力路由、租户隔离、身份权限、成本、评估与可观测性。
+
+## 保留这些实践产出
+
+- 上下文图与 ADR
+- 带所有权和依赖方向的模块图
+- 跨服务失败窗口轨迹
+- 长时任务状态机
+- 隔离与降级工作表
+- Agentic 控制、状态、权限与恢复对照表
+
+不要用“看完多少链接”衡量进度。每完成一个阶段，就用本站案例反问：它解决了什么约束，代价是什么，迁移到自己的系统时哪项前提并不成立。

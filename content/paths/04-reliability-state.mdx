@@ -1,0 +1,85 @@
+---
+title: 可靠性与状态管理
+sidebar_position: 9
+slug: /paths/reliability-state
+content_type: path
+status: reviewed
+difficulty: intermediate
+analyzed_at: 2026-07-23
+source_cutoff: 2026-07-23
+confidence: high
+domains:
+  - distributed-systems
+  - reliability-engineering
+agent_patterns:
+  - supervisor
+protocols: []
+quality_attributes:
+  - reliability
+  - observability
+  - operability
+tags:
+  - 状态机
+  - 重试
+  - 恢复
+official_sources:
+  - https://sre.google/workbook/table-of-contents/
+  - https://github.com/mehdihadeli/awesome-software-architecture#microservices
+  - https://github.com/mehdihadeli/awesome-software-architecture#cloud-design-patterns
+  - https://github.com/mehdihadeli/awesome-software-architecture#back-pressure
+---
+
+# 可靠性与状态管理
+
+## 为什么学
+
+重试只能再次发起动作，不能自动恢复正确状态。可靠系统需要知道什么可以重做、状态如何观察、恢复何时停止，以及无法自动判断时由谁接管。
+
+## 前置能力与跳过条件
+
+读者应能识别跨服务失败窗口并指定恢复责任。如果已经能为长时任务定义状态机、超时、重试预算、幂等键、人工终态和恢复验证方法，并能说明每项状态由谁写入、谁观察、何时失效，可以跳过必读起点。
+
+## 核心问题
+
+- 重试、幂等、监督、协调循环和耐久执行分别处理哪类失败？
+- 期望状态、观察状态、事件历史和业务事实应该保存在哪里？
+- 背压、取消、重试预算和人工终态如何限制自动恢复？
+- 恢复完成后用什么证据确认系统重新满足约束？
+
+## 推荐学习顺序
+
+1. 为长时任务列出业务状态与执行状态，并指定唯一写入者。
+2. 标出可安全重做的动作、幂等键和外部副作用。
+3. 定义超时、重试预算、取消与人工终态。
+4. 为恢复完成设计可观察的验证信号。
+
+## 必读起点
+
+[Google SRE Workbook](https://sre.google/workbook/table-of-contents/) 的 Foundations 与 Practices 用 SLO、监控和故障响应连接设计与运行结果。
+
+## 查漏补缺
+
+按需阅读 [Microservices Resiliency](https://github.com/mehdihadeli/awesome-software-architecture#microservices)、[Cloud Design Patterns](https://github.com/mehdihadeli/awesome-software-architecture#cloud-design-patterns) 与 [Back Pressure](https://github.com/mehdihadeli/awesome-software-architecture#back-pressure)。
+
+## 深入拓展
+
+继续阅读 SRE Workbook 中的告警、事件响应和复盘章节，把“可恢复”落实为信号、动作与负责人。自动恢复必须有停止边界，无法判断业务事实时应转入人工终态。
+
+## 用本站案例深化
+
+- [Erlang/OTP Supervision Tree](/cases/erlang-otp-supervision-tree)：比较局部重启、向上升级和重启强度。
+- [Kubernetes Reconciliation Loop](/cases/kubernetes-reconciliation-loop)：理解 spec/status、幂等协调和持续收敛。
+- [Temporal Durable Execution + Saga](/cases/temporal-saga-durable-execution)：检查确定性重放、Activity、副作用和补偿边界。
+- [Apache Kafka Consumer Groups](/cases/apache-kafka-consumer-groups)：检查 rebalance、在途动作、重复执行和背压。
+
+## 实践产出
+
+保留一个长时任务状态机。状态机应包含状态所有者、允许的转换、超时、重试预算、幂等键、取消、人工终态和恢复验证信号。
+
+## 检查点
+
+为一个长时任务定义状态机、超时、重试预算、幂等键、人工终态和恢复验证方法。能够说明每项状态由谁写入、谁观察、何时失效，即可进入下一阶段。
+
+## 继续学习
+
+回看[分布式系统基础](/paths/distributed-systems)，或继续进入[扩展、隔离与生产治理](/paths/production-governance)，处理故障从单个任务扩散到租户、区域和平台的问题。

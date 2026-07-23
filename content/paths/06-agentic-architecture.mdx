@@ -1,0 +1,94 @@
+---
+title: Agentic 架构专项
+sidebar_position: 11
+slug: /paths/agentic-architecture
+content_type: path
+status: reviewed
+difficulty: intermediate
+analyzed_at: 2026-07-23
+source_cutoff: 2026-07-23
+confidence: high
+domains:
+  - multi-agent-systems
+  - agent-orchestration
+agent_patterns:
+  - agents-as-tools
+  - manager
+  - handoff
+  - supervisor
+protocols:
+  - A2A
+  - MCP
+quality_attributes:
+  - reliability
+  - security
+  - interoperability
+  - observability
+tags:
+  - Agentic 架构
+  - 控制权
+  - 权限
+official_sources:
+  - https://openai.github.io/openai-agents-python/multi_agent/
+  - https://docs.langchain.com/oss/python/langgraph/overview
+  - https://google.github.io/adk-docs/agents/multi-agents/
+  - https://a2a-protocol.org/latest/
+  - https://modelcontextprotocol.io/docs/getting-started/intro
+---
+
+# Agentic 架构专项
+
+## 为什么学
+
+Agentic 系统把非确定性决策、工具副作用和长时状态带入同一条任务流。是否拆成多个 Agent 只是表面问题，更重要的是谁掌握下一步控制权、谁拥有状态，以及失败后谁对结果负责。
+
+## 前置能力与跳过条件
+
+读者应能说明生产系统的隔离、降级与恢复负责人。如果已经能为一个 Agentic 场景比较单智能体、Manager、Handoff 和确定性工作流，明确状态所有者、权限、失败恢复、人工接管和评估方式，并解释增加 Agent 的协调成本，可以跳过必读起点。
+
+## 核心问题
+
+- 单智能体、Manager、Handoff、Supervisor 和确定性工作流如何选择？
+- 图状态、检查点、业务数据库和长期记忆分别承担什么责任？
+- A2A 与 MCP 连接的对象和信任边界有什么不同？
+- 权限、评估、人工接管和执行隔离应在哪一层强制实施？
+
+## 推荐学习顺序
+
+1. 先用单智能体与确定性代码描述任务的最小控制面。
+2. 比较 Manager、Handoff 与 Supervisor 如何移动下一步控制权。
+3. 分开标注运行状态、业务事实、长期记忆与恢复检查点。
+4. 为工具副作用设置权限、审批、隔离、评估和人工接管边界。
+5. 最后判断 A2A 或 MCP 是否对应真实的跨运行时或工具接入需求。
+
+## 必读起点
+
+[OpenAI Agents SDK 多智能体文档](https://openai.github.io/openai-agents-python/multi_agent/) 与 [LangGraph 文档](https://docs.langchain.com/oss/python/langgraph/overview) 用来理解控制原语和显式状态。
+
+## 查漏补缺
+
+使用 [Google ADK 多智能体文档](https://google.github.io/adk-docs/agents/multi-agents/)、[A2A 协议](https://a2a-protocol.org/latest/) 与 [MCP 入门](https://modelcontextprotocol.io/docs/getting-started/intro) 补齐层级协作、跨 Agent 任务协议和工具或数据接入的区别。
+
+## 深入拓展
+
+从上述官方文档进入对应上游仓库和示例，核对实际类型、状态结构和失败边界。示例证明机制存在，不替应用决定权限、预算、恢复或生产保证。
+
+## 用本站案例深化
+
+- [OpenAI Agents SDK](/cases/openai-agents-sdk)：学习最小控制原语。
+- [LangGraph Supervisor](/cases/langgraph-supervisor)：学习显式状态和可恢复编排。
+- [Google ADK 与 A2A](/cases/google-adk-a2a)：区分本地层级编排与跨运行时互操作。
+- [AWS CLI Agent Orchestrator](/cases/aws-cli-agent-orchestrator)：检查进程、工作区、副作用和结果验收。
+- [Microsoft 多智能体参考架构](/cases/microsoft-multi-agent-reference-architecture)：把控制模式放回企业治理。
+
+## 实践产出
+
+保留一份控制、状态、权限与恢复对照表。对单智能体、Manager、Handoff 和确定性工作流逐项写明下一步控制者、状态所有者、权限强制层、失败恢复、人工接管与评估方式。
+
+## 检查点
+
+为一个 Agentic 场景比较单智能体、Manager、Handoff 和确定性工作流，明确状态所有者、权限、失败恢复、人工接管和评估方式。能够解释为什么增加 Agent 会带来新的协调成本，即完成主干。
+
+## 继续学习
+
+回看[扩展、隔离与生产治理](/paths/production-governance)，或返回[路线总览](/paths)，根据实际系统选择专题分支；不要为了覆盖路线而学习与当前职责无关的工具。
