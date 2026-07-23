@@ -11,7 +11,7 @@
 - **本地执行层：** Ultragoal 由负责人运行 `omx ultragoal status` 查看当前故事、运行 `omx ultragoal complete-goals` 取得下一步。执行者不得自行改写 `.omx/ultragoal/`，也不得在父故事尚未通过全部门槛时 checkpoint。
 - **每个父故事的完成门槛：** 依次完成 targeted verification、`npm run verify`、独立审查、提交到 `main`、推送 `origin/main`、等待 GitHub Pages 成功、检查受影响的线上 route，再把成功部署日期和 commit 更新到“当前发布基线”。基线记录也必须提交并推送到 `origin/main`；上述证据齐全后，负责人才能运行 `omx ultragoal checkpoint` 并进入下一故事。
 - **远端持久层：** 完成项必须同时有本文件的 `[x]`、对应 Git commit、成功部署和线上 route 证据。任一门槛失败时保持当前 story 未完成；本地状态丢失时，从本文件第一个未完成 story 和“当前发布基线”所指的最后成功部署 commit 恢复，不以未部署的本地提交或历史 plan checkbox 推断完成。
-- **当前发布基线：** 2026-07-23 成功部署的内容基线为 commit [`285a471`](https://github.com/sealday/agentic-architecture-atlas/commit/285a4714bef46f9cbe077a88b56f5d8c55591228)，发布证据为 [GitHub Actions run 30009628442](https://github.com/sealday/agentic-architecture-atlas/actions/runs/30009628442)；[`/paths`](https://sealday.github.io/agentic-architecture-atlas/paths) 与[路线图片](https://sealday.github.io/agentic-architecture-atlas/img/paths/software-architecture-learning-roadmap.png)均返回 HTTP 200。随后仅承载本记录的 metadata commit 不改变该内容基线。
+- **当前发布基线：** 2026-07-23 成功部署的内容基线为 commit [`869050b`](https://github.com/sealday/agentic-architecture-atlas/commit/869050b4c69fae263ecdc45b329b33f1a03a1549)，发布证据为 [GitHub Actions run 30018577871](https://github.com/sealday/agentic-architecture-atlas/actions/runs/30018577871)；[`/concepts`](https://sealday.github.io/agentic-architecture-atlas/concepts)、[`/quality-attributes`](https://sealday.github.io/agentic-architecture-atlas/quality-attributes)、[`/cases`](https://sealday.github.io/agentic-architecture-atlas/cases) 与 [`/paths`](https://sealday.github.io/agentic-architecture-atlas/paths) 均返回 HTTP 200，且分别保留 FND-01、QA-00、案例目录和学习路线内容。随后仅承载本记录的 metadata commit 不改变该内容基线。
 
 ## 目标与停止条件
 
@@ -134,8 +134,8 @@
 
 ## E0：内容工程与现有债务
 
-- [ ] **E0-01 P0｜建立内容类型契约**：扩展 `scripts/content-schema.mjs`，支持 `concept`、`principle`、`quality-attribute`、`method`、`modeling` 和 `style`，并为每类定义必需章节和元数据。
-- [ ] **E0-02 P0｜建立唯一主题清单**：新增机器可读 manifest，记录 ID、类型、slug、优先级、状态、依赖、主要来源、相关案例和最近复核日期；由它生成各类型索引。其中任务 `status` 只能由本 backlog 生成只读投影；若字段描述内容生命周期，则不得表达任务完成进度。
+- [x] **E0-01 P0｜建立内容类型契约**：[`869050b`](https://github.com/sealday/agentic-architecture-atlas/commit/869050b4c69fae263ecdc45b329b33f1a03a1549) 已为 `concept`、`principle`、`quality-attribute`、`method`、`modeling` 和 `style` 落实必需元数据、章节顺序与校验测试，并由 [Pages run 30018577871](https://github.com/sealday/agentic-architecture-atlas/actions/runs/30018577871) 成功发布。
+- [x] **E0-02 P0｜建立唯一主题清单**：[`869050b`](https://github.com/sealday/agentic-architecture-atlas/commit/869050b4c69fae263ecdc45b329b33f1a03a1549) 已生成含 ID、类型、slug、优先级、只读状态投影、依赖、来源、相关案例和复核日期的 manifest 及十类索引；线上 [`/concepts`](https://sealday.github.io/agentic-architecture-atlas/concepts)、[`/quality-attributes`](https://sealday.github.io/agentic-architecture-atlas/quality-attributes)、[`/cases`](https://sealday.github.io/agentic-architecture-atlas/cases) 与 [`/paths`](https://sealday.github.io/agentic-architecture-atlas/paths) 已验证。
 - [ ] **E0-03 P0｜建立全站 source ledger**：把当前只服务学习路线的资料库升级为全站来源登记，区分定义来源、事实来源、案例证据和插图来源。
 - [ ] **E0-04 P0｜落实五类文章模板**：为原则、模式、风格、方法/建模、质量属性各写一篇 fixture，并建立章节顺序测试。
 - [ ] **E0-05 P0｜建立版权与署名检查表**：记录 CC BY、CC BY-SA、政府作品、许可不明和厂商材料的处理方式；发布审查必须可勾选。
