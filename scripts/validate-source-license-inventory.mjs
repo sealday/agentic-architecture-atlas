@@ -14,7 +14,10 @@ export const approvedInventoryLicenses = [
   'GPL-3.0-only',
   'CC-BY-4.0',
   'CC-BY-SA-4.0',
+  'CC-BY-NC-ND-4.0',
   'CC0-1.0',
+  'LicenseRef-CC-BY-NC-ND-Unversioned',
+  'LicenseRef-MCP-Specification-Transition',
   'LicenseRef-US-Gov-Public-Domain',
   'LicenseRef-All-Rights-Reserved',
   'LicenseRef-Proprietary-Standard',
@@ -78,6 +81,8 @@ export function licenseFamilyIdentity(value) {
     try {
       const url = new URL(input);
       if (url.hostname.toLowerCase() === 'doi.org') {
+        // URL query and fragment delimiters are transport metadata. Strip them
+        // before decoding so percent-encoded ?/# remain part of the DOI suffix.
         doi = url.pathname.replace(/^\/+/, '');
       } else if (url.hostname.toLowerCase() === 'github.com') {
         const [owner, repository] = url.pathname.split('/').filter(Boolean);
@@ -92,7 +97,7 @@ export function licenseFamilyIdentity(value) {
 
   if (doi !== undefined) {
     try {
-      const normalized = decodeURIComponent(doi).normalize('NFC').split(/[?#]/, 1)[0];
+      const normalized = decodeURIComponent(doi).normalize('NFC');
       return `doi:${normalized.toLowerCase()}`;
     } catch {
       return '';
@@ -189,6 +194,7 @@ export function validateSourceLicenseInventory(markdown, candidateUrls) {
   const errors = [...parsed.errors];
   const familyEntries = new Map();
   const currentUrlEntries = new Map();
+  const arrEvidenceNoteFamilies = new Map();
 
   for (const entry of parsed.entries) {
     const label = entry.source_family || `row ${entry.line}`;
@@ -213,6 +219,18 @@ export function validateSourceLicenseInventory(markdown, candidateUrls) {
     }
     if (!approvedInventoryLicenses.includes(entry.exact_license)) {
       errors.push(`${prefix} license "${entry.exact_license}" is not in the approved allowlist`);
+    }
+    if (
+      entry.current_urls.some((currentUrl) => {
+        try {
+          return new URL(currentUrl).hostname.toLowerCase() === 'kubernetes.io';
+        } catch {
+          return false;
+        }
+      }) &&
+      entry.exact_license !== 'CC-BY-4.0'
+    ) {
+      errors.push(`${prefix} Kubernetes documentation must retain its official CC-BY-4.0 license`);
     }
     if (entry.scope_exclusions.trim() === '') {
       errors.push(`${prefix} scope exclusions must be non-empty`);
@@ -268,6 +286,52 @@ export function validateSourceLicenseInventory(markdown, candidateUrls) {
         currentUrlEntries.set(currentUrl, entry.source_family);
       }
     }
+
+    if (entry.exact_license === 'LicenseRef-All-Rights-Reserved') {
+      const normalizedNote = entry.license_evidence_note.trim().replace(/\s+/g, ' ');
+      const families = arrEvidenceNoteFamilies.get(normalizedNote) ?? [];
+      families.push(entry.source_family);
+      arrEvidenceNoteFamilies.set(normalizedNote, families);
+
+      let related = false;
+      try {
+        const evidence = new URL(entry.license_evidence_url);
+        related = entry.current_urls.some((currentUrl) => {
+          try {
+            const current = new URL(currentUrl);
+            if (evidence.hostname.toLowerCase() === current.hostname.toLowerCase()) {
+              return true;
+            }
+            return (
+              current.hostname.toLowerCase() === 'github.com' &&
+              licenseFamilyIdentity(entry.license_evidence_url) ===
+                licenseFamilyIdentity(currentUrl)
+            );
+          } catch {
+            return false;
+          }
+        });
+      } catch {
+        related = false;
+      }
+      if (!related) {
+        errors.push(`${prefix} ARR evidence URL must be related to the checked family or work`);
+      }
+      if (!normalizedNote.includes(entry.author_or_org)) {
+        errors.push(`${prefix} ARR evidence note must identify the author or institution`);
+      }
+      if (!normalizedNote.includes(entry.license_evidence_url)) {
+        errors.push(`${prefix} ARR evidence note must identify the checked evidence URL`);
+      }
+    }
+  }
+
+  for (const [note, families] of arrEvidenceNoteFamilies) {
+    if (note !== '' && families.length > 1) {
+      errors.push(
+        `ARR evidence note is reused across multiple families: ${families.join(', ')}`,
+      );
+    }
   }
 
   const candidateFamilies = new Set(
@@ -298,6 +362,49 @@ export function validateSourceLicenseInventory(markdown, candidateUrls) {
     entries: parsed.entries.map(({line: _line, ...entry}) => entry),
     errors: errors.sort((left, right) => left.localeCompare(right, 'en')),
   };
+}
+
+/**
+ * The source ledger is the runtime authority. The inventory remains a migration
+ * audit snapshot, so fields represented in both artifacts must not drift.
+ */
+export function validateInventoryLedgerConsistency(inventoryEntries, sources) {
+  const errors = [];
+  const inventoryByFamily = new Map(
+    inventoryEntries.map((entry) => [entry.source_family, entry]),
+  );
+  for (const source of sources) {
+    const entry = inventoryByFamily.get(source.license_family_id);
+    if (!entry) {
+      errors.push(
+        `runtime source ledger is authoritative: source "${source.canonical_locator}" has no inventory family "${source.license_family_id}"`,
+      );
+      continue;
+    }
+    const sharedFields = [
+      ['author_or_org', entry.author_or_org, source.author_or_org],
+      ['license', entry.exact_license, source.license],
+      ['license_evidence_url', entry.license_evidence_url, source.license_evidence_url],
+      ['license_evidence_note', entry.license_evidence_note, source.license_evidence_note],
+      ['license_scope', entry.scope_exclusions, source.license_scope],
+      ['license_family_grouping', entry.family_grouping, source.license_family_grouping],
+      [
+        'family_grouping_evidence_url',
+        entry.grouping_evidence_url === 'not-applicable'
+          ? null
+          : entry.grouping_evidence_url,
+        source.family_grouping_evidence_url,
+      ],
+    ];
+    for (const [field, inventoryValue, ledgerValue] of sharedFields) {
+      if (inventoryValue !== ledgerValue) {
+        errors.push(
+          `runtime source ledger is authoritative: family "${source.license_family_id}" field "${field}" differs from the migration inventory snapshot`,
+        );
+      }
+    }
+  }
+  return {errors: errors.sort((left, right) => left.localeCompare(right, 'en'))};
 }
 
 function visibleUrls(body) {

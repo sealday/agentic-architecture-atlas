@@ -579,4 +579,26 @@ test('keeps stable source identity across citation anchors queries and locator m
     },
   );
   assert.deepEqual(generatedReferences.errors, []);
+
+  for (const hiddenBody of [
+    '<!-- <SourceLedger /> -->',
+    '```mdx\n<SourceLedger />\n```',
+  ]) {
+    const hiddenReferences = validateSourceGovernance(
+      [document({
+        filePath: '/repo/content/references/index.mdx',
+        file: 'references/index.mdx',
+        body: hiddenBody,
+        metadata: {content_type: 'reference'},
+      })],
+      {
+        schema_version: 1,
+        sources: [validSource],
+        documents: {
+          'content/references/index.mdx': validDocument,
+        },
+      },
+    );
+    assert.match(hiddenReferences.errors.join('\n'), /not visible/i);
+  }
 });

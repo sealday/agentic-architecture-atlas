@@ -42,7 +42,10 @@ export const approvedLicenses = [
   'GPL-3.0-only',
   'CC-BY-4.0',
   'CC-BY-SA-4.0',
+  'CC-BY-NC-ND-4.0',
   'CC0-1.0',
+  'LicenseRef-CC-BY-NC-ND-Unversioned',
+  'LicenseRef-MCP-Specification-Transition',
   'LicenseRef-US-Gov-Public-Domain',
   'LicenseRef-All-Rights-Reserved',
   'LicenseRef-Proprietary-Standard',
@@ -709,8 +712,8 @@ function cleanExtractedUrl(url) {
   return url.replace(/[.,;:!?]+$/u, '');
 }
 
-export function extractExternalLinks(document) {
-  const urls = new Set();
+function visibleMdxLines(document) {
+  const lines = [];
   const state = {inComment: false};
   let fence;
   for (const line of String(document?.body ?? '').split(/\r?\n/)) {
@@ -731,6 +734,14 @@ export function extractExternalLinks(document) {
       fence = {marker: openingFence[1][0], length: openingFence[1].length};
       continue;
     }
+    lines.push(visible);
+  }
+  return lines;
+}
+
+export function extractExternalLinks(document) {
+  const urls = new Set();
+  for (const visible of visibleMdxLines(document)) {
     if (
       document?.file === 'references/index.mdx' &&
       /<SourceLedger\b/.test(visible)
@@ -749,6 +760,10 @@ export function extractExternalLinks(document) {
     }
   }
   return [...urls].sort((left, right) => left.localeCompare(right, 'en'));
+}
+
+function hasVisibleSourceLedgerMount(document) {
+  return visibleMdxLines(document).some((line) => /<SourceLedger\b/.test(line));
 }
 
 function documentLedgerPath(document) {
@@ -798,7 +813,7 @@ export function validateSourceGovernance(documents, ledger) {
     const citedUrls = new Set(ledgerDocument.citations.map((citation) => citation.citation_url));
     const hasGeneratedSourceCards =
       documentPath === 'content/references/index.mdx' &&
-      /<SourceLedger\b/.test(document.body);
+      hasVisibleSourceLedgerMount(document);
     const checkSet = new Set(ledgerDocument.copyright_checks);
     if (checkSet.size !== ledgerDocument.copyright_checks.length) {
       errors.push(`${documentPath}: copyright_checks contains a duplicate`);

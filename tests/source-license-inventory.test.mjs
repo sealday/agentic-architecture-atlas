@@ -3,6 +3,7 @@ import test from 'node:test';
 
 import {
   licenseFamilyIdentity,
+  validateInventoryLedgerConsistency,
   validateSourceLicenseInventory,
 } from '../scripts/validate-source-license-inventory.mjs';
 
@@ -33,7 +34,7 @@ const c4Row = [
   'https://c4model.com/#SystemContextDiagram',
   'Simon Brown',
   'https://c4model.com/',
-  'No reuse license is declared on the checked page',
+  'The audit checked Simon Brown’s C4 work at https://c4model.com/; no reusable license notice for the work was found, so Atlas retains only the link and an original factual summary.',
   '2026-07-23',
   'LicenseRef-All-Rights-Reserved',
   'Page text and diagrams only; third-party links excluded',
@@ -63,6 +64,20 @@ test('accepts eleven-column license inventory rows with exact evidence', () => {
     ['https://github.com/example/public-index'],
   );
   assert.deepEqual(cc0Result.errors, []);
+
+  for (const license of [
+    'CC-BY-NC-ND-4.0',
+    'LicenseRef-CC-BY-NC-ND-Unversioned',
+    'LicenseRef-MCP-Specification-Transition',
+  ]) {
+    const controlled = [...c4Row];
+    controlled[6] = license;
+    const controlledResult = validateSourceLicenseInventory(
+      table([controlled]),
+      ['https://c4model.com/#SystemContextDiagram'],
+    );
+    assert.deepEqual(controlledResult.errors, []);
+  }
 });
 
 test('rejects missing columns evidence license scope and migration policy', () => {
@@ -155,16 +170,116 @@ test('normalizes complete DOI identities without merging distinct DOIs', () => {
   );
   assert.equal(
     licenseFamilyIdentity('doi:10.1000/ABC%3Ftracking=1'),
-    'doi:10.1000/abc',
+    'doi:10.1000/abc?tracking=1',
   );
   assert.equal(
     licenseFamilyIdentity('https://doi.org/10.1000/ABC%23section'),
-    'doi:10.1000/abc',
+    'doi:10.1000/abc#section',
+  );
+  assert.equal(
+    licenseFamilyIdentity('https://doi.org/10.1000/ABC%3Fpart?download=1#viewer'),
+    'doi:10.1000/abc?part',
+  );
+  assert.notEqual(
+    licenseFamilyIdentity('https://doi.org/10.1000/ABC%3Fpart'),
+    licenseFamilyIdentity('https://doi.org/10.1000/ABC?part'),
+  );
+  assert.notEqual(
+    licenseFamilyIdentity('https://doi.org/10.1000/ABC%23part'),
+    licenseFamilyIdentity('https://doi.org/10.1000/ABC#part'),
   );
   assert.notEqual(
     licenseFamilyIdentity('doi:10.1145/3368089.3409742'),
     licenseFamilyIdentity('doi:10.1145/3368089.3409743'),
   );
+});
+
+test('rejects copied ARR audit notes and unrelated evidence URLs', () => {
+  const copiedNote =
+    'Checked the named work and found no reusable license; Atlas uses only links and facts.';
+  const first = [...c4Row];
+  first[4] = copiedNote;
+  const second = [
+    'https://example.com/work',
+    'https://example.com/work',
+    'Example Institution',
+    'https://unrelated.example.net/terms',
+    copiedNote,
+    '2026-07-23',
+    'LicenseRef-All-Rights-Reserved',
+    'Only the named work',
+    'Facts summary and short quotation only',
+    'identity',
+    'not-applicable',
+  ];
+  const result = validateSourceLicenseInventory(
+    table([first, second]),
+    ['https://c4model.com/#SystemContextDiagram', 'https://example.com/work'],
+  );
+  const joined = result.errors.join('\n');
+  assert.match(joined, /ARR evidence note.*reused across.*famil/i);
+  assert.match(joined, /evidence URL.*related.*family|family.*evidence URL/i);
+});
+
+test('requires each ARR audit note to identify its institution and checked evidence URL', () => {
+  const vague = [...c4Row];
+  vague[4] =
+    'This unique procedural note says no reusable license was found and facts are allowed.';
+  const result = validateSourceLicenseInventory(
+    table([vague]),
+    ['https://c4model.com/#SystemContextDiagram'],
+  );
+  assert.match(
+    result.errors.join('\n'),
+    /ARR evidence note.*author|ARR evidence note.*evidence URL/i,
+  );
+});
+
+test('prevents Kubernetes documentation families from being downgraded to ARR', () => {
+  const kubernetes = [
+    'https://kubernetes.io/docs/concepts/architecture/',
+    'https://kubernetes.io/docs/concepts/architecture/',
+    'Kubernetes project',
+    'https://kubernetes.io/docs/concepts/architecture/',
+    'The official Kubernetes documentation footer identifies CC BY 4.0 for the named documentation page.',
+    '2026-07-24',
+    'LicenseRef-All-Rights-Reserved',
+    'Named documentation page only; code samples and third-party material excluded',
+    'Adapt with attribution within the documented CC BY 4.0 scope',
+    'identity',
+    'not-applicable',
+  ];
+  const result = validateSourceLicenseInventory(
+    table([kubernetes]),
+    ['https://kubernetes.io/docs/concepts/architecture/'],
+  );
+  assert.match(result.errors.join('\n'), /kubernetes.*CC-BY-4\.0/i);
+});
+
+test('keeps inventory snapshot and runtime ledger authority fields aligned', () => {
+  const inventory = validateSourceLicenseInventory(
+    table([c4Row]),
+    ['https://c4model.com/#SystemContextDiagram'],
+  );
+  const source = {
+    canonical_locator: 'https://c4model.com/',
+    license_family_id: 'https://c4model.com/',
+    author_or_org: 'Different Author',
+    published_at: null,
+    license: 'MIT',
+    license_scope: 'Different scope',
+    license_evidence_url: 'https://example.com/license',
+    license_evidence_note: 'Different evidence',
+    license_family_grouping: 'identity',
+    family_grouping_evidence_url: null,
+  };
+  const result = validateInventoryLedgerConsistency(inventory.entries, [source]);
+  const joined = result.errors.join('\n');
+  assert.match(joined, /runtime source ledger is authoritative/i);
+  assert.match(joined, /author_or_org/i);
+  assert.match(joined, /license/i);
+  assert.match(joined, /license_evidence_url/i);
+  assert.match(joined, /license_scope/i);
 });
 
 test('requires shared copyright evidence for explicit family grouping', () => {
