@@ -17,8 +17,8 @@ const learningPathFile = fileURLToPath(
 const pathDirectory = fileURLToPath(
   new URL('../content/paths/', import.meta.url),
 );
-const referencesFile = fileURLToPath(
-  new URL('../content/references/index.mdx', import.meta.url),
+const sourceLedgerFile = fileURLToPath(
+  new URL('../src/generated/source-ledger.json', import.meta.url),
 );
 const roadmapImageDirectory = fileURLToPath(
   new URL('../static/img/paths/', import.meta.url),
@@ -75,34 +75,15 @@ const expectedMermaidFlowchart = [
   'S6 -.按职责选择.-> T4["Agent 平台与模型网关"]',
 ];
 
-const allowedRequiredSourceTypes = new Set([
-  '官方文档',
-  '官方仓库',
-  '公认教材',
-  '奠基性论文',
-]);
-
-const communityRequiredSourceTypes = new Set([
-  'GitHub 索引',
-  '工程博客与第三方教程',
-]);
-
-const requiredRegistryFields = [
-  '来源类型',
-  '适用范围',
-  '用途',
-  '核查日期',
-  '使用边界',
-  '入口',
-];
-
-const registryTypesByParent = new Map([
-  ['官方文档', new Set(['官方文档'])],
-  ['官方仓库', new Set(['官方仓库'])],
-  ['论文与工程演讲', new Set(['论文与工程演讲', '奠基性论文'])],
-  ['GitHub 索引', new Set(['GitHub 索引'])],
-  ['工程博客与第三方教程', new Set(['工程博客与第三方教程'])],
-  ['公认教材', new Set(['公认教材'])],
+const allowedRequiredSourceKinds = new Set([
+  'standard',
+  'paper',
+  'official-docs',
+  'official-repository',
+  'source-code',
+  'engineering-blog',
+  'vendor-reference-architecture',
+  'textbook',
 ]);
 
 const commonSectionMinimums = new Map([
@@ -369,79 +350,62 @@ function isValidIsoDate(value) {
   );
 }
 
-function parseSourceRegistry(source) {
-  const headings = findMarkdownHeadings(source);
-  const entries = headings.filter(({level}) => level === 3);
-  assert.ok(entries.length > 0, 'Source registry has no H3 source entries');
+function parseGeneratedSourceRegistry(ledger) {
+  assert.equal(ledger.schema_version, 1);
+  assert.ok(Array.isArray(ledger.sources) && ledger.sources.length > 0);
+  assert.ok(ledger.documents && typeof ledger.documents === 'object');
+
+  const sourcesById = new Map();
+  for (const source of ledger.sources) {
+    for (const field of [
+      'id',
+      'title',
+      'author_or_org',
+      'source_kind',
+      'tier',
+      'checked_at',
+      'license',
+      'copyright_policy',
+      'usage_boundary',
+    ]) {
+      assert.equal(
+        typeof source[field],
+        'string',
+        `${source.id ?? 'unknown source'} has invalid ${field}`,
+      );
+      assert.ok(source[field], `${source.id ?? 'unknown source'} has empty ${field}`);
+    }
+    assert.ok(
+      isValidIsoDate(source.checked_at),
+      `${source.id} has invalid checked_at: ${source.checked_at}`,
+    );
+    if (source.source_kind === 'community-index') {
+      assert.equal(
+        source.tier,
+        'discovery',
+        `${source.id} community index must use discovery tier`,
+      );
+    }
+    sourcesById.set(source.id, source);
+  }
 
   const byUrl = new Map();
-  for (const entry of entries) {
-    const parent = headings
-      .filter(({level, offset}) => level === 2 && offset < entry.offset)
-      .at(-1);
-    assert.ok(parent, `### ${entry.text} has no parent H2 category`);
-    const allowedTypes = registryTypesByParent.get(parent.text);
-    assert.ok(
-      allowedTypes,
-      `### ${entry.text} is under disallowed parent ## ${parent.text}`,
-    );
-
-    const start = source.indexOf('\n', entry.offset);
-    const nextHeading = headings.find(
-      ({level, offset}) => offset > entry.offset && level <= 3,
-    );
-    const section = source.slice(
-      start === -1 ? source.length : start + 1,
-      nextHeading?.offset ?? source.length,
-    );
-    const visible = stripIgnoredMarkdown(section);
-    const fields = new Map();
-    for (const field of requiredRegistryFields) {
-      const matches = [
-        ...visible.matchAll(
-          new RegExp(
-            `^ {0,3}[-*+][ \\t]+\\*\\*${field}\\*\\*[：:][ \\t]*(.*?)[ \\t]*$`,
-            'gm',
-          ),
-        ),
-      ];
-      assert.equal(
-        matches.length,
-        1,
-        `### ${entry.text} must contain exactly one **${field}** field`,
-      );
-      const value = matches[0][1].trim();
-      assert.ok(value, `### ${entry.text} has an empty **${field}** field`);
-      fields.set(field, value);
-    }
-
-    const sourceType = fields.get('来源类型');
-    assert.ok(
-      allowedTypes.has(sourceType),
-      `### ${entry.text} under ## ${parent.text} cannot use source type ${sourceType}`,
-    );
-    const checkedAt = fields.get('核查日期');
-    assert.ok(
-      isValidIsoDate(checkedAt),
-      `### ${entry.text} has invalid **核查日期**: ${checkedAt}`,
-    );
-    const entryLinks = [...extractMarkdownLinks(fields.get('入口'))].filter((href) =>
-      href.startsWith('https://'),
-    );
-    assert.ok(
-      entryLinks.length > 0,
-      `### ${entry.text} must contain a real external Markdown entry link`,
-    );
-
-    for (const href of entryLinks) {
+  for (const [documentPath, document] of Object.entries(ledger.documents)) {
+    assert.ok(document.title, `${documentPath} has no public title`);
+    assert.ok(document.slug?.startsWith('/'), `${documentPath} has no public slug`);
+    for (const citation of document.citations) {
+      const source = sourcesById.get(citation.source_id);
+      assert.ok(source, `${documentPath} cites missing source ${citation.source_id}`);
+      const existing = byUrl.get(citation.citation_url);
       assert.ok(
-        !byUrl.has(href),
-        `${href} is registered by more than one H3 source entry`,
+        !existing || existing.id === source.id,
+        `${citation.citation_url} resolves to multiple sources`,
       );
-      byUrl.set(href, {
-        parent: parent.text,
-        sourceType,
-        title: entry.text,
+      byUrl.set(citation.citation_url, {
+        id: source.id,
+        sourceKind: source.source_kind,
+        tier: source.tier,
+        title: source.title,
       });
     }
   }
@@ -708,82 +672,75 @@ test('defines the overview metadata, links, image, and exact Mermaid flowchart',
   assert.deepEqual(normalizedFlowchart, expectedMermaidFlowchart);
 });
 
-test('structures every source registry H3 entry with type and entry links', async () => {
-  const referencesSource = await readRequiredFile(
-    referencesFile,
-    'source registry',
+test('structures every generated source registry entry with public metadata', async () => {
+  const ledger = JSON.parse(
+    await readRequiredFile(sourceLedgerFile, 'generated source registry'),
   );
 
-  parseSourceRegistry(extractMarkdownBody(referencesSource));
+  parseGeneratedSourceRegistry(ledger);
 });
 
-test('rejects incomplete, invalid-date, and misclassified registry entries', () => {
-  const validFields = `
-- **来源类型**：官方文档
-- **适用范围**：测试
-- **用途**：测试严格资料契约。
-- **核查日期**：2026-07-23
-- **使用边界**：只用于测试。
-- **入口**：[测试](https://example.com/source)
-`;
+test('rejects incomplete invalid-date and misclassified generated entries', () => {
+  const source = {
+    id: 'source',
+    title: 'Source',
+    author_or_org: 'Author',
+    source_kind: 'official-docs',
+    tier: 'primary',
+    checked_at: '2026-07-23',
+    license: 'MIT',
+    copyright_policy: 'facts-and-short-quotation',
+    usage_boundary: 'Test boundary.',
+  };
+  const document = {
+    title: 'Document',
+    slug: '/document',
+    citations: [
+      {
+        source_id: 'source',
+        citation_url: 'https://example.com/source',
+      },
+    ],
+  };
+  const ledger = (sourceOverrides = {}, documentOverrides = {}) => ({
+    schema_version: 1,
+    sources: [{...source, ...sourceOverrides}],
+    documents: {
+      'content/document.mdx': {...document, ...documentOverrides},
+    },
+  });
 
   assert.throws(
-    () =>
-      parseSourceRegistry(`
-## 官方文档
-### 缺字段
-${validFields.replace('- **用途**：测试严格资料契约。\n', '')}
-`),
-    /exactly one \*\*用途\*\* field/,
+    () => parseGeneratedSourceRegistry(ledger({author_or_org: ''})),
+    /empty author_or_org/,
+  );
+  assert.throws(
+    () => parseGeneratedSourceRegistry(ledger({checked_at: '2026-02-30'})),
+    /invalid checked_at/,
   );
   assert.throws(
     () =>
-      parseSourceRegistry(`
-## 官方文档
-### 空字段
-${validFields.replace('- **适用范围**：测试\n', '- **适用范围**：\n')}
-`),
-    /empty \*\*适用范围\*\* field/,
+      parseGeneratedSourceRegistry(
+        ledger({source_kind: 'community-index', tier: 'primary'}),
+      ),
+    /community index must use discovery tier/,
   );
   assert.throws(
     () =>
-      parseSourceRegistry(`
-## 官方文档
-### 重复字段
-${validFields}
-- **用途**：重复用途。
-`),
-    /exactly one \*\*用途\*\* field/,
-  );
-  assert.throws(
-    () =>
-      parseSourceRegistry(`
-## 官方文档
-### 无效日期
-${validFields.replace('2026-07-23', '2026-02-30')}
-`),
-    /invalid \*\*核查日期\*\*/,
-  );
-  assert.throws(
-    () =>
-      parseSourceRegistry(`
-## GitHub 索引
-### 错误分类
-${validFields}
-`),
-    /cannot use source type 官方文档/,
+      parseGeneratedSourceRegistry(
+        ledger({}, {citations: [{...document.citations[0], source_id: 'missing'}]}),
+      ),
+    /cites missing source/,
   );
 });
 
 test('registers every real external learning-path link exactly', async () => {
-  const [overviewSource, referencesSource, documents] = await Promise.all([
+  const [overviewSource, ledgerSource, documents] = await Promise.all([
     readRequiredFile(learningPathFile, 'roadmap overview'),
-    readRequiredFile(referencesFile, 'source registry'),
+    readRequiredFile(sourceLedgerFile, 'generated source registry'),
     readRoadmapDocuments(),
   ]);
-  const registryEntries = parseSourceRegistry(
-    extractMarkdownBody(referencesSource),
-  );
+  const registryEntries = parseGeneratedSourceRegistry(JSON.parse(ledgerSource));
   const pathBodies = [
     extractMarkdownBody(overviewSource),
     ...documents.map(({body}) => body),
@@ -815,13 +772,11 @@ test('covers every canonical case with a real Markdown link', async () => {
 });
 
 test('requires every main-stage starting link to resolve to an allowed registry type', async () => {
-  const [referencesSource, allDocuments] = await Promise.all([
-    readRequiredFile(referencesFile, 'source registry'),
+  const [ledgerSource, allDocuments] = await Promise.all([
+    readRequiredFile(sourceLedgerFile, 'generated source registry'),
     readRoadmapDocuments(),
   ]);
-  const registryEntries = parseSourceRegistry(
-    extractMarkdownBody(referencesSource),
-  );
+  const registryEntries = parseGeneratedSourceRegistry(JSON.parse(ledgerSource));
   const documents = allDocuments.slice(0, mainStages.length);
 
   for (const document of documents) {
@@ -836,15 +791,16 @@ test('requires every main-stage starting link to resolve to an allowed registry 
       const registryEntry = registryEntries.get(href);
       assert.ok(
         registryEntry,
-        `${href} from ${document.filename} has no exact H3 registry entry`,
+        `${href} from ${document.filename} has no exact generated registry entry`,
       );
       assert.ok(
-        !communityRequiredSourceTypes.has(registryEntry.sourceType),
-        `${href} from ${document.filename} resolves to disallowed community type ${registryEntry.sourceType}`,
+        registryEntry.sourceKind !== 'community-index' &&
+          registryEntry.tier !== 'discovery',
+        `${href} from ${document.filename} resolves to disallowed discovery source ${registryEntry.sourceKind}`,
       );
       assert.ok(
-        allowedRequiredSourceTypes.has(registryEntry.sourceType),
-        `${href} from ${document.filename} resolves to disallowed type ${registryEntry.sourceType}`,
+        allowedRequiredSourceKinds.has(registryEntry.sourceKind),
+        `${href} from ${document.filename} resolves to disallowed type ${registryEntry.sourceKind}`,
       );
     }
   }

@@ -72,15 +72,12 @@ test('connects all ten content type indexes', async () => {
   assert.match(cases, /<CaseCatalog \/>/);
 
   const references = await source('content/references/index.mdx');
-  for (const url of [
-    'https://c4model.com/',
-    'https://www.sei.cmu.edu/training/software-architecture-principles-practices/',
-    'https://www.iso.org/standard/78176.html',
-    'https://www.sei.cmu.edu/library/quality-attribute-workshops-qaws-third-edition/',
-    'https://learn.microsoft.com/en-us/dotnet/architecture/modern-web-apps-azure/common-web-application-architectures',
-  ]) {
-    assert.match(references, new RegExp(url.replaceAll(/[.*+?^${}()|[\]\\]/g, '\\$&')));
-  }
+  assert.match(
+    references,
+    /import SourceLedger from '@site\/src\/components\/SourceLedger';/,
+  );
+  assert.match(references, /^<SourceLedger \/>$/m);
+  assert.doesNotMatch(references, /^### /m);
 });
 
 test('renders published and planned topics without broken links', async () => {

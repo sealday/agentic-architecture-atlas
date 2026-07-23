@@ -13673,6 +13673,8 @@
   ],
   "documents": {
     "content/cases/apache-kafka-consumer-groups.mdx": {
+      "title": "Apache Kafka Consumer Groups：用分区所有权组织可重放的 Agent 工作",
+      "slug": "/cases/apache-kafka-consumer-groups",
       "reviewed_at": "2026-07-24",
       "copyright_checks": [
         "original-structure",
@@ -14152,6 +14154,8 @@
       ]
     },
     "content/cases/aws-cell-shuffle-sharding.mdx": {
+      "title": "AWS Cell Architecture + Shuffle Sharding：把失控智能体限制在可计算的故障半径内",
+      "slug": "/cases/aws-cell-shuffle-sharding",
       "reviewed_at": "2026-07-24",
       "copyright_checks": [
         "original-structure",
@@ -14488,6 +14492,8 @@
       ]
     },
     "content/cases/aws-cli-agent-orchestrator.mdx": {
+      "title": "AWS Labs CLI Agent Orchestrator：以终端为执行边界的 Supervisor–Worker 编排",
+      "slug": "/cases/aws-cli-agent-orchestrator",
       "reviewed_at": "2026-07-24",
       "copyright_checks": [
         "original-structure",
@@ -14733,6 +14739,8 @@
       ]
     },
     "content/cases/cloudflare-durable-objects-workerd.mdx": {
+      "title": "Cloudflare Durable Objects + workerd：把边缘协调收敛到身份寻址的状态单元",
+      "slug": "/cases/cloudflare-durable-objects-workerd",
       "reviewed_at": "2026-07-24",
       "copyright_checks": [
         "original-structure",
@@ -15082,6 +15090,8 @@
       ]
     },
     "content/cases/erlang-otp-supervision-tree.mdx": {
+      "title": "Erlang/OTP Supervision Tree：把失败恢复设计成层级控制协议",
+      "slug": "/cases/erlang-otp-supervision-tree",
       "reviewed_at": "2026-07-24",
       "copyright_checks": [
         "original-structure",
@@ -15249,6 +15259,8 @@
       ]
     },
     "content/cases/google-adk-a2a.mdx": {
+      "title": "Google ADK 与 A2A：从本地层级编排到跨系统智能体协作",
+      "slug": "/cases/google-adk-a2a",
       "reviewed_at": "2026-07-24",
       "copyright_checks": [
         "original-structure",
@@ -15689,6 +15701,8 @@
       ]
     },
     "content/cases/index.mdx": {
+      "title": "案例库",
+      "slug": "/cases",
       "reviewed_at": "2026-07-24",
       "copyright_checks": [
         "original-structure",
@@ -15699,6 +15713,8 @@
       "citations": []
     },
     "content/cases/kong-ai-gateway-routing-resilience.mdx": {
+      "title": "Kong AI Gateway：把模型路由与副作用恢复分成两条控制链",
+      "slug": "/cases/kong-ai-gateway-routing-resilience",
       "reviewed_at": "2026-07-24",
       "copyright_checks": [
         "original-structure",
@@ -15905,6 +15921,8 @@
       ]
     },
     "content/cases/kubeedge-cloud-edge-autonomy.mdx": {
+      "title": "KubeEdge Cloud-Edge Autonomy：在断网边界上划分规划权与执行权",
+      "slug": "/cases/kubeedge-cloud-edge-autonomy",
       "reviewed_at": "2026-07-24",
       "copyright_checks": [
         "original-structure",
@@ -16241,6 +16259,8 @@
       ]
     },
     "content/cases/kubernetes-reconciliation-loop.mdx": {
+      "title": "Kubernetes Reconciliation Loop：让智能体围绕期望状态持续收敛",
+      "slug": "/cases/kubernetes-reconciliation-loop",
       "reviewed_at": "2026-07-24",
       "copyright_checks": [
         "original-structure",
@@ -16564,6 +16584,8 @@
       ]
     },
     "content/cases/langgraph-supervisor.mdx": {
+      "title": "LangGraph Supervisor：用显式状态构建可恢复的多智能体编排",
+      "slug": "/cases/langgraph-supervisor",
       "reviewed_at": "2026-07-24",
       "copyright_checks": [
         "original-structure",
@@ -16783,6 +16805,8 @@
       ]
     },
     "content/cases/litellm-virtual-keys-governance.mdx": {
+      "title": "LiteLLM Virtual Keys：把模型网关变成权限与预算的交汇点",
+      "slug": "/cases/litellm-virtual-keys-governance",
       "reviewed_at": "2026-07-24",
       "copyright_checks": [
         "original-structure",
@@ -17015,6 +17039,8 @@
       ]
     },
     "content/cases/micro-frontends-single-spa.mdx": {
+      "title": "Micro Frontends + single-spa：用垂直业务切片约束多 Agent 所有权",
+      "slug": "/cases/micro-frontends-single-spa",
       "reviewed_at": "2026-07-24",
       "copyright_checks": [
         "original-structure",
@@ -17273,6 +17299,8 @@
       ]
     },
     "content/cases/microsoft-multi-agent-reference-architecture.mdx": {
+      "title": "Microsoft 多智能体参考架构：企业治理下的受控自治",
+      "slug": "/cases/microsoft-multi-agent-reference-architecture",
       "reviewed_at": "2026-07-24",
       "copyright_checks": [
         "original-structure",
@@ -17466,6 +17494,8 @@
       ]
     },
     "content/cases/new-api-channel-pool-routing.mdx": {
+      "title": "New API Channel Pool Routing：把模型请求分解为能力、层级与故障隔离",
+      "slug": "/cases/new-api-channel-pool-routing",
       "reviewed_at": "2026-07-24",
       "copyright_checks": [
         "original-structure",
@@ -17789,6 +17819,8 @@
       ]
     },
     "content/cases/openai-agents-sdk.mdx": {
+      "title": "OpenAI Agents SDK：小型多智能体系统的控制权模型",
+      "slug": "/cases/openai-agents-sdk",
       "reviewed_at": "2026-07-24",
       "copyright_checks": [
         "original-structure",
@@ -18047,6 +18079,8 @@
       ]
     },
     "content/cases/ros2-dds-agent-lifecycle.mdx": {
+      "title": "ROS 2 + DDS Agent Lifecycle：为物理智能体选择通信语义与受管状态",
+      "slug": "/cases/ros2-dds-agent-lifecycle",
       "reviewed_at": "2026-07-24",
       "copyright_checks": [
         "original-structure",
@@ -18331,6 +18365,8 @@
       ]
     },
     "content/cases/temporal-saga-durable-execution.mdx": {
+      "title": "Temporal Durable Execution + Saga：为长时智能体任务建立可恢复边界",
+      "slug": "/cases/temporal-saga-durable-execution",
       "reviewed_at": "2026-07-24",
       "copyright_checks": [
         "original-structure",
@@ -18719,6 +18755,8 @@
       ]
     },
     "content/cases/yjs-crdt-collaboration.mdx": {
+      "title": "Yjs CRDT Collaboration：让人和多个 Agent 合并共享工作区状态",
+      "slug": "/cases/yjs-crdt-collaboration",
       "reviewed_at": "2026-07-24",
       "copyright_checks": [
         "original-structure",
@@ -18912,6 +18950,8 @@
       ]
     },
     "content/concepts/index.mdx": {
+      "title": "基础概念",
+      "slug": "/concepts",
       "reviewed_at": "2026-07-24",
       "copyright_checks": [
         "original-structure",
@@ -18922,6 +18962,8 @@
       "citations": []
     },
     "content/intro.mdx": {
+      "title": "Agentic Architecture Atlas",
+      "slug": "/intro",
       "reviewed_at": "2026-07-24",
       "copyright_checks": [
         "original-structure",
@@ -18959,6 +19001,8 @@
       ]
     },
     "content/methods/index.mdx": {
+      "title": "架构方法",
+      "slug": "/methods",
       "reviewed_at": "2026-07-24",
       "copyright_checks": [
         "original-structure",
@@ -18969,6 +19013,8 @@
       "citations": []
     },
     "content/modeling/index.mdx": {
+      "title": "建模与图示",
+      "slug": "/modeling",
       "reviewed_at": "2026-07-24",
       "copyright_checks": [
         "original-structure",
@@ -18979,6 +19025,8 @@
       "citations": []
     },
     "content/paths/01-architecture-thinking.mdx": {
+      "title": "架构思维与表达",
+      "slug": "/paths/architecture-thinking",
       "reviewed_at": "2026-07-24",
       "copyright_checks": [
         "original-structure",
@@ -19043,6 +19091,8 @@
       ]
     },
     "content/paths/02-module-boundaries.mdx": {
+      "title": "模块边界与应用架构",
+      "slug": "/paths/module-boundaries",
       "reviewed_at": "2026-07-24",
       "copyright_checks": [
         "original-structure",
@@ -19159,6 +19209,8 @@
       ]
     },
     "content/paths/03-distributed-systems.mdx": {
+      "title": "分布式系统基础",
+      "slug": "/paths/distributed-systems",
       "reviewed_at": "2026-07-24",
       "copyright_checks": [
         "original-structure",
@@ -19236,6 +19288,8 @@
       ]
     },
     "content/paths/04-reliability-state.mdx": {
+      "title": "可靠性与状态管理",
+      "slug": "/paths/reliability-state",
       "reviewed_at": "2026-07-24",
       "copyright_checks": [
         "original-structure",
@@ -19300,6 +19354,8 @@
       ]
     },
     "content/paths/05-production-governance.mdx": {
+      "title": "扩展、隔离与生产治理",
+      "slug": "/paths/production-governance",
       "reviewed_at": "2026-07-24",
       "copyright_checks": [
         "original-structure",
@@ -19364,6 +19420,8 @@
       ]
     },
     "content/paths/06-agentic-architecture.mdx": {
+      "title": "Agentic 架构专项",
+      "slug": "/paths/agentic-architecture",
       "reviewed_at": "2026-07-24",
       "copyright_checks": [
         "original-structure",
@@ -19441,6 +19499,8 @@
       ]
     },
     "content/paths/07-cloud-native-platform.mdx": {
+      "title": "云原生与平台",
+      "slug": "/paths/cloud-native-platform",
       "reviewed_at": "2026-07-24",
       "copyright_checks": [
         "original-structure",
@@ -19505,6 +19565,8 @@
       ]
     },
     "content/paths/08-collaborative-state-frontend.mdx": {
+      "title": "协作状态与前端",
+      "slug": "/paths/collaborative-state-frontend",
       "reviewed_at": "2026-07-24",
       "copyright_checks": [
         "original-structure",
@@ -19556,6 +19618,8 @@
       ]
     },
     "content/paths/09-edge-physical-agents.mdx": {
+      "title": "边缘与物理智能体",
+      "slug": "/paths/edge-physical-agents",
       "reviewed_at": "2026-07-24",
       "copyright_checks": [
         "original-structure",
@@ -19594,6 +19658,8 @@
       ]
     },
     "content/paths/10-agent-platform-gateway.mdx": {
+      "title": "Agent 平台与模型网关",
+      "slug": "/paths/agent-platform-gateway",
       "reviewed_at": "2026-07-24",
       "copyright_checks": [
         "original-structure",
@@ -19684,6 +19750,8 @@
       ]
     },
     "content/paths/index.mdx": {
+      "title": "软件架构学习路线",
+      "slug": "/paths",
       "reviewed_at": "2026-07-24",
       "copyright_checks": [
         "original-structure",
@@ -19708,6 +19776,8 @@
       ]
     },
     "content/patterns/index.mdx": {
+      "title": "架构模式",
+      "slug": "/patterns",
       "reviewed_at": "2026-07-24",
       "copyright_checks": [
         "original-structure",
@@ -19732,6 +19802,8 @@
       ]
     },
     "content/principles/index.mdx": {
+      "title": "架构原则",
+      "slug": "/principles",
       "reviewed_at": "2026-07-24",
       "copyright_checks": [
         "original-structure",
@@ -19742,6 +19814,8 @@
       "citations": []
     },
     "content/quality-attributes/index.mdx": {
+      "title": "质量属性",
+      "slug": "/quality-attributes",
       "reviewed_at": "2026-07-24",
       "copyright_checks": [
         "original-structure",
@@ -19752,6 +19826,8 @@
       "citations": []
     },
     "content/questions/index.mdx": {
+      "title": "设计题",
+      "slug": "/questions",
       "reviewed_at": "2026-07-24",
       "copyright_checks": [
         "original-structure",
@@ -19776,6 +19852,8 @@
       ]
     },
     "content/references/index.mdx": {
+      "title": "资料库",
+      "slug": "/references",
       "reviewed_at": "2026-07-24",
       "copyright_checks": [
         "original-structure",
@@ -20334,6 +20412,8 @@
       ]
     },
     "content/styles/index.mdx": {
+      "title": "架构风格",
+      "slug": "/styles",
       "reviewed_at": "2026-07-24",
       "copyright_checks": [
         "original-structure",

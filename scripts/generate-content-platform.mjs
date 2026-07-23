@@ -172,8 +172,46 @@ async function checkExpectedArtifacts(root, artifacts) {
   return {matches: stale.length === 0, stale};
 }
 
-export function serializePublicSourceLedger(governedLedger) {
-  return `${JSON.stringify(governedLedger, null, 2)}\n`;
+export function serializePublicSourceLedger(governedLedger, documents) {
+  if (documents === undefined) {
+    return `${JSON.stringify(governedLedger, null, 2)}\n`;
+  }
+
+  const metadataByLedgerPath = new Map(
+    documents.map(({file, metadata}) => [`content/${file}`, metadata]),
+  );
+  const publicDocuments = Object.fromEntries(
+    Object.entries(governedLedger.documents).map(
+      ([documentPath, governedDocument]) => {
+        const metadata = metadataByLedgerPath.get(documentPath);
+        if (
+          typeof metadata?.title !== 'string' ||
+          typeof metadata.slug !== 'string'
+        ) {
+          throw new Error(
+            `Public source ledger document metadata missing for ${documentPath}`,
+          );
+        }
+        return [
+          documentPath,
+          {
+            title: metadata.title,
+            slug: metadata.slug,
+            ...governedDocument,
+          },
+        ];
+      },
+    ),
+  );
+
+  return `${JSON.stringify(
+    {
+      ...governedLedger,
+      documents: publicDocuments,
+    },
+    null,
+    2,
+  )}\n`;
 }
 
 export async function buildContentArtifacts(
@@ -232,6 +270,7 @@ export async function buildContentArtifacts(
   return {
     [generatedPaths.sourceLedger]: serializePublicSourceLedger(
       governance.governedLedger,
+      validation.documents,
     ),
     [generatedPaths.manifest]: `${JSON.stringify(built.manifest, null, 2)}\n`,
     [generatedPaths.indexes]: `${JSON.stringify(built.indexes, null, 2)}\n`,

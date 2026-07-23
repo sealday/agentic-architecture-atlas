@@ -112,6 +112,12 @@ const governedDocument = {
   citations: [governedCitation],
 };
 
+const publicGovernedDocument = (title, slug) => ({
+  title,
+  slug,
+  ...governedDocument,
+});
+
 function frontMatter(values) {
   return Object.entries(values)
     .map(([field, value]) => {
@@ -262,8 +268,14 @@ test('builds all artifacts from one validated snapshot', async () => {
         schema_version: 1,
         sources: [governedSource],
         documents: {
-          'content/cases/example.mdx': governedDocument,
-          'content/concepts/example.mdx': governedDocument,
+          'content/cases/example.mdx': publicGovernedDocument(
+            'Example case',
+            '/cases/example',
+          ),
+          'content/concepts/example.mdx': publicGovernedDocument(
+            'Example concept',
+            '/concepts/example',
+          ),
         },
       }),
     );
@@ -274,6 +286,37 @@ test('builds all artifacts from one validated snapshot', async () => {
       assert.ok(!serialized.includes(root));
     }
   });
+});
+
+test('publishes document title and slug from the validated snapshot', () => {
+  const publicLedger = JSON.parse(
+    serializePublicSourceLedger(
+      {
+        schema_version: 1,
+        sources: [governedSource],
+        documents: {
+          'content/cases/example.mdx': governedDocument,
+        },
+      },
+      [
+        {
+          file: 'cases/example.mdx',
+          metadata: {
+            title: 'Validated example case',
+            slug: '/validated/example-case',
+          },
+        },
+      ],
+    ),
+  );
+
+  assert.deepEqual(
+    publicLedger.documents['content/cases/example.mdx'],
+    publicGovernedDocument(
+      'Validated example case',
+      '/validated/example-case',
+    ),
+  );
 });
 
 test('writes and checks deterministic generated artifacts', async () => {

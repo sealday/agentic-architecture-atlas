@@ -28,342 +28,47 @@ tags:
   - 引用规范
 ---
 
+import SourceLedger from '@site/src/components/SourceLedger';
+
 # 资料库
 
-资料库保存案例判断所依赖的证据入口，而不是堆积未经分级的链接。来源优先级如下：
-
-1. **官方仓库与官方文档**：用于确认公开 API、实现结构、协议语义和维护者明确陈述。
-2. **论文与工程演讲**：用于补充设计动机、实验方法和公开实现没有解释的取舍。
-3. **可信二手来源**：只用于交叉核对、历史背景或发现线索；核心架构结论不能仅靠二手转述。
-
-每条引用应记录可获得的**发布日期**、实际核查的**访问日期**，并明确**推断边界**：哪些内容由来源直接支持，哪些是跨来源推断，哪些仍属个人分析。网页没有发布日期时，应明确标注“未提供”，不能用访问日期替代发布日期。
+资料库保存案例判断所依赖的证据入口，而不是堆积未经分级的链接。每条来源同时公开它能够支持的证据角色、不能单独证明的内容、许可证与版权处理方式，以及站内实际使用位置。
 
 ## 如何使用资料库
 
-本页统一登记学习路径正文直接引用的外部资料。条目的“用途”说明学习路径为什么引用它，“使用边界”说明它能够支持什么、不能单独证明什么；入口保留正文使用的精确 URL，包括具体页面、路径和锚点。
+来源按证据强度分为四层：
 
-引用这些来源并不自动证明文章中的全部结论。写作与评审仍需区分事实、跨来源推断和个人分析，并用 `source_cutoff` 说明证据覆盖到何时。社区索引只用于导航，不能作为架构事实的唯一证据。
+1. **一手来源**：标准、官方文档、官方仓库、论文与可检查源码，用于确认协议语义、公开 API、实现结构和明确陈述。
+2. **第一方工程资料**：维护团队或厂商发布的工程博客、事故报告与参考架构；可支持其自身系统和实践的公开事实，但厂商主张仍需与本站判断分开。
+3. **可信二手来源**：教材和独立分析，用于比较、历史背景与学习，不作为高风险运行事实的唯一依据。
+4. **发现与导航**：社区索引和路线图只帮助选题与定位原始资料，不是事实证据。
 
-## 官方文档
+引用来源并不自动证明文章中的全部结论。写作与评审仍须区分来源直接支持的事实、跨来源推断和个人分析。
 
-### C4 Model
+## 索引不等于证据
 
-- **来源类型**：官方文档
-- **适用范围**：架构思维与表达
-- **用途**：必读起点；区分系统、容器、组件和代码层级。
-- **核查日期**：2026-07-23
-- **使用边界**：提供表达模型，不替代质量属性分析或架构决策记录。
-- **入口**：[C4 Model](https://c4model.com/)
+社区索引只用于选题和学习导航。索引收录某个项目或观点，不代表项目已通过安全、质量或生产验证；事实结论必须回到原作者、官方文档、标准、论文或可检查实现。
 
-### Software Architecture: Principles and Practices
+## 版权处理
 
-- **机构**：Carnegie Mellon University Software Engineering Institute（SEI）
-- **来源类型**：官方文档
-- **适用范围**：架构原则索引
-- **用途**：为架构原则主题索引提供官方学习起点。
-- **核查日期**：2026-07-23
-- **使用边界**：课程说明用于界定原则与实践的学习范围，不单独证明某项原则适合具体系统。
-- **入口**：[Software Architecture: Principles and Practices](https://www.sei.cmu.edu/training/software-architecture-principles-practices/)
+| 页面标记 | 使用方式 |
+| --- | --- |
+| 仅提炼事实与短引文 | 只总结可验证事实；短引文保持必要长度并附署名。 |
+| 允许改编，必须署名 | 按许可证要求标明作者、来源和修改情况。 |
+| 改编须署名、相同方式共享并复核 | 除署名外，复核衍生作品的相同方式共享义务。 |
+| 厂商主张与本站判断分开 | 明确哪些内容是厂商公开陈述，哪些是本站分析。 |
+| 本站原创 | 仅用于本站原创结构、文字或插图，不扩张到第三方材料。 |
 
-### ISO/IEC 25010:2023
+## 链接策略
 
-- **机构**：International Organization for Standardization（ISO）
-- **来源类型**：官方文档
-- **适用范围**：质量属性索引
-- **用途**：为质量属性主题索引提供产品质量模型的权威入口。
-- **核查日期**：2026-07-23
-- **使用边界**：标准条目界定质量模型及版本，不替代完整标准文本或具体系统的质量属性场景分析。
-- **入口**：[ISO/IEC 25010:2023](https://www.iso.org/standard/78176.html)
+`stable` 表示预期长期可访问的固定入口；`floating` 表示会随最新版本移动的入口；`auth-required` 表示访问需要身份；`retired` 表示来源已退役并须保留替代关系。链接状态将在 Task 6 的可重复检查接入后显示；当前占位不代表已完成在线健康检查。
 
-### Quality Attribute Workshops (QAWs), Third Edition
+## 如何登记来源
 
-- **机构**：Carnegie Mellon University Software Engineering Institute（SEI）
-- **来源类型**：官方文档
-- **适用范围**：架构方法索引
-- **用途**：为架构方法主题索引提供质量属性工作坊的官方学习起点。
-- **核查日期**：2026-07-23
-- **使用边界**：报告说明 QAW 方法，不能脱离参与者、业务驱动因素与场景证据直接保证设计质量。
-- **入口**：[Quality Attribute Workshops (QAWs), Third Edition](https://www.sei.cmu.edu/library/quality-attribute-workshops-qaws-third-edition/)
+新增或修改来源时，只编辑规范化来源账本并运行内容生成与治理校验。登记项必须包含作者或机构、来源类型与层级、版本、核查日期、许可证范围和证据、版权处理、允许的证据角色、使用边界，以及每个使用文档的署名说明。文档路由来自已验证 metadata，不从文件名猜测。
 
-### arc42
+## 全站来源清单
 
-- **来源类型**：官方文档
-- **适用范围**：架构思维与表达
-- **用途**：必读起点；建立结构化架构文档的内容框架。
-- **核查日期**：2026-07-23
-- **使用边界**：提供文档模板，不证明某项设计适合具体系统。
-- **入口**：[arc42](https://arc42.org/)
+以下条目由 `data/source-ledger.json` 生成。条目显示来源能够支持什么，也显示它不能单独证明什么。
 
-### Common web application architectures
-
-- **来源类型**：官方文档
-- **适用范围**：模块边界
-- **用途**：必读起点；比较单体、分层、Clean Architecture 与应用边界。
-- **核查日期**：2026-07-23
-- **使用边界**：内容面向 .NET Web 应用，迁移到其他技术栈时需重新核对实现约束。
-- **入口**：[Microsoft Learn：Common web application architectures](https://learn.microsoft.com/en-us/dotnet/architecture/modern-web-apps-azure/common-web-application-architectures)
-
-### Retry pattern
-
-- **机构**：Microsoft Azure Architecture Center
-- **来源类型**：官方文档
-- **适用范围**：分布式系统
-- **用途**：说明瞬时故障、超时、重试责任、重复执行与幂等性之间的关系。
-- **核查日期**：2026-07-24
-- **使用边界**：提供通用重试模式，不替具体系统选择重试次数、退避策略或幂等实现。
-- **入口**：[Azure Architecture Center：Retry pattern](https://learn.microsoft.com/en-us/azure/architecture/patterns/retry)
-
-### Google SRE Workbook
-
-- **来源类型**：官方文档
-- **适用范围**：可靠性、状态与生产治理
-- **用途**：必读起点；把 SLO、告警、发布和事件管理连接到运行结果。
-- **核查日期**：2026-07-23
-- **使用边界**：提供 SRE 实践方法，不替代组织自身的风险、容量和合规判断。
-- **入口**：[Google SRE Workbook 目录](https://sre.google/workbook/table-of-contents/)
-
-### AWS Builders Library：Workload isolation using shuffle-sharding
-
-- **来源类型**：官方文档
-- **适用范围**：生产治理
-- **用途**：必读起点；理解 shuffle sharding 如何限制共享系统中的故障相关性和租户影响范围。
-- **核查日期**：2026-07-23
-- **使用边界**：说明 AWS 公开的隔离机制与工程经验，不自动证明其参数或实现可原样迁移到其他系统。
-- **入口**：[Workload isolation using shuffle-sharding](https://aws.amazon.com/builders-library/workload-isolation-using-shuffle-sharding/)
-
-### OpenAI Agents SDK 多智能体指南
-
-- **来源类型**：官方文档
-- **适用范围**：Agentic 架构与 Agent 平台
-- **用途**：必读起点；理解 agents as tools、handoff 与代码编排。
-- **核查日期**：2026-07-23
-- **使用边界**：说明 SDK 控制原语，不证明某种编排方式适合所有任务。
-- **入口**：[OpenAI Agents SDK：Multi-agent](https://openai.github.io/openai-agents-python/multi_agent/)
-
-### LangGraph Overview
-
-- **来源类型**：官方文档
-- **适用范围**：Agentic 架构
-- **用途**：必读起点；理解图编排、持久状态和执行控制。
-- **核查日期**：2026-07-23
-- **使用边界**：说明框架能力，不替代对业务状态机、失败恢复和授权边界的设计。
-- **入口**：[LangGraph overview](https://docs.langchain.com/oss/python/langgraph/overview)
-
-### Google ADK 多智能体指南
-
-- **来源类型**：官方文档
-- **适用范围**：Agentic 架构
-- **用途**：深入拓展；核对多智能体组合、层级协作和工作流代理。
-- **核查日期**：2026-07-23
-- **使用边界**：聚焦 ADK 原语，不自动证明跨框架互操作或生产治理结论。
-- **入口**：[Google ADK：Multi-agent systems](https://google.github.io/adk-docs/agents/multi-agents/)
-
-### A2A 文档
-
-- **来源类型**：官方文档
-- **适用范围**：Agentic 架构与 Agent 平台
-- **用途**：深入拓展；理解跨智能体发现、任务与消息互操作。
-- **核查日期**：2026-07-23
-- **使用边界**：定义协议能力，不替代身份、授权、信任域和业务语义设计。
-- **入口**：[A2A documentation](https://a2a-protocol.org/latest/)
-
-### MCP Introduction
-
-- **来源类型**：官方文档
-- **适用范围**：Agentic 架构与 Agent 平台
-- **用途**：深入拓展；理解模型、工具和数据源之间的协议边界。
-- **核查日期**：2026-07-23
-- **使用边界**：说明连接协议，不保证工具安全、数据可信或副作用可恢复。
-- **入口**：[MCP introduction](https://modelcontextprotocol.io/docs/getting-started/intro)
-
-### Kubernetes Basics
-
-- **来源类型**：官方文档
-- **适用范围**：云原生与平台
-- **用途**：必读起点；建立部署、伸缩、更新和调试的基础控制循环。
-- **核查日期**：2026-07-23
-- **使用边界**：覆盖基础对象和操作，不替代生产集群的安全、容量与治理设计。
-- **入口**：[Kubernetes Basics](https://kubernetes.io/docs/tutorials/kubernetes-basics/)
-
-### Yjs Documentation
-
-- **来源类型**：官方文档
-- **适用范围**：协作状态与前端
-- **用途**：必读起点；理解共享类型、更新传播和 provider 边界。
-- **核查日期**：2026-07-23
-- **使用边界**：说明协作状态机制，不替应用定义授权、持久化权威或语义冲突政策。
-- **入口**：[Yjs documentation](https://docs.yjs.dev/)
-
-### KubeEdge Documentation
-
-- **来源类型**：官方文档
-- **适用范围**：边缘与物理智能体
-- **用途**：必读起点；理解云边协同、边缘自治和设备管理的组件边界。
-- **核查日期**：2026-07-23
-- **使用边界**：提供项目级机制入口；具体版本行为仍需固定版本文档和源码核对。
-- **入口**：[KubeEdge documentation](https://kubeedge.io/docs/)
-
-### ROS 2 Jazzy Concepts
-
-- **来源类型**：官方文档
-- **适用范围**：边缘与物理智能体
-- **用途**：必读起点；理解节点、话题、服务、动作和 DDS 通信模型。
-- **核查日期**：2026-07-23
-- **使用边界**：固定到 Jazzy 概念入口，不代表其他发行版或具体中间件实现完全相同。
-- **入口**：[ROS 2 Jazzy concepts](https://docs.ros.org/en/jazzy/Concepts/Basic.html)
-
-### LiteLLM Virtual Keys
-
-- **来源类型**：官方文档
-- **适用范围**：Agent 平台与模型网关
-- **用途**：必读起点；理解虚拟密钥、预算、限流和模型访问控制。
-- **核查日期**：2026-07-23
-- **使用边界**：说明 LiteLLM 功能，不替代端到端身份、密钥托管或成本治理设计。
-- **入口**：[LiteLLM virtual keys](https://docs.litellm.ai/docs/proxy/virtual_keys)
-
-### Envoy AI Gateway
-
-- **来源类型**：官方文档
-- **适用范围**：Agent 平台与模型网关
-- **用途**：查漏补缺；理解基于 Envoy Gateway 的模型流量接入。
-- **核查日期**：2026-07-23
-- **使用边界**：说明网关接入机制，不单独证明租户隔离、计费准确性或数据合规。
-- **入口**：[Envoy AI Gateway getting started](https://aigateway.envoyproxy.io/docs/getting-started/)
-
-## 官方仓库
-
-### CNCF Curriculum
-
-- **来源类型**：官方仓库
-- **适用范围**：云原生与平台
-- **用途**：查漏补缺；按 CNCF 认证课程范围核对云原生知识缺口。
-- **核查日期**：2026-07-23
-- **使用边界**：课程提纲用于范围导航，不等同于产品行为规范或架构决策依据。
-- **入口**：[CNCF Curriculum](https://github.com/cncf/curriculum)
-
-## 论文与工程演讲
-
-当前十一篇学习路径正文没有直接引用这一类外部 URL。后续新增条目时，应记录论文版本、会议或演讲场次，并把公开结论与本站推断分开。
-
-## GitHub 索引
-
-### Awesome Software Architecture 总览
-
-- **来源类型**：GitHub 索引
-- **适用范围**：分布式系统、生产治理与云原生
-- **用途**：从仓库总览进入 Messaging、Eventual Consistency、Observability、Security 等主题。
-- **核查日期**：2026-07-23
-- **使用边界**：社区维护的导航索引，不能作为架构事实的唯一证据；具体结论必须回到原作者、官方文档或可检查实现。
-- **入口**：[Awesome Software Architecture](https://github.com/mehdihadeli/awesome-software-architecture)
-
-### Awesome Software Architecture：Architectural Design Principles
-
-- **来源类型**：GitHub 索引
-- **适用范围**：架构思维与模块边界
-- **用途**：查漏补缺；发现耦合、内聚、依赖和设计原则的原始资料。
-- **核查日期**：2026-07-23
-- **使用边界**：社区主题索引只提供导航，不能作为设计原则或架构结论的唯一证据。
-- **入口**：[Architectural Design Principles](https://github.com/mehdihadeli/awesome-software-architecture#architectural-design-principles)
-
-### Awesome Software Architecture：模块化单体与 DDD
-
-- **来源类型**：GitHub 索引
-- **适用范围**：模块边界
-- **用途**：查漏补缺；发现模块化单体、限界上下文和领域建模资料。
-- **核查日期**：2026-07-23
-- **使用边界**：社区主题索引不能证明模式适用性；边界仍需用所有权、依赖和部署证据核对。
-- **入口**：[Modular Monolith](https://github.com/mehdihadeli/awesome-software-architecture#modular-monolith)、[Domain Driven Design](https://github.com/mehdihadeli/awesome-software-architecture#domain-driven-design)
-
-### Awesome Software Architecture：依赖方向模式
-
-- **来源类型**：GitHub 索引
-- **适用范围**：模块边界
-- **用途**：查漏补缺；发现 Hexagonal、Clean 与 Vertical Slice 的原作者和示例材料。
-- **核查日期**：2026-07-23
-- **使用边界**：模式名称和社区索引不能替代对编译依赖、运行时调用及数据所有权的检查。
-- **入口**：[Hexagonal Architecture](https://github.com/mehdihadeli/awesome-software-architecture#hexagonal-architecture)、[Clean Architecture](https://github.com/mehdihadeli/awesome-software-architecture#clean-architecture)、[Vertical Slice Architecture](https://github.com/mehdihadeli/awesome-software-architecture#vertical-slice-architecture)
-
-### Awesome Software Architecture：可靠性与云模式
-
-- **来源类型**：GitHub 索引
-- **适用范围**：可靠性、状态与生产治理
-- **用途**：查漏补缺；发现 Microservices、Cloud Design Patterns 与 Back Pressure 的进一步资料。
-- **核查日期**：2026-07-23
-- **使用边界**：社区索引不能单独证明故障语义、恢复保证或生产适用性。
-- **入口**：[Microservices](https://github.com/mehdihadeli/awesome-software-architecture#microservices)、[Cloud Design Patterns](https://github.com/mehdihadeli/awesome-software-architecture#cloud-design-patterns)、[Back Pressure](https://github.com/mehdihadeli/awesome-software-architecture#back-pressure)
-
-### Awesome Software Architecture：Micro-Frontend
-
-- **来源类型**：GitHub 索引
-- **适用范围**：协作状态与前端
-- **用途**：查漏补缺；定位微前端运行时组合和团队边界材料。
-- **核查日期**：2026-07-23
-- **使用边界**：社区索引不能证明业务边界、团队边界与运行时边界天然一致。
-- **入口**：[Micro-Frontend](https://github.com/mehdihadeli/awesome-software-architecture#micro-frontend)
-
-### Awesome Software Architecture：Architecture Documentation
-
-- **来源类型**：GitHub 索引
-- **适用范围**：架构思维与表达
-- **用途**：深入拓展；发现 ADR、C4、arc42 和文档示例。
-- **核查日期**：2026-07-23
-- **使用边界**：社区整理页面只作导航；文档方法的定义与边界应回到各自官方资料核对。
-- **入口**：[Architecture Documentation](https://github.com/mehdihadeli/awesome-software-architecture/blob/main/docs/architecture-documententation.md)
-
-### System Design Primer
-
-- **来源类型**：GitHub 索引
-- **适用范围**：学习路线总览、分布式系统与生产治理
-- **用途**：以社区主题地图、解题流程和公开题解导航系统设计学习。
-- **核查日期**：2026-07-23
-- **使用边界**：社区导航和教学材料不能作为产品行为或架构事实的唯一证据；具体结论需回到教材、官方文档或可检查实现。
-- **入口**：[仓库首页](https://github.com/donnemartin/system-design-primer)、[System design topics](https://github.com/donnemartin/system-design-primer#system-design-topics-start-here)、[System design interview questions](https://github.com/donnemartin/system-design-primer#system-design-interview-questions-with-solutions)、[How to approach a system design question](https://github.com/donnemartin/system-design-primer#how-to-approach-a-system-design-interview-question)
-
-### Awesome Front-end System Design
-
-- **来源类型**：GitHub 索引
-- **适用范围**：协作状态与前端
-- **用途**：查找协作编辑、离线同步和大型前端案例。
-- **核查日期**：2026-07-23
-- **使用边界**：社区导航与案例入口，不能作为架构事实的唯一证据。
-- **入口**：[Awesome Front-end System Design](https://github.com/greatfrontend/awesome-front-end-system-design)
-
-### Awesome Agentic Engineering Resources
-
-- **来源类型**：GitHub 索引
-- **适用范围**：Agent 平台与模型网关
-- **用途**：发现 Agent 工程、评估、治理和平台工具的候选资料。
-- **核查日期**：2026-07-23
-- **使用边界**：社区导航索引，不能作为架构事实的唯一证据，也不代表被收录项目已通过安全或生产验证。
-- **入口**：[Awesome Agentic Engineering Resources](https://github.com/EthicalML/awesome-agentic-engineering-resources)
-
-## 工程博客与第三方教程
-
-### roadmap.sh Software Architect
-
-- **来源类型**：工程博客与第三方教程
-- **适用范围**：学习路线总览
-- **用途**：作为社区路线图导航软件架构主题，帮助发现待补知识域。
-- **核查日期**：2026-07-23
-- **使用边界**：社区导航只用于规划学习顺序，不能作为架构事实的唯一证据。
-- **入口**：[roadmap.sh Software Architect](https://roadmap.sh/software-architect)
-
-## 公认教材
-
-### Designing Data-Intensive Applications
-
-- **来源类型**：公认教材
-- **适用范围**：分布式系统
-- **用途**：必读起点；从可靠性、可扩展性和可维护性建立数据系统、复制、分区、事务与流处理基础。
-- **核查日期**：2026-07-23
-- **使用边界**：教材用于建立稳定概念与权衡框架；产品版本、API 和具体实现仍需官方资料核对。
-- **入口**：[Designing Data-Intensive Applications](https://dataintensive.net/)
-
-### Architecture Patterns with Python
-
-- **来源类型**：公认教材
-- **适用范围**：模块边界
-- **用途**：必读起点；通过可运行示例理解依赖反转、领域模型、端口适配器与工作单元。
-- **核查日期**：2026-07-23
-- **使用边界**：作为公开教材解释模式，不替代具体项目的语言、框架、部署和数据一致性验证。
-- **入口**：[Architecture Patterns with Python：Preface](https://www.cosmicpython.com/book/preface.html)
+<SourceLedger />
