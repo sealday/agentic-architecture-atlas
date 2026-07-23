@@ -1,0 +1,277 @@
+---
+title: LiteLLM Virtual Keys：把模型网关变成权限与预算的交汇点
+slug: /cases/litellm-virtual-keys-governance
+content_type: case
+status: reviewed
+difficulty: advanced
+analyzed_at: 2026-07-23
+source_cutoff: 2026-07-23
+confidence: high
+summary: 用虚拟 Key、分层模型权限、预算与限流、Guardrail 时序和双轨日志分析多租户模型网关的治理边界。
+series: ai-native
+catalog_order: 17
+featured: false
+source_kinds:
+  - official-docs
+  - open-source-project
+migration_targets:
+  - virtual-key-governance
+  - layered-authorization
+  - multi-level-budgeting
+  - guardrail-timing
+  - provider-key-custody
+domains:
+  - api-gateway
+  - distributed-systems
+  - multi-agent-systems
+agent_patterns:
+  - capability-routing
+  - policy-enforcement
+  - bounded-resource-use
+protocols:
+  - OpenAI-compatible-API
+  - HTTP
+quality_attributes:
+  - security
+  - compliance
+  - cost-control
+  - operability
+tags:
+  - LiteLLM
+  - virtual-keys
+  - authorization
+  - budgets
+  - guardrails
+official_sources:
+  - https://docs.litellm.ai/docs/proxy/virtual_keys
+  - https://docs.litellm.ai/docs/proxy/users
+  - https://docs.litellm.ai/docs/proxy/guardrails/quick_start
+  - https://docs.litellm.ai/docs/proxy/multiple_admins
+  - https://docs.litellm.ai/docs/proxy/logging
+  - https://github.com/BerriAI/litellm/tree/b3086ccd74553565c9a39716e72303ae985555f9
+  - https://github.com/BerriAI/litellm/security/advisories/GHSA-r75f-5x8p-qvmc
+---
+
+# LiteLLM Virtual Keys：把模型网关变成权限与预算的交汇点
+
+虚拟 Key 隐藏了上游供应商凭据，却不会自动带来最小权限。LiteLLM 中，Master Key 是 Proxy Admin Key；普通 Key 的模型列表为空时又表示不限制模型。一个看似“未配置”的字段，可能扩大而不是收紧访问面。
+
+更可迁移的视角是把模型网关看成多个拒绝门的交汇点：身份、模型、路由、预算、速率和内容策略都必须在请求生命周期的正确时刻生效。任何一层的空值语义、异步记账或例外授权，都可能改变最终边界。
+
+**证据范围**：本文以 2026-07-23 为来源截断日期，机制判断固定到 `BerriAI/litellm@v1.92.0`（commit `b3086cc`）。该版本晚于认证路径漏洞的修复下限 `1.83.7`；在线文档若描述更晚行为，本文不据此回填到固定版本。
+
+## 学习问题
+
+1. 虚拟 Key、团队、用户、项目与组织的权限怎样共同约束一次请求？
+2. 为什么 Master Key 和空模型列表都是需要显式治理的高权限状态？
+3. 多级预算与 RPM/TPM 限制能阻止什么，又不能承诺怎样的并发一致性？
+4. `pre_call`、`during_call` 与 `post_call` Guardrail 分别在哪个时刻拥有阻断权？
+5. 管理审计与推理日志为什么必须分轨保留？
+6. OSS 与 Enterprise 的许可边界如何改变控制面的选型？
+
+## 一页摘要
+
+**已证实事实**：LiteLLM Proxy 用虚拟 Key 承载模型列表、预算、速率、有效期、团队和用户等上下文，再用网关持有的供应商凭据发起上游调用。请求因而无需获得真实 provider key，但 Proxy 本身成为凭据与策略的集中信任边界。
+
+固定版本会对团队、团队成员、用户、项目、组织、Key 和全局代理的适用规则分别检查。把它理解成“权限交集”是有用的默认心智模型：请求必须穿过所有适用的拒绝门；但 access group 等显式授权例外可能扩展访问，不能用简单集合公式替代源码与配置审查。
+
+**个人分析**：预算是后验计费数据驱动的准入控制，不是财务交易式的硬预授权。并发请求可能在相近的旧快照上同时通过检查；官方文档和固定源码没有给出跨实例、跨层级的零超支或线性一致性保证。
+
+下表回答每个控制真正拥有哪一种权力：
+
+| 控制 | 决定什么 | 关键状态 | 不能替代 |
+| --- | --- | --- | --- |
+| Master Key | 管理代理与创建其他 Key | Proxy Admin 凭据 | 日常租户调用凭据 |
+| 虚拟 Key / 层级权限 | 请求可走哪些模型与路由 | Key、team、member、user、project、org | 上游供应商授权 |
+| 预算与 RPM/TPM | 当前观察下是否继续接收流量 | spend、窗口、计数器 | 强一致预付费账本 |
+| Guardrail | 在指定时序检查或修改内容 | pre、during、post、logging-only | 身份认证与模型授权 |
+| 管理审计 | 谁改变了 Key、团队、用户或模型 | before/after、actor、action | 每次推理的输入输出记录 |
+| 推理日志 | 一次模型调用发生了什么 | call ID、输入输出、异常、费用 | 配置变更责任链 |
+
+核心判断是：虚拟 Key 不是一张轻量 API Key，而是多级治理状态的索引。生产设计必须为默认值、更新传播、日志敏感度和失败时序分别建立测试。
+
+## 事实边界
+
+**已证实事实**：官方文档把 Master Key 定义为 Proxy Admin Key，并用于生成其他 Key。固定源码又明确写出：Key 的模型列表为空表示可调用全部模型；模型列表聚合逻辑在 Key 为空时退回团队列表，团队也为空时退回代理模型列表。
+
+因此，“空列表”不是 deny-by-default。若团队返回 `models: []`，Key 也未指定模型，调用面可能扩展到代理已配置模型。最小权限部署应明确写入允许模型，并把空值检查放进 Key/团队创建策略和配置审计。
+
+模型权限也不是单一列表。固定版本先执行团队、团队成员、用户、项目等适用检查，再执行 Key 级模型与 fallback 模型检查；组织还承担角色与预算检查。access group 可以在特定所有权条件下授予资源，所以“权限交集”应读作多个门共同生效，而不是假设所有列表机械求交。
+
+**已证实事实**：官方安全公告列出的受影响范围是 1.81.16 至 1.83.7 之前。攻击者可把构造的 `Authorization` header 发到任意 LLM API 路由，经代理错误处理路径触发 API Key 校验中的 SQL 注入；`1.83.7` 将调用者输入改为查询参数，公告建议升级到该版本或更高。
+
+这条边界不能缩写成“老版本认证较弱”。它是认证失败路径可在未认证请求下触达数据库查询的具体问题；仅保护管理端点不足以覆盖。公告给出的临时缓解是 `general_settings.disable_error_logs: true`，但这不等于补丁，也不应替代升级。
+
+<details className="evidence-card">
+  <summary>证据：固定版本与认证路径修复边界</summary>
+
+  - **固定版本：** [`v1.92.0 / b3086ccd74553565c9a39716e72303ae985555f9`](https://github.com/BerriAI/litellm/tree/b3086ccd74553565c9a39716e72303ae985555f9)。
+  - **官方公告：** [`GHSA-r75f-5x8p-qvmc`](https://github.com/BerriAI/litellm/security/advisories/GHSA-r75f-5x8p-qvmc)列出受影响版本 `>=1.81.16,<1.83.7`、修复版本 `>=1.83.7`、LLM 路由上的触发路径与临时缓解。
+  - **版本判断：** `v1.92.0` 位于修复范围之后，并提供稳定 tag 与不可变 commit，适合作为本文源码锚点。
+  - **证明边界：** 版本号证明本文不落在该公告的受影响区间，不证明此版本不存在其他漏洞。
+</details>
+
+## 架构图
+
+先看请求何时仍可被拒绝，以及哪些动作发生在上游调用之前。图中的预算检查表示基于当时可见状态的准入，不表示费用已被原子预留。
+
+```mermaid
+flowchart TD
+    C["租户应用\n持有 Virtual Key"]
+    A{"认证\nKey 有效且未阻塞？"}
+    P{"授权交汇\nroute + model + fallback\nteam/member/user/project/org"}
+    B{"资源检查\n预算 + RPM/TPM + 并发"}
+    G1{"pre_call Guardrail"}
+    G2["during_call Guardrail\n与上游并行"]
+    R["Router\n选择已配置 deployment"]
+    S["Proxy 持有的 provider credential"]
+    U["上游模型调用"]
+    G3{"post_call Guardrail"}
+    O["返回或阻断响应"]
+    L["推理/费用日志"]
+    M["管理端点\n创建、更新、删除、再生成"]
+    AU["Enterprise 管理审计\nactor + before/after"]
+
+    C --> A
+    A -->|"拒绝"| O
+    A -->|"通过"| P
+    P -->|"拒绝"| O
+    P -->|"通过"| B
+    B -->|"拒绝"| O
+    B -->|"通过"| G1
+    G1 -->|"阻断"| O
+    G1 -->|"通过"| R
+    R --> S --> U
+    G1 -. "可配置并行模式" .-> G2
+    G2 -. "检查完成前不返回" .-> O
+    U --> G3 --> O
+    U --> L
+    M --> AU
+```
+
+这条流的关键不是检查数量，而是最后可避免哪种副作用。只有同步的上游前置门能阻止内容与费用进入 provider；响应侧检查只能控制响应是否交付给调用者。
+
+## 控制权与任务流
+
+**说明性场景**：租户团队 `research` 的一把虚拟 Key 被泄露。团队和 Key 都只显式允许 `safe-chat`，Key 配有 RPM、TPM 和周期预算，默认 Guardrail 以 `pre_call` 运行；Proxy 独占保存上游 provider key。
+
+攻击者先请求未授权模型 `premium-reasoner`。模型授权门应在路由前拒绝，因此不会靠 fallback 换到另一个未授权模型。固定版本还会校验请求可达的 fallback 模型名，避免调用者借覆盖路由设置穿过 Key allowlist。
+
+攻击者改为并发调用已授权的 `safe-chat`。RPM/TPM 或并发门可以先拒绝一部分流量，多级预算检查也会在所见 spend 达到上限后拒绝后续请求。但已经并行通过的请求可能产生在途费用；本文没有证据把这些检查解释为跨副本原子扣款或严格不超支。
+
+其中一条请求携带敏感内容，`pre_call` Guardrail 在上游调用前阻断，因此 provider 不会因该请求收到正文。若运维改用 `during_call`，Guardrail 虽会在响应返回前完成，但模型调用已并行启动；若改用 `post_call`，检查发生在模型返回之后。这两种时序都不能承诺避免上游披露或调用费用。
+
+管理员随后 block 或删除泄露 Key，并创建替代 Key。这是本地授权恢复，不是规避上游风控：不得通过更换 Virtual Key、provider key、账号或 fallback 来绕过供应商撤权、限流、封禁或使用政策。若 provider 凭据本身疑似泄露，应在供应商侧撤销并按合规流程轮换，而非只替换租户 Key。
+
+该场景只组合文档与固定源码支持的控制，不是事故记录。它说明终止泄露需要同时处理认证状态、在途请求、费用对账、provider 凭据暴露范围和管理变更证据。
+
+## 关键源码导读
+
+最短源码路径先读集中认证包装器，再读通用检查和模型检查，最后读预算记账与请求处理。这样能分清“请求前看见什么”“哪些规则并行检查”以及“调用后何时更新费用”。
+
+**已证实事实**：固定版本的认证包装器把 `common_checks` 作为集中执行点，并另行执行 Key 与 fallback 模型访问检查。`common_checks` 检查 blocked 状态、团队/成员/用户/项目模型、多个预算层级、组织角色与对象权限；多个预算 scope 的读取使用 `asyncio.gather` 并行等待。
+
+这证明多个适用预算门都会运行，也证明它们读取不同 counter key。它不证明跨 scope 存在一个原子事务，更不证明并发请求会按总费用严格串行。生产验收应把“最终拒绝”和“绝不越线”当成两个不同指标。
+
+<details className="evidence-card">
+  <summary>证据：权限门、空模型语义与多级预算源码</summary>
+
+  - [`litellm/proxy/auth/user_api_key_auth.py`](https://github.com/BerriAI/litellm/blob/b3086ccd74553565c9a39716e72303ae985555f9/litellm/proxy/auth/user_api_key_auth.py)：集中认证包装、Key 模型与 fallback 模型检查。
+  - [`litellm/proxy/auth/auth_checks.py`](https://github.com/BerriAI/litellm/blob/b3086ccd74553565c9a39716e72303ae985555f9/litellm/proxy/auth/auth_checks.py)：团队、成员、用户、项目、组织、预算和对象权限门；预算 scope 并行读取。
+  - [`litellm/proxy/auth/model_checks.py`](https://github.com/BerriAI/litellm/blob/b3086ccd74553565c9a39716e72303ae985555f9/litellm/proxy/auth/model_checks.py)：Key 列表为空时退回 team，team 也为空时退回 proxy model list。
+  - [`litellm/proxy/_types.py`](https://github.com/BerriAI/litellm/blob/b3086ccd74553565c9a39716e72303ae985555f9/litellm/proxy/_types.py)：`UserAPIKeyAuth.models` 注释明确空列表允许全部模型。
+  - **证明边界：** 这些文件证明固定版本的控制流与默认语义，不证明分布式预算的线性一致性或所有扩展认证插件都保持相同语义。
+</details>
+
+Guardrail 的最短阅读重点是事件钩子，而不是供应商清单。官方文档明确：`pre_call` 在 LLM 调用前检查输入；`during_call` 与 LLM 调用并行，但在 Guardrail 完成前不返回；`post_call` 在 LLM 调用后检查输入与输出。
+
+因此，Guardrail 选型必须从不可逆动作倒推。数据不得离开网关时只能依赖可靠的前置阻断；只要求“不把违规响应交给终端用户”时，响应侧检查才足够。流式响应还需验证缓冲、断流和客户端已接收片段的具体行为。
+
+## 架构决策与权衡
+
+第一个决策是用 Virtual Key 隔离租户与 provider credential。租户 Key 可撤销、限权、限额，供应商凭据留在 Proxy 配置、环境变量或秘密管理器；代价是 Proxy 一旦失陷，可能同时暴露多租户流量和上游凭据。
+
+第二个决策是把授权拆为多个对象层级。团队负责共享边界，成员与 Key 进一步收窄，项目和组织表达额外治理；代价是空值、继承、sentinel 与 access group 例外提高了可解释性成本。策略变更前必须计算有效权限，而不能只查看 Key 行。
+
+第三个决策是用预算、RPM、TPM 和并发限制组合资源治理。速率限制约束短窗口压力，预算约束累计成本；代价是每层都有计数、窗口、缓存与重置状态。若业务要求财务级硬上限，应在调用前做原子预留、调用后结算与失败释放，而不是仅依赖异步 spend 更新。
+
+第四个决策是按副作用选择 Guardrail 时序。前置检查增加调用延迟但能阻止上游接触内容；并行检查降低部分等待却已经启动调用；后置检查能看见输出但费用和披露已发生。没有一个时序同时免费获得最低延迟、完整上下文和零副作用。
+
+第五个决策是分离管理审计与推理日志。审计回答“谁在何时改变了什么治理对象”，推理日志回答“哪次模型调用输入输出、异常和费用如何”；二者的字段、访问者、保留期与敏感度不同，不能互相替代。
+
+## 生产化分析
+
+Master Key 应只进入受控管理面，保存在秘密管理器中，不分发给应用。管理路由需要网络隔离、最小管理员集合、轮换和告警；Virtual Key 则按团队、用途和环境拆分，显式设置模型、期限、预算与速率。
+
+Key 与团队创建应执行 deny-by-default 校验：拒绝意外的 `models: []`，或要求调用者明确选择“全部代理模型”。同时测试 alias、access group、`all-team-models`、`all-proxy-models` 和 fallback，使 UI 展示、API 返回与请求时有效权限一致。
+
+预算生产测试应覆盖同一 Key 高并发、同一团队多 Key、多 Proxy 副本、缓存故障、Redis/数据库切换、窗口重置和调用中取消。观察值至少包括准入时 spend、最终费用、超限后仍在途的请求和各层拒绝原因。没有这些数据时，应把最大超支量标为未知。
+
+Guardrail 测试要按时序断言副作用：前置阻断时 provider 未收到调用；并行阻断时客户端未获响应但 provider 可能已收到输入；后置阻断时费用与上游处理已经发生。还要验证 Guardrail 服务超时、不可用、误报时采用 fail-open 还是 fail-closed。
+
+管理审计与推理日志应采用独立访问控制。官方 Audit Logs 记录 Key、团队、用户、模型的创建、更新、删除、再生成及操作者和前后值，并要求 Enterprise License。
+
+普通 logging/callback 路径面向模型输入、输出、异常与调用 ID。推理日志还需按数据分类配置消息裁剪、脱敏和保留期。
+
+<details className="evidence-card">
+  <summary>证据：管理审计、推理日志与许可边界</summary>
+
+  - **管理审计：** [Audit Logs](https://docs.litellm.ai/docs/proxy/multiple_admins)列出审计实体、动作、`changed_by`、哈希 Key、before/updated values，并明确要求 Enterprise License。
+  - **推理日志：** [Logging](https://docs.litellm.ai/docs/proxy/logging)说明记录 Proxy input、output、exceptions，并为每次请求生成 `call_id`。
+  - **OSS 许可：** [仓库根 LICENSE](https://github.com/BerriAI/litellm/blob/b3086ccd74553565c9a39716e72303ae985555f9/LICENSE)说明 `enterprise/` 外内容采用 MIT License。
+  - **Enterprise 许可：** [`enterprise/LICENSE.md`](https://github.com/BerriAI/litellm/blob/b3086ccd74553565c9a39716e72303ae985555f9/enterprise/LICENSE.md)对该目录的软件规定商业生产使用条件。
+  - **证明边界：** 产品页上的 Enterprise 标签与仓库目录许可共同界定本文所述功能，不构成法律意见；采购与部署前仍应核对实际版本、合同和功能清单。
+</details>
+
+升级还要把安全公告当成路由面问题验证。所有 LLM API 路由都应在恶意或无效 Authorization 输入下稳定失败，数据库查询使用参数化路径，错误日志配置不应成为唯一防线。固定到不可变镜像摘要，并对依赖与镜像签名执行供应链校验。
+
+## 可迁移经验
+
+### 可直接复用的机制
+
+1. 用短期、可撤销的租户凭据映射集中保管的上游凭据，避免把 provider key 分发给工作负载。
+2. 把身份、模型、路由、预算、速率和内容策略设计成独立拒绝门，并记录每次拒绝的具体层级。
+3. 对 Key、团队、成员、项目和组织分别保存政策，再提供可解释的有效权限视图。
+4. 让 fallback 目标重新通过同一授权与预算检查，不允许路由器扩大调用者权限。
+5. 按不可逆副作用选择 Guardrail 时序，并为超时与服务故障定义 fail-open/fail-closed。
+6. 把管理变更审计与推理调用日志分轨保存，分别设置访问控制、脱敏与保留策略。
+
+### 只能有限类比的部分
+
+1. 模型调用的成本可在响应后估算；Agent 工具还可能产生数据库写入、支付、消息发送等非模型副作用。
+2. RPM/TPM 适合模型流量，不能直接表达工具并发、队列占用、事务锁或外部业务配额。
+3. 模型 allowlist 可用名称描述；Agent 能力还需参数 schema、数据域、对象权限与批准状态。
+4. `post_call` 可阻断模型输出交付，却不能补偿已经执行的工具动作或撤回上游已接收的数据。
+5. access group 能简化批量授权，但所有权例外会削弱纯交集模型，必须单独审计。
+
+### 不应照搬的部分
+
+1. 不要把空模型列表当“无权限”，也不要把未设置预算解释为零预算。
+2. 不要把 Master Key 放进应用配置、客户端或常规推理路径。
+3. 不要把多级预算检查宣称为跨副本、跨层级的强一致硬上限。
+4. 不要用 `during_call` 或 `post_call` 声称敏感输入从未发送给 provider。
+5. 不要用推理日志替代管理审计，也不要默认记录完整 prompt 与 response。
+6. 不要以换 Virtual Key、provider key、账号、来源或 fallback 的方式规避上游风控、撤权、封禁、限流或政策。
+7. 不要在没有有效 Enterprise License 时把 `enterprise/` 目录功能视为可按 MIT 条款生产使用。
+
+## 来源
+
+**官方产品说明（已证实事实）**
+
+- [Virtual Keys](https://docs.litellm.ai/docs/proxy/virtual_keys)：Master Key、虚拟 Key、spend tracking、默认与上界参数。访问与截断日期：2026-07-23。
+- [Budgets, Rate Limits](https://docs.litellm.ai/docs/proxy/users)：global、team、member、user、key 等预算层级，以及 RPM/TPM 配置。访问与截断日期：2026-07-23。
+- [Guardrails Quick Start](https://docs.litellm.ai/docs/proxy/guardrails/quick_start)：`pre_call`、`during_call`、`post_call` 与 Enterprise-only 控制。访问与截断日期：2026-07-23。
+- [Audit Logs](https://docs.litellm.ai/docs/proxy/multiple_admins)：管理对象变更、操作者、前后值与 Enterprise 要求。访问与截断日期：2026-07-23。
+- [Logging](https://docs.litellm.ai/docs/proxy/logging)：模型调用输入、输出、异常、call ID 与 callback。访问与截断日期：2026-07-23。
+
+**固定上游源码（已证实事实）**
+
+- [`BerriAI/litellm@b3086cc`](https://github.com/BerriAI/litellm/tree/b3086ccd74553565c9a39716e72303ae985555f9)：`v1.92.0` 的不可变源码锚点。
+- [`user_api_key_auth.py`](https://github.com/BerriAI/litellm/blob/b3086ccd74553565c9a39716e72303ae985555f9/litellm/proxy/auth/user_api_key_auth.py)、[`auth_checks.py`](https://github.com/BerriAI/litellm/blob/b3086ccd74553565c9a39716e72303ae985555f9/litellm/proxy/auth/auth_checks.py)与[`model_checks.py`](https://github.com/BerriAI/litellm/blob/b3086ccd74553565c9a39716e72303ae985555f9/litellm/proxy/auth/model_checks.py)：认证包装、模型/fallback 授权、空列表继承和多级预算检查。
+- [根 LICENSE](https://github.com/BerriAI/litellm/blob/b3086ccd74553565c9a39716e72303ae985555f9/LICENSE)与[`enterprise/LICENSE.md`](https://github.com/BerriAI/litellm/blob/b3086ccd74553565c9a39716e72303ae985555f9/enterprise/LICENSE.md)：MIT 与 Enterprise 目录许可边界。
+
+**官方安全公告（已证实事实）**
+
+- [`GHSA-r75f-5x8p-qvmc`](https://github.com/BerriAI/litellm/security/advisories/GHSA-r75f-5x8p-qvmc)：Proxy API Key 校验 SQL 注入、认证错误路径、受影响范围、`1.83.7` 修复与临时缓解。
+
+**证据边界说明**：`已证实事实` 可由官方文档、固定源码或官方安全公告定位；`个人分析` 用于解释并发、运维和迁移风险。本文没有虚构客户、事故、指标或生产保证，也不把本地凭据轮换与 fallback 解释成规避供应商控制的手段。
