@@ -4,8 +4,8 @@ import {readFile, readdir, stat} from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 
-const DEFAULT_SENTENCE_LIMIT = 90;
-const DEFAULT_PARAGRAPH_LIMIT = 240;
+const DEFAULT_SENTENCE_LIMIT = 80;
+const DEFAULT_PARAGRAPH_LIMIT = 200;
 const DEFAULT_CONSECUTIVE_DENSE_LIMIT = 2;
 
 function measuredLength(value) {
@@ -29,12 +29,69 @@ function frontMatterLines(lines) {
   return ignored;
 }
 
-function evidenceCardWarnings(source) {
+function isTableDelimiter(line) {
+  return /^\s*\|?\s*:?-{3,}:?\s*(?:\|\s*:?-{3,}:?\s*)+\|?\s*$/u.test(line);
+}
+
+function excludedLineIndexes(lines) {
+  const excluded = frontMatterLines(lines);
+  let fence;
+
+  for (let index = 0; index < lines.length; index += 1) {
+    if (excluded.has(index)) continue;
+
+    const fenceMatch = lines[index].trim().match(/^(`{3,}|~{3,})/u);
+    if (fenceMatch) {
+      excluded.add(index);
+      const marker = fenceMatch[1][0];
+      if (!fence) fence = marker;
+      else if (fence === marker) fence = undefined;
+      continue;
+    }
+
+    if (fence) excluded.add(index);
+  }
+
+  for (let index = 1; index < lines.length; index += 1) {
+    if (excluded.has(index) || !isTableDelimiter(lines[index])) continue;
+
+    const header = index - 1;
+    if (
+      excluded.has(header) ||
+      !lines[header].trim() ||
+      !lines[header].includes('|')
+    ) {
+      continue;
+    }
+
+    excluded.add(header);
+    excluded.add(index);
+
+    for (let row = index + 1; row < lines.length; row += 1) {
+      if (excluded.has(row) || !lines[row].trim() || !lines[row].includes('|')) break;
+      excluded.add(row);
+    }
+  }
+
+  return excluded;
+}
+
+function scanSource(source) {
+  const lines = source.replace(/\r\n?/gu, '\n').split('\n');
+  const excluded = excludedLineIndexes(lines);
+  const maskedSource = lines
+    .map((line, index) => (excluded.has(index) ? ' '.repeat(line.length) : line))
+    .join('\n');
+
+  return {excluded, lines, maskedSource};
+}
+
+function evidenceCardWarnings(maskedSource) {
   const warnings = [];
   const evidenceCard =
     /<details\b(?=[^>]*\bclassName=["'][^"']*\bevidence-card\b[^"']*["'])[^>]*>([\s\S]*?)<\/details>/giu;
 
-  for (const match of source.matchAll(evidenceCard)) {
+  for (const match of maskedSource.matchAll(evidenceCard)) {
     const content = match[1]
       .replace(/<summary\b[^>]*>[\s\S]*?<\/summary>/giu, '')
       .replace(/<!--[\s\S]*?-->/gu, '')
@@ -43,7 +100,7 @@ function evidenceCardWarnings(source) {
 
     if (content) continue;
 
-    const line = source.slice(0, match.index).split('\n').length;
+    const line = maskedSource.slice(0, match.index).split('\n').length;
     warnings.push({
       kind: 'empty-evidence-card',
       line,
@@ -52,17 +109,6 @@ function evidenceCardWarnings(source) {
   }
 
   return warnings;
-}
-
-function isMarkdownTableLine(line) {
-  const trimmed = line.trim();
-  if (!trimmed.includes('|')) return false;
-
-  return (
-    trimmed.startsWith('|') ||
-    trimmed.endsWith('|') ||
-    /^\|?\s*:?-{3,}:?\s*(?:\|\s*:?-{3,}:?\s*)+\|?$/u.test(trimmed)
-  );
 }
 
 function isNonProseLine(line) {
@@ -76,12 +122,9 @@ function isNonProseLine(line) {
   );
 }
 
-function collectParagraphs(source) {
-  const lines = source.replace(/\r\n?/gu, '\n').split('\n');
-  const ignoredFrontMatter = frontMatterLines(lines);
+function collectParagraphs(lines, excluded) {
   const paragraphs = [];
   let paragraph;
-  let fence;
 
   function flushParagraph() {
     if (!paragraph) return;
@@ -94,24 +137,13 @@ function collectParagraphs(source) {
   for (let index = 0; index < lines.length; index += 1) {
     const line = lines[index];
     const trimmed = line.trim();
-    const fenceMatch = trimmed.match(/^(`{3,}|~{3,})/u);
 
-    if (ignoredFrontMatter.has(index)) {
+    if (excluded.has(index)) {
       flushParagraph();
       continue;
     }
 
-    if (fenceMatch) {
-      flushParagraph();
-      const marker = fenceMatch[1][0];
-      if (!fence) fence = marker;
-      else if (fence === marker) fence = undefined;
-      continue;
-    }
-
-    if (fence) continue;
-
-    if (!trimmed || isMarkdownTableLine(line) || isNonProseLine(line)) {
+    if (!trimmed || isNonProseLine(line)) {
       flushParagraph();
       continue;
     }
@@ -124,11 +156,19 @@ function collectParagraphs(source) {
   return paragraphs;
 }
 
-function sentenceWarnings(paragraph, sentenceLimit) {
+function maskInlineTechnicalSyntax(value) {
+  return value
+    .replace(/(`+)[^\n]*?\1/gu, '')
+    .replace(/(!?\[[^\]\n]*\])\((?:\\.|[^)\n])*\)/gu, (_match, label) =>
+      label.startsWith('!') ? '' : label.slice(1, -1),
+    );
+}
+
+function sentenceWarnings(paragraph, analysisText, sentenceLimit) {
   const warnings = [];
   const sentencePattern = /[^。！？!?；;.]+[。！？!?；;.]?|[.]+/gu;
 
-  for (const match of paragraph.text.matchAll(sentencePattern)) {
+  for (const match of analysisText.matchAll(sentencePattern)) {
     const sentence = match[0].trim();
     const length = measuredLength(sentence);
     if (length <= sentenceLimit) continue;
@@ -166,14 +206,16 @@ export function analyzeCaseText(source, options = {}) {
     options.consecutiveDenseLimit,
     DEFAULT_CONSECUTIVE_DENSE_LIMIT,
   );
-  const paragraphs = collectParagraphs(source);
-  const warnings = evidenceCardWarnings(source);
+  const {excluded, lines, maskedSource} = scanSource(source);
+  const paragraphs = collectParagraphs(lines, excluded);
+  const warnings = evidenceCardWarnings(maskedSource);
   const denseParagraphs = [];
 
   for (const paragraph of paragraphs) {
-    warnings.push(...sentenceWarnings(paragraph, sentenceLimit));
+    const analysisText = maskInlineTechnicalSyntax(paragraph.text);
+    warnings.push(...sentenceWarnings(paragraph, analysisText, sentenceLimit));
 
-    const length = measuredLength(paragraph.text);
+    const length = measuredLength(analysisText);
     if (length > paragraphLimit) {
       warnings.push({
         kind: 'long-paragraph',
