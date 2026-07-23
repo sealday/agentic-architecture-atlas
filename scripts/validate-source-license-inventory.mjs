@@ -302,6 +302,13 @@ export function validateSourceLicenseInventory(markdown, candidateUrls) {
             if (evidence.hostname.toLowerCase() === current.hostname.toLowerCase()) {
               return true;
             }
+            if (
+              current.hostname.toLowerCase() === 'docs.yjs.dev' &&
+              evidence.hostname.toLowerCase() === 'github.com' &&
+              evidence.pathname.toLowerCase() === '/yjs/docs/blob/main/license.md'
+            ) {
+              return true;
+            }
             return (
               current.hostname.toLowerCase() === 'github.com' &&
               licenseFamilyIdentity(entry.license_evidence_url) ===
@@ -383,6 +390,7 @@ export function validateInventoryLedgerConsistency(inventoryEntries, sources) {
     }
     const sharedFields = [
       ['author_or_org', entry.author_or_org, source.author_or_org],
+      ['checked_at', entry.checked_at, source.checked_at],
       ['license', entry.exact_license, source.license],
       ['license_evidence_url', entry.license_evidence_url, source.license_evidence_url],
       ['license_evidence_note', entry.license_evidence_note, source.license_evidence_note],

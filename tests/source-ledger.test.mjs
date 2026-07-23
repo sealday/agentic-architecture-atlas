@@ -583,6 +583,9 @@ test('keeps stable source identity across citation anchors queries and locator m
   for (const hiddenBody of [
     '<!-- <SourceLedger /> -->',
     '```mdx\n<SourceLedger />\n```',
+    '`<SourceLedger />`',
+    '\\<SourceLedger />',
+    '{/* example string: "<SourceLedger />" */}',
   ]) {
     const hiddenReferences = validateSourceGovernance(
       [document({
@@ -601,4 +604,21 @@ test('keeps stable source identity across citation anchors queries and locator m
     );
     assert.match(hiddenReferences.errors.join('\n'), /not visible/i);
   }
+
+  const exclusiveComponent = validateSourceGovernance(
+    [document({
+      filePath: '/repo/content/references/index.mdx',
+      file: 'references/index.mdx',
+      body: '  <SourceLedger mode="compact" />  ',
+      metadata: {content_type: 'reference'},
+    })],
+    {
+      schema_version: 1,
+      sources: [validSource],
+      documents: {
+        'content/references/index.mdx': validDocument,
+      },
+    },
+  );
+  assert.deepEqual(exclusiveComponent.errors, []);
 });

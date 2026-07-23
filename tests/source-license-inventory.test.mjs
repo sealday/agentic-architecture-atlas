@@ -265,6 +265,7 @@ test('keeps inventory snapshot and runtime ledger authority fields aligned', () 
     canonical_locator: 'https://c4model.com/',
     license_family_id: 'https://c4model.com/',
     author_or_org: 'Different Author',
+    checked_at: '2026-07-22',
     published_at: null,
     license: 'MIT',
     license_scope: 'Different scope',
@@ -280,6 +281,7 @@ test('keeps inventory snapshot and runtime ledger authority fields aligned', () 
   assert.match(joined, /license/i);
   assert.match(joined, /license_evidence_url/i);
   assert.match(joined, /license_scope/i);
+  assert.match(joined, /checked_at/i);
 });
 
 test('requires shared copyright evidence for explicit family grouping', () => {

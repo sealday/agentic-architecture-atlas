@@ -59,6 +59,7 @@ test('records every official-license family found by the systematic ARR audit', 
     if (family === 'https://modelcontextprotocol.io/docs/getting-started/intro') {
       return 'CC-BY-4.0';
     }
+    if (family.startsWith('https://learn.microsoft.com/')) return 'CC-BY-4.0';
     if (family === 'https://google.github.io/adk-docs/agents/multi-agents/') {
       return 'Apache-2.0';
     }
@@ -97,7 +98,7 @@ test('records every official-license family found by the systematic ARR audit', 
   const corrected = inventory.entries
     .map((entry) => [entry, expectedLicense(entry.source_family)])
     .filter(([, expected]) => expected !== null);
-  assert.equal(corrected.length, 115);
+  assert.equal(corrected.length, 117);
   for (const [entry, expected] of corrected) {
     assert.equal(entry.exact_license, expected, entry.source_family);
   }
@@ -116,6 +117,47 @@ test('records the known Micro Frontends author and publication date consistently
     microFrontendsBody,
     /Cam Jackson, Micro Frontends.*发布于 2019-06-19/s,
   );
+});
+
+test('records both Microsoft Learn families as CC-BY-4.0 from their official source repositories', async () => {
+  const {inventory, ledger} = await governedData();
+  const rows = inventory.entries.filter((entry) =>
+    entry.source_family.startsWith('https://learn.microsoft.com/'));
+  const sources = ledger.sources.filter((source) =>
+    source.license_family_id.startsWith('https://learn.microsoft.com/'));
+
+  assert.equal(rows.length, 2);
+  assert.equal(sources.length, 2);
+  for (const item of [...rows, ...sources]) {
+    assert.equal(item.exact_license ?? item.license, 'CC-BY-4.0');
+    assert.match(item.license_evidence_url, /^https:\/\/github\.com\/(?:microsoftdocs\/architecture-center|dotnet\/docs)\/blob\/main\/LICENSE$/i);
+  }
+});
+
+test('keeps Yjs documentation conservative because license.md only licenses Yjs software', async () => {
+  const {inventory, ledger} = await governedData();
+  const rows = inventory.entries.filter((entry) =>
+    entry.source_family.startsWith('https://docs.yjs.dev'));
+  const sources = ledger.sources.filter((source) =>
+    source.license_family_id.startsWith('https://docs.yjs.dev'));
+
+  assert.equal(rows.length, 8);
+  assert.equal(sources.length, 8);
+  for (const item of [...rows, ...sources]) {
+    assert.equal(
+      item.exact_license ?? item.license,
+      'LicenseRef-All-Rights-Reserved',
+    );
+    assert.equal(
+      item.license_evidence_url,
+      'https://github.com/yjs/docs/blob/main/license.md',
+    );
+    assert.match(
+      item.license_evidence_note,
+      /license\.md.*Yjs software.*does not clearly license.*documentation text/i,
+    );
+    assert.doesNotMatch(item.license_evidence_note, /no reusable license notice.*found/i);
+  }
 });
 
 test('keeps the migration inventory snapshot aligned with runtime ledger authority', async () => {

@@ -763,7 +763,8 @@ export function extractExternalLinks(document) {
 }
 
 function hasVisibleSourceLedgerMount(document) {
-  return visibleMdxLines(document).some((line) => /<SourceLedger\b/.test(line));
+  return visibleMdxLines(document).some((line) =>
+    /^\s*<SourceLedger(?:\s[^>]*)?\s*\/>\s*$/.test(line));
 }
 
 function documentLedgerPath(document) {
