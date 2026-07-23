@@ -333,10 +333,11 @@ test('detects a 200 HTML login wall instead of reporting healthy', async () => {
 
 test('probes missing HEAD content type and detects a 206 login wall', async () => {
   const calls = [];
+  const governed = ledger([
+    source('auth', 'https://example.com/docs', 'auth-required'),
+  ]);
   const checked = await checkSourceLink(
-    buildLinkTargets(
-      ledger([source('auth', 'https://example.com/docs', 'auth-required')]),
-    )[0],
+    buildLinkTargets(governed)[0],
     {
       now,
       fetchImpl: async (_url, options) => {
@@ -358,6 +359,44 @@ test('probes missing HEAD content type and detects a 206 login wall', async () =
   assert.equal(checked.last_attempt.outcome, 'auth-required');
   assert.equal(checked.last_attempt.http_status, 206);
   assert.equal(checked.last_attempt.login_wall_detected, true);
+  assert.equal(checked.review_status, 'auth-required');
+  assert.ok(checked.last_success);
+  const cache = {
+    schema_version: 1,
+    generated_at: at,
+    results: [checked],
+  };
+  assert.deepEqual(
+    evaluateLinkHealthVerdict(governed, cache, {now}).failures,
+    [],
+  );
+});
+
+test('does not accept a successful response without a login wall for auth-required policy', async () => {
+  const governed = ledger([
+    source('auth', 'https://example.com/docs', 'auth-required'),
+  ]);
+  const checked = await checkSourceLink(buildLinkTargets(governed)[0], {
+    now,
+    fetchImpl: async (_url, options) =>
+      options.method === 'HEAD'
+        ? new Response(null, {status: 200})
+        : new Response('<html><main>Public documentation</main></html>', {
+            status: 206,
+            headers: {'content-type': 'text/html'},
+          }),
+  });
+  assert.equal(checked.last_attempt.outcome, 'healthy');
+  assert.equal(checked.review_status, 'stale');
+  assert.equal(checked.last_success, null);
+  assert.match(
+    evaluateLinkHealthVerdict(
+      governed,
+      {schema_version: 1, generated_at: at, results: [checked]},
+      {now},
+    ).failures.join('\n'),
+    /auth-required/,
+  );
 });
 
 test('probes ambiguous or incorrect HEAD content types on page URLs', async () => {

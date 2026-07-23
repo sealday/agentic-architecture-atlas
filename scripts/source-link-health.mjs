@@ -353,7 +353,9 @@ function acceptedForPolicy(policy, attempt) {
     return (
       attempt.outcome === 'auth-required' &&
       ((attempt.http_status === 401 || attempt.http_status === 403) ||
-        (attempt.http_status === 200 && attempt.login_wall_detected === true))
+        (attempt.http_status >= 200 &&
+          attempt.http_status <= 299 &&
+          attempt.login_wall_detected === true))
     );
   }
   if (policy === 'retired') {
