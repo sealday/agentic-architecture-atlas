@@ -30,6 +30,7 @@ official_sources:
   - https://c4model.com/
   - https://arc42.org/
   - https://learn.microsoft.com/en-us/dotnet/architecture/modern-web-apps-azure/common-web-application-architectures
+  - https://aws.amazon.com/builders-library/workload-isolation-using-shuffle-sharding/
   - https://sre.google/workbook/table-of-contents/
   - https://openai.github.io/openai-agents-python/multi_agent/
   - https://docs.langchain.com/oss/python/langgraph/overview
@@ -98,6 +99,15 @@ official_sources:
 - **核查日期**：2026-07-23
 - **使用边界**：提供 SRE 实践方法，不替代组织自身的风险、容量和合规判断。
 - **入口**：[Google SRE Workbook 目录](https://sre.google/workbook/table-of-contents/)
+
+### AWS Builders Library：Workload isolation using shuffle-sharding
+
+- **来源类型**：官方文档
+- **适用范围**：生产治理
+- **用途**：必读起点；理解 shuffle sharding 如何限制共享系统中的故障相关性和租户影响范围。
+- **核查日期**：2026-07-23
+- **使用边界**：说明 AWS 公开的隔离机制与工程经验，不自动证明其参数或实现可原样迁移到其他系统。
+- **入口**：[Workload isolation using shuffle-sharding](https://aws.amazon.com/builders-library/workload-isolation-using-shuffle-sharding/)
 
 ### OpenAI Agents SDK 多智能体指南
 
@@ -215,14 +225,77 @@ official_sources:
 
 ## GitHub 索引
 
-### Awesome Software Architecture
+### Awesome Software Architecture 总览
 
 - **来源类型**：GitHub 索引
-- **适用范围**：架构原则、模块边界、分布式系统、可靠性、生产治理、云原生与前端
-- **用途**：按主题发现术语、模式、原作者材料和进一步阅读入口。
+- **适用范围**：分布式系统、生产治理与云原生
+- **用途**：从仓库总览进入 Messaging、Eventual Consistency、Observability、Security 等主题。
 - **核查日期**：2026-07-23
 - **使用边界**：社区维护的导航索引，不能作为架构事实的唯一证据；具体结论必须回到原作者、官方文档或可检查实现。
-- **入口**：[仓库首页](https://github.com/mehdihadeli/awesome-software-architecture)、[Architectural Design Principles](https://github.com/mehdihadeli/awesome-software-architecture#architectural-design-principles)、[Modular Monolith](https://github.com/mehdihadeli/awesome-software-architecture#modular-monolith)、[Domain Driven Design](https://github.com/mehdihadeli/awesome-software-architecture#domain-driven-design)、[Hexagonal Architecture](https://github.com/mehdihadeli/awesome-software-architecture#hexagonal-architecture)、[Clean Architecture](https://github.com/mehdihadeli/awesome-software-architecture#clean-architecture)、[Vertical Slice Architecture](https://github.com/mehdihadeli/awesome-software-architecture#vertical-slice-architecture)、[Microservices](https://github.com/mehdihadeli/awesome-software-architecture#microservices)、[Cloud Design Patterns](https://github.com/mehdihadeli/awesome-software-architecture#cloud-design-patterns)、[Back Pressure](https://github.com/mehdihadeli/awesome-software-architecture#back-pressure)、[Micro-Frontend](https://github.com/mehdihadeli/awesome-software-architecture#micro-frontend)、[Architecture Documentation](https://github.com/mehdihadeli/awesome-software-architecture/blob/main/docs/architecture-documententation.md)
+- **入口**：[Awesome Software Architecture](https://github.com/mehdihadeli/awesome-software-architecture)
+
+### Awesome Software Architecture：Architectural Design Principles
+
+- **来源类型**：GitHub 索引
+- **适用范围**：架构思维与模块边界
+- **用途**：查漏补缺；发现耦合、内聚、依赖和设计原则的原始资料。
+- **核查日期**：2026-07-23
+- **使用边界**：社区主题索引只提供导航，不能作为设计原则或架构结论的唯一证据。
+- **入口**：[Architectural Design Principles](https://github.com/mehdihadeli/awesome-software-architecture#architectural-design-principles)
+
+### Awesome Software Architecture：模块化单体与 DDD
+
+- **来源类型**：GitHub 索引
+- **适用范围**：模块边界
+- **用途**：查漏补缺；发现模块化单体、限界上下文和领域建模资料。
+- **核查日期**：2026-07-23
+- **使用边界**：社区主题索引不能证明模式适用性；边界仍需用所有权、依赖和部署证据核对。
+- **入口**：[Modular Monolith](https://github.com/mehdihadeli/awesome-software-architecture#modular-monolith)、[Domain Driven Design](https://github.com/mehdihadeli/awesome-software-architecture#domain-driven-design)
+
+### Awesome Software Architecture：依赖方向模式
+
+- **来源类型**：GitHub 索引
+- **适用范围**：模块边界
+- **用途**：查漏补缺；发现 Hexagonal、Clean 与 Vertical Slice 的原作者和示例材料。
+- **核查日期**：2026-07-23
+- **使用边界**：模式名称和社区索引不能替代对编译依赖、运行时调用及数据所有权的检查。
+- **入口**：[Hexagonal Architecture](https://github.com/mehdihadeli/awesome-software-architecture#hexagonal-architecture)、[Clean Architecture](https://github.com/mehdihadeli/awesome-software-architecture#clean-architecture)、[Vertical Slice Architecture](https://github.com/mehdihadeli/awesome-software-architecture#vertical-slice-architecture)
+
+### Awesome Software Architecture：可靠性与云模式
+
+- **来源类型**：GitHub 索引
+- **适用范围**：可靠性、状态与生产治理
+- **用途**：查漏补缺；发现 Microservices、Cloud Design Patterns 与 Back Pressure 的进一步资料。
+- **核查日期**：2026-07-23
+- **使用边界**：社区索引不能单独证明故障语义、恢复保证或生产适用性。
+- **入口**：[Microservices](https://github.com/mehdihadeli/awesome-software-architecture#microservices)、[Cloud Design Patterns](https://github.com/mehdihadeli/awesome-software-architecture#cloud-design-patterns)、[Back Pressure](https://github.com/mehdihadeli/awesome-software-architecture#back-pressure)
+
+### Awesome Software Architecture：Micro-Frontend
+
+- **来源类型**：GitHub 索引
+- **适用范围**：协作状态与前端
+- **用途**：查漏补缺；定位微前端运行时组合和团队边界材料。
+- **核查日期**：2026-07-23
+- **使用边界**：社区索引不能证明业务边界、团队边界与运行时边界天然一致。
+- **入口**：[Micro-Frontend](https://github.com/mehdihadeli/awesome-software-architecture#micro-frontend)
+
+### Awesome Software Architecture：Architecture Documentation
+
+- **来源类型**：GitHub 索引
+- **适用范围**：架构思维与表达
+- **用途**：深入拓展；发现 ADR、C4、arc42 和文档示例。
+- **核查日期**：2026-07-23
+- **使用边界**：社区整理页面只作导航；文档方法的定义与边界应回到各自官方资料核对。
+- **入口**：[Architecture Documentation](https://github.com/mehdihadeli/awesome-software-architecture/blob/main/docs/architecture-documententation.md)
+
+### System Design Primer
+
+- **来源类型**：GitHub 索引
+- **适用范围**：学习路线总览、分布式系统与生产治理
+- **用途**：以社区主题地图、解题流程和公开题解导航系统设计学习。
+- **核查日期**：2026-07-23
+- **使用边界**：社区导航和教学材料不能作为产品行为或架构事实的唯一证据；具体结论需回到教材、官方文档或可检查实现。
+- **入口**：[仓库首页](https://github.com/donnemartin/system-design-primer)、[System design topics](https://github.com/donnemartin/system-design-primer#system-design-topics-start-here)、[System design interview questions](https://github.com/donnemartin/system-design-primer#system-design-interview-questions-with-solutions)、[How to approach a system design question](https://github.com/donnemartin/system-design-primer#how-to-approach-a-system-design-interview-question)
 
 ### Awesome Front-end System Design
 
@@ -244,23 +317,23 @@ official_sources:
 
 ## 工程博客与第三方教程
 
-### System Design Primer
-
-- **来源类型**：公认教材
-- **适用范围**：分布式系统与生产治理
-- **用途**：以公开教材建立系统设计主题地图和解题流程。
-- **核查日期**：2026-07-23
-- **使用边界**：用于学习与解释，不是产品官方规范；架构事实和版本行为仍需一手来源核对。
-- **入口**：[System design topics](https://github.com/donnemartin/system-design-primer#system-design-topics-start-here)、[How to approach a system design question](https://github.com/donnemartin/system-design-primer#how-to-approach-a-system-design-interview-question)
-
-### System Design Primer 案例练习
+### roadmap.sh Software Architect
 
 - **来源类型**：工程博客与第三方教程
-- **适用范围**：分布式系统
-- **用途**：深入拓展；通过公开题解练习把约束、规模与组件选择连接起来。
+- **适用范围**：学习路线总览
+- **用途**：作为社区路线图导航软件架构主题，帮助发现待补知识域。
 - **核查日期**：2026-07-23
-- **使用边界**：第三方教学材料只用于解释和练习，不能作为产品行为或架构事实的唯一证据。
-- **入口**：[System design interview questions](https://github.com/donnemartin/system-design-primer#system-design-interview-questions-with-solutions)
+- **使用边界**：社区导航只用于规划学习顺序，不能作为架构事实的唯一证据。
+- **入口**：[roadmap.sh Software Architect](https://roadmap.sh/software-architect)
+
+### Designing Data-Intensive Applications
+
+- **来源类型**：公认教材
+- **适用范围**：分布式系统
+- **用途**：必读起点；从可靠性、可扩展性和可维护性建立数据系统、复制、分区、事务与流处理基础。
+- **核查日期**：2026-07-23
+- **使用边界**：教材用于建立稳定概念与权衡框架；产品版本、API 和具体实现仍需官方资料核对。
+- **入口**：[Designing Data-Intensive Applications](https://dataintensive.net/)
 
 ### Architecture Patterns with Python
 
