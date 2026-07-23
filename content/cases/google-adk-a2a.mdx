@@ -69,7 +69,7 @@ official_sources:
 
 因此要先拆开两类边界。本地 ADK 用父子树、workflow 和 Session 组织同一应用；A2A 用 Agent Card、Message、Task 与 Artifact 连接独立系统。MCP 又位于工具与数据边界，不能替 A2A 持有远端 agent 的任务生命周期。
 
-本文只分析固定证据截面。版本与源码入口放进证据卡；远端信任、取消后果、工具副作用和人工对账继续留在主叙事。
+版本与源码入口由固定证据截面核验。沿着一次本地委派跨到远端服务时，正文持续追问信任、取消、工具副作用和人工对账由谁承担。
 
 ## 学习问题
 
@@ -391,7 +391,9 @@ A2A 版本兼容应在连接前完成：读取 `supportedInterfaces`，选择双
 
 ### 取消、重试、幂等与事务
 
-**已证实事实**：A2A Cancel Task 只要求服务尝试取消，取消可能不受支持或任务已终止；Send Message 仅 MAY 通过 `messageId` 去重。固定版本 `RemoteA2aAgent` 没有把本地取消意图映射到 A2A Cancel Task 的端到端 client 路径，ADK 服务端 executor 的 `cancel()` 还直接抛出 `NotImplementedError`。因此超时关闭 HTTP 连接、用户点击“停止”和远端副作用停止是三件不同的事；需要取消时，应用必须自建支持该操作的 A2A client/gateway，并在接入时验证远端实现。
+**已证实事实**：A2A Cancel Task 只要求服务尝试取消，取消可能不受支持或任务已终止；Send Message 仅 MAY 通过 `messageId` 去重。固定版本 `RemoteA2aAgent` 没有把本地取消意图映射到 A2A Cancel Task 的端到端 client 路径，ADK 服务端 executor 的 `cancel()` 还直接抛出 `NotImplementedError`。
+
+因此超时关闭 HTTP 连接、用户点击“停止”和远端副作用停止是三件不同的事。需要取消时，应用必须自建支持该操作的 A2A client/gateway，并在接入时验证远端实现。
 
 生产建议：
 
@@ -414,7 +416,9 @@ ADK Event 的 `invocation_id` 可关联一次本地交互，A2A 提供 `taskId` 
 | 安全 | card 校验、认证失败、skill 拒绝、敏感数据策略、Artifact 拒绝 | 证明策略在边界执行 |
 | 质量 | 任务成功、tool trajectory、最终回答、Artifact schema、人工纠正 | 区分“协议成功”和“任务成功” |
 
-ADK 官方 evaluation 支持 tool trajectory、reference response、rubric、groundedness、安全和多轮 trajectory 等判据。A2A 场景还应加入契约与对抗数据集：旧/new card 版本、错误 MIME、重复 Message、乱序 Artifact、长时间 working、input-required 后恢复、取消竞态、远端返回 prompt injection、远端 completed 但业务账本未提交。
+ADK 官方 evaluation 支持 tool trajectory、reference response、rubric、groundedness、安全和多轮 trajectory 等判据。
+
+A2A 场景还应加入契约与对抗数据集：旧/new card 版本、错误 MIME、重复 Message、乱序 Artifact、长时间 working、input-required 后恢复、取消竞态、远端返回 prompt injection、远端 completed 但业务账本未提交。
 
 ### 典型生产失败模式
 

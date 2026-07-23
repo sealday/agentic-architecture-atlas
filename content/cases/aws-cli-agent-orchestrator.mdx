@@ -73,7 +73,7 @@ official_sources:
 
 CLI Agent Orchestrator（CAO）让已有 AI 编程 CLI 作为完整进程运行，由 supervisor 通过 `handoff`、`assign` 和 `send_message` 协调。真正限制自治的不是“有 supervisor”这件事，而是可执行 workflow、provider 工具权限、工作区隔离和 operator checkpoint 是否形成闭环。
 
-本文只分析固定本地实现。提交、文件和符号放入证据卡；文件写入、凭证、取消、恢复和人工验收继续留在主叙事。
+证据边界落在这份本地实现上：提交、文件和符号由证据卡核验。正文则沿着文件写入、凭证、取消、恢复和人工验收追踪 CAO 无法代替的控制。
 
 ## 学习问题
 
@@ -333,7 +333,9 @@ planned -> dispatched -> acknowledged -> running
 
 ### MCP 在架构中的位置
 
-**已证实事实**：MCP 的标准边界是 host–client–server。CAO 为 session 内 agent 暴露 `cao-mcp-server`，提供编排 tools；另有 `cao-ops-mcp` 供外部 MCP-capable agent 管理 session。两者最终都调用 CAO 默认位于 `127.0.0.1:9889`、可由环境变量改址的 HTTP API，而 worker 本身仍由各 provider CLI 启动。启用 HTTP auth 后，MCP server 可用 `CAO_AUTH_LOCAL_TOKEN` 为内部 HTTP hop 添加 Bearer credential。
+**已证实事实**：MCP 的标准边界是 host–client–server。CAO 为 session 内 agent 暴露 `cao-mcp-server`，提供编排 tools；另有 `cao-ops-mcp` 供外部 MCP-capable agent 管理 session。
+
+两者最终都调用 CAO 默认位于 `127.0.0.1:9889`、可由环境变量改址的 HTTP API，而 worker 本身仍由各 provider CLI 启动。启用 HTTP auth 后，MCP server 可用 `CAO_AUTH_LOCAL_TOKEN` 为内部 HTTP hop 添加 Bearer credential。
 
 **基于证据的推断**：MCP 统一的是 tool schema、调用和返回，不会自动统一 OS 用户、provider 登录、working directory、Git 权限和云凭证。把 tool 暴露给 agent 之前仍要做最小权限与信任判断；尤其固定版本无法逐个禁用 CAO MCP tool，不能把 `allowedTools` 当成完整 MCP authorization layer。
 
@@ -411,7 +413,9 @@ profile 工具限制适合减少误操作和表达角色意图。provider 原生
 
 **已证实事实**：CAO server 默认绑定 `127.0.0.1:9889`，host/port 可由 `CAO_API_HOST` / `CAO_API_PORT` 修改。未配置 IdP 时，OAuth 认证默认关闭，HTTP 请求获得完整 scope 集合，因而安全姿态是“可信 loopback”，不是匿名公网服务。working directory 验证拒绝系统敏感路径，但允许用户 home、外部卷和其他有效目录；`--yolo` 允许任意工具并跳过确认。
 
-**已证实事实**：配置 `AUTH0_DOMAIN` 或 `CAO_AUTH_JWKS_URI` 后，内建 HTTP auth 会验证 RS256、issuer、audience 与 expiry，并把 token scope 映射为 `cao:read`、`cao:write`、`cao:admin`。固定源码保证所有 mutating routes 需要 `cao:write` / `cao:admin`，并让 `/events`、`/events/history` 等特定读端点至少需要 `cao:read`；这不表示每一个 HTTP GET 都受 read scope 保护。MCP server 可通过 `CAO_AUTH_LOCAL_TOKEN` 为内部 HTTP 调用转发 Bearer token。这个保护不覆盖 PTY WebSocket：该端点仍未认证，只接受默认 loopback 或显式 `CAO_WS_ALLOWED_CLIENTS` 中的来源。
+**已证实事实**：配置 `AUTH0_DOMAIN` 或 `CAO_AUTH_JWKS_URI` 后，内建 HTTP auth 会验证 RS256、issuer、audience 与 expiry，并把 token scope 映射为 `cao:read`、`cao:write`、`cao:admin`。固定源码保证所有 mutating routes 需要 `cao:write` / `cao:admin`，并让 `/events`、`/events/history` 等特定读端点至少需要 `cao:read`；这不表示每一个 HTTP GET 都受 read scope 保护。
+
+MCP server 可通过 `CAO_AUTH_LOCAL_TOKEN` 为内部 HTTP 调用转发 Bearer token。这个保护不覆盖 PTY WebSocket：该端点仍未认证，只接受默认 loopback 或显式 `CAO_WS_ALLOWED_CLIENTS` 中的来源。
 
 **个人分析**：共享机器或服务化部署至少补齐：
 

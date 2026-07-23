@@ -166,7 +166,11 @@ flowchart TB
   Edged -. "pod / node status" .-> Meta
 ```
 
-文字等价描述：云端 Operator 通过 Kubernetes API 修改 pod 或 Device CRD；CloudCore controllers 产生面向节点的期望状态，CloudHub 经 WebSocket/QUIC 连接把消息送到 EdgeHub。EdgeCore 内 MetaManager 持久化节点局部 metadata，Edged 经 CRI 运行容器；DeviceTwin 保存 expected/actual，EventBus 或 DMI 边界把它交给 Mapper，Mapper 才与物理设备交互。断网时云边虚线被切断，已运行应用只可依据未过期权限租约和本地 cache 执行，并写本地 outbox；重连后先上报和协调，不直接把离线结果当成云端新真相。
+文字等价描述：云端 Operator 通过 Kubernetes API 修改 pod 或 Device CRD；CloudCore controllers 产生面向节点的期望状态，CloudHub 经 WebSocket/QUIC 连接把消息送到 EdgeHub。
+
+EdgeCore 内 MetaManager 持久化节点局部 metadata，Edged 经 CRI 运行容器；DeviceTwin 保存 expected/actual，EventBus 或 DMI 边界把它交给 Mapper，Mapper 才与物理设备交互。
+
+断网时云边虚线被切断，已运行应用只可依据未过期权限租约和本地 cache 执行，并写本地 outbox。重连后先上报和协调，不直接把离线结果当成云端新真相。
 
 ## 控制权与任务流
 
@@ -192,7 +196,9 @@ flowchart TB
 
 **基于证据的推断**：对于 Agent，云端下发的不是一条无限期“自主运行”开关，而是一个可验证 bundle：`lease_id`、`policy_version`、`model_digest`、`tool_digest`、`device_set`、`risk_ceiling`、`not_before`、`expires_at`、`max_offline_duration`、预算和撤销 epoch。边缘只接受签名有效、版本不降级、设备身份匹配且仍在时间窗内的 bundle。
 
-**个人分析**：每次本地动作先写 append-only audit/outbox，再调用工具或设备，随后追加 receipt，不原地改写历史。记录至少包含单调序号、boot ID、wall clock、monotonic elapsed、输入/输出 hash、策略判定、模型/工具版本、设备证书指纹、效果分类与操作者。这个 outbox 是应用设计，不应假装成 MetaManager cache 或 DeviceTwin twin 表。
+**个人分析**：每次本地动作先写 append-only audit/outbox，再调用工具或设备，随后追加 receipt，不原地改写历史。记录至少包含单调序号、boot ID、wall clock、monotonic elapsed、输入/输出 hash、策略判定、模型/工具版本、设备证书指纹、效果分类与操作者。
+
+这个 outbox 是应用设计，不应假装成 MetaManager cache 或 DeviceTwin twin 表。
 
 ## 关键源码导读
 
@@ -274,11 +280,15 @@ flowchart TB
 
 **安全。已证实事实**：v1.20 EdgeHub CertManager 加载节点 X.509 certificate/key，首次缺失时用 token 获取 CA 与边缘证书，开启 rotation 后在证书生命周期约 70%–90% 的抖动点申请新证书，并让 EdgeHub 重连使用新材料。这是节点到 CloudCore 的身份链，不是每台物理设备或每个 Agent 工具的自动身份。
 
-**安全。个人分析**：设备身份应独立于 node identity，最好由 TPM/secure element 保护私钥；Mapper 建立会话时验证设备证书或硬件标识，并把设备指纹写入每条 command receipt。工具凭证按动作即时派生、短期有效且不进入模型 prompt、SQLite metadata 或普通日志。断网撤销天然有传播延迟，所以高风险证书和租约必须更短，并配本地 denylist/epoch。
+**安全。个人分析**：设备身份应独立于 node identity，最好由 TPM/secure element 保护私钥；Mapper 建立会话时验证设备证书或硬件标识，并把设备指纹写入每条 command receipt。
+
+工具凭证按动作即时派生、短期有效且不进入模型 prompt、SQLite metadata 或普通日志。断网撤销天然有传播延迟，所以高风险证书和租约必须更短，并配本地 denylist/epoch。
 
 **容量与恢复。个人分析**：磁盘接近满载时，优先保留安全事件、租约、outbox 和最小运行 metadata，停止模型缓存扩张与低价值 telemetry。恢复测试要覆盖 CloudHub 不可达、EdgeCore 重启、SQLite 损坏、CRI 重启、Mapper 断连、设备 reported 停滞、证书轮换失败和 outbox 重复上传；“pod 还在跑”不等于物理流程安全。
 
-**可观测性。基于证据的推断**：KubeEdge 的连接、resource version、pod status 和 twin version 只能说明基础同步状态。Agent 还要记录 `lease_id/policy/model/tool/security_epoch`、offline duration、risk class、operation ID、device receipt、base/result version、clock uncertainty 和 human takeover reason，才能解释为什么一个离线动作被允许以及重连后如何裁决。
+**可观测性。基于证据的推断**：KubeEdge 的连接、resource version、pod status 和 twin version 只能说明基础同步状态。
+
+Agent 还要记录 `lease_id/policy/model/tool/security_epoch`、offline duration、risk class、operation ID、device receipt、base/result version、clock uncertainty 和 human takeover reason，才能解释为什么一个离线动作被允许以及重连后如何裁决。
 
 ## 可迁移经验
 

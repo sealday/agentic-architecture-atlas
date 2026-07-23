@@ -201,7 +201,7 @@ classic JoinGroup 收集成员协议与订阅，coordinator 选 leader 和共同
 **已证实事实**：OffsetMetadataManager 校验并生成 offset coordinator record，但不调用用户数据库，也不检查 Agent 结果。客户端则从 fetch buffer 解析已分配 partition 的记录并推进 next offset；提交与业务完成仍由应用负责。
 
 <details className="evidence-card">
-  <summary>证据：fixed commit 中的 classic assignment、offset 与 fetch seam</summary>
+  <summary>证据：固定提交中的 classic assignment、offset 与 fetch 源码接缝</summary>
 
   - [`KafkaApis.scala` 1389–1440](https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/core/src/main/scala/kafka/server/KafkaApis.scala#L1389-L1440)：JoinGroup/SyncGroup、OffsetCommit 与 Fetch 的权限和后端入口。
   - [`ClassicGroup.java` 72–154](https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/group-coordinator/src/main/java/org/apache/kafka/coordinator/group/classic/ClassicGroup.java#L72-L154) 与 [`ClassicGroupState.java` 29–126](https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/group-coordinator/src/main/java/org/apache/kafka/coordinator/group/classic/ClassicGroupState.java#L29-L126)：成员、leader、generation 与状态迁移。

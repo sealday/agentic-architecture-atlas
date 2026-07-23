@@ -63,7 +63,7 @@ Supervisor 可以在模型上下文里记住“下一步找谁”，但进程退
 
 模型仍可动态选择专家，图则显式保存任务进度、分支合并和暂停位置。恢复的关键不再是重新拼出一段相似对话，而是从已提交状态判断哪些节点可以重跑、哪些结果可复用、哪些副作用必须先对账。
 
-本文只使用固定文档与源码范围。提交、符号和辅助入口放入证据卡；授权、耐久窗口、外部副作用和人工升级仍留在主叙事。
+固定文档与源码只负责界定 state、edge、reducer 和 checkpoint 的行为。授权、耐久窗口、外部副作用和人工升级仍由正文展开，因为这些边界决定图能否安全恢复。
 
 ## 学习问题
 
@@ -420,7 +420,9 @@ sequenceDiagram
 
 ### 可观测性与评估
 
-至少为每次运行记录 `tenant_id`、`task_id`、`thread_id`、`run_id`、`checkpoint_id`、graph/prompt/model/tool 版本、节点开始/结束、路由决定、重试次数、interrupt 原因、subagent token/时延/费用、reducer 输入摘要和最终状态。LangGraph 提供 stream 的 updates、values、messages、checkpoints、tasks/debug 等观察面，并可接入 LangSmith tracing；这提供执行证据，不等于质量结论。
+至少为每次运行记录 `tenant_id`、`task_id`、`thread_id`、`run_id`、`checkpoint_id`、graph/prompt/model/tool 版本、节点开始/结束、路由决定、重试次数和 interrupt 原因。subagent token/时延/费用、reducer 输入摘要和最终状态也要进入同一关联链。
+
+LangGraph 提供 stream 的 updates、values、messages、checkpoints、tasks/debug 等观察面，并可接入 LangSmith tracing；这提供执行证据，不等于质量结论。
 
 评估应分层：Router 看分类 precision/recall 与拒答；Supervisor 看正确专家选择、无效循环、计划完成率；subagent 看领域正确性与引用；fan-in 看覆盖、矛盾处理和重复率；系统看端到端完成率、人工升级率、P50/P95 时延、每成功任务费用和恢复成功率。上线前用故障注入覆盖“并行一支失败”“interrupt 后进程重启”“恢复前代码升级”“副作用响应丢失”等场景。
 
@@ -436,7 +438,11 @@ sequenceDiagram
 
 ### 成本与容量边界
 
-多智能体成本近似为主智能体规划与综合、每个 subagent 的模型/工具调用、失败重试、评估和状态存储之和。并行能降低墙钟时延，却不会降低 token 总量，还可能抬高峰值并发。`sync` durability 还会把每步 checkpoint 提交时延放进关键路径；应只在最新写入生存要求值得这项开销时使用，并以真实 backend 测量 P95/P99。生产预算应同时限制每 run 的 Supervisor 回合、subagent 调用数、`Send` 数、`max_concurrency`、每节点 token、重试次数、总 deadline、checkpoint 大小与 retention。把“部分结果 + 明确缺口”定义为合法降级，通常比无界自动修复更可靠。
+多智能体成本近似为主智能体规划与综合、每个 subagent 的模型/工具调用、失败重试、评估和状态存储之和。并行能降低墙钟时延，却不会降低 token 总量，还可能抬高峰值并发。
+
+`sync` durability 会把每步 checkpoint 提交时延放进关键路径；应只在最新写入生存要求值得这项开销时使用，并以真实 backend 测量 P95/P99。
+
+生产预算应同时限制每 run 的 Supervisor 回合、subagent 调用数、`Send` 数、`max_concurrency`、每节点 token、重试次数、总 deadline、checkpoint 大小与 retention。把“部分结果 + 明确缺口”定义为合法降级，通常比无界自动修复更可靠。
 
 ## 可迁移经验
 
