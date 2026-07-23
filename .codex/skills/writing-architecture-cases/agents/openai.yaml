@@ -1,0 +1,4 @@
+interface:
+  display_name: "架构案例写作"
+  short_description: "用双层叙事与证据结构撰写和审阅可核验的架构案例文章"
+  default_prompt: "Use $writing-architecture-cases to rewrite this architecture case for a first-time reader without losing evidence."
