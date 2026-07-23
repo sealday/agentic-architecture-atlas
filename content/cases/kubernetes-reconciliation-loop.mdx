@@ -192,11 +192,16 @@ Agent 中的 owner 也要分层：任务 owner 负责最终不变量，artifact 
 <details className="evidence-card">
   <summary>证据：固定提交中的 controller、kubelet 与 Lease seam</summary>
 
-  - [`deployment_controller.go` 53–165](https://github.com/kubernetes/kubernetes/blob/39c618b5c30ced3969862e0b4b5acce7a7f8cecb/pkg/controller/deployment/deployment_controller.go#L53-L165)：15 次重试常量、lister、限速队列与 informer handler。
-  - [`deployment_controller.go` 399–548](https://github.com/kubernetes/kubernetes/blob/39c618b5c30ced3969862e0b4b5acce7a7f8cecb/pkg/controller/deployment/deployment_controller.go#L399-L548)：立即/限速/延迟入队、同 key 串行、success/error 路径与 owner adoption fresh read。
+  - [`deployment_controller.go` 53–116](https://github.com/kubernetes/kubernetes/blob/39c618b5c30ced3969862e0b4b5acce7a7f8cecb/pkg/controller/deployment/deployment_controller.go#L53-L116)：15 次重试常量、lister 与限速队列。
+  - [`deployment_controller.go` 123–165](https://github.com/kubernetes/kubernetes/blob/39c618b5c30ced3969862e0b4b5acce7a7f8cecb/pkg/controller/deployment/deployment_controller.go#L123-L165)：Deployment、ReplicaSet 与 Pod informer handler。
+  - [`deployment_controller.go` 399–427](https://github.com/kubernetes/kubernetes/blob/39c618b5c30ced3969862e0b4b5acce7a7f8cecb/pkg/controller/deployment/deployment_controller.go#L399-L427)：立即、限速与延迟入队。
+  - [`deployment_controller.go` 479–519](https://github.com/kubernetes/kubernetes/blob/39c618b5c30ced3969862e0b4b5acce7a7f8cecb/pkg/controller/deployment/deployment_controller.go#L479-L519)：同 key 串行及 success/error 路径。
+  - [`deployment_controller.go` 521–548](https://github.com/kubernetes/kubernetes/blob/39c618b5c30ced3969862e0b4b5acce7a7f8cecb/pkg/controller/deployment/deployment_controller.go#L521-L548)：owner adoption 前的 fresh read。
   - [`deployment_controller.go` 572–659](https://github.com/kubernetes/kubernetes/blob/39c618b5c30ced3969862e0b4b5acce7a7f8cecb/pkg/controller/deployment/deployment_controller.go#L572-L659)：重读 Deployment、重建 owned 状态与非 re-entrant rollback 边界。
   - [`sync.go` 220–299](https://github.com/kubernetes/kubernetes/blob/39c618b5c30ced3969862e0b4b5acce7a7f8cecb/pkg/controller/deployment/sync.go#L220-L299) 与 [`sync.go` 478–531](https://github.com/kubernetes/kubernetes/blob/39c618b5c30ced3969862e0b4b5acce7a7f8cecb/pkg/controller/deployment/sync.go#L478-L531)：ReplicaSet 身份校验、collision status、status no-op 与 `ObservedGeneration`。
-  - [`kubelet.go` 2018–2067](https://github.com/kubernetes/kubernetes/blob/39c618b5c30ced3969862e0b4b5acce7a7f8cecb/pkg/kubelet/kubelet.go#L2018-L2067) 及 [2680–2877](https://github.com/kubernetes/kubernetes/blob/39c618b5c30ced3969862e0b4b5acce7a7f8cecb/pkg/kubelet/kubelet.go#L2680-L2877)：可重入 `SyncPod`、多事件源、runtime 100ms 到 5s 退避与无事件顺序保证。
+  - [`kubelet.go` 2018–2067](https://github.com/kubernetes/kubernetes/blob/39c618b5c30ced3969862e0b4b5acce7a7f8cecb/pkg/kubelet/kubelet.go#L2018-L2067)：可重入 `SyncPod`。
+  - [`kubelet.go` 2680–2725](https://github.com/kubernetes/kubernetes/blob/39c618b5c30ced3969862e0b4b5acce7a7f8cecb/pkg/kubelet/kubelet.go#L2680-L2725)：多配置源与 runtime 100ms 到 5s 退避。
+  - [`kubelet.go` 2728–2877](https://github.com/kubernetes/kubernetes/blob/39c618b5c30ced3969862e0b4b5acce7a7f8cecb/pkg/kubelet/kubelet.go#L2728-L2877)：多事件 channel 与无处理顺序保证。
   - [`leaderelection.go` 17–48](https://github.com/kubernetes/kubernetes/blob/39c618b5c30ced3969862e0b4b5acce7a7f8cecb/staging/src/k8s.io/client-go/tools/leaderelection/leaderelection.go#L17-L48)：不保证单 leader，且不提供 fencing。
   - **证明边界：** 这些 seam 证明具体控制流及其限制，不证明任意外部动作或模型步骤可安全重入。
 </details>
