@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import test from 'node:test';
 
+import {requiredCaseSlugs} from '../scripts/content-schema.mjs';
+
 const factInventory = {
   'apache-kafka-consumer-groups.mdx': [
     'retention.ms',
@@ -94,6 +96,21 @@ const factInventory = {
     'INVALID_CONCURRENT_GRAPH_UPDATE',
     'durability="sync"',
   ],
+  'litellm-virtual-keys-governance.mdx': [
+    'PROXY_ADMIN',
+    'models: []',
+    'model_max_budget',
+    'all-team-models',
+    'all-proxy-models',
+  ],
+  'kong-ai-gateway-routing-resilience.mdx': [
+    'failover_criteria',
+    'retries',
+    'max_fails',
+    'fail_timeout',
+    'task ID',
+    'context ID',
+  ],
   'micro-frontends-single-spa.mdx': [
     'activeWhen(location)',
     'bootstrap',
@@ -105,6 +122,13 @@ const factInventory = {
     'tenant_id',
     'correlation_id',
     'PolicyDecisionPoint',
+  ],
+  'new-api-channel-pool-routing.mdx': [
+    'GetRandomSatisfiedChannel',
+    'GetNextEnabledKey',
+    'shouldRetry',
+    'auto-disabled',
+    'retry index',
   ],
   'openai-agents-sdk.mdx': [
     'current_agent',
@@ -138,10 +162,14 @@ const factInventory = {
 };
 
 test('preserves the reviewed operational fact inventory for every case', async () => {
-  assert.equal(
-    Object.keys(factInventory).length,
-    15,
-    'the inventory must cover every architecture case',
+  const inventorySlugs = Object.keys(factInventory).map(
+    (filename) => `/cases/${filename.replace(/\.mdx$/, '')}`,
+  );
+
+  assert.deepEqual(
+    inventorySlugs.sort(),
+    [...requiredCaseSlugs].sort(),
+    'the inventory must cover every case in the canonical manifest',
   );
 
   for (const [filename, facts] of Object.entries(factInventory)) {

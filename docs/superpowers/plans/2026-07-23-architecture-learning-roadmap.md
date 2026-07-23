@@ -1,5 +1,10 @@
 # Architecture Learning Roadmap Implementation Plan
 
+> **Status:** Superseded（已取代；单页学习路线仅保留为历史实施记录）。
+> 当前多文章路线实施记录见
+> [`2026-07-23-multi-article-learning-roadmap.md`](2026-07-23-multi-article-learning-roadmap.md)，
+> 长期任务状态见 [`docs/content-backlog.md`](../../content-backlog.md)。
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Replace the shallow five-case reading list with a six-stage software-architecture learning roadmap that directs experienced developers to selected external foundations and uses every tracked case for mechanism-level study.

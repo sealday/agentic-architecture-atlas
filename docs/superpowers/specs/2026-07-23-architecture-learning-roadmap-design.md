@@ -1,5 +1,10 @@
 # 软件架构学习路线改造设计
 
+**状态：** Superseded（已取代；单页学习路线仅保留为历史设计记录）
+**替代文档：** 当前多文章路线设计见
+[`2026-07-23-multi-article-learning-roadmap-design.md`](2026-07-23-multi-article-learning-roadmap-design.md)，
+长期任务状态见 [`docs/content-backlog.md`](../../content-backlog.md)。
+
 ## 背景
 
 当前 `/paths` 页面只有五篇 AI 原生案例组成的线性阅读清单。它能说明多智能体系统中控制权、状态和治理的递进关系，但不能承担“有开发经验、第一次系统学习软件架构”的学习入口：

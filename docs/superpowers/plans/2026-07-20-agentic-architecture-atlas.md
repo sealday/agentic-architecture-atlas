@@ -1,5 +1,9 @@
 # Agentic Architecture Atlas Implementation Plan
 
+> **Status:** Superseded（已取代；仅保留五篇首发案例的历史实施记录）。
+> 当前任务与案例基线见
+> [`docs/content-backlog.md`](../../content-backlog.md)。
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Build and publish a Chinese Docusaurus site containing five evidence-backed AI multi-agent architecture case studies, with a content model that can scale to hundreds of cases and design questions.

@@ -1,7 +1,9 @@
 # Agentic Architecture Atlas 设计规格
 
 **日期：** 2026-07-20  
-**状态：** 已通过书面审阅
+**状态：** Superseded（已取代；仅保留五篇首发案例的历史设计记录）
+**替代文档：** 当前任务与案例基线见
+[`docs/content-backlog.md`](../../content-backlog.md)。
 **仓库：** `sealday/agentic-architecture-atlas`  
 **本地根目录：** `/Users/seal/projects/tego-arch`
 **站点：** `https://sealday.github.io/agentic-architecture-atlas/`

@@ -1,5 +1,9 @@
 # Second Architecture Case Collection Implementation Plan
 
+> **Status:** Superseded（已取代；仅保留十五篇案例阶段的历史实施记录）。
+> 当前任务与 18 篇案例基线见
+> [`docs/content-backlog.md`](../../content-backlog.md)。
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Expand Agentic Architecture Atlas from five to fifteen complete case studies and make MDX front matter the single source of truth for a generated, filterable case catalog.
