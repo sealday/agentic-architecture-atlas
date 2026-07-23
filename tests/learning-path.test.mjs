@@ -1,11 +1,12 @@
 import assert from 'node:assert/strict';
-import {readFile, stat} from 'node:fs/promises';
+import {readFile, readdir, stat} from 'node:fs/promises';
 import path from 'node:path';
 import test from 'node:test';
 import {fileURLToPath} from 'node:url';
 
 import {
   extractMarkdownBody,
+  findMarkdownHeadings,
   parseFrontMatter,
 } from '../scripts/content-metadata.mjs';
 import {requiredCaseSlugs} from '../scripts/content-schema.mjs';
@@ -18,6 +19,9 @@ const pathDirectory = fileURLToPath(
 );
 const referencesFile = fileURLToPath(
   new URL('../content/references/index.mdx', import.meta.url),
+);
+const roadmapImageDirectory = fileURLToPath(
+  new URL('../static/img/paths/', import.meta.url),
 );
 const roadmapImageFile = fileURLToPath(
   new URL(
@@ -58,43 +62,277 @@ const commonArticleHeadings = [
   '## 继续学习',
 ];
 
+const expectedMermaidFlowchart = [
+  'flowchart LR',
+  'S1["1 架构表达"] --> S2["2 模块边界"]',
+  'S2 --> S3["3 分布式基础"]',
+  'S3 --> S4["4 可靠性与状态"]',
+  'S4 --> S5["5 生产治理"]',
+  'S5 --> S6["6 Agentic 架构"]',
+  'S5 -.按职责选择.-> T1["云原生与平台"]',
+  'S5 -.按职责选择.-> T2["协作状态与前端"]',
+  'S5 -.按职责选择.-> T3["边缘与物理智能体"]',
+  'S6 -.按职责选择.-> T4["Agent 平台与模型网关"]',
+];
+
+const allowedRequiredSourceTypes = [
+  '官方文档',
+  '官方仓库',
+  '官方规范',
+  '标准文档',
+  '原始论文',
+  '维护者工程演讲',
+];
+
+function stripIgnoredMarkdown(source) {
+  const withoutComments = source.replace(/<!--[\s\S]*?-->/g, '');
+  const lines = withoutComments.split(/\r?\n/);
+  const visibleLines = [];
+  let fence;
+
+  for (const line of lines) {
+    const marker = line.match(/^ {0,3}(`{3,}|~{3,})/);
+    if (marker) {
+      if (!fence) {
+        fence = marker[1][0];
+      } else if (marker[1][0] === fence) {
+        fence = undefined;
+      }
+      continue;
+    }
+    if (!fence) {
+      visibleLines.push(line);
+    }
+  }
+
+  return visibleLines.join('\n').replace(/(`+)[\s\S]*?\1/g, '');
+}
+
+function referenceDefinitions(source) {
+  const definitions = new Map();
+  const pattern = /^ {0,3}\[([^\]]+)\]:\s*<?([^\s>]+)>?(?:\s+.*)?$/gm;
+
+  for (const [, identifier, href] of source.matchAll(pattern)) {
+    definitions.set(identifier.trim().replace(/\s+/g, ' ').toLowerCase(), href);
+  }
+
+  return definitions;
+}
+
+function extractMarkdownLinks(source) {
+  const visible = stripIgnoredMarkdown(source);
+  const definitions = referenceDefinitions(visible);
+  const links = new Set();
+
+  const inlinePattern =
+    /(?<!!)\[[^\]]+\]\(\s*(?:<([^>\s]+)>|([^)\s]+))(?:\s+["'][^"']*["'])?\s*\)/g;
+  for (const match of visible.matchAll(inlinePattern)) {
+    links.add(match[1] ?? match[2]);
+  }
+
+  for (const [, label, identifier] of visible.matchAll(
+    /(?<!!)\[([^\]]+)\]\[([^\]]*)\]/g,
+  )) {
+    const key = (identifier || label).trim().replace(/\s+/g, ' ').toLowerCase();
+    const href = definitions.get(key);
+    if (href) {
+      links.add(href);
+    }
+  }
+
+  for (const [, label] of visible.matchAll(
+    /(?<!!)\[([^\]]+)\](?![\[(:])/g,
+  )) {
+    const key = label.trim().replace(/\s+/g, ' ').toLowerCase();
+    const href = definitions.get(key);
+    if (href) {
+      links.add(href);
+    }
+  }
+
+  return links;
+}
+
+function extractExternalLinks(source) {
+  const visible = stripIgnoredMarkdown(source);
+  const links = new Set(
+    [...extractMarkdownLinks(visible)].filter((href) =>
+      href.startsWith('https://'),
+    ),
+  );
+
+  for (const [, href] of visible.matchAll(/<((?:https:\/\/)[^>\s]+)>/g)) {
+    links.add(href);
+  }
+
+  const hrefPattern =
+    /\bhref\s*=\s*(?:["'](https:\/\/[^"']+)["']|\{\s*["'](https:\/\/[^"']+)["']\s*\}|(https:\/\/[^\s>]+))/g;
+  for (const match of visible.matchAll(hrefPattern)) {
+    links.add(match[1] ?? match[2] ?? match[3]);
+  }
+
+  return links;
+}
+
+function extractFencedBlocks(source, language) {
+  const visible = source.replace(/<!--[\s\S]*?-->/g, '');
+  const blocks = [];
+  const pattern = /^ {0,3}(`{3,}|~{3,})([^\r\n]*)\r?\n([\s\S]*?)^ {0,3}\1\s*$/gm;
+
+  for (const [, , info, content] of visible.matchAll(pattern)) {
+    if (info.trim().split(/\s+/)[0] === language) {
+      blocks.push(content);
+    }
+  }
+
+  return blocks;
+}
+
+function sectionForHeading(source, headingText) {
+  const headings = findMarkdownHeadings(source).filter(
+    ({level}) => level === 2,
+  );
+  const index = headings.findIndex(({text}) => text === headingText);
+  assert.notEqual(index, -1, `Missing real heading: ## ${headingText}`);
+
+  const start = source.indexOf('\n', headings[index].offset);
+  const end = headings[index + 1]?.offset ?? source.length;
+  return source.slice(start === -1 ? end : start + 1, end);
+}
+
+function assertSectionHasVisibleContent(source, headingText, label) {
+  const section = sectionForHeading(source, headingText);
+  const visible = stripIgnoredMarkdown(section)
+    .replace(/^ *(?:import|export)\b.*$/gm, '')
+    .replace(/^ {0,3}\[[^\]]+\]:.*$/gm, '')
+    .replace(/<[^>]+>/g, '')
+    .replace(/!\[([^\]]*)\]\([^)]+\)/g, '$1')
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/[#>*_~|[\]()-]/g, ' ');
+
+  assert.match(
+    visible,
+    /[\p{L}\p{N}]/u,
+    `## ${headingText} has no visible content in ${label}`,
+  );
+}
+
 function assertHeadingsInOrder(source, headings, label) {
+  const actualHeadings = findMarkdownHeadings(source).filter(
+    ({level}) => level === 2,
+  );
   let previousOffset = -1;
+
   for (const heading of headings) {
-    const offset = source.indexOf(heading);
+    const text = heading.replace(/^## /, '');
+    const matches = actualHeadings.filter((candidate) => candidate.text === text);
+    assert.equal(matches.length, 1, `${heading} must occur exactly once in ${label}`);
     assert.ok(
-      offset > previousOffset,
-      `${heading} is missing or out of order in ${label}`,
+      matches[0].offset > previousOffset,
+      `${heading} is out of order in ${label}`,
     );
-    previousOffset = offset;
+    assertSectionHasVisibleContent(source, text, label);
+    previousOffset = matches[0].offset;
   }
 }
 
 function assertLinksTo(body, slug, label) {
-  assert.ok(body.includes(`](${slug})`), `${label} does not link to ${slug}`);
-}
-
-async function readRoadmapDocuments() {
-  return Promise.all(
-    roadmapDocuments.map(async ([filename, slug]) => {
-      const source = await readFile(path.join(pathDirectory, filename), 'utf8');
-      return {
-        body: extractMarkdownBody(source),
-        filename,
-        metadata: parseFrontMatter(source),
-        slug,
-        source,
-      };
-    }),
+  assert.ok(
+    extractMarkdownLinks(body).has(slug),
+    `${label} does not contain a real Markdown link to ${slug}`,
   );
 }
 
-test('defines ordered slugs and article structure for every roadmap document', async () => {
+async function readRequiredFile(filename, label) {
+  try {
+    return await readFile(filename, 'utf8');
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      assert.fail(`Missing ${label}: ${filename}`);
+    }
+    throw error;
+  }
+}
+
+async function readRoadmapDocuments() {
+  const documents = [];
+
+  for (const [filename, slug] of roadmapDocuments) {
+    const documentPath = path.join(pathDirectory, filename);
+    const source = await readRequiredFile(
+      documentPath,
+      `roadmap document ${filename}`,
+    );
+    documents.push({
+      body: extractMarkdownBody(source),
+      filename,
+      metadata: parseFrontMatter(source),
+      slug,
+    });
+  }
+
+  return documents;
+}
+
+test('extracts real links across Markdown and MDX syntax', () => {
+  const fixture = `
+[inline](https://example.com/inline)
+[angle](<https://example.com/angle>)
+[reference][source]
+[source]: https://example.com/reference
+<https://example.com/autolink>
+<a href="https://example.com/html">HTML</a>
+<Link href={'https://example.com/mdx'}>MDX</Link>
+<a href=https://example.com/unquoted>unquoted</a>
+
+<!-- [comment](https://example.com/comment) -->
+\`[inline code](https://example.com/inline-code)\`
+\`\`\`md
+[fence](https://example.com/fence)
+\`\`\`
+`;
+
+  assert.deepEqual(
+    [...extractExternalLinks(fixture)].sort(),
+    [
+      'https://example.com/angle',
+      'https://example.com/autolink',
+      'https://example.com/html',
+      'https://example.com/inline',
+      'https://example.com/mdx',
+      'https://example.com/reference',
+      'https://example.com/unquoted',
+    ],
+  );
+  assert.deepEqual(
+    [
+      ...extractMarkdownLinks(`
+![image is not a link](/cases/not-a-link)
+[unused]: /cases/not-a-link-either
+`),
+    ],
+    [],
+  );
+});
+
+test('contains exactly the overview and ten declared roadmap documents', async () => {
+  const actual = (await readdir(pathDirectory))
+    .filter((filename) => filename.endsWith('.mdx'))
+    .sort();
+  const expected = [
+    'index.mdx',
+    ...roadmapDocuments.map(([filename]) => filename),
+  ].sort();
+
+  assert.deepEqual(actual, expected);
+});
+
+test('defines ordered slugs and non-empty article sections', async () => {
   const documents = await readRoadmapDocuments();
 
   for (const [index, document] of documents.entries()) {
     assert.equal(document.metadata.slug, document.slug);
-    assert.equal(document.metadata.sidebar_position, index + 2);
+    assert.equal(document.metadata.sidebar_position, index + 6);
     assertHeadingsInOrder(
       document.body,
       commonArticleHeadings,
@@ -103,80 +341,97 @@ test('defines ordered slugs and article structure for every roadmap document', a
   }
 
   for (const document of documents.slice(mainStages.length)) {
-    assert.ok(
-      document.body.includes('## 当前已覆盖'),
-      `## 当前已覆盖 is missing in ${document.filename}`,
-    );
-    assert.ok(
-      document.body.includes('## 后续待补'),
-      `## 后续待补 is missing in ${document.filename}`,
-    );
+    const topicHeadings = ['## 当前已覆盖', '## 后续待补'];
+    assertHeadingsInOrder(document.body, topicHeadings, document.filename);
   }
 });
 
-test('defines the roadmap overview visual contract', async () => {
-  const source = await readFile(learningPathFile, 'utf8');
+test('defines the overview metadata, links, image, and exact Mermaid flowchart', async () => {
+  const source = await readRequiredFile(learningPathFile, 'roadmap overview');
   const metadata = parseFrontMatter(source);
   const body = extractMarkdownBody(source);
 
-  assert.equal(metadata.sidebar_position, 1);
-  assert.ok(
-    body.includes('/img/paths/software-architecture-learning-roadmap.png'),
-    'Overview does not reference the generated roadmap image',
+  assert.equal(metadata.slug, '/paths');
+  assert.equal(metadata.sidebar_position, 5);
+  for (const [, slug] of roadmapDocuments) {
+    assertLinksTo(body, slug, 'roadmap overview');
+  }
+  assert.match(
+    stripIgnoredMarkdown(body),
+    /!\[[^\]]*\]\(\/img\/paths\/software-architecture-learning-roadmap\.png\)/,
+    'Overview does not contain a real Markdown image for the roadmap asset',
   );
-  assert.match(body, /```mermaid(?:\r?\n|[ \t])/);
+
+  const mermaidBlocks = extractFencedBlocks(body, 'mermaid');
+  assert.equal(mermaidBlocks.length, 1, 'Overview must contain one Mermaid block');
+  const normalizedFlowchart = mermaidBlocks[0]
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+  assert.deepEqual(normalizedFlowchart, expectedMermaidFlowchart);
 });
 
-test('registers every learning-path source and covers every canonical case', async () => {
+test('registers every real external learning-path link exactly', async () => {
   const [overviewSource, referencesSource, documents] = await Promise.all([
-    readFile(learningPathFile, 'utf8'),
-    readFile(referencesFile, 'utf8'),
+    readRequiredFile(learningPathFile, 'roadmap overview'),
+    readRequiredFile(referencesFile, 'source registry'),
     readRoadmapDocuments(),
   ]);
-  const referencesBody = extractMarkdownBody(referencesSource);
+  const registryLinks = extractExternalLinks(
+    extractMarkdownBody(referencesSource),
+  );
   const pathBodies = [
     extractMarkdownBody(overviewSource),
     ...documents.map(({body}) => body),
   ];
 
   for (const [index, body] of pathBodies.entries()) {
-    const externalLinks = [
-      ...body.matchAll(/\[[^\]]+\]\((https:\/\/[^)\s]+)\)/g),
-    ].map(([, href]) => href);
-
-    for (const href of externalLinks) {
+    for (const href of extractExternalLinks(body)) {
       assert.ok(
-        referencesBody.includes(href),
-        `${href} from roadmap document ${index + 1} is not registered`,
+        registryLinks.has(href),
+        `${href} from roadmap document ${index + 1} is not an exact real registry link`,
       );
     }
   }
+});
 
-  const combinedBodies = pathBodies.join('\n');
+test('covers every canonical case with a real Markdown link', async () => {
+  const [overviewSource, documents] = await Promise.all([
+    readRequiredFile(learningPathFile, 'roadmap overview'),
+    readRoadmapDocuments(),
+  ]);
+  const links = new Set([
+    ...extractMarkdownLinks(extractMarkdownBody(overviewSource)),
+    ...documents.flatMap(({body}) => [...extractMarkdownLinks(body)]),
+  ]);
+
   for (const slug of requiredCaseSlugs) {
-    assert.ok(
-      combinedBodies.includes(slug),
-      `Canonical case is not covered by the roadmap: ${slug}`,
-    );
+    assert.ok(links.has(slug), `Canonical case is not linked: ${slug}`);
   }
 });
 
-test('keeps third-party indexes and tutorials out of main-stage starting lists', async () => {
+test('requires typed first-party sources in every main-stage starting section', async () => {
   const documents = (await readRoadmapDocuments()).slice(0, mainStages.length);
 
   for (const document of documents) {
-    const start = document.body.indexOf('## 必读起点');
-    const end = document.body.indexOf('## 查漏补缺', start);
+    const section = sectionForHeading(document.body, '必读起点');
+    const visible = stripIgnoredMarkdown(section);
+    const listItems = visible
+      .split(/\r?\n/)
+      .filter((line) => /^ {0,3}[-*+]\s+/.test(line));
 
-    assert.ok(
-      start !== -1 && end > start,
-      `Invalid 必读起点 section in ${document.filename}`,
-    );
-    const requiredStartingPoints = document.body.slice(start, end);
     assert.doesNotMatch(
-      requiredStartingPoints,
-      /^\s*[-*+]\s+.*(?:GitHub 索引|第三方教程).*$/m,
-      `Disallowed starting-point label in ${document.filename}`,
+      visible,
+      /GitHub 索引|社区|第三方|工程博客/,
+      `Community or third-party source label appears in ${document.filename}`,
+    );
+    assert.ok(
+      listItems.some(
+        (item) =>
+          extractExternalLinks(item).size > 0 &&
+          allowedRequiredSourceTypes.some((type) => item.includes(type)),
+      ),
+      `${document.filename} needs an explicitly typed allowed source in ## 必读起点`,
     );
   }
 });
@@ -213,9 +468,31 @@ test('links the main stages in sequence and every topic back to the overview', a
   }
 });
 
-test('ships a generated roadmap image larger than 50 KB', async () => {
-  const image = await stat(roadmapImageFile);
+test('ships exactly one valid generated roadmap PNG larger than 50 KB', async () => {
+  let entries = [];
+  try {
+    entries = await readdir(roadmapImageDirectory, {withFileTypes: true});
+  } catch (error) {
+    if (error.code !== 'ENOENT') {
+      throw error;
+    }
+  }
 
+  const pngFiles = entries
+    .filter((entry) => entry.isFile() && entry.name.toLowerCase().endsWith('.png'))
+    .map(({name}) => name)
+    .sort();
+  assert.deepEqual(pngFiles, ['software-architecture-learning-roadmap.png']);
+
+  const [image, imageBuffer] = await Promise.all([
+    stat(roadmapImageFile),
+    readFile(roadmapImageFile),
+  ]);
+  assert.deepEqual(
+    imageBuffer.subarray(0, 8),
+    Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+    'Roadmap asset does not have a PNG signature',
+  );
   assert.ok(
     image.size > 50 * 1024,
     `Roadmap image is only ${image.size} bytes`,
