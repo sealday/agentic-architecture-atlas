@@ -1,57 +1,19 @@
 import Link from '@docusaurus/Link';
 import topicIndexes from '@site/src/generated/topic-indexes.json';
 import styles from './styles.module.css';
+import {
+  parseTopicIndexes,
+  selectTopics,
+  type TopicIndexProps,
+} from './topicIndexModel';
 
-type TopicType =
-  | 'concept'
-  | 'principle'
-  | 'quality-attribute'
-  | 'method'
-  | 'modeling'
-  | 'style'
-  | 'pattern'
-  | 'case'
-  | 'question'
-  | 'path';
-
-type TopicPriority = 'P0' | 'P1' | null;
-
-type TopicStatus = {
-  scope: 'backlog-projection' | 'content-lifecycle';
-  value: string;
-  source: string;
-};
-
-type TopicIndexEntry = {
-  id: string;
-  type: TopicType;
-  title: string;
-  slug: string;
-  priority: TopicPriority;
-  status: TopicStatus;
-  dependencies: string[];
-  primary_sources: string[];
-  related_cases: string[];
-  reviewed_at: string | null;
-  published: boolean;
-};
-
-type TopicIndexes = Record<TopicType, TopicIndexEntry[]>;
-
-type TopicIndexProps = {
-  type: TopicType;
-  plannedOnly?: boolean;
-};
-
-const topicIndexData = topicIndexes as TopicIndexes;
+const topicIndexData = parseTopicIndexes(topicIndexes);
 
 export default function TopicIndex({
   type,
   plannedOnly = false,
 }: TopicIndexProps) {
-  const topics = topicIndexData[type].filter(
-    (topic) => !plannedOnly || !topic.published,
-  );
+  const topics = selectTopics(topicIndexData[type], plannedOnly);
 
   if (topics.length === 0) {
     return <p>当前没有符合条件的主题。</p>;

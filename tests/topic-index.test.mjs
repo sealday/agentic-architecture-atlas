@@ -8,6 +8,30 @@ async function source(path) {
   return readFile(new URL(path, root), 'utf8');
 }
 
+async function generatedIndexes() {
+  return JSON.parse(await source('src/generated/topic-indexes.json'));
+}
+
+function topicFixture({id, priority, published = false}) {
+  return {
+    id,
+    type: 'concept',
+    title: `Fixture ${id}`,
+    slug: `/concepts/${id.toLowerCase()}`,
+    priority,
+    status: {
+      scope: published ? 'content-lifecycle' : 'backlog-projection',
+      value: published ? 'reviewed' : 'pending',
+      source: published ? `content/${id}.mdx` : 'docs/content-backlog.md',
+    },
+    dependencies: [],
+    primary_sources: published ? ['https://example.com/source'] : [],
+    related_cases: [],
+    reviewed_at: published ? '2026-07-23' : null,
+    published,
+  };
+}
+
 test('connects all ten content type indexes', async () => {
   const indexPages = new Map([
     ['content/concepts/index.mdx', {slug: '/concepts', type: 'concept'}],
@@ -60,6 +84,22 @@ test('connects all ten content type indexes', async () => {
 });
 
 test('renders published and planned topics without broken links', async () => {
+  const {selectTopics} = await import(
+    '../src/components/TopicIndex/topicIndexModel.ts'
+  );
+  const indexes = await generatedIndexes();
+  const allCases = selectTopics(indexes.case, false);
+  const plannedCases = selectTopics(indexes.case, true);
+
+  assert.deepEqual(allCases, indexes.case);
+  assert.ok(indexes.case.some((topic) => topic.published));
+  assert.ok(indexes.case.some((topic) => !topic.published));
+  assert.equal(
+    plannedCases.length,
+    indexes.case.filter((topic) => !topic.published).length,
+  );
+  assert.ok(plannedCases.every((topic) => !topic.published));
+
   const component = await source('src/components/TopicIndex/index.tsx');
 
   assert.match(
@@ -82,10 +122,44 @@ test('renders published and planned topics without broken links', async () => {
 });
 
 test('renders review dates and nullable priorities honestly', async () => {
+  const {parseTopicIndexes} = await import(
+    '../src/components/TopicIndex/topicIndexModel.ts'
+  );
+  const generated = await generatedIndexes();
+  const parsedGenerated = parseTopicIndexes(generated);
+  const fixtureIndexes = Object.fromEntries(
+    Object.keys(generated).map((type) => [type, []]),
+  );
+  fixtureIndexes.concept = [
+    topicFixture({id: 'FIX-P2', priority: 'P2'}),
+    topicFixture({id: 'FIX-P3', priority: 'P3'}),
+    topicFixture({id: 'FIX-NULL', priority: null, published: true}),
+  ];
+
+  const parsedFixture = parseTopicIndexes(fixtureIndexes);
+  assert.deepEqual(
+    parsedFixture.concept.map(({priority}) => priority),
+    ['P2', 'P3', null],
+  );
+  assert.ok(
+    Object.values(parsedGenerated)
+      .flat()
+      .some(({priority}) => priority === 'P2'),
+    'generated indexes must exercise a real P2 topic',
+  );
+  assert.throws(
+    () =>
+      parseTopicIndexes({
+        ...fixtureIndexes,
+        concept: [topicFixture({id: 'FIX-P4', priority: 'P4'})],
+      }),
+    /invalid priority "P4"/,
+  );
+
   const component = await source('src/components/TopicIndex/index.tsx');
 
-  assert.match(component, /priority: TopicPriority;/);
-  assert.match(component, /type TopicPriority = 'P0' \| 'P1' \| null;/);
+  assert.match(component, /parseTopicIndexes\(topicIndexes\)/);
+  assert.doesNotMatch(component, /topicIndexes as TopicIndexes/);
   assert.match(component, /\{topic\.priority && \(/);
   assert.doesNotMatch(component, /priority \?\? /);
   assert.doesNotMatch(component, /priority \|\| /);
