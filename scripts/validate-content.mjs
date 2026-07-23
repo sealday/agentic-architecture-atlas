@@ -1,7 +1,12 @@
 import path from 'node:path';
+import {readFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 
 import {readContentDocuments} from './content-metadata.mjs';
+import {
+  parseSourceLedger,
+  validateSourceGovernance,
+} from './source-ledger.mjs';
 import {
   allowedPriorities,
   allowedSeries,
@@ -422,17 +427,48 @@ async function runCli() {
 
   try {
     const [requiredCollection] = requestedCollections;
-    const {documents, errors} = await validateContent(root, {requiredCollection});
+    const contentRoot = path.resolve(root);
+    const ledgerPath = path.join(
+      path.dirname(contentRoot),
+      'data/source-ledger.json',
+    );
+    const {documents, errors: contentErrors} = await validateContent(
+      contentRoot,
+      {requiredCollection},
+    );
+    const errors = [...contentErrors];
+    let ledger;
+
+    try {
+      const ledgerValue = JSON.parse(await readFile(ledgerPath, 'utf8'));
+      const parsed = parseSourceLedger(ledgerValue, ledgerPath);
+      errors.push(...parsed.errors);
+      ledger = parsed.errors.length === 0 ? parsed.ledger : undefined;
+    } catch (error) {
+      errors.push(
+        error instanceof SyntaxError
+          ? `${ledgerPath}: invalid JSON: ${error.message}`
+          : `${ledgerPath}: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+
+    if (ledger) {
+      errors.push(...validateSourceGovernance(documents, ledger).errors);
+    }
 
     if (errors.length > 0) {
-      for (const error of errors) {
+      for (const error of errors.sort((left, right) =>
+        left.localeCompare(right, 'en'),
+      )) {
         console.error(error);
       }
       process.exitCode = 1;
       return;
     }
 
-    console.log(`Validated ${documents.length} content document(s).`);
+    console.log(
+      `Validated ${documents.length} content document(s) and ${ledger.sources.length} registered source(s).`,
+    );
   } catch (error) {
     console.error(error instanceof Error ? error.message : String(error));
     process.exitCode = 1;

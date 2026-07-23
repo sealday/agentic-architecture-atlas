@@ -76,6 +76,84 @@ async function writeMdx(root, relativePath, frontMatter, body = validCaseBody) {
   await writeFile(filePath, `---\n${frontMatter}\n---\n\n${body}\n`);
 }
 
+function sourceLedgerFixture(overrides = {}) {
+  return {
+    schema_version: 1,
+    sources: [
+      {
+        id: 'src-c4-model',
+        canonical_locator: 'https://c4model.com/',
+        transport_locator: 'https://c4model.com/',
+        query_insensitive: false,
+        locator_aliases: [],
+        tombstone: null,
+        title: 'C4 model',
+        author_or_org: 'Simon Brown',
+        published_at: null,
+        checked_at: '2026-07-23',
+        version: 'current page checked on 2026-07-23',
+        source_kind: 'official-docs',
+        tier: 'primary',
+        allowed_evidence_roles: ['case-evidence'],
+        license: 'LicenseRef-All-Rights-Reserved',
+        license_scope: 'Page text and diagrams; third-party links excluded',
+        license_evidence_url: 'https://c4model.com/',
+        license_evidence_note: 'No reuse license is declared on the checked page',
+        license_family_id: 'https://c4model.com/',
+        license_family_grouping: 'identity',
+        family_grouping_evidence_url: null,
+        copyright_policy: 'facts-and-short-quotation',
+        usage_boundary: 'Supports the fixture architecture claim.',
+        link_policy: 'stable',
+        expected_final_transport_locator: 'https://c4model.com/',
+        expected_final_approved_at: '2026-07-23',
+        expected_final_approval_note: 'Initial reviewed transport baseline',
+      },
+    ],
+    documents: {
+      'content/cases/example.mdx': {
+        reviewed_at: '2026-07-23',
+        copyright_checks: [
+          'original-structure',
+          'quotation-boundary',
+          'attribution-complete',
+          'illustration-rights',
+        ],
+        citations: [
+          {
+            source_id: 'src-c4-model',
+            citation_url: 'https://c4model.com/',
+            roles: ['case-evidence'],
+            manifest_primary: true,
+            usage_mode: 'facts-summary',
+            attribution_note: 'C4 model, Simon Brown',
+            modification_note: null,
+            excerpt: null,
+            quotation_reviewed: false,
+          },
+        ],
+      },
+    },
+    ...overrides,
+  };
+}
+
+async function writeSourceGovernanceProject(projectRoot, {body, ledger} = {}) {
+  const contentRoot = path.join(projectRoot, 'content');
+  await writeMdx(
+    contentRoot,
+    'cases/example.mdx',
+    validCaseFrontMatter('/cases/example'),
+    body ?? `${validCaseBody}\n\n[C4 model](https://c4model.com/)`,
+  );
+  await mkdir(path.join(projectRoot, 'data'), {recursive: true});
+  await writeFile(
+    path.join(projectRoot, 'data/source-ledger.json'),
+    `${JSON.stringify(ledger ?? sourceLedgerFixture(), null, 2)}\n`,
+  );
+  return contentRoot;
+}
+
 function validCaseFrontMatter(slug, overrides = {}) {
   const values = {
     title: 'Launch case',
@@ -243,9 +321,36 @@ test('accepts all five structurally valid launch cases', async () => {
       assert.ok(Array.isArray(snapshot.headings));
     }
 
+    const cliProjectRoot = path.join(root, 'cli-project');
+    const cliContentRoot = path.join(cliProjectRoot, 'content');
+    await Promise.all(
+      expectedLaunchCases.map(({slug, catalog_order}) =>
+        writeMdx(
+          cliContentRoot,
+          `case-${catalog_order}.mdx`,
+          validCaseFrontMatter(slug, {catalog_order}),
+          `${validCaseBody}\n\n[C4 model](https://c4model.com/)`,
+        ),
+      ),
+    );
+    const governedDocument =
+      sourceLedgerFixture().documents['content/cases/example.mdx'];
+    const cliLedger = sourceLedgerFixture({
+      documents: Object.fromEntries(
+        expectedLaunchCases.map(({catalog_order}) => [
+          `content/case-${catalog_order}.mdx`,
+          governedDocument,
+        ]),
+      ),
+    });
+    await mkdir(path.join(cliProjectRoot, 'data'), {recursive: true});
+    await writeFile(
+      path.join(cliProjectRoot, 'data/source-ledger.json'),
+      `${JSON.stringify(cliLedger, null, 2)}\n`,
+    );
     const cli = spawnSync(
       process.execPath,
-      [validatorScript, root, '--require-launch-cases'],
+      [validatorScript, cliContentRoot, '--require-launch-cases'],
       {encoding: 'utf8'},
     );
     assert.equal(cli.status, 0, cli.stderr);
@@ -989,5 +1094,46 @@ test('rejects conflicting catalog coverage flags', async () => {
 
     assert.equal(cli.status, 1);
     assert.match(`${cli.stdout}${cli.stderr}`, /conflicting coverage flags/i);
+  });
+});
+
+test('the repository validator fails on unregistered article sources', async () => {
+  await withTempRoot(async (projectRoot) => {
+    const contentRoot = await writeSourceGovernanceProject(projectRoot, {
+      body: `${validCaseBody}\n\n[C4 model](https://c4model.com/)\n\n[unregistered](https://example.com/unregistered)`,
+    });
+
+    const cli = spawnSync(process.execPath, [validatorScript, contentRoot], {
+      encoding: 'utf8',
+    });
+    const output = `${cli.stdout}${cli.stderr}`;
+
+    assert.equal(cli.status, 1);
+    assert.match(
+      output,
+      /content\/cases\/example\.mdx: visible URL "https:\/\/example\.com\/unregistered" has no document citation/,
+    );
+  });
+});
+
+test('the repository validator reports source-ledger errors with file context', async () => {
+  await withTempRoot(async (projectRoot) => {
+    const fixture = sourceLedgerFixture();
+    fixture.documents['content/cases/example.mdx'].citations[0].source_id =
+      'src-missing';
+    const contentRoot = await writeSourceGovernanceProject(projectRoot, {
+      ledger: fixture,
+    });
+
+    const cli = spawnSync(process.execPath, [validatorScript, contentRoot], {
+      encoding: 'utf8',
+    });
+    const output = `${cli.stdout}${cli.stderr}`;
+
+    assert.equal(cli.status, 1);
+    assert.match(
+      output,
+      /content\/cases\/example\.mdx.*src-missing.*does not exist/,
+    );
   });
 });

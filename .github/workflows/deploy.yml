@@ -32,6 +32,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # npm run verify uses the committed link-health cache and does not access external sites.
       - name: Verify site
         run: npm run verify
 
