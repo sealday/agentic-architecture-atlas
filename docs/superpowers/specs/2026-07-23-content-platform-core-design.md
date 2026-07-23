@@ -24,6 +24,7 @@
 - 已发布主题必须有至少一个 HTTPS 主要来源和合法复核日期；计划主题可以等待研究后补充来源和复核日期。
 - 不为尚未撰写的主题生成空文章。索引将其显示为不可点击的计划项，并在有来源时提供外部学习入口。
 - 不替换现有 `CaseCatalog` 的筛选体验。案例目录继续使用兼容 JSON，但该 JSON 与各类型索引由同一份 manifest 快照生成。
+- 现有 `case`、`pattern`、`question` 和 `path` 文档不为本故事批量补造 backlog 优先级或关系。没有匹配 backlog ID 的兼容记录使用 `priority: null`、空依赖和空相关案例；`null` 明确表示“没有任务优先级”，不是 P0–P3 的隐式默认。
 - 本次不处理 E0-03 全站 source ledger、E0-04 五类 fixture、E0-06 模式分组和 E0-07 案例分类扩展性；平台为这些故事提供契约和生成边界。
 
 ## 3. 现状
@@ -327,7 +328,7 @@ src/generated/topic-manifest.json
   "type": "case",
   "title": "OpenAI Agents SDK",
   "slug": "/cases/openai-agents-sdk",
-  "priority": "P1",
+  "priority": null,
   "status": {
     "scope": "content-lifecycle",
     "value": "reviewed",
@@ -339,7 +340,21 @@ src/generated/topic-manifest.json
   ],
   "related_cases": [],
   "reviewed_at": "2026-07-20",
-  "published": true
+  "published": true,
+  "presentation": {
+    "case_catalog": {
+      "title": "OpenAI Agents SDK",
+      "slug": "/cases/openai-agents-sdk",
+      "summary": "比较 Manager、Handoff 与代码编排。",
+      "difficulty": "intermediate",
+      "series": "ai-native",
+      "catalog_order": 2,
+      "featured": true,
+      "source_kinds": ["official-docs", "open-source-project"],
+      "migration_targets": ["control-ownership"],
+      "tags": ["OpenAI", "Agents SDK"]
+    }
+  }
 }
 ```
 
@@ -374,6 +389,8 @@ src/generated/topic-manifest.json
 | `QST` | `question` |
 | `CLD`、`FE`、`EDGE`、`AGT` | `path` |
 
+解析器先用宽松 candidate detector 捕获所有以大写 ID token 开始的 checklist 行，再用严格格式解析。candidate 集合与解析结果必须完全相等；缺粗体、缺分隔符、未知前缀、重复 ID 都是错误，不能静默丢弃。当前 backlog 基线排除 14 个 E0 条目后恰好有 198 个主题 ID，真实文件测试同时锁定 candidate 数量、唯一数量和集合相等。
+
 计划 slug 使用稳定 ID：
 
 ```text
@@ -389,9 +406,11 @@ src/generated/topic-manifest.json
 3. 新知识页必须使用 `topic_id` 与 backlog 合并。
 4. 旧内容类型没有 `topic_id` 时，以稳定 slug 派生 `DOC-...` ID。
 5. 相同 `topic_id` 对应多个文件是错误。
-6. 已发布页面的 `type`、`priority`、`depends_on` 必须与 backlog/关系覆盖一致；不一致时生成失败，不静默选边。
+6. 已发布页面的 `type`、`priority` 必须与 backlog 一致，`depends_on`、`related_cases` 必须与关系覆盖一致；不一致时生成失败，不静默选边。
 7. 已发布记录使用真实 slug、`official_sources` 和 `analyzed_at`。
 8. backlog checkbox 始终决定匹配主题的任务 status，即使内容页 front matter 是 `reviewed`。
+9. 没有匹配 backlog ID 的旧文档使用 `priority: null`；缺少 `depends_on`、`related_cases` 时投影为空数组。该兼容默认只表示“尚未登记任务关系”，不能解释为低优先级或没有架构依赖。
+10. 已发布 case 的既有目录字段进入 `presentation.case_catalog`。兼容 case catalog 必须从 manifest 的 published case projection 提取，不能再次从原始 documents 独立生成。
 
 ## 8. 关系覆盖
 
@@ -455,7 +474,7 @@ src/generated/topic-indexes.json
 
 每组按：
 
-1. `priority`：P0 → P3；
+1. `priority`：P0 → P3，`null` 置于所有任务优先级之后；
 2. 依赖图中的最长前置路径深度；
 3. `id`
 
@@ -506,7 +525,7 @@ content/paths/index.mdx
 
 ### 9.4 兼容案例目录
 
-统一生成命令从同一 manifest 构建快照写出：
+统一生成命令先构建唯一 manifest，再从该 manifest 写出：
 
 ```text
 src/generated/topic-manifest.json
@@ -514,7 +533,7 @@ src/generated/topic-indexes.json
 src/generated/case-catalog.json
 ```
 
-`CaseCatalog` 无需在本故事重写。现有 `case-catalog.json` 字段和排序保持逐字节兼容。
+`CaseCatalog` 无需在本故事重写。`case-catalog.json` 只从 manifest 中 `published: true` 的 case 记录的 `presentation.case_catalog` 提取，并按 `catalog_order` 排序；字段和排序保持逐字节兼容。这样案例类型也满足“由 manifest 生成索引”，不会出现同一次构建中 manifest 与案例目录各自解释原始文档。
 
 ## 10. 错误处理
 
@@ -537,6 +556,21 @@ data/topic-relations.json: dependency cycle FND-01 -> FND-02 -> FND-01
 - JSON 输入语法错误或生成目录不可写。
 
 尚未研究的计划主题使用空来源、空关系和 `reviewed_at: null` 是合法状态。
+
+### 10.1 写入与恢复保证
+
+三个生成文件位于同一目录，但 POSIX 不提供跨三个文件的单次原子提交。本故事不宣称事务原子性。
+
+`--write` 提供以下可验证保证：
+
+1. 先在内存中构建并验证全部三个当前输入对应的最终字节串；
+2. 每次启动检查上次 staging：摘要与当前期望字节一致时幂等重放，不一致或不完整时删除；
+3. 在 `src/generated/.content-platform-stage/` 写完整 staging 集合和 `manifest.json` 字节摘要；
+4. staging 集合通过重新读取和摘要校验后，按固定顺序以 sibling temp + rename 替换目标文件；
+5. 任一替换失败时保留完整 staging，打印恢复命令并非零退出；
+6. `--check` 同时拒绝 stale 目标和未处理 staging。
+
+故障后重复运行 `npm run generate:content` 必须收敛到同一字节结果。测试通过注入 rename 失败证明中断后可以恢复，而不是把逐文件 rename 描述成跨文件事务。
 
 ## 11. 包命令和 CI
 
@@ -600,9 +634,9 @@ npm run verify
 2. 实现 manifest builder，并生成首版三份 JSON。
 3. 新增 TopicIndex 与六个入口，接入四个现有入口。
 4. 调整侧栏位置，不改变现有 slug。
-5. 全量验证后提交到 `main`。
-6. 推送并检查 GitHub Pages。
-7. 部署成功后将 E0-01、E0-02 checkbox 和发布基线作为单独证据提交更新。
+5. 实现代理完成 targeted/full verification、独立审查修复和本地 commits 后停止，只向 Ultragoal 负责人交付 commit 与验证证据。
+6. Ultragoal 负责人负责推送 `main`、等待 GitHub Pages、检查线上 route。
+7. 首次部署成功后，负责人另行委派 metadata 代理勾选 E0-01/E0-02 并更新发布基线；metadata commit 再次推送和部署成功后，负责人才能 checkpoint。
 
 生成器引入前的 `generate:catalog`、`check:catalog` 命令保持可用，避免本地习惯和外部自动化同时失效。
 

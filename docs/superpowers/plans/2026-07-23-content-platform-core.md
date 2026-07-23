@@ -17,8 +17,9 @@
 - Preserve all existing public slugs and the current `CaseCatalog` filter behavior.
 - Planned topics must not render internal links until a matching content document exists.
 - Published topics must have at least one HTTPS source and a valid `YYYY-MM-DD` review date.
+- Legacy published documents without a matching backlog ID use `priority: null`, `dependencies: []`, and `related_cases: []`; no P0–P3 value may be invented.
 - Run every production change through RED, observed failure, minimal GREEN, and regression verification.
-- Do not mark E0-01 or E0-02 complete until full verification, review, push, Pages deployment, and live-route checks succeed.
+- Implementation workers stop after verified local commits and review evidence. Only the Ultragoal leader may push, deploy, delegate post-deployment backlog/baseline metadata, or checkpoint.
 
 ---
 
@@ -200,17 +201,26 @@ function validKnowledgeFrontMatter(type, overrides = {}) {
 }
 ```
 
-Add tests that write one valid document per map entry and assert no errors, then remove `summary`, set `priority: P9`, change `depends_on` to a scalar, and delete/reorder one required heading in separate fixtures. For `quality-attribute`, move `### Response measure` outside `## 质量属性场景` and assert a section-ownership error.
+Add tests with these exact names:
+
+- `accepts all six knowledge content contracts`
+- `rejects invalid knowledge metadata`
+- `rejects missing or reordered knowledge headings`
+- `keeps quality attribute scenario fields inside their section`
+
+The first writes one valid document per map entry and asserts no errors. The remaining tests remove `summary`, set `priority: P9`, change `depends_on` to a scalar, delete/reorder one required heading, and move `### Response measure` outside `## 质量属性场景` in separate fixtures.
 
 - [ ] **Step 2: Run focused tests and observe RED**
 
 Run:
 
 ```bash
-node --test --test-name-pattern="knowledge content|quality attribute scenario" tests/content-validation.test.mjs
+node --test --test-name-pattern="accepts all six knowledge content contracts|rejects invalid knowledge metadata|rejects missing or reordered knowledge headings|keeps quality attribute scenario fields inside their section" tests/content-validation.test.mjs 2>&1 | tee /tmp/tego-arch-g002-schema-red.tap
+test "$(rg -c '^(ok|not ok) [0-9]+ - (accepts all six knowledge content contracts|rejects invalid knowledge metadata|rejects missing or reordered knowledge headings|keeps quality attribute scenario fields inside their section)$' /tmp/tego-arch-g002-schema-red.tap)" -eq 4
+test "$(rg -c '^not ok [0-9]+ - (accepts all six knowledge content contracts|rejects invalid knowledge metadata|rejects missing or reordered knowledge headings|keeps quality attribute scenario fields inside their section)$' /tmp/tego-arch-g002-schema-red.tap)" -ge 1
 ```
 
-Expected: FAIL because all six content types are invalid and no knowledge-specific metadata or heading checks exist.
+Expected: exactly four matching tests execute and at least one fails because the knowledge contracts do not exist. The TAP assertions prove the filter did not select zero tests.
 
 - [ ] **Step 3: Define the contracts**
 
@@ -366,7 +376,9 @@ For a knowledge type:
 Run:
 
 ```bash
-node --test --test-name-pattern="knowledge content|quality attribute scenario" tests/content-validation.test.mjs
+node --test --test-name-pattern="accepts all six knowledge content contracts|rejects invalid knowledge metadata|rejects missing or reordered knowledge headings|keeps quality attribute scenario fields inside their section" tests/content-validation.test.mjs 2>&1 | tee /tmp/tego-arch-g002-schema-green.tap
+test "$(rg -c '^ok [0-9]+ - (accepts all six knowledge content contracts|rejects invalid knowledge metadata|rejects missing or reordered knowledge headings|keeps quality attribute scenario fields inside their section)$' /tmp/tego-arch-g002-schema-green.tap)" -eq 4
+test "$(rg -c '^not ok [0-9]+ - (accepts all six knowledge content contracts|rejects invalid knowledge metadata|rejects missing or reordered knowledge headings|keeps quality attribute scenario fields inside their section)$' /tmp/tego-arch-g002-schema-green.tap || true)" -eq 0
 node --test tests/content-validation.test.mjs tests/content-metadata.test.mjs
 ```
 
@@ -434,7 +446,7 @@ assert.deepEqual(result.topics, [
     slug: '/concepts/fnd-01',
     priority: 'P0',
     complete: false,
-    line: 6,
+    line: 5,
   },
   {
     id: 'QA-01',
@@ -443,22 +455,45 @@ assert.deepEqual(result.topics, [
     slug: '/quality-attributes/qa-01',
     priority: 'P0',
     complete: true,
-    line: 7,
+    line: 6,
   },
 ]);
 ```
 
-Add cases for every prefix family in the design, duplicate IDs, invalid priority, and an unknown bold task ID `XYZ-01`.
+Add cases for every prefix family in the design, duplicate IDs, invalid priority, an unknown bold task ID `XYZ-01`, a missing `｜`, missing bold markers, and trailing explanation punctuation. Use exact test names:
+
+- `parses known topic rows and exact source lines`
+- `covers every supported topic prefix`
+- `rejects malformed or unknown topic candidates instead of dropping them`
+- `covers the complete real backlog topic set`
+
+The real-backlog test must assert:
+
+```js
+assert.equal(candidates.length, 198);
+assert.equal(candidateIds.size, 198);
+assert.equal(result.topics.length, 198);
+assert.deepEqual(
+  new Set(result.topics.map(({id}) => id)),
+  candidateIds,
+);
+for (const id of ['FND-01', 'QA-00', 'PAT-DC-09', 'AGT-06', 'CASE-20', 'QST-10']) {
+  assert.ok(candidateIds.has(id));
+}
+```
+
+`candidateIds` comes from the broad detector below, not from `result.topics`.
 
 - [ ] **Step 2: Run and observe RED**
 
 Run:
 
 ```bash
-node --test tests/backlog-topics.test.mjs
+node --test --test-name-pattern="parses known topic rows and exact source lines|covers every supported topic prefix|rejects malformed or unknown topic candidates instead of dropping them|covers the complete real backlog topic set" tests/backlog-topics.test.mjs 2>&1 | tee /tmp/tego-arch-g002-backlog-red.tap
+rg -q 'ERR_MODULE_NOT_FOUND' /tmp/tego-arch-g002-backlog-red.tap
 ```
 
-Expected: FAIL with module-not-found for `scripts/backlog-topics.mjs`.
+Expected: the named test file fails with `ERR_MODULE_NOT_FOUND`; the second command proves the intended missing parser caused RED instead of a zero-match pass.
 
 - [ ] **Step 3: Implement the parser**
 
@@ -491,7 +526,24 @@ export const topicPrefixTypes = new Map([
 ]);
 ```
 
-Match only bold task rows:
+Detect candidates before applying the strict parser. The broad detector accepts checklist rows with or without bold markers and records the ID token:
+
+```js
+export function findBacklogTopicCandidates(source) {
+  const candidates = [];
+  for (const [index, line] of source.split(/\r?\n/).entries()) {
+    const match = line.match(
+      /^-\s+\[[ xX]\]\s+(?:\*\*)?([A-Z][A-Z0-9-]*)\b/,
+    );
+    if (match && !match[1].startsWith('E0-')) {
+      candidates.push({id: match[1], line: index + 1, source: line});
+    }
+  }
+  return candidates;
+}
+```
+
+Then parse the complete bold task row:
 
 ```js
 const task = line.match(
@@ -512,16 +564,20 @@ const prefix = orderedPrefixes.find((candidate) =>
 
 Ignore E0 IDs explicitly. If a bold task-shaped row has a non-E0 unknown prefix or priority, return a line-numbered error. Normalize title by trimming a terminal Chinese/ASCII period.
 
+After parsing, compare the broad candidate ID set with parsed topic IDs. Every missing, duplicate, or extra ID is an error. A candidate without bold markers or `｜` therefore fails loudly instead of disappearing. Export `findBacklogTopicCandidates()` so the real-backlog test can independently compare the two sets.
+
 - [ ] **Step 4: Run GREEN and parse the real backlog**
 
 Run:
 
 ```bash
-node --test tests/backlog-topics.test.mjs
+node --test --test-name-pattern="parses known topic rows and exact source lines|covers every supported topic prefix|rejects malformed or unknown topic candidates instead of dropping them|covers the complete real backlog topic set" tests/backlog-topics.test.mjs 2>&1 | tee /tmp/tego-arch-g002-backlog-green.tap
+test "$(rg -c '^ok ' /tmp/tego-arch-g002-backlog-green.tap)" -eq 4
+test "$(rg -c '^not ok ' /tmp/tego-arch-g002-backlog-green.tap || true)" -eq 0
 node -e "import('./scripts/backlog-topics.mjs').then(async ({parseBacklogTopics}) => { const {readFile} = await import('node:fs/promises'); const result = parseBacklogTopics(await readFile('docs/content-backlog.md', 'utf8')); if (result.errors.length) throw new Error(result.errors.join('\\n')); console.log(result.topics.length); })"
 ```
 
-Expected: tests PASS; the real command prints a positive topic count and exits 0.
+Expected: exactly four matching tests PASS; the real command prints `198` and exits 0.
 
 - [ ] **Step 5: Commit**
 
@@ -566,22 +622,34 @@ Test these exact behaviors:
 1. Pending `FND-01` produces `status.scope === 'backlog-projection'` and `value === 'pending'`.
 2. Checked `QA-01` produces `value === 'complete'`.
 3. A published concept with `topic_id: FND-01` replaces the planned slug and sources but keeps backlog status.
-4. A legacy case without `topic_id` derives `DOC-CASE-OPENAI-AGENTS-SDK`.
+4. A legacy case without `topic_id` derives `DOC-CASE-OPENAI-AGENTS-SDK`, uses `priority: null`, empty relation arrays, and preserves a complete `presentation.case_catalog`.
 5. Duplicate `topic_id`, type mismatch, priority mismatch, missing relation ID, self dependency, dependency cycle, and unknown related case each produce explicit errors.
 6. Planned empty sources and `reviewed_at: null` are accepted.
 7. Published empty sources or invalid review dates fail.
+8. Case-catalog compatibility entries can be reconstructed only from manifest published case projections.
 
 Use plain object document fixtures; do not write filesystem fixtures in this unit test.
+
+Use exact test names:
+
+- `projects backlog status without a second writer`
+- `merges published knowledge content by topic id`
+- `projects legacy documents with explicit compatibility defaults`
+- `rejects manifest identity and relation conflicts`
+- `rejects invalid published source and review metadata`
+- `sorts manifest indexes deterministically`
+- `derives published case catalog data from manifest projections`
 
 - [ ] **Step 2: Run and observe RED**
 
 Run:
 
 ```bash
-node --test tests/topic-manifest.test.mjs
+node --test --test-name-pattern="projects backlog status without a second writer|merges published knowledge content by topic id|projects legacy documents with explicit compatibility defaults|rejects manifest identity and relation conflicts|rejects invalid published source and review metadata|sorts manifest indexes deterministically|derives published case catalog data from manifest projections" tests/topic-manifest.test.mjs 2>&1 | tee /tmp/tego-arch-g002-manifest-red.tap
+rg -q 'ERR_MODULE_NOT_FOUND' /tmp/tego-arch-g002-manifest-red.tap
 ```
 
-Expected: FAIL with module-not-found.
+Expected: the named test file fails with `ERR_MODULE_NOT_FOUND`; the second command proves the intended new module, rather than an unrelated existing test, caused RED.
 
 - [ ] **Step 3: Implement record projection**
 
@@ -614,6 +682,34 @@ function contentStatus(file, value) {
 ```
 
 Project backlog topics with empty arrays, null review date, and `published: false`. Project documents using `official_sources`, `analyzed_at`, and front-matter relationship fields. Exclude files named `index.mdx` and documents with `content_type: reference` from topic records.
+
+Use this executable compatibility rule for a published document that has no matching backlog entry:
+
+```js
+const priority = metadata.priority ?? null;
+const dependencies = metadata.depends_on ?? [];
+const relatedCases = metadata.related_cases ?? [];
+```
+
+`null` means “no backlog task priority”; it sorts after P3 and renders no priority badge. Empty compatibility relations mean “not registered”, not a verified claim that no dependency exists. Do not synthesize P1 or infer relationships from file order.
+
+For case documents, copy the existing `catalogFields` into the manifest record:
+
+```js
+const caseCatalog = metadata.content_type === 'case'
+  ? Object.fromEntries(catalogFields.map((field) => [field, metadata[field]]))
+  : undefined;
+
+const presentation = caseCatalog
+  ? {case_catalog: caseCatalog}
+  : {};
+```
+
+The manifest `TopicRecord.priority` type is:
+
+```ts
+type TopicPriority = 'P0' | 'P1' | 'P2' | 'P3' | null;
+```
 
 - [ ] **Step 4: Implement merge and relation checks**
 
@@ -649,7 +745,13 @@ export const indexedTopicTypes = [
 Sort by numeric priority, longest dependency-path depth, then ID:
 
 ```js
-const priorityOrder = new Map([['P0', 0], ['P1', 1], ['P2', 2], ['P3', 3]]);
+const priorityOrder = new Map([
+  ['P0', 0],
+  ['P1', 1],
+  ['P2', 2],
+  ['P3', 3],
+  [null, 4],
+]);
 
 function dependencyDepth(topic, topicsById, memo = new Map()) {
   if (memo.has(topic.id)) return memo.get(topic.id);
@@ -725,7 +827,10 @@ Do not infer other dependencies from backlog order.
 Run:
 
 ```bash
-node --test tests/topic-manifest.test.mjs tests/backlog-topics.test.mjs
+node --test --test-name-pattern="projects backlog status without a second writer|merges published knowledge content by topic id|projects legacy documents with explicit compatibility defaults|rejects manifest identity and relation conflicts|rejects invalid published source and review metadata|sorts manifest indexes deterministically|derives published case catalog data from manifest projections" tests/topic-manifest.test.mjs 2>&1 | tee /tmp/tego-arch-g002-manifest-green.tap
+rg -q '^# tests 7$' /tmp/tego-arch-g002-manifest-green.tap
+rg -q '^# pass 7$' /tmp/tego-arch-g002-manifest-green.tap
+node --test tests/backlog-topics.test.mjs
 ```
 
 Expected: all tests PASS.
@@ -739,7 +844,7 @@ git commit -m "feat: build projected topic manifest"
 
 ---
 
-### Task 4: Generate all content-platform artifacts atomically
+### Task 4: Generate recoverable, idempotent content-platform artifacts
 
 **Files:**
 - Create: `tests/content-platform-generation.test.mjs`
@@ -776,7 +881,7 @@ src/generated/
 
 Assert:
 
-- `buildContentArtifacts(root)` reads each MDX source once;
+- `buildContentArtifacts(root, {requiredCollection: null})` reads each MDX source once;
 - serialization ends with one newline and contains no absolute temp path;
 - two calls return byte-identical strings;
 - `writeContentArtifacts(root)` writes all three files;
@@ -784,13 +889,25 @@ Assert:
 - changing one generated byte reports only that path stale;
 - deleting one output reports it stale;
 - the generated case catalog equals `serializeCaseCatalog(await buildCaseCatalog(contentRoot))`.
+- an injected failure during the second target replacement leaves a complete staging set;
+- rerunning write mode consumes that staging set and converges to the same three expected byte strings;
+- check mode rejects an unresolved staging directory.
+
+Use exact test names:
+
+- `builds all artifacts from one validated snapshot`
+- `writes and checks deterministic generated artifacts`
+- `recovers idempotently after an interrupted replacement`
+- `derives the compatibility case catalog from the manifest`
+- `rejects invalid CLI mode combinations`
 
 - [ ] **Step 2: Run and observe RED**
 
 Run:
 
 ```bash
-node --test tests/content-platform-generation.test.mjs
+node --test --test-name-pattern="builds all artifacts from one validated snapshot|writes and checks deterministic generated artifacts|recovers idempotently after an interrupted replacement|derives the compatibility case catalog from the manifest|rejects invalid CLI mode combinations" tests/content-platform-generation.test.mjs 2>&1 | tee /tmp/tego-arch-g002-generation-red.tap
+rg -q 'ERR_MODULE_NOT_FOUND' /tmp/tego-arch-g002-generation-red.tap
 ```
 
 Expected: FAIL with module-not-found.
@@ -806,15 +923,18 @@ export const generatedPaths = {
   caseCatalog: 'src/generated/case-catalog.json',
 };
 
-export async function buildContentArtifacts(root) {
+export async function buildContentArtifacts(
+  root,
+  {requiredCollection = 'complete'} = {},
+) {
   const contentRoot = path.join(root, 'content');
   const backlogSource = await readFile(path.join(root, 'docs/content-backlog.md'), 'utf8');
   const relations = JSON.parse(
     await readFile(path.join(root, 'data/topic-relations.json'), 'utf8'),
   );
-  const validation = await validateContent(contentRoot, {
-    requiredCollection: 'complete',
-  });
+  const validation = requiredCollection === null
+    ? await validateContent(contentRoot)
+    : await validateContent(contentRoot, {requiredCollection});
   if (validation.errors.length) {
     throw new Error(`Content validation failed:\n${validation.errors.join('\n')}`);
   }
@@ -828,7 +948,7 @@ export async function buildContentArtifacts(root) {
     throw new Error(`Topic manifest failed:\n${built.errors.join('\n')}`);
   }
 
-  const caseCatalog = buildCaseCatalogFromDocuments(validation.documents);
+  const caseCatalog = buildCaseCatalogFromManifest(built.manifest);
   return {
     [generatedPaths.manifest]: `${JSON.stringify(built.manifest, null, 2)}\n`,
     [generatedPaths.indexes]: `${JSON.stringify(built.indexes, null, 2)}\n`,
@@ -837,19 +957,51 @@ export async function buildContentArtifacts(root) {
 }
 ```
 
-Move the pure document-to-case-entry mapping from `buildCaseCatalog()` into an exported `buildCaseCatalogFromDocuments(documents)` helper. Keep `buildCaseCatalog(root)` as validation plus delegation.
+The repository CLI calls `buildContentArtifacts(root)` and therefore always enforces the complete 18-case collection. Temporary unit fixtures call:
 
-- [ ] **Step 4: Implement atomic write and exact check**
+```js
+await buildContentArtifacts(root, {requiredCollection: null});
+```
+
+`requiredCollection` accepts `'launch'`, `'classic'`, `'complete'`, or `null`.
+Collection coverage already has dedicated validator tests, so focused generation
+fixtures pass `null` and do not duplicate all 18 cases.
+
+Export `buildCaseCatalogFromManifest(manifest)` from `scripts/generate-case-catalog.mjs`:
+
+```js
+export function buildCaseCatalogFromManifest(manifest) {
+  return manifest.topics
+    .filter((topic) => topic.type === 'case' && topic.published)
+    .map((topic) => topic.presentation.case_catalog)
+    .sort((left, right) => left.catalog_order - right.catalog_order);
+}
+```
+
+Keep `buildCaseCatalog(root)` for direct-CLI compatibility, but make it call an exported `projectPublishedDocuments(validation.documents)` helper from `topic-manifest.mjs`, wrap those records as a published-only manifest, and then delegate to `buildCaseCatalogFromManifest()`. It may not independently map raw document metadata straight to catalog entries.
+
+- [ ] **Step 4: Implement staging, idempotent recovery, and exact check**
 
 For write mode:
 
-1. build every byte string before writing;
-2. create parent directories;
-3. write sibling temporary files;
-4. rename temporary files to final paths only after every temporary write succeeds;
-5. remove remaining temporary files in `finally`.
+1. build every current expected byte string before writing;
+2. inspect an existing `src/generated/.content-platform-stage/`; when its digests match the current expected bytes, replay all three targets, verify them, remove staging, and return; otherwise discard it;
+3. write all three staged files plus a `manifest.json` containing the SHA-256 of each final byte string;
+4. reread staging and verify every digest before replacing targets;
+5. replace targets in the fixed order manifest → indexes → case catalog using sibling temp files and rename;
+6. remove staging only after all target bytes have been reread and matched.
 
-For check mode, compare `Buffer` values and return sorted stale relative paths. Missing files count as stale; other read errors propagate.
+This is deliberately not described as a three-file atomic transaction. A failure can leave mixed target versions, but the complete staging set is retained and a repeated write deterministically repairs them.
+
+Expose the exact injectable signature
+`writeContentArtifacts(root, {replaceFile = replaceGeneratedFile} = {})`.
+The implementation passes `replaceFile(stagedPath, targetPath)` for each of the
+three fixed-order replacements; production uses `replaceGeneratedFile`, while
+the interruption test supplies a function that throws on its second call.
+
+The interruption test throws on the second `replaceFile` call, verifies staging remains complete, then reruns with the default function and checks all bytes plus staging removal.
+
+For check mode, compare `Buffer` values and return sorted stale relative paths. Missing files count as stale; other read errors propagate. An unresolved staging directory is reported as `src/generated/.content-platform-stage`.
 
 - [ ] **Step 5: Add package commands**
 
@@ -870,7 +1022,10 @@ The CLI must reject missing mode, both modes, and unknown arguments with usage t
 Run:
 
 ```bash
-node --test tests/content-platform-generation.test.mjs tests/case-catalog-generation.test.mjs
+node --test --test-name-pattern="builds all artifacts from one validated snapshot|writes and checks deterministic generated artifacts|recovers idempotently after an interrupted replacement|derives the compatibility case catalog from the manifest|rejects invalid CLI mode combinations" tests/content-platform-generation.test.mjs 2>&1 | tee /tmp/tego-arch-g002-generation-green.tap
+rg -q '^# tests 5$' /tmp/tego-arch-g002-generation-green.tap
+rg -q '^# pass 5$' /tmp/tego-arch-g002-generation-green.tap
+node --test tests/case-catalog-generation.test.mjs
 npm run generate:content
 npm run check:content
 git diff -- src/generated/case-catalog.json
@@ -906,6 +1061,7 @@ git commit -m "feat: generate content platform artifacts"
 - Modify: `content/cases/index.mdx`
 - Modify: `content/questions/index.mdx`
 - Modify: `content/paths/index.mdx`
+- Modify: `content/references/index.mdx`
 - Test: `tests/topic-index.test.mjs`
 
 **Interfaces:**
@@ -943,15 +1099,26 @@ In `tests/topic-index.test.mjs`, assert:
 - planned entries do not pass their slug to `Link`;
 - first HTTPS source is rendered only when present;
 - status labels distinguish backlog projection from content lifecycle.
+- published entries render `reviewed_at`;
+- `priority: null` renders no empty or invented priority badge.
+- every new index-page external source is registered in `content/references/index.mdx`.
 
 The source-level test supplements typecheck and build; do not snapshot CSS class hashes.
+
+Use exact test names:
+
+- `connects all ten content type indexes`
+- `renders published and planned topics without broken links`
+- `renders review dates and nullable priorities honestly`
 
 - [ ] **Step 2: Run and observe RED**
 
 Run:
 
 ```bash
-node --test tests/topic-index.test.mjs
+node --test --test-name-pattern="connects all ten content type indexes|renders published and planned topics without broken links|renders review dates and nullable priorities honestly" tests/topic-index.test.mjs 2>&1 | tee /tmp/tego-arch-g002-topic-index-red.tap
+rg -q '^# tests 3$' /tmp/tego-arch-g002-topic-index-red.tap
+test "$(rg -c '^not ok ' /tmp/tego-arch-g002-topic-index-red.tap)" -ge 1
 ```
 
 Expected: FAIL because component and six pages do not exist.
@@ -988,7 +1155,9 @@ export default function TopicIndex({type, plannedOnly = false}: TopicIndexProps)
               ) : (
                 <span>{topic.title}</span>
               )}
-              <span className={styles.priority}>{topic.priority}</span>
+              {topic.priority && (
+                <span className={styles.priority}>{topic.priority}</span>
+              )}
             </div>
             <p>
               {topic.status.scope === 'backlog-projection'
@@ -997,6 +1166,9 @@ export default function TopicIndex({type, plannedOnly = false}: TopicIndexProps)
             </p>
             {topic.dependencies.length > 0 && (
               <p>前置主题：{topic.dependencies.join('、')}</p>
+            )}
+            {topic.published && topic.reviewed_at && (
+              <p>最近复核：{topic.reviewed_at}</p>
             )}
             {!topic.published && firstSource && (
               <p><a href={firstSource}>外部学习起点</a></p>
@@ -1086,11 +1258,24 @@ official_sources:
 | Title | Slug | Position | Tag | Official source |
 | --- | --- | ---: | --- | --- |
 | 基础概念 | `/concepts` | 2 | `基础概念` | `https://c4model.com/` |
-| 架构原则 | `/principles` | 3 | `架构原则` | `https://awesome-architecture.com/architectural-design-principles/architectural-design-principles/` |
+| 架构原则 | `/principles` | 3 | `架构原则` | `https://www.sei.cmu.edu/training/software-architecture-principles-practices/` |
 | 质量属性 | `/quality-attributes` | 4 | `质量属性` | `https://www.iso.org/standard/78176.html` |
 | 架构方法 | `/methods` | 5 | `架构方法` | `https://www.sei.cmu.edu/library/quality-attribute-workshops-qaws-third-edition/` |
 | 建模与图示 | `/modeling` | 6 | `建模` | `https://c4model.com/` |
 | 架构风格 | `/styles` | 7 | `架构风格` | `https://learn.microsoft.com/en-us/dotnet/architecture/modern-web-apps-azure/common-web-application-architectures` |
+
+Register the three sources not already present in the current reference page:
+
+```text
+https://www.sei.cmu.edu/training/software-architecture-principles-practices/
+https://www.iso.org/standard/78176.html
+https://www.sei.cmu.edu/library/quality-attribute-workshops-qaws-third-edition/
+```
+
+Each new `content/references/index.mdx` entry records institution, source type,
+applicable index, purpose, check date `2026-07-23`, usage boundary, and exact
+URL. This is bounded source registration for pages introduced by G002; G003
+still owns the full source-ledger migration.
 
 Body shape:
 
@@ -1129,7 +1314,9 @@ Do not remove current prose, CaseCatalog, roadmap, Mermaid, image, or case links
 Run:
 
 ```bash
-node --test tests/topic-index.test.mjs
+node --test --test-name-pattern="connects all ten content type indexes|renders published and planned topics without broken links|renders review dates and nullable priorities honestly" tests/topic-index.test.mjs 2>&1 | tee /tmp/tego-arch-g002-topic-index-green.tap
+rg -q '^# tests 3$' /tmp/tego-arch-g002-topic-index-green.tap
+rg -q '^# pass 3$' /tmp/tego-arch-g002-topic-index-green.tap
 npm run typecheck
 npm run build
 ```
@@ -1143,7 +1330,7 @@ git add src/components/TopicIndex tests/topic-index.test.mjs \
   content/concepts content/principles content/quality-attributes \
   content/methods content/modeling content/styles \
   content/patterns/index.mdx content/cases/index.mdx \
-  content/questions/index.mdx content/paths/index.mdx
+  content/questions/index.mdx content/paths/index.mdx content/references/index.mdx
 git commit -m "feat: add manifest-backed topic indexes"
 ```
 
@@ -1189,7 +1376,9 @@ Replace the six-entry expected map with the twelve paths and positions above. Pr
 Run:
 
 ```bash
-node --test tests/sidebar-navigation.test.mjs
+node --test --test-name-pattern="uses one root autogenerated sidebar instead of duplicate manual categories|orders section index links without rendering duplicate children|gives every canonical case a concise navigation-only label|gives sidebar rows readable hierarchy and stable active feedback|keeps the mobile sidebar fixed to the viewport instead of the blurred navbar" tests/sidebar-navigation.test.mjs 2>&1 | tee /tmp/tego-arch-g002-sidebar-red.tap
+rg -q '^# tests 5$' /tmp/tego-arch-g002-sidebar-red.tap
+test "$(rg -c '^not ok ' /tmp/tego-arch-g002-sidebar-red.tap)" -ge 1
 ```
 
 Expected: ordering test FAIL because positions conflict or are missing.
@@ -1203,7 +1392,10 @@ Set `sidebar_position` on all twelve index pages to the values above. Do not cha
 Run:
 
 ```bash
-node --test tests/sidebar-navigation.test.mjs tests/topic-index.test.mjs
+node --test --test-name-pattern="uses one root autogenerated sidebar instead of duplicate manual categories|orders section index links without rendering duplicate children|gives every canonical case a concise navigation-only label|gives sidebar rows readable hierarchy and stable active feedback|keeps the mobile sidebar fixed to the viewport instead of the blurred navbar" tests/sidebar-navigation.test.mjs 2>&1 | tee /tmp/tego-arch-g002-sidebar-green.tap
+rg -q '^# tests 5$' /tmp/tego-arch-g002-sidebar-green.tap
+rg -q '^# pass 5$' /tmp/tego-arch-g002-sidebar-green.tap
+node --test tests/topic-index.test.mjs
 npm run build
 ```
 
@@ -1223,17 +1415,17 @@ git commit -m "docs: order architecture knowledge sections"
 
 ---
 
-### Task 7: Full verification, review, backlog evidence, and incremental publication
+### Task 7: Full verification, independent review, and leader handoff
 
 **Files:**
-- Modify after successful implementation verification: `docs/content-backlog.md`
-- Regenerate if inputs changed: `src/generated/topic-manifest.json`
-- Regenerate if inputs changed: `src/generated/topic-indexes.json`
+- Modify only when verification finds a defect: files already listed in Tasks 1–6
 - Preserve: all unrelated content and local Ultragoal artifacts
+- Do not modify: `docs/content-backlog.md`
 
 **Interfaces:**
 - Consumes: the completed implementation commits and repository publication gate.
-- Produces: checked E0-01/E0-02, fresh generated artifacts, independent review evidence, successful Pages deployment, live-route checks, and an Ultragoal checkpoint.
+- Produces: verified local implementation commits plus an evidence handoff to the Ultragoal leader.
+- Does not produce: pushes, deployments, checked backlog items, publication-baseline edits, or Ultragoal checkpoints.
 
 - [ ] **Step 1: Run targeted platform verification**
 
@@ -1263,7 +1455,7 @@ git diff --check
 git status --short
 ```
 
-Expected: all Node tests, content validation, generated-content check, typecheck, and Docusaurus build PASS; diff check is empty; only G002 files are modified.
+Expected: all Node tests, content validation, generated-content check, typecheck, and Docusaurus build PASS; diff check is empty; the worktree is clean or contains only uncommitted G002 review fixes.
 
 - [ ] **Step 3: Perform independent implementation review**
 
@@ -1280,73 +1472,52 @@ Review against:
 
 Resolve all blocking findings with new RED/GREEN tests before continuing.
 
-- [ ] **Step 4: Mark backlog tasks only after technical approval**
+- [ ] **Step 4: Commit review fixes, if any**
 
-Change exactly:
-
-```md
-- [x] **E0-01 P0｜建立内容类型契约**
-- [x] **E0-02 P0｜建立唯一主题清单**
-```
-
-Add concise implementation evidence to their descriptions: schema/generator file names and the relevant generated artifacts. Run:
+If review found defects, use one RED/GREEN cycle per defect, rerun targeted tests and `npm run verify`, then commit only the reviewed fixes:
 
 ```bash
-npm run generate:content
 npm run verify
+git diff --check
+git add scripts/content-schema.mjs scripts/validate-content.mjs \
+  scripts/backlog-topics.mjs scripts/topic-manifest.mjs \
+  scripts/generate-content-platform.mjs scripts/generate-case-catalog.mjs \
+  data/topic-relations.json src/generated/topic-manifest.json \
+  src/generated/topic-indexes.json src/generated/case-catalog.json \
+  src/components/TopicIndex package.json \
+  content/intro.mdx content/concepts content/principles \
+  content/quality-attributes content/methods content/modeling content/styles \
+  content/patterns/index.mdx content/cases/index.mdx \
+  content/questions/index.mdx content/paths/index.mdx content/references/index.mdx \
+  tests/content-validation.test.mjs tests/backlog-topics.test.mjs \
+  tests/topic-manifest.test.mjs tests/content-platform-generation.test.mjs \
+  tests/case-catalog-generation.test.mjs tests/topic-index.test.mjs \
+  tests/sidebar-navigation.test.mjs
+git commit -m "fix: address content platform review"
 ```
 
-Expected: manifest status projection reflects the checked boxes where applicable and full verification remains green.
+If there were no defects, do not create an empty commit.
 
-- [ ] **Step 5: Commit the completion evidence**
+- [ ] **Step 5: Hand off evidence and stop**
 
-```bash
-git add docs/content-backlog.md src/generated/topic-manifest.json \
-  src/generated/topic-indexes.json src/generated/case-catalog.json
-git commit -m "docs: record content platform completion"
-```
-
-If regeneration does not change a generated file, do not stage it.
-
-- [ ] **Step 6: Push and wait for GitHub Pages**
-
-Run:
-
-```bash
-git push origin main
-gh run list --workflow deploy.yml --branch main --limit 3
-gh run list --workflow deploy.yml --branch main --limit 1 \
-  --json databaseId --jq '.[0].databaseId' > /tmp/tego-arch-g002-run-id
-xargs gh run watch --exit-status < /tmp/tego-arch-g002-run-id
-```
-
-Expected: push succeeds; the run associated with the G002 head commit completes successfully.
-
-- [ ] **Step 7: Check live routes**
-
-Check:
-
-```text
-https://sealday.github.io/agentic-architecture-atlas/concepts
-https://sealday.github.io/agentic-architecture-atlas/quality-attributes
-https://sealday.github.io/agentic-architecture-atlas/cases
-https://sealday.github.io/agentic-architecture-atlas/paths
-```
-
-Expected: all return HTTP 200; planned rows are not internal links; published case and path links remain usable.
-
-- [ ] **Step 8: Record publication baseline**
-
-Update `docs/content-backlog.md` current publication baseline with the G002 content commit, successful run URL, date, and checked routes. Commit and push this metadata-only update, wait for its Pages run, and retain the earlier G002 implementation commit as the content baseline to avoid self-reference.
-
-- [ ] **Step 9: Checkpoint Ultragoal**
-
-After a fresh active `get_goal` snapshot, checkpoint `G002-content-platform` with:
+Report to the Ultragoal leader:
 
 - implementation and evidence commit SHAs;
 - targeted and full verification results;
 - independent review approval;
-- Pages run IDs;
-- live route results.
+- exact generated-artifact check output;
+- routes that require post-push inspection:
+  - `/concepts`
+  - `/quality-attributes`
+  - `/cases`
+  - `/paths`.
 
-Do not mark the aggregate Codex goal complete; continue to G003.
+The implementation worker stops here. The leader performs the remaining story gate in this order:
+
+1. push the reviewed implementation commits;
+2. wait for the matching Pages run;
+3. inspect the four live routes;
+4. after successful deployment, separately delegate a docs-only metadata task that checks E0-01/E0-02 and updates the publication baseline;
+5. review, commit, push, and deploy that metadata update;
+6. take a fresh active `get_goal` snapshot and checkpoint G002;
+7. continue to G003 without marking the aggregate goal complete.
