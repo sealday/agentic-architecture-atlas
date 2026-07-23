@@ -500,8 +500,13 @@ async function requestFollowingRedirects(startUrl, method, options) {
 
 function loginWall(url, html) {
   const path = new URL(url).pathname.toLowerCase();
+  const sourceOrAssetPath =
+    /\.(?:c|cc|cpp|cs|css|go|h|hpp|java|js|jsx|json|kt|md|mjs|php|py|rb|rs|sh|swift|ts|tsx|txt|xml|ya?ml)$/i.test(
+      path,
+    );
   return (
-    /(?:^|[/_-])(login|signin|sign-in|auth)(?:[/_.-]|$)/.test(path) ||
+    (!sourceOrAssetPath &&
+      /(?:^|[/_-])(login|signin|sign-in|auth)(?:[/_.-]|$)/.test(path)) ||
     /<input\b[^>]*\btype\s*=\s*["']?password\b/i.test(html) ||
     /<form\b[^>]*(?:action|id|class|name)\s*=\s*["'][^"']*(?:login|signin|sign-in|auth)[^"']*["']/i.test(
       html,
@@ -541,6 +546,33 @@ async function readBodyPrefix(response, maximumBytes = 65536) {
   return new TextDecoder().decode(bytes);
 }
 
+function clearlyNonHtmlAsset(url, contentType) {
+  if (!contentType) return false;
+  const type = contentType.split(';', 1)[0].trim().toLowerCase();
+  const pathname = new URL(url).pathname.toLowerCase();
+  const extension = pathname.match(/\.([a-z0-9]+)$/)?.[1];
+  if (!extension) return false;
+  const expectedTypes = {
+    pdf: ['application/pdf'],
+    json: ['application/json', 'application/ld+json'],
+    png: ['image/png'],
+    jpg: ['image/jpeg'],
+    jpeg: ['image/jpeg'],
+    gif: ['image/gif'],
+    svg: ['image/svg+xml'],
+    webp: ['image/webp'],
+    ico: ['image/x-icon', 'image/vnd.microsoft.icon'],
+    mp3: ['audio/mpeg'],
+    mp4: ['video/mp4'],
+    webm: ['audio/webm', 'video/webm'],
+    wasm: ['application/wasm'],
+    zip: ['application/zip'],
+    gz: ['application/gzip'],
+    tgz: ['application/gzip'],
+  };
+  return expectedTypes[extension]?.includes(type) ?? false;
+}
+
 function compactAttempt(attempt) {
   const copy = {...attempt};
   delete copy.login_wall_detected;
@@ -562,6 +594,7 @@ export async function checkSourceLink(
 ) {
   const requestOptions = {fetchImpl, sleep, now, timeoutMs};
   let observation;
+  let usedGet = false;
   try {
     observation = await requestFollowingRedirects(
       target.transport_locator,
@@ -569,6 +602,7 @@ export async function checkSourceLink(
       requestOptions,
     );
     if ([403, 405, 501].includes(observation.response.status)) {
+      usedGet = true;
       observation = await requestFollowingRedirects(
         target.transport_locator,
         'GET',
@@ -579,9 +613,11 @@ export async function checkSourceLink(
         .get('content-type')
         ?.toLowerCase();
       if (
-        observation.response.status === 200 &&
-        type?.includes('text/html')
+        observation.response.status >= 200 &&
+        observation.response.status <= 299 &&
+        !clearlyNonHtmlAsset(observation.finalUrl, type)
       ) {
+        usedGet = true;
         observation = await requestFollowingRedirects(
           target.transport_locator,
           'GET',
@@ -592,13 +628,17 @@ export async function checkSourceLink(
     const {response, finalUrl, redirects} = observation;
     let html = '';
     if (
-      response.status === 200 &&
-      response.headers.get('content-type')?.toLowerCase().includes('text/html')
+      usedGet &&
+      response.status >= 200 &&
+      response.status <= 299
     ) {
       html = await readBodyPrefix(response);
     }
     const login_wall_detected =
-      response.status === 200 && loginWall(finalUrl, html);
+      usedGet &&
+      response.status >= 200 &&
+      response.status <= 299 &&
+      loginWall(finalUrl, html);
     let outcome;
     let error = null;
     if (
@@ -730,7 +770,7 @@ export async function checkLiveLinks(
   } = {},
 ) {
   const targets = buildLinkTargets(ledger);
-  return checkTargets(ledger, targets, {
+  const checked = await checkTargets(ledger, targets, {
     previousCache,
     fetchImpl,
     sleep,
@@ -739,6 +779,13 @@ export async function checkLiveLinks(
     globalConcurrency,
     perOriginConcurrency,
   });
+  const structure = validateLinkHealthCacheStructure(ledger, checked.cache);
+  return {
+    cache: checked.cache,
+    errors: [...structure.errors, ...checked.errors].sort((left, right) =>
+      left.localeCompare(right, 'en'),
+    ),
+  };
 }
 
 async function checkTargets(

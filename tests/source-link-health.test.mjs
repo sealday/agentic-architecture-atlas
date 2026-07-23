@@ -331,6 +331,120 @@ test('detects a 200 HTML login wall instead of reporting healthy', async () => {
   assert.equal(checked.last_attempt.login_wall_detected, true);
 });
 
+test('probes missing HEAD content type and detects a 206 login wall', async () => {
+  const calls = [];
+  const checked = await checkSourceLink(
+    buildLinkTargets(
+      ledger([source('auth', 'https://example.com/docs', 'auth-required')]),
+    )[0],
+    {
+      now,
+      fetchImpl: async (_url, options) => {
+        calls.push(options);
+        return options.method === 'HEAD'
+          ? new Response(null, {status: 200})
+          : new Response('<form><input type="password"></form>', {
+              status: 206,
+              headers: {'content-type': 'text/html'},
+            });
+      },
+    },
+  );
+  assert.deepEqual(
+    calls.map(({method}) => method),
+    ['HEAD', 'GET'],
+  );
+  assert.equal(calls[1].headers.Range, 'bytes=0-65535');
+  assert.equal(checked.last_attempt.outcome, 'auth-required');
+  assert.equal(checked.last_attempt.http_status, 206);
+  assert.equal(checked.last_attempt.login_wall_detected, true);
+});
+
+test('probes ambiguous or incorrect HEAD content types on page URLs', async () => {
+  for (const headType of ['text/plain', 'application/octet-stream']) {
+    const calls = [];
+    const checked = await checkSourceLink(
+      buildLinkTargets(
+        ledger([source('auth', 'https://example.com/docs', 'auth-required')]),
+      )[0],
+      {
+        now,
+        fetchImpl: async (_url, options) => {
+          calls.push(options);
+          return options.method === 'HEAD'
+            ? new Response(null, {
+                status: 200,
+                headers: {'content-type': headType},
+              })
+            : new Response(
+                '<html><form action="/signin"><button>Continue</button></form></html>',
+                {
+                  status: 206,
+                  headers: {'content-type': 'text/plain'},
+                },
+              );
+        },
+      },
+    );
+    assert.deepEqual(
+      calls.map(({method}) => method),
+      ['HEAD', 'GET'],
+    );
+    assert.equal(checked.last_attempt.outcome, 'auth-required');
+    assert.equal(checked.last_attempt.login_wall_detected, true);
+  }
+});
+
+test('skips body probes only for clearly typed non-HTML assets', async () => {
+  const calls = [];
+  const checked = await checkSourceLink(
+    buildLinkTargets(
+      ledger([source('pdf', 'https://example.com/manual.pdf')]),
+    )[0],
+    {
+      now,
+      fetchImpl: async (_url, options) => {
+        calls.push(options);
+        return new Response(null, {
+          status: 200,
+          headers: {'content-type': 'application/pdf'},
+        });
+      },
+    },
+  );
+  assert.deepEqual(
+    calls.map(({method}) => method),
+    ['HEAD'],
+  );
+  assert.equal(checked.last_attempt.outcome, 'healthy');
+});
+
+test('caps successful ranged response inspection at 64 KiB', async () => {
+  const prefix = 'x'.repeat(65536);
+  const calls = [];
+  const checked = await checkSourceLink(
+    buildLinkTargets(ledger([source('docs', 'https://example.com/docs')]))[0],
+    {
+      now,
+      fetchImpl: async (_url, options) => {
+        calls.push(options);
+        return options.method === 'HEAD'
+          ? new Response(null, {status: 200})
+          : new Response(`${prefix}<input type="password">`, {
+              status: 206,
+              headers: {'content-type': 'text/html'},
+            });
+      },
+    },
+  );
+  assert.deepEqual(
+    calls.map(({method}) => method),
+    ['HEAD', 'GET'],
+  );
+  assert.equal(checked.last_attempt.outcome, 'healthy');
+  assert.equal(checked.last_attempt.login_wall_detected, false);
+});
+
 test('does not mistake incidental sign-in prose for a login wall', async () => {
   const checked = await checkSourceLink(
     buildLinkTargets(ledger([source('docs', 'https://example.com/docs')]))[0],
@@ -346,6 +460,42 @@ test('does not mistake incidental sign-in prose for a login wall', async () => {
               '<main>Read the docs. You may sign in for personalization.</main>',
               {
                 status: 200,
+                headers: {'content-type': 'text/html'},
+              },
+            ),
+    },
+  );
+  assert.equal(checked.last_attempt.outcome, 'healthy');
+  assert.equal(checked.last_attempt.login_wall_detected, false);
+});
+
+test('does not classify source files inside auth directories as login walls', async () => {
+  const checked = await checkSourceLink(
+    buildLinkTargets(
+      ledger([
+        source(
+          'code',
+          'https://github.com/example/repo/blob/commit/src/auth/checks.py',
+        ),
+      ]),
+    )[0],
+    {
+      now,
+      fetchImpl: async (_url, options) =>
+        options.method === 'HEAD'
+          ? new Response(null, {
+              status: 200,
+              headers: {'content-type': 'text/html'},
+            })
+          : new Response(
+              [
+                '<html><body>',
+                '<header><a href="/login">Sign in</a></header>',
+                '<main data-testid="blob">Source code in src/auth/checks.py</main>',
+                '</body></html>',
+              ].join(''),
+              {
+                status: 206,
                 headers: {'content-type': 'text/html'},
               },
             ),
@@ -421,6 +571,24 @@ test('does not reuse an old healthy result when the live request fails', async (
   assert.equal(cache.results[0].attempt_history.length, 2);
   assert.ok(errors.length > 0);
   assert.deepEqual(target.source_ids, cache.results[0].source_ids);
+});
+
+test('reports live cache structure failures alongside verdict failures', async () => {
+  const governed = ledger([
+    source('stable', 'https://example.com/shared'),
+    source('auth', 'https://example.com/shared', 'auth-required'),
+  ]);
+  const checked = await checkLiveLinks(governed, {
+    now,
+    fetchImpl: async (_url, options) =>
+      options.method === 'HEAD'
+        ? new Response(null, {
+            status: 200,
+            headers: {'content-type': 'application/pdf'},
+          })
+        : new Response(null, {status: 200}),
+  });
+  assert.match(checked.errors.join('\n'), /ledger sources conflict/);
 });
 
 test('limits global and per-origin concurrency', async () => {
