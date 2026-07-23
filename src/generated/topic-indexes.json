@@ -1,0 +1,4730 @@
+{
+  "concept": [
+    {
+      "id": "DST-01",
+      "type": "concept",
+      "title": "CAP、网络分区与可用性选择",
+      "slug": "/concepts/dst-01",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "DST-02",
+      "type": "concept",
+      "title": "一致性模型总览",
+      "slug": "/concepts/dst-02",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "DST-03",
+      "type": "concept",
+      "title": "消息交付语义",
+      "slug": "/concepts/dst-03",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "DST-04",
+      "type": "concept",
+      "title": "超时、不确定结果与重复执行窗口",
+      "slug": "/concepts/dst-04",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "DST-05",
+      "type": "concept",
+      "title": "复制",
+      "slug": "/concepts/dst-05",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "DST-06",
+      "type": "concept",
+      "title": "分片与再均衡",
+      "slug": "/concepts/dst-06",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "FND-01",
+      "type": "concept",
+      "title": "软件架构、应用设计与代码设计的尺度边界",
+      "slug": "/concepts/fnd-01",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "FND-04",
+      "type": "concept",
+      "title": "权衡、敏感点、权衡点、风险与非风险",
+      "slug": "/concepts/fnd-04",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "FND-02",
+      "type": "concept",
+      "title": "架构驱动因素",
+      "slug": "/concepts/fnd-02",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [
+        "FND-01"
+      ],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "FND-03",
+      "type": "concept",
+      "title": "原则、战术、模式、风格、参考架构和最佳实践的分类边界",
+      "slug": "/concepts/fnd-03",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [
+        "FND-01"
+      ],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "DST-07",
+      "type": "concept",
+      "title": "一致性哈希与虚拟节点",
+      "slug": "/concepts/dst-07",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "DST-08",
+      "type": "concept",
+      "title": "分布式锁与租约",
+      "slug": "/concepts/dst-08",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "DST-09",
+      "type": "concept",
+      "title": "缓存与源数据权威",
+      "slug": "/concepts/dst-09",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "FND-05",
+      "type": "concept",
+      "title": "技术债、架构债与演进式设计",
+      "slug": "/concepts/fnd-05",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    }
+  ],
+  "principle": [
+    {
+      "id": "PR-01",
+      "type": "principle",
+      "title": "信息隐藏与封装",
+      "slug": "/principles/pr-01",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "PR-02",
+      "type": "principle",
+      "title": "高内聚与低耦合",
+      "slug": "/principles/pr-02",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "PR-03",
+      "type": "principle",
+      "title": "单一职责与关注点分离",
+      "slug": "/principles/pr-03",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "PR-04",
+      "type": "principle",
+      "title": "依赖倒置、控制反转与依赖注入",
+      "slug": "/principles/pr-04",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "PR-05",
+      "type": "principle",
+      "title": "组合优于继承",
+      "slug": "/principles/pr-05",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "PR-06",
+      "type": "principle",
+      "title": "KISS、YAGNI 与 DRY 的张力",
+      "slug": "/principles/pr-06",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "PR-07",
+      "type": "principle",
+      "title": "Fail Fast、Fail Safe 与 Graceful Degradation",
+      "slug": "/principles/pr-07",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "PR-08",
+      "type": "principle",
+      "title": "为演化设计",
+      "slug": "/principles/pr-08",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "PR-09",
+      "type": "principle",
+      "title": "最小权限、安全默认值与纵深防御",
+      "slug": "/principles/pr-09",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "PR-10",
+      "type": "principle",
+      "title": "幂等与最小协调",
+      "slug": "/principles/pr-10",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "PR-11",
+      "type": "principle",
+      "title": "CQS、CQRS 与读写分离",
+      "slug": "/principles/pr-11",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "PR-12",
+      "type": "principle",
+      "title": "Open/Closed 与 Interface Segregation",
+      "slug": "/principles/pr-12",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "PR-13",
+      "type": "principle",
+      "title": "Persistence Ignorance",
+      "slug": "/principles/pr-13",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "PR-14",
+      "type": "principle",
+      "title": "GRASP 责任分配",
+      "slug": "/principles/pr-14",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "PR-15",
+      "type": "principle",
+      "title": "Conway 定律与团队边界",
+      "slug": "/principles/pr-15",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "PR-16",
+      "type": "principle",
+      "title": "Secure by Design",
+      "slug": "/principles/pr-16",
+      "priority": "P2",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "PR-17",
+      "type": "principle",
+      "title": "不要重复原站的分类错误",
+      "slug": "/principles/pr-17",
+      "priority": "P2",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    }
+  ],
+  "quality-attribute": [
+    {
+      "id": "QA-02",
+      "type": "quality-attribute",
+      "title": "可靠性、可用性与可恢复性",
+      "slug": "/quality-attributes/qa-02",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "QA-03",
+      "type": "quality-attribute",
+      "title": "性能、延迟、吞吐与容量",
+      "slug": "/quality-attributes/qa-03",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "QA-04",
+      "type": "quality-attribute",
+      "title": "可扩展性与弹性",
+      "slug": "/quality-attributes/qa-04",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "QA-00",
+      "type": "quality-attribute",
+      "title": "质量属性总览",
+      "slug": "/quality-attributes/qa-00",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [
+        "FND-02"
+      ],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "QA-01",
+      "type": "quality-attribute",
+      "title": "质量属性场景写法",
+      "slug": "/quality-attributes/qa-01",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [
+        "FND-02",
+        "QA-00"
+      ],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "QA-05",
+      "type": "quality-attribute",
+      "title": "安全、隐私与信任边界",
+      "slug": "/quality-attributes/qa-05",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "QA-06",
+      "type": "quality-attribute",
+      "title": "可维护性、可修改性与可测试性",
+      "slug": "/quality-attributes/qa-06",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "QA-07",
+      "type": "quality-attribute",
+      "title": "兼容性、互操作性与版本演进",
+      "slug": "/quality-attributes/qa-07",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "QA-08",
+      "type": "quality-attribute",
+      "title": "可操作性与可观测性",
+      "slug": "/quality-attributes/qa-08",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "QA-09",
+      "type": "quality-attribute",
+      "title": "安全性（Safety）与物理风险",
+      "slug": "/quality-attributes/qa-09",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "QA-10",
+      "type": "quality-attribute",
+      "title": "成本效率与可持续性",
+      "slug": "/quality-attributes/qa-10",
+      "priority": "P2",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    }
+  ],
+  "method": [
+    {
+      "id": "MTH-03",
+      "type": "method",
+      "title": "ADR 生命周期",
+      "slug": "/methods/mth-03",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "MTH-01",
+      "type": "method",
+      "title": "QAW",
+      "slug": "/methods/mth-01",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [
+        "QA-01"
+      ],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "MTH-02",
+      "type": "method",
+      "title": "ATAM",
+      "slug": "/methods/mth-02",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [
+        "QA-01"
+      ],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "MTH-04",
+      "type": "method",
+      "title": "架构适应度函数",
+      "slug": "/methods/mth-04",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "MTH-05",
+      "type": "method",
+      "title": "风险风暴与预演",
+      "slug": "/methods/mth-05",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "MTH-06",
+      "type": "method",
+      "title": "从需求到演进的闭环",
+      "slug": "/methods/mth-06",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [
+        "MTH-01",
+        "MTH-02",
+        "MTH-03",
+        "MTH-04"
+      ],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    }
+  ],
+  "modeling": [
+    {
+      "id": "MOD-01",
+      "type": "modeling",
+      "title": "建模总览",
+      "slug": "/modeling/mod-01",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "MOD-02",
+      "type": "modeling",
+      "title": "C4 Context 与 Container",
+      "slug": "/modeling/mod-02",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "MOD-03",
+      "type": "modeling",
+      "title": "C4 Component、Dynamic 与 Deployment",
+      "slug": "/modeling/mod-03",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "MOD-04",
+      "type": "modeling",
+      "title": "arc42 文档骨架",
+      "slug": "/modeling/mod-04",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "MOD-05",
+      "type": "modeling",
+      "title": "概念、逻辑与物理数据模型",
+      "slug": "/modeling/mod-05",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "MOD-06",
+      "type": "modeling",
+      "title": "ER 模型与关系边界",
+      "slug": "/modeling/mod-06",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "MOD-07",
+      "type": "modeling",
+      "title": "UML 选图指南",
+      "slug": "/modeling/mod-07",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "MOD-08",
+      "type": "modeling",
+      "title": "状态机建模",
+      "slug": "/modeling/mod-08",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "MOD-09",
+      "type": "modeling",
+      "title": "EventStorming",
+      "slug": "/modeling/mod-09",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "MOD-10",
+      "type": "modeling",
+      "title": "Domain Storytelling",
+      "slug": "/modeling/mod-10",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "MOD-11",
+      "type": "modeling",
+      "title": "DDD Context Map",
+      "slug": "/modeling/mod-11",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "MOD-12",
+      "type": "modeling",
+      "title": "架构图审阅清单",
+      "slug": "/modeling/mod-12",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "MOD-13",
+      "type": "modeling",
+      "title": "模型同步策略",
+      "slug": "/modeling/mod-13",
+      "priority": "P2",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    }
+  ],
+  "style": [
+    {
+      "id": "STY-00",
+      "type": "style",
+      "title": "架构风格比较框架",
+      "slug": "/styles/sty-00",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "STY-01",
+      "type": "style",
+      "title": "Layered Architecture",
+      "slug": "/styles/sty-01",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "STY-02",
+      "type": "style",
+      "title": "Hexagonal、Onion 与 Clean Architecture 对照",
+      "slug": "/styles/sty-02",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "STY-03",
+      "type": "style",
+      "title": "Vertical Slice Architecture",
+      "slug": "/styles/sty-03",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "STY-04",
+      "type": "style",
+      "title": "Modular Monolith",
+      "slug": "/styles/sty-04",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "STY-05",
+      "type": "style",
+      "title": "Microservices",
+      "slug": "/styles/sty-05",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "STY-06",
+      "type": "style",
+      "title": "Event-Driven Architecture",
+      "slug": "/styles/sty-06",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "STY-07",
+      "type": "style",
+      "title": "Service-Oriented Architecture",
+      "slug": "/styles/sty-07",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "STY-08",
+      "type": "style",
+      "title": "Actor Model",
+      "slug": "/styles/sty-08",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "STY-09",
+      "type": "style",
+      "title": "Pipes and Filters",
+      "slug": "/styles/sty-09",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "STY-10",
+      "type": "style",
+      "title": "Microkernel / Plug-in Architecture",
+      "slug": "/styles/sty-10",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "STY-11",
+      "type": "style",
+      "title": "Serverless Architecture",
+      "slug": "/styles/sty-11",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "STY-12",
+      "type": "style",
+      "title": "Micro-Frontend",
+      "slug": "/styles/sty-12",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "STY-14",
+      "type": "style",
+      "title": "风格选择矩阵",
+      "slug": "/styles/sty-14",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [
+        "STY-04",
+        "STY-05",
+        "STY-06"
+      ],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "STY-13",
+      "type": "style",
+      "title": "Space-Based Architecture",
+      "slug": "/styles/sty-13",
+      "priority": "P2",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    }
+  ],
+  "pattern": [
+    {
+      "id": "APP-01",
+      "type": "pattern",
+      "title": "Transaction Script、Table Module 与 Domain Model 对照",
+      "slug": "/patterns/app-01",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "APP-02",
+      "type": "pattern",
+      "title": "Repository、Unit of Work 与 Data Mapper",
+      "slug": "/patterns/app-02",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "DDD-01",
+      "type": "pattern",
+      "title": "战略 DDD 总览",
+      "slug": "/patterns/ddd-01",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "DDD-02",
+      "type": "pattern",
+      "title": "聚合与一致性边界",
+      "slug": "/patterns/ddd-02",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "DDD-03",
+      "type": "pattern",
+      "title": "Entity、Value Object 与 Domain Primitive",
+      "slug": "/patterns/ddd-03",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "DDD-04",
+      "type": "pattern",
+      "title": "Domain Service、Application Service 与 Infrastructure Service",
+      "slug": "/patterns/ddd-04",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "OPS-01",
+      "type": "pattern",
+      "title": "SLI、SLO 与错误预算",
+      "slug": "/patterns/ops-01",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "OPS-02",
+      "type": "pattern",
+      "title": "Metrics、Logs、Traces 与 Profiles 的证据边界",
+      "slug": "/patterns/ops-02",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "OPS-03",
+      "type": "pattern",
+      "title": "分布式追踪与业务关联 ID",
+      "slug": "/patterns/ops-03",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "PAT-DC-01",
+      "type": "pattern",
+      "title": "Transactional Outbox",
+      "slug": "/patterns/pat-dc-01",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "PAT-DC-02",
+      "type": "pattern",
+      "title": "Inbox / Idempotent Consumer",
+      "slug": "/patterns/pat-dc-02",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "PAT-DC-03",
+      "type": "pattern",
+      "title": "Saga 与补偿事务",
+      "slug": "/patterns/pat-dc-03",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "PAT-DC-04",
+      "type": "pattern",
+      "title": "CDC",
+      "slug": "/patterns/pat-dc-04",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "PAT-DC-05",
+      "type": "pattern",
+      "title": "CQRS",
+      "slug": "/patterns/pat-dc-05",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "PAT-IN-01",
+      "type": "pattern",
+      "title": "API Gateway",
+      "slug": "/patterns/pat-in-01",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "PAT-IN-02",
+      "type": "pattern",
+      "title": "BFF",
+      "slug": "/patterns/pat-in-02",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "PAT-IN-03",
+      "type": "pattern",
+      "title": "Anti-Corruption Layer",
+      "slug": "/patterns/pat-in-03",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "REL-01",
+      "type": "pattern",
+      "title": "Timeout Budget",
+      "slug": "/patterns/rel-01",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "REL-02",
+      "type": "pattern",
+      "title": "Retry、Exponential Backoff 与 Jitter",
+      "slug": "/patterns/rel-02",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "REL-03",
+      "type": "pattern",
+      "title": "Circuit Breaker",
+      "slug": "/patterns/rel-03",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "REL-04",
+      "type": "pattern",
+      "title": "Bulkhead 与 Cell",
+      "slug": "/patterns/rel-04",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "REL-05",
+      "type": "pattern",
+      "title": "Back Pressure、Load Shedding 与 Queue Limit",
+      "slug": "/patterns/rel-05",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "REL-06",
+      "type": "pattern",
+      "title": "Rate Limit、Quota 与 Admission Control",
+      "slug": "/patterns/rel-06",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "SEC-01",
+      "type": "pattern",
+      "title": "Threat Modeling",
+      "slug": "/patterns/sec-01",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "SEC-02",
+      "type": "pattern",
+      "title": "身份、认证、授权与委托链",
+      "slug": "/patterns/sec-02",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "ANTI-01",
+      "type": "pattern",
+      "title": "Big Ball of Mud",
+      "slug": "/patterns/anti-01",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "ANTI-02",
+      "type": "pattern",
+      "title": "Distributed Monolith",
+      "slug": "/patterns/anti-02",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "ANTI-03",
+      "type": "pattern",
+      "title": "Shared Database Across Services",
+      "slug": "/patterns/anti-03",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "ANTI-04",
+      "type": "pattern",
+      "title": "Retry Storm",
+      "slug": "/patterns/anti-04",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "ANTI-05",
+      "type": "pattern",
+      "title": "Chatty I/O 与 N+1 跨网络调用",
+      "slug": "/patterns/anti-05",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "ANTI-06",
+      "type": "pattern",
+      "title": "God Object / God Service",
+      "slug": "/patterns/anti-06",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "ANTI-07",
+      "type": "pattern",
+      "title": "Leaky Abstraction",
+      "slug": "/patterns/anti-07",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "ANTI-08",
+      "type": "pattern",
+      "title": "Premature Generalization 与错误 DRY",
+      "slug": "/patterns/anti-08",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "APP-03",
+      "type": "pattern",
+      "title": "Specification 与 Query Object",
+      "slug": "/patterns/app-03",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "APP-04",
+      "type": "pattern",
+      "title": "Service Layer 与 Application Service",
+      "slug": "/patterns/app-04",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "DDD-05",
+      "type": "pattern",
+      "title": "Domain Event 与 Integration Event",
+      "slug": "/patterns/ddd-05",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "DDD-06",
+      "type": "pattern",
+      "title": "Context Mapping 模式",
+      "slug": "/patterns/ddd-06",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "DP-01",
+      "type": "pattern",
+      "title": "Adapter 与 Anti-Corruption Layer",
+      "slug": "/patterns/dp-01",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "DP-02",
+      "type": "pattern",
+      "title": "Strategy 与 Policy",
+      "slug": "/patterns/dp-02",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "DP-03",
+      "type": "pattern",
+      "title": "Observer 与发布订阅",
+      "slug": "/patterns/dp-03",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "DP-04",
+      "type": "pattern",
+      "title": "Command、Command Message 与 CQS",
+      "slug": "/patterns/dp-04",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "DP-05",
+      "type": "pattern",
+      "title": "Decorator 与中间件链",
+      "slug": "/patterns/dp-05",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "DP-06",
+      "type": "pattern",
+      "title": "Factory、Builder 与对象创建边界",
+      "slug": "/patterns/dp-06",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "DP-07",
+      "type": "pattern",
+      "title": "State Pattern 与显式状态机",
+      "slug": "/patterns/dp-07",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "DP-08",
+      "type": "pattern",
+      "title": "Chain of Responsibility 与责任链失败语义",
+      "slug": "/patterns/dp-08",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "DP-09",
+      "type": "pattern",
+      "title": "Mediator 与消息中介",
+      "slug": "/patterns/dp-09",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "OPS-04",
+      "type": "pattern",
+      "title": "容量规划、饱和点与排队效应",
+      "slug": "/patterns/ops-04",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "OPS-05",
+      "type": "pattern",
+      "title": "渐进发布、回滚与版本兼容窗口",
+      "slug": "/patterns/ops-05",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "OPS-06",
+      "type": "pattern",
+      "title": "事故响应、复盘与架构反馈闭环",
+      "slug": "/patterns/ops-06",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "PAT-DC-06",
+      "type": "pattern",
+      "title": "Event Sourcing",
+      "slug": "/patterns/pat-dc-06",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "PAT-DC-07",
+      "type": "pattern",
+      "title": "Materialized View",
+      "slug": "/patterns/pat-dc-07",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "PAT-DC-08",
+      "type": "pattern",
+      "title": "Compensating Transaction",
+      "slug": "/patterns/pat-dc-08",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "PAT-DC-09",
+      "type": "pattern",
+      "title": "Exactly-once 声明审查",
+      "slug": "/patterns/pat-dc-09",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "PAT-IN-04",
+      "type": "pattern",
+      "title": "Service Discovery 与 Registry",
+      "slug": "/patterns/pat-in-04",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "PAT-IN-05",
+      "type": "pattern",
+      "title": "Message Router、Filter、Translator 与 Aggregator 组合",
+      "slug": "/patterns/pat-in-05",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "PAT-IN-06",
+      "type": "pattern",
+      "title": "Competing Consumers 与 Queue-Based Load Leveling",
+      "slug": "/patterns/pat-in-06",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "PAT-IN-07",
+      "type": "pattern",
+      "title": "Sidecar 与 Ambassador",
+      "slug": "/patterns/pat-in-07",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "REL-07",
+      "type": "pattern",
+      "title": "Health Check、Liveness、Readiness 与真实可服务性",
+      "slug": "/patterns/rel-07",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "REL-08",
+      "type": "pattern",
+      "title": "High Availability 与 Disaster Recovery",
+      "slug": "/patterns/rel-08",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "REL-09",
+      "type": "pattern",
+      "title": "Graceful Shutdown 与任务排空",
+      "slug": "/patterns/rel-09",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "REL-10",
+      "type": "pattern",
+      "title": "Chaos / Fault Injection",
+      "slug": "/patterns/rel-10",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "SEC-03",
+      "type": "pattern",
+      "title": "Zero Trust Architecture",
+      "slug": "/patterns/sec-03",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "SEC-04",
+      "type": "pattern",
+      "title": "Secrets、Key Management 与凭据轮换",
+      "slug": "/patterns/sec-04",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "SEC-05",
+      "type": "pattern",
+      "title": "软件供应链、SBOM、签名与准入",
+      "slug": "/patterns/sec-05",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "SEC-06",
+      "type": "pattern",
+      "title": "安全验证清单",
+      "slug": "/patterns/sec-06",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "ANTI-09",
+      "type": "pattern",
+      "title": "Optional/Partial Object 与非法状态可表示",
+      "slug": "/patterns/anti-09",
+      "priority": "P2",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "ANTI-10",
+      "type": "pattern",
+      "title": "Static Cling 与隐藏依赖",
+      "slug": "/patterns/anti-10",
+      "priority": "P2",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "DP-10",
+      "type": "pattern",
+      "title": "Service Locator 反模式",
+      "slug": "/patterns/dp-10",
+      "priority": "P2",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "PAT-IN-08",
+      "type": "pattern",
+      "title": "AsyncAPI 与消息契约演进",
+      "slug": "/patterns/pat-in-08",
+      "priority": "P2",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    }
+  ],
+  "case": [
+    {
+      "id": "CASE-01",
+      "type": "case",
+      "title": "SLO Engineering 案例",
+      "slug": "/cases/case-01",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "CASE-02",
+      "type": "case",
+      "title": "重试、退避与抖动",
+      "slug": "/cases/case-02",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "CASE-03",
+      "type": "case",
+      "title": "Adobe Cell-Based Architecture",
+      "slug": "/cases/case-03",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "CASE-04",
+      "type": "case",
+      "title": "模块化单体演进案例",
+      "slug": "/cases/case-04",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "CASE-05",
+      "type": "case",
+      "title": "单体拆分与 Strangler 迁移案例",
+      "slug": "/cases/case-05",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "CASE-06",
+      "type": "case",
+      "title": "Netflix API 重构",
+      "slug": "/cases/case-06",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "CASE-07",
+      "type": "case",
+      "title": "GitHub 数据库高可用或迁移案例",
+      "slug": "/cases/case-07",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "CASE-08",
+      "type": "case",
+      "title": "Cloudflare 全球网络或 DDoS 隔离案例",
+      "slug": "/cases/case-08",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "CASE-09",
+      "type": "case",
+      "title": "CNCF 云原生参考架构案例",
+      "slug": "/cases/case-09",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "CASE-10",
+      "type": "case",
+      "title": "Outbox/CDC 真实实现案例",
+      "slug": "/cases/case-10",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "CASE-11",
+      "type": "case",
+      "title": "Saga 失败与补偿案例",
+      "slug": "/cases/case-11",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "CASE-12",
+      "type": "case",
+      "title": "缓存事故或一致性案例",
+      "slug": "/cases/case-12",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "CASE-13",
+      "type": "case",
+      "title": "分片与再均衡案例",
+      "slug": "/cases/case-13",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "CASE-14",
+      "type": "case",
+      "title": "供应链签名与准入案例",
+      "slug": "/cases/case-14",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "CASE-15",
+      "type": "case",
+      "title": "Zero Trust 实现案例",
+      "slug": "/cases/case-15",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "CASE-16",
+      "type": "case",
+      "title": "OT/CRDT 对照案例",
+      "slug": "/cases/case-16",
+      "priority": "P2",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "CASE-17",
+      "type": "case",
+      "title": "多区域故障切换与恢复演练案例",
+      "slug": "/cases/case-17",
+      "priority": "P2",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "CASE-18",
+      "type": "case",
+      "title": "平台 API 与 GitOps 漂移案例",
+      "slug": "/cases/case-18",
+      "priority": "P2",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "CASE-19",
+      "type": "case",
+      "title": "多租户 Agent 沙箱与泄漏边界案例",
+      "slug": "/cases/case-19",
+      "priority": "P2",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "CASE-20",
+      "type": "case",
+      "title": "边缘断网、重连与物理安全链案例",
+      "slug": "/cases/case-20",
+      "priority": "P2",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "DOC-CASE-APACHE-KAFKA-CONSUMER-GROUPS",
+      "type": "case",
+      "title": "Apache Kafka Consumer Groups：用分区所有权组织可重放的 Agent 工作",
+      "slug": "/cases/apache-kafka-consumer-groups",
+      "priority": null,
+      "status": {
+        "scope": "content-lifecycle",
+        "value": "reviewed",
+        "source": "content/cases/apache-kafka-consumer-groups.mdx"
+      },
+      "dependencies": [],
+      "primary_sources": [
+        "https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/clients/src/main/java/org/apache/kafka/clients/consumer/internals/ClassicKafkaConsumer.java",
+        "https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/clients/src/main/java/org/apache/kafka/clients/consumer/internals/CompletedFetch.java",
+        "https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/clients/src/main/java/org/apache/kafka/clients/consumer/internals/ConsumerCoordinator.java",
+        "https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/clients/src/main/java/org/apache/kafka/clients/consumer/internals/FetchCollector.java",
+        "https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/core/src/main/scala/kafka/server/KafkaApis.scala",
+        "https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/group-coordinator/src/main/java/org/apache/kafka/coordinator/group/classic/ClassicGroup.java",
+        "https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/group-coordinator/src/main/java/org/apache/kafka/coordinator/group/classic/ClassicGroupState.java",
+        "https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/group-coordinator/src/main/java/org/apache/kafka/coordinator/group/GroupMetadataManager.java",
+        "https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/group-coordinator/src/main/java/org/apache/kafka/coordinator/group/OffsetMetadataManager.java",
+        "https://github.com/apache/kafka/tree/ebac341b28d4224c296ada31eb45122176e8b27b",
+        "https://kafka.apache.org/43/configuration/broker-configs/",
+        "https://kafka.apache.org/43/configuration/consumer-configs/",
+        "https://kafka.apache.org/43/configuration/topic-configs/",
+        "https://kafka.apache.org/43/design/design/",
+        "https://kafka.apache.org/43/javadoc/org/apache/kafka/clients/consumer/KafkaConsumer.html",
+        "https://kafka.apache.org/43/javadoc/org/apache/kafka/clients/producer/KafkaProducer.html",
+        "https://kafka.apache.org/43/operations/basic-kafka-operations/",
+        "https://kafka.apache.org/43/operations/consumer-rebalance-protocol/",
+        "https://kafka.apache.org/43/operations/monitoring/",
+        "https://kafka.apache.org/43/security/security-overview/",
+        "https://kafka.apache.org/intro/",
+        "https://www.linkedin.com/blog/engineering/distributed-systems/log-what-every-software-engineer-should-know-about-real-time-datas-unifying",
+        "https://www.linkedin.com/blog/engineering/open-source/project-kafka-distributed-publish-subscribe-messaging-system-reaches-v06",
+        "https://www.linkedin.com/blog/member/archive/open-source-linkedin-kafka",
+        "https://www.microsoft.com/en-us/research/wp-content/uploads/2017/09/Kafka.pdf"
+      ],
+      "related_cases": [],
+      "reviewed_at": "2026-07-22",
+      "published": true,
+      "presentation": {
+        "case_catalog": {
+          "title": "Apache Kafka Consumer Groups：用分区所有权组织可重放的 Agent 工作",
+          "slug": "/cases/apache-kafka-consumer-groups",
+          "summary": "从日志、分区、消费组和 rebalance 中分析 Agent 任务归属、重放、背压与重复执行。",
+          "difficulty": "advanced",
+          "series": "classic-distributed",
+          "catalog_order": 9,
+          "featured": false,
+          "source_kinds": [
+            "official-docs",
+            "open-source-project",
+            "classic-paper",
+            "engineering-blog"
+          ],
+          "migration_targets": [
+            "partition-ownership",
+            "event-replay",
+            "backpressure",
+            "duplicate-handling"
+          ],
+          "tags": [
+            "Apache Kafka",
+            "consumer-groups",
+            "partition-ownership",
+            "replay",
+            "backpressure",
+            "idempotency"
+          ]
+        }
+      }
+    },
+    {
+      "id": "DOC-CASE-AWS-CELL-SHUFFLE-SHARDING",
+      "type": "case",
+      "title": "AWS Cell Architecture + Shuffle Sharding：把失控智能体限制在可计算的故障半径内",
+      "slug": "/cases/aws-cell-shuffle-sharding",
+      "priority": null,
+      "status": {
+        "scope": "content-lifecycle",
+        "value": "reviewed",
+        "source": "content/cases/aws-cell-shuffle-sharding.mdx"
+      },
+      "dependencies": [],
+      "primary_sources": [
+        "https://aws.amazon.com/blogs/architecture/shuffle-sharding-massive-and-magical-fault-isolation/",
+        "https://aws.amazon.com/builders-library/workload-isolation-using-shuffle-sharding/",
+        "https://docs.aws.amazon.com/prescriptive-guidance/latest/cell-based-architecture/welcome.html",
+        "https://docs.aws.amazon.com/solutions/cell-based-architecture-on-aws/",
+        "https://docs.aws.amazon.com/wellarchitected/latest/reducing-scope-of-impact-with-cell-based-architecture/cell-deployment.html",
+        "https://docs.aws.amazon.com/wellarchitected/latest/reducing-scope-of-impact-with-cell-based-architecture/cell-migration.html",
+        "https://docs.aws.amazon.com/wellarchitected/latest/reducing-scope-of-impact-with-cell-based-architecture/cell-observability.html",
+        "https://docs.aws.amazon.com/wellarchitected/latest/reducing-scope-of-impact-with-cell-based-architecture/cell-routing.html",
+        "https://docs.aws.amazon.com/wellarchitected/latest/reducing-scope-of-impact-with-cell-based-architecture/cell-sizing.html",
+        "https://docs.aws.amazon.com/wellarchitected/latest/reducing-scope-of-impact-with-cell-based-architecture/control-plane-and-data-plane.html",
+        "https://docs.aws.amazon.com/wellarchitected/latest/reducing-scope-of-impact-with-cell-based-architecture/faq.html",
+        "https://docs.aws.amazon.com/wellarchitected/latest/reducing-scope-of-impact-with-cell-based-architecture/what-is-a-cell-based-architecture.html",
+        "https://github.com/awslabs/route53-infima/tree/cabce497698e41d610a949e8a5e4a0528170382b"
+      ],
+      "related_cases": [],
+      "reviewed_at": "2026-07-22",
+      "published": true,
+      "presentation": {
+        "case_catalog": {
+          "title": "AWS Cell Architecture + Shuffle Sharding：把失控智能体限制在可计算的故障半径内",
+          "slug": "/cases/aws-cell-shuffle-sharding",
+          "summary": "用 cell、bulkhead 和 shuffle sharding 设计租户隔离、容量边界与逐单元发布。",
+          "difficulty": "advanced",
+          "series": "classic-distributed",
+          "catalog_order": 10,
+          "featured": false,
+          "source_kinds": [
+            "official-docs",
+            "open-source-project",
+            "engineering-blog",
+            "reference-architecture"
+          ],
+          "migration_targets": [
+            "blast-radius-control",
+            "tenant-isolation",
+            "cell-routing",
+            "quota-partitioning"
+          ],
+          "tags": [
+            "AWS",
+            "cell-architecture",
+            "shuffle-sharding",
+            "bulkhead",
+            "tenant-isolation",
+            "blast-radius"
+          ]
+        }
+      }
+    },
+    {
+      "id": "DOC-CASE-AWS-CLI-AGENT-ORCHESTRATOR",
+      "type": "case",
+      "title": "AWS Labs CLI Agent Orchestrator：以终端为执行边界的 Supervisor–Worker 编排",
+      "slug": "/cases/aws-cli-agent-orchestrator",
+      "priority": null,
+      "status": {
+        "scope": "content-lifecycle",
+        "value": "reviewed",
+        "source": "content/cases/aws-cli-agent-orchestrator.mdx"
+      },
+      "dependencies": [],
+      "primary_sources": [
+        "https://github.com/awslabs/cli-agent-orchestrator/blob/bae80071a17e001380367c461b32d64bc6b54433/CODEBASE.md",
+        "https://github.com/awslabs/cli-agent-orchestrator/blob/bae80071a17e001380367c461b32d64bc6b54433/docs/configuration.md",
+        "https://github.com/awslabs/cli-agent-orchestrator/blob/bae80071a17e001380367c461b32d64bc6b54433/docs/inbox-delivery.md",
+        "https://github.com/awslabs/cli-agent-orchestrator/blob/bae80071a17e001380367c461b32d64bc6b54433/docs/mcp-apps.md",
+        "https://github.com/awslabs/cli-agent-orchestrator/blob/bae80071a17e001380367c461b32d64bc6b54433/docs/terminal-lifecycle.md",
+        "https://github.com/awslabs/cli-agent-orchestrator/blob/bae80071a17e001380367c461b32d64bc6b54433/docs/tool-restrictions.md",
+        "https://github.com/awslabs/cli-agent-orchestrator/blob/bae80071a17e001380367c461b32d64bc6b54433/docs/workflows.md",
+        "https://github.com/awslabs/cli-agent-orchestrator/blob/bae80071a17e001380367c461b32d64bc6b54433/docs/working-directory.md",
+        "https://github.com/awslabs/cli-agent-orchestrator/blob/bae80071a17e001380367c461b32d64bc6b54433/README.md",
+        "https://github.com/awslabs/cli-agent-orchestrator/blob/bae80071a17e001380367c461b32d64bc6b54433/src/cli_agent_orchestrator/mcp_server/server.py",
+        "https://github.com/awslabs/cli-agent-orchestrator/blob/bae80071a17e001380367c461b32d64bc6b54433/src/cli_agent_orchestrator/security/auth.py",
+        "https://github.com/awslabs/cli-agent-orchestrator/blob/bae80071a17e001380367c461b32d64bc6b54433/src/cli_agent_orchestrator/services/agent_step.py",
+        "https://github.com/awslabs/cli-agent-orchestrator/blob/bae80071a17e001380367c461b32d64bc6b54433/src/cli_agent_orchestrator/services/script_runner.py",
+        "https://github.com/awslabs/cli-agent-orchestrator/blob/bae80071a17e001380367c461b32d64bc6b54433/src/cli_agent_orchestrator/services/workflow_journal.py",
+        "https://github.com/awslabs/cli-agent-orchestrator/tree/bae80071a17e001380367c461b32d64bc6b54433",
+        "https://github.com/modelcontextprotocol/modelcontextprotocol/tree/46fa5192d4969f51ecea9896f7211a67d147f803",
+        "https://modelcontextprotocol.io/specification/2025-06-18/architecture"
+      ],
+      "related_cases": [],
+      "reviewed_at": "2026-07-20",
+      "published": true,
+      "presentation": {
+        "case_catalog": {
+          "title": "AWS Labs CLI Agent Orchestrator：以终端为执行边界的 Supervisor–Worker 编排",
+          "slug": "/cases/aws-cli-agent-orchestrator",
+          "summary": "以编码任务为切面，研究 Supervisor–Worker、进程隔离、消息传递与工具接入。",
+          "difficulty": "advanced",
+          "series": "ai-native",
+          "catalog_order": 5,
+          "featured": true,
+          "source_kinds": [
+            "official-docs",
+            "open-source-project"
+          ],
+          "migration_targets": [
+            "supervisor-worker",
+            "process-isolation",
+            "tool-governance"
+          ],
+          "tags": [
+            "AWS Labs",
+            "CLI Agent Orchestrator",
+            "Supervisor Worker",
+            "tmux",
+            "MCP"
+          ]
+        }
+      }
+    },
+    {
+      "id": "DOC-CASE-CLOUDFLARE-DURABLE-OBJECTS-WORKERD",
+      "type": "case",
+      "title": "Cloudflare Durable Objects + workerd：把边缘协调收敛到身份寻址的状态单元",
+      "slug": "/cases/cloudflare-durable-objects-workerd",
+      "priority": null,
+      "status": {
+        "scope": "content-lifecycle",
+        "value": "reviewed",
+        "source": "content/cases/cloudflare-durable-objects-workerd.mdx"
+      },
+      "dependencies": [],
+      "primary_sources": [
+        "https://developers.cloudflare.com/changelog/product/durable-objects/",
+        "https://developers.cloudflare.com/durable-objects/",
+        "https://developers.cloudflare.com/durable-objects/api/alarms/",
+        "https://developers.cloudflare.com/durable-objects/api/id/",
+        "https://developers.cloudflare.com/durable-objects/api/namespace/",
+        "https://developers.cloudflare.com/durable-objects/api/sqlite-storage-api/",
+        "https://developers.cloudflare.com/durable-objects/api/state/",
+        "https://developers.cloudflare.com/durable-objects/api/stub/",
+        "https://developers.cloudflare.com/durable-objects/best-practices/rules-of-durable-objects/",
+        "https://developers.cloudflare.com/durable-objects/best-practices/websockets/",
+        "https://developers.cloudflare.com/durable-objects/concepts/durable-object-lifecycle/",
+        "https://developers.cloudflare.com/durable-objects/concepts/what-are-durable-objects/",
+        "https://developers.cloudflare.com/durable-objects/observability/metrics-and-analytics/",
+        "https://developers.cloudflare.com/durable-objects/platform/known-issues/",
+        "https://developers.cloudflare.com/durable-objects/platform/limits/",
+        "https://developers.cloudflare.com/durable-objects/reference/data-location/",
+        "https://developers.cloudflare.com/durable-objects/reference/data-security/",
+        "https://developers.cloudflare.com/durable-objects/reference/durable-objects-migrations/",
+        "https://developers.cloudflare.com/reference-architecture/diagrams/storage/durable-object-control-data-plane-pattern/",
+        "https://github.com/cloudflare/workerd/blob/14894eccbb339da199d772fcadd337b6d0902128/README.md",
+        "https://github.com/cloudflare/workerd/blob/14894eccbb339da199d772fcadd337b6d0902128/src/workerd/io/actor-cache.h",
+        "https://github.com/cloudflare/workerd/blob/14894eccbb339da199d772fcadd337b6d0902128/src/workerd/io/actor-sqlite.c%2B%2B",
+        "https://github.com/cloudflare/workerd/blob/14894eccbb339da199d772fcadd337b6d0902128/src/workerd/io/io-context.c%2B%2B",
+        "https://github.com/cloudflare/workerd/blob/14894eccbb339da199d772fcadd337b6d0902128/src/workerd/io/io-gate.h",
+        "https://github.com/cloudflare/workerd/blob/14894eccbb339da199d772fcadd337b6d0902128/src/workerd/server/workerd.capnp",
+        "https://github.com/cloudflare/workerd/tree/14894eccbb339da199d772fcadd337b6d0902128"
+      ],
+      "related_cases": [],
+      "reviewed_at": "2026-07-22",
+      "published": true,
+      "presentation": {
+        "case_catalog": {
+          "title": "Cloudflare Durable Objects + workerd：把边缘协调收敛到身份寻址的状态单元",
+          "slug": "/cases/cloudflare-durable-objects-workerd",
+          "summary": "从全局身份、单对象协调和持久化状态中分析会话、任务与租户的边缘分片。",
+          "difficulty": "advanced",
+          "series": "edge-physical",
+          "catalog_order": 13,
+          "featured": false,
+          "source_kinds": [
+            "official-docs",
+            "open-source-project",
+            "reference-architecture"
+          ],
+          "migration_targets": [
+            "identity-addressed-state",
+            "edge-coordination",
+            "single-writer-boundary",
+            "hotspot-sharding"
+          ],
+          "tags": [
+            "Cloudflare",
+            "Durable Objects",
+            "workerd",
+            "edge-coordination",
+            "identity-routing",
+            "SQLite",
+            "WebSocket-Hibernation"
+          ]
+        }
+      }
+    },
+    {
+      "id": "DOC-CASE-ERLANG-OTP-SUPERVISION-TREE",
+      "type": "case",
+      "title": "Erlang/OTP Supervision Tree：把失败恢复设计成层级控制协议",
+      "slug": "/cases/erlang-otp-supervision-tree",
+      "priority": null,
+      "status": {
+        "scope": "content-lifecycle",
+        "value": "reviewed",
+        "source": "content/cases/erlang-otp-supervision-tree.mdx"
+      },
+      "dependencies": [],
+      "primary_sources": [
+        "https://github.com/erlang/otp/blob/295c7737d1b25a270e3fc6fa2b7ec7ad4779cf17/lib/stdlib/src/supervisor.erl",
+        "https://github.com/erlang/otp/tree/295c7737d1b25a270e3fc6fa2b7ec7ad4779cf17",
+        "https://www.erlang.org/doc/apps/stdlib/supervisor.html",
+        "https://www.erlang.org/doc/system/sup_princ.html"
+      ],
+      "related_cases": [],
+      "reviewed_at": "2026-07-22",
+      "published": true,
+      "presentation": {
+        "case_catalog": {
+          "title": "Erlang/OTP Supervision Tree：把失败恢复设计成层级控制协议",
+          "slug": "/cases/erlang-otp-supervision-tree",
+          "summary": "从监督树、重启策略和故障升级中提炼 Agent 失败恢复与人工接管边界。",
+          "difficulty": "intermediate",
+          "series": "classic-distributed",
+          "catalog_order": 6,
+          "featured": false,
+          "source_kinds": [
+            "official-docs",
+            "open-source-project"
+          ],
+          "migration_targets": [
+            "failure-supervision",
+            "restart-strategy",
+            "retry-escalation",
+            "human-handoff"
+          ],
+          "tags": [
+            "Erlang",
+            "OTP",
+            "supervision-tree",
+            "fault-tolerance"
+          ]
+        }
+      }
+    },
+    {
+      "id": "DOC-CASE-GOOGLE-ADK-A2A",
+      "type": "case",
+      "title": "Google ADK 与 A2A：从本地层级编排到跨系统智能体协作",
+      "slug": "/cases/google-adk-a2a",
+      "priority": null,
+      "status": {
+        "scope": "content-lifecycle",
+        "value": "reviewed",
+        "source": "content/cases/google-adk-a2a.mdx"
+      },
+      "dependencies": [],
+      "primary_sources": [
+        "https://a2a-protocol.org/latest/specification/",
+        "https://adk.dev/a2a/intro/",
+        "https://adk.dev/a2a/quickstart-consuming/",
+        "https://adk.dev/a2a/quickstart-exposing/",
+        "https://adk.dev/agents/",
+        "https://adk.dev/agents/workflow-agents/",
+        "https://adk.dev/evaluate/",
+        "https://adk.dev/observability/traces/",
+        "https://adk.dev/sessions/state/",
+        "https://github.com/a2aproject/A2A/tree/af112d9491c1fd4b2a568ac65755af4a62790490",
+        "https://github.com/google/adk-docs/tree/3e6ee758f2a642abf42b6a92682bb113e7fb0743",
+        "https://github.com/google/adk-python/tree/be5828f317c7430411df29974cd9ccfa875e90de",
+        "https://modelcontextprotocol.io/specification/2025-06-18/architecture"
+      ],
+      "related_cases": [],
+      "reviewed_at": "2026-07-20",
+      "published": true,
+      "presentation": {
+        "case_catalog": {
+          "title": "Google ADK 与 A2A：从本地层级编排到跨系统智能体协作",
+          "slug": "/cases/google-adk-a2a",
+          "summary": "区分进程内层级编排与跨系统协议，厘清 Agent、工作流和互操作边界。",
+          "difficulty": "advanced",
+          "series": "ai-native",
+          "catalog_order": 4,
+          "featured": true,
+          "source_kinds": [
+            "official-docs",
+            "open-source-project"
+          ],
+          "migration_targets": [
+            "hierarchical-agents",
+            "protocol-boundaries",
+            "remote-agent-interoperability"
+          ],
+          "tags": [
+            "Google ADK",
+            "A2A",
+            "MCP",
+            "层级智能体",
+            "远程智能体"
+          ]
+        }
+      }
+    },
+    {
+      "id": "DOC-CASE-KONG-AI-GATEWAY-ROUTING-RESILIENCE",
+      "type": "case",
+      "title": "Kong AI Gateway：把模型路由与副作用恢复分成两条控制链",
+      "slug": "/cases/kong-ai-gateway-routing-resilience",
+      "priority": null,
+      "status": {
+        "scope": "content-lifecycle",
+        "value": "reviewed",
+        "source": "content/cases/kong-ai-gateway-routing-resilience.mdx"
+      },
+      "dependencies": [],
+      "primary_sources": [
+        "https://developer.konghq.com/ai-gateway/",
+        "https://developer.konghq.com/ai-gateway/ai-audit-log-reference/",
+        "https://developer.konghq.com/ai-gateway/load-balancing/",
+        "https://developer.konghq.com/ai-gateway/monitor-ai-llm-metrics/",
+        "https://developer.konghq.com/plugins/ai-a2a-proxy/",
+        "https://developer.konghq.com/plugins/ai-mcp-proxy/",
+        "https://developer.konghq.com/plugins/ai-proxy-advanced/",
+        "https://developer.konghq.com/plugins/ai-proxy-advanced/reference/",
+        "https://github.com/Kong/developer.konghq.com/tree/f144a33379d5b599efaacf92642a2f9b41018fd6"
+      ],
+      "related_cases": [],
+      "reviewed_at": "2026-07-23",
+      "published": true,
+      "presentation": {
+        "case_catalog": {
+          "title": "Kong AI Gateway：把模型路由与副作用恢复分成两条控制链",
+          "slug": "/cases/kong-ai-gateway-routing-resilience",
+          "summary": "用多目标路由、失败分类、重试与 fallback、断路器和协议边界分析 AI Gateway 的韧性设计。",
+          "difficulty": "advanced",
+          "series": "ai-native",
+          "catalog_order": 18,
+          "featured": false,
+          "source_kinds": [
+            "official-docs"
+          ],
+          "migration_targets": [
+            "model-routing",
+            "retry-fallback",
+            "circuit-breaking",
+            "protocol-gateways",
+            "side-effect-isolation"
+          ],
+          "tags": [
+            "Kong",
+            "AI-Gateway",
+            "load-balancing",
+            "failover",
+            "circuit-breaker"
+          ]
+        }
+      }
+    },
+    {
+      "id": "DOC-CASE-KUBEEDGE-CLOUD-EDGE-AUTONOMY",
+      "type": "case",
+      "title": "KubeEdge Cloud-Edge Autonomy：在断网边界上划分规划权与执行权",
+      "slug": "/cases/kubeedge-cloud-edge-autonomy",
+      "priority": null,
+      "status": {
+        "scope": "content-lifecycle",
+        "value": "reviewed",
+        "source": "content/cases/kubeedge-cloud-edge-autonomy.mdx"
+      },
+      "dependencies": [],
+      "primary_sources": [
+        "https://github.com/kubeedge/kubeedge/blob/bae61505d4919c404665f70347ad0646aaa98958/cloud/pkg/cloudhub/dispatcher/message_dispatcher.go",
+        "https://github.com/kubeedge/kubeedge/blob/bae61505d4919c404665f70347ad0646aaa98958/cloud/pkg/cloudhub/session/node_session.go",
+        "https://github.com/kubeedge/kubeedge/blob/bae61505d4919c404665f70347ad0646aaa98958/cloud/pkg/devicecontroller/controller/downstream.go",
+        "https://github.com/kubeedge/kubeedge/blob/bae61505d4919c404665f70347ad0646aaa98958/cloud/pkg/devicecontroller/controller/upstream.go",
+        "https://github.com/kubeedge/kubeedge/blob/bae61505d4919c404665f70347ad0646aaa98958/cloud/pkg/synccontroller/synccontroller.go",
+        "https://github.com/kubeedge/kubeedge/blob/bae61505d4919c404665f70347ad0646aaa98958/edge/pkg/devicetwin/dtmanager/communicate.go",
+        "https://github.com/kubeedge/kubeedge/blob/bae61505d4919c404665f70347ad0646aaa98958/edge/pkg/devicetwin/dtmanager/twin.go",
+        "https://github.com/kubeedge/kubeedge/blob/bae61505d4919c404665f70347ad0646aaa98958/edge/pkg/devicetwin/dttype/types.go",
+        "https://github.com/kubeedge/kubeedge/blob/bae61505d4919c404665f70347ad0646aaa98958/edge/pkg/edged/edged.go",
+        "https://github.com/kubeedge/kubeedge/blob/bae61505d4919c404665f70347ad0646aaa98958/edge/pkg/edgehub/certificate/certmanager.go",
+        "https://github.com/kubeedge/kubeedge/blob/bae61505d4919c404665f70347ad0646aaa98958/edge/pkg/edgehub/edgehub.go",
+        "https://github.com/kubeedge/kubeedge/blob/bae61505d4919c404665f70347ad0646aaa98958/edge/pkg/edgehub/process.go",
+        "https://github.com/kubeedge/kubeedge/blob/bae61505d4919c404665f70347ad0646aaa98958/edge/pkg/metamanager/dao/meta.go",
+        "https://github.com/kubeedge/kubeedge/blob/bae61505d4919c404665f70347ad0646aaa98958/edge/pkg/metamanager/process.go",
+        "https://github.com/kubeedge/kubeedge/blob/bae61505d4919c404665f70347ad0646aaa98958/staging/src/github.com/kubeedge/api/apis/devices/v1beta1/device_instance_types.go",
+        "https://github.com/kubeedge/kubeedge/releases/tag/v1.20.0",
+        "https://github.com/kubeedge/kubeedge/tree/bae61505d4919c404665f70347ad0646aaa98958",
+        "https://release-1-20.docs.kubeedge.io/blog/release-v1.20",
+        "https://release-1-20.docs.kubeedge.io/docs/",
+        "https://release-1-20.docs.kubeedge.io/docs/architecture/cloud/cloudhub/",
+        "https://release-1-20.docs.kubeedge.io/docs/architecture/cloud/device_controller/",
+        "https://release-1-20.docs.kubeedge.io/docs/architecture/edge/devicetwin/",
+        "https://release-1-20.docs.kubeedge.io/docs/architecture/edge/edged/",
+        "https://release-1-20.docs.kubeedge.io/docs/architecture/edge/edgehub/",
+        "https://release-1-20.docs.kubeedge.io/docs/architecture/edge/metamanager/"
+      ],
+      "related_cases": [],
+      "reviewed_at": "2026-07-22",
+      "published": true,
+      "presentation": {
+        "case_catalog": {
+          "title": "KubeEdge Cloud-Edge Autonomy：在断网边界上划分规划权与执行权",
+          "slug": "/cases/kubeedge-cloud-edge-autonomy",
+          "summary": "沿 CloudCore、EdgeCore、设备孪生和断网自治分析云端规划与边缘执行如何分权。",
+          "difficulty": "advanced",
+          "series": "edge-physical",
+          "catalog_order": 14,
+          "featured": false,
+          "source_kinds": [
+            "official-docs",
+            "open-source-project"
+          ],
+          "migration_targets": [
+            "cloud-edge-authority",
+            "disconnected-operation",
+            "desired-reported-state",
+            "policy-sync"
+          ],
+          "tags": [
+            "KubeEdge",
+            "CloudCore",
+            "EdgeCore",
+            "DeviceTwin",
+            "disconnected-operation",
+            "physical-agents"
+          ]
+        }
+      }
+    },
+    {
+      "id": "DOC-CASE-KUBERNETES-RECONCILIATION-LOOP",
+      "type": "case",
+      "title": "Kubernetes Reconciliation Loop：让智能体围绕期望状态持续收敛",
+      "slug": "/cases/kubernetes-reconciliation-loop",
+      "priority": null,
+      "status": {
+        "scope": "content-lifecycle",
+        "value": "reviewed",
+        "source": "content/cases/kubernetes-reconciliation-loop.mdx"
+      },
+      "dependencies": [],
+      "primary_sources": [
+        "https://github.com/kubernetes/kubernetes/blob/39c618b5c30ced3969862e0b4b5acce7a7f8cecb/pkg/controller/deployment/deployment_controller.go",
+        "https://github.com/kubernetes/kubernetes/blob/39c618b5c30ced3969862e0b4b5acce7a7f8cecb/pkg/controller/deployment/sync.go",
+        "https://github.com/kubernetes/kubernetes/blob/39c618b5c30ced3969862e0b4b5acce7a7f8cecb/pkg/kubelet/kubelet.go",
+        "https://github.com/kubernetes/kubernetes/blob/39c618b5c30ced3969862e0b4b5acce7a7f8cecb/staging/src/k8s.io/client-go/tools/leaderelection/leaderelection.go",
+        "https://github.com/kubernetes/kubernetes/tree/39c618b5c30ced3969862e0b4b5acce7a7f8cecb",
+        "https://kubernetes.io/docs/concepts/architecture/",
+        "https://kubernetes.io/docs/concepts/architecture/controller/",
+        "https://kubernetes.io/docs/concepts/architecture/leases/",
+        "https://kubernetes.io/docs/concepts/overview/working-with-objects/",
+        "https://kubernetes.io/docs/concepts/overview/working-with-objects/owners-dependents/",
+        "https://kubernetes.io/docs/reference/using-api/api-concepts/",
+        "https://kubernetes.io/docs/reference/using-api/server-side-apply/"
+      ],
+      "related_cases": [],
+      "reviewed_at": "2026-07-22",
+      "published": true,
+      "presentation": {
+        "case_catalog": {
+          "title": "Kubernetes Reconciliation Loop：让智能体围绕期望状态持续收敛",
+          "slug": "/cases/kubernetes-reconciliation-loop",
+          "summary": "用 spec/status、控制循环和幂等协调分析多智能体系统如何从命令执行转向目标收敛。",
+          "difficulty": "advanced",
+          "series": "classic-distributed",
+          "catalog_order": 7,
+          "featured": false,
+          "source_kinds": [
+            "official-docs",
+            "open-source-project"
+          ],
+          "migration_targets": [
+            "desired-state-convergence",
+            "idempotent-reconciliation",
+            "controller-ownership",
+            "bounded-autonomy"
+          ],
+          "tags": [
+            "Kubernetes",
+            "reconciliation-loop",
+            "desired-state",
+            "idempotency",
+            "controller"
+          ]
+        }
+      }
+    },
+    {
+      "id": "DOC-CASE-LANGGRAPH-SUPERVISOR",
+      "type": "case",
+      "title": "LangGraph Supervisor：用显式状态构建可恢复的多智能体编排",
+      "slug": "/cases/langgraph-supervisor",
+      "priority": null,
+      "status": {
+        "scope": "content-lifecycle",
+        "value": "reviewed",
+        "source": "content/cases/langgraph-supervisor.mdx"
+      },
+      "dependencies": [],
+      "primary_sources": [
+        "https://docs.langchain.com/oss/python/langchain/multi-agent/router",
+        "https://docs.langchain.com/oss/python/langchain/multi-agent/subagents",
+        "https://docs.langchain.com/oss/python/langgraph/fault-tolerance",
+        "https://docs.langchain.com/oss/python/langgraph/graph-api",
+        "https://docs.langchain.com/oss/python/langgraph/interrupts",
+        "https://docs.langchain.com/oss/python/langgraph/persistence",
+        "https://docs.langchain.com/oss/python/langgraph/thinking-in-langgraph",
+        "https://github.com/langchain-ai/langgraph-supervisor-py/tree/88859b34017ac3569bbd4a3092c7e77593a0a960",
+        "https://github.com/langchain-ai/langgraph/tree/49ae27c2ae983cfb92091b0dea9f7bc37a716479"
+      ],
+      "related_cases": [],
+      "reviewed_at": "2026-07-20",
+      "published": true,
+      "presentation": {
+        "case_catalog": {
+          "title": "LangGraph Supervisor：用显式状态构建可恢复的多智能体编排",
+          "slug": "/cases/langgraph-supervisor",
+          "summary": "沿显式状态图、并行分支与检查点，分析长任务如何恢复并持续收敛。",
+          "difficulty": "advanced",
+          "series": "ai-native",
+          "catalog_order": 3,
+          "featured": true,
+          "source_kinds": [
+            "official-docs",
+            "open-source-project"
+          ],
+          "migration_targets": [
+            "stateful-orchestration",
+            "checkpoint-recovery",
+            "fan-out-fan-in"
+          ],
+          "tags": [
+            "LangGraph",
+            "Supervisor",
+            "Checkpoint",
+            "状态归约",
+            "多智能体编排"
+          ]
+        }
+      }
+    },
+    {
+      "id": "DOC-CASE-LITELLM-VIRTUAL-KEYS-GOVERNANCE",
+      "type": "case",
+      "title": "LiteLLM Virtual Keys：把模型网关变成权限与预算的交汇点",
+      "slug": "/cases/litellm-virtual-keys-governance",
+      "priority": null,
+      "status": {
+        "scope": "content-lifecycle",
+        "value": "reviewed",
+        "source": "content/cases/litellm-virtual-keys-governance.mdx"
+      },
+      "dependencies": [],
+      "primary_sources": [
+        "https://docs.litellm.ai/docs/proxy/budget_fallbacks",
+        "https://docs.litellm.ai/docs/proxy/guardrails/quick_start",
+        "https://docs.litellm.ai/docs/proxy/logging",
+        "https://docs.litellm.ai/docs/proxy/multiple_admins",
+        "https://docs.litellm.ai/docs/proxy/users",
+        "https://docs.litellm.ai/docs/proxy/virtual_keys",
+        "https://github.com/BerriAI/litellm/security/advisories/GHSA-r75f-5x8p-qvmc",
+        "https://github.com/BerriAI/litellm/tree/b3086ccd74553565c9a39716e72303ae985555f9"
+      ],
+      "related_cases": [],
+      "reviewed_at": "2026-07-23",
+      "published": true,
+      "presentation": {
+        "case_catalog": {
+          "title": "LiteLLM Virtual Keys：把模型网关变成权限与预算的交汇点",
+          "slug": "/cases/litellm-virtual-keys-governance",
+          "summary": "用虚拟 Key、分层模型权限、预算与限流、Guardrail 时序和双轨日志分析多租户模型网关的治理边界。",
+          "difficulty": "advanced",
+          "series": "ai-native",
+          "catalog_order": 17,
+          "featured": false,
+          "source_kinds": [
+            "official-docs",
+            "open-source-project"
+          ],
+          "migration_targets": [
+            "virtual-key-governance",
+            "layered-authorization",
+            "multi-level-budgeting",
+            "guardrail-timing",
+            "provider-key-custody"
+          ],
+          "tags": [
+            "LiteLLM",
+            "virtual-keys",
+            "authorization",
+            "budgets",
+            "guardrails"
+          ]
+        }
+      }
+    },
+    {
+      "id": "DOC-CASE-MICRO-FRONTENDS-SINGLE-SPA",
+      "type": "case",
+      "title": "Micro Frontends + single-spa：用垂直业务切片约束多 Agent 所有权",
+      "slug": "/cases/micro-frontends-single-spa",
+      "priority": null,
+      "status": {
+        "scope": "content-lifecycle",
+        "value": "reviewed",
+        "source": "content/cases/micro-frontends-single-spa.mdx"
+      },
+      "dependencies": [],
+      "primary_sources": [
+        "https://github.com/single-spa/single-spa/tree/297483c11265050542d7ef107d14c44936c51883",
+        "https://martinfowler.com/articles/micro-frontends.html",
+        "https://single-spa.js.org/docs/api/",
+        "https://single-spa.js.org/docs/building-applications/",
+        "https://single-spa.js.org/docs/configuration/",
+        "https://single-spa.js.org/docs/microfrontends-concept/",
+        "https://single-spa.js.org/docs/module-types/",
+        "https://single-spa.js.org/docs/recommended-setup/"
+      ],
+      "related_cases": [],
+      "reviewed_at": "2026-07-22",
+      "published": true,
+      "presentation": {
+        "case_catalog": {
+          "title": "Micro Frontends + single-spa：用垂直业务切片约束多 Agent 所有权",
+          "slug": "/cases/micro-frontends-single-spa",
+          "summary": "从运行时组合、独立部署和生命周期契约中分析 Agent 团队边界与共享 Shell。",
+          "difficulty": "intermediate",
+          "series": "frontend-architecture",
+          "catalog_order": 11,
+          "featured": false,
+          "source_kinds": [
+            "official-docs",
+            "open-source-project",
+            "engineering-blog"
+          ],
+          "migration_targets": [
+            "vertical-ownership",
+            "runtime-composition",
+            "lifecycle-contract",
+            "independent-delivery"
+          ],
+          "tags": [
+            "micro-frontends",
+            "single-spa",
+            "vertical-slicing",
+            "independent-deployment",
+            "lifecycle",
+            "distributed-monolith"
+          ]
+        }
+      }
+    },
+    {
+      "id": "DOC-CASE-MICROSOFT-MULTI-AGENT-REFERENCE-ARCHITECTURE",
+      "type": "case",
+      "title": "Microsoft 多智能体参考架构：企业治理下的受控自治",
+      "slug": "/cases/microsoft-multi-agent-reference-architecture",
+      "priority": null,
+      "status": {
+        "scope": "content-lifecycle",
+        "value": "reviewed",
+        "source": "content/cases/microsoft-multi-agent-reference-architecture.mdx"
+      },
+      "dependencies": [],
+      "primary_sources": [
+        "https://github.com/microsoft/multi-agent-reference-architecture/blob/ed3613b54b46b595dd223aaff8772def376a8c37/docs/agent-registry/Agent-Registry.md",
+        "https://github.com/microsoft/multi-agent-reference-architecture/blob/ed3613b54b46b595dd223aaff8772def376a8c37/docs/governance/Governance.md",
+        "https://github.com/microsoft/multi-agent-reference-architecture/blob/ed3613b54b46b595dd223aaff8772def376a8c37/docs/reference-architecture/Reference-Architecture.md",
+        "https://github.com/microsoft/multi-agent-reference-architecture/blob/ed3613b54b46b595dd223aaff8772def376a8c37/docs/security/Security.md",
+        "https://github.com/microsoft/multi-agent-reference-architecture/tree/ed3613b54b46b595dd223aaff8772def376a8c37",
+        "https://learn.microsoft.com/en-us/azure/architecture/ai-ml/guide/ai-agent-design-patterns"
+      ],
+      "related_cases": [],
+      "reviewed_at": "2026-07-20",
+      "published": true,
+      "presentation": {
+        "case_catalog": {
+          "title": "Microsoft 多智能体参考架构：企业治理下的受控自治",
+          "slug": "/cases/microsoft-multi-agent-reference-architecture",
+          "summary": "从注册、编排、记忆到治理，分析企业级多智能体平台如何约束自治边界。",
+          "difficulty": "advanced",
+          "series": "ai-native",
+          "catalog_order": 1,
+          "featured": true,
+          "source_kinds": [
+            "official-docs",
+            "open-source-project",
+            "reference-architecture"
+          ],
+          "migration_targets": [
+            "platform-governance",
+            "agent-registry",
+            "bounded-autonomy"
+          ],
+          "tags": [
+            "Microsoft",
+            "参考架构",
+            "企业治理",
+            "受控自治"
+          ]
+        }
+      }
+    },
+    {
+      "id": "DOC-CASE-NEW-API-CHANNEL-POOL-ROUTING",
+      "type": "case",
+      "title": "New API Channel Pool Routing：把模型请求分解为能力、层级与故障隔离",
+      "slug": "/cases/new-api-channel-pool-routing",
+      "priority": null,
+      "status": {
+        "scope": "content-lifecycle",
+        "value": "reviewed",
+        "source": "content/cases/new-api-channel-pool-routing.mdx"
+      },
+      "dependencies": [],
+      "primary_sources": [
+        "https://docs.newapi.pro/zh/docs/guide/feature-guide/admin/channel",
+        "https://docs.newapi.pro/zh/docs/guide/feature-guide/admin/group",
+        "https://github.com/QuantumNous/new-api/blob/1721144221ec5c94dd87891a7ae1bee228e7bb63/controller/channel-test.go",
+        "https://github.com/QuantumNous/new-api/blob/1721144221ec5c94dd87891a7ae1bee228e7bb63/controller/relay.go",
+        "https://github.com/QuantumNous/new-api/blob/1721144221ec5c94dd87891a7ae1bee228e7bb63/model/ability.go",
+        "https://github.com/QuantumNous/new-api/blob/1721144221ec5c94dd87891a7ae1bee228e7bb63/model/channel_cache.go",
+        "https://github.com/QuantumNous/new-api/blob/1721144221ec5c94dd87891a7ae1bee228e7bb63/model/channel.go",
+        "https://github.com/QuantumNous/new-api/blob/1721144221ec5c94dd87891a7ae1bee228e7bb63/service/channel_select.go",
+        "https://github.com/QuantumNous/new-api/blob/1721144221ec5c94dd87891a7ae1bee228e7bb63/service/channel.go",
+        "https://github.com/QuantumNous/new-api/tree/1721144221ec5c94dd87891a7ae1bee228e7bb63"
+      ],
+      "related_cases": [],
+      "reviewed_at": "2026-07-23",
+      "published": true,
+      "presentation": {
+        "case_catalog": {
+          "title": "New API Channel Pool Routing：把模型请求分解为能力、层级与故障隔离",
+          "slug": "/cases/new-api-channel-pool-routing",
+          "summary": "用 Ability 索引、优先级层、权重选择和多 Key 状态分析统一模型网关如何路由、重试与隔离故障。",
+          "difficulty": "advanced",
+          "series": "ai-native",
+          "catalog_order": 16,
+          "featured": false,
+          "source_kinds": [
+            "official-docs",
+            "open-source-project"
+          ],
+          "migration_targets": [
+            "capability-indexed-routing",
+            "tiered-failover",
+            "weighted-selection",
+            "credential-fault-isolation"
+          ],
+          "tags": [
+            "New-API",
+            "channel-pool",
+            "capability-routing",
+            "weighted-routing",
+            "multi-key"
+          ]
+        }
+      }
+    },
+    {
+      "id": "DOC-CASE-OPENAI-AGENTS-SDK",
+      "type": "case",
+      "title": "OpenAI Agents SDK：小型多智能体系统的控制权模型",
+      "slug": "/cases/openai-agents-sdk",
+      "priority": null,
+      "status": {
+        "scope": "content-lifecycle",
+        "value": "reviewed",
+        "source": "content/cases/openai-agents-sdk.mdx"
+      },
+      "dependencies": [],
+      "primary_sources": [
+        "https://github.com/openai/openai-agents-python/blob/2fa463571e76dae8ff267622f1018eaf06ffeb9f/docs/guardrails.md",
+        "https://github.com/openai/openai-agents-python/blob/2fa463571e76dae8ff267622f1018eaf06ffeb9f/docs/handoffs.md",
+        "https://github.com/openai/openai-agents-python/blob/2fa463571e76dae8ff267622f1018eaf06ffeb9f/docs/human_in_the_loop.md",
+        "https://github.com/openai/openai-agents-python/blob/2fa463571e76dae8ff267622f1018eaf06ffeb9f/docs/multi_agent.md",
+        "https://github.com/openai/openai-agents-python/blob/2fa463571e76dae8ff267622f1018eaf06ffeb9f/docs/running_agents.md",
+        "https://github.com/openai/openai-agents-python/blob/2fa463571e76dae8ff267622f1018eaf06ffeb9f/docs/tools.md",
+        "https://github.com/openai/openai-agents-python/blob/2fa463571e76dae8ff267622f1018eaf06ffeb9f/docs/tracing.md",
+        "https://github.com/openai/openai-agents-python/tree/2fa463571e76dae8ff267622f1018eaf06ffeb9f",
+        "https://openai.github.io/openai-agents-python/multi_agent/"
+      ],
+      "related_cases": [],
+      "reviewed_at": "2026-07-20",
+      "published": true,
+      "presentation": {
+        "case_catalog": {
+          "title": "OpenAI Agents SDK：小型多智能体系统的控制权模型",
+          "slug": "/cases/openai-agents-sdk",
+          "summary": "比较 Manager、Handoff 与代码编排，理解小型多智能体系统的控制权配置。",
+          "difficulty": "intermediate",
+          "series": "ai-native",
+          "catalog_order": 2,
+          "featured": true,
+          "source_kinds": [
+            "official-docs",
+            "open-source-project"
+          ],
+          "migration_targets": [
+            "control-ownership",
+            "handoff",
+            "deterministic-orchestration"
+          ],
+          "tags": [
+            "OpenAI",
+            "Agents SDK",
+            "控制权",
+            "多智能体编排"
+          ]
+        }
+      }
+    },
+    {
+      "id": "DOC-CASE-ROS2-DDS-AGENT-LIFECYCLE",
+      "type": "case",
+      "title": "ROS 2 + DDS Agent Lifecycle：为物理智能体选择通信语义与受管状态",
+      "slug": "/cases/ros2-dds-agent-lifecycle",
+      "priority": null,
+      "status": {
+        "scope": "content-lifecycle",
+        "value": "reviewed",
+        "source": "content/cases/ros2-dds-agent-lifecycle.mdx"
+      },
+      "dependencies": [],
+      "primary_sources": [
+        "https://design.ros2.org/articles/node_lifecycle.html",
+        "https://docs.ros.org/en/jazzy/Concepts/Basic/About-Actions.html",
+        "https://docs.ros.org/en/jazzy/Concepts/Basic/Interfaces-Topics-Services-Actions.html",
+        "https://docs.ros.org/en/jazzy/Concepts/Intermediate/About-Executors.html",
+        "https://docs.ros.org/en/jazzy/Concepts/Intermediate/About-Quality-of-Service-Settings.html",
+        "https://docs.ros.org/en/jazzy/How-To-Guides/Using-callback-groups.html",
+        "https://docs.ros.org/en/jazzy/Releases.html",
+        "https://docs.ros.org/en/jazzy/Releases/Release-Jazzy-Jalisco.html",
+        "https://docs.ros.org/en/jazzy/Tutorials/Advanced/Security/Access-Controls.html",
+        "https://docs.ros.org/en/jazzy/Tutorials/Advanced/Security/The-Keystore.html",
+        "https://github.com/ros2/rclcpp/blob/53cf81e42e6530c2ed7a23489d6640966dccd083/rclcpp_action/include/rclcpp_action/server_goal_handle.hpp",
+        "https://github.com/ros2/rclcpp/blob/53cf81e42e6530c2ed7a23489d6640966dccd083/rclcpp_action/include/rclcpp_action/server.hpp",
+        "https://github.com/ros2/rclcpp/blob/53cf81e42e6530c2ed7a23489d6640966dccd083/rclcpp_lifecycle/include/rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp",
+        "https://github.com/ros2/rclcpp/blob/53cf81e42e6530c2ed7a23489d6640966dccd083/rclcpp_lifecycle/src/lifecycle_node_interface_impl.cpp",
+        "https://github.com/ros2/rclcpp/blob/53cf81e42e6530c2ed7a23489d6640966dccd083/rclcpp_lifecycle/src/lifecycle_node.cpp",
+        "https://github.com/ros2/rclcpp/blob/53cf81e42e6530c2ed7a23489d6640966dccd083/rclcpp/include/rclcpp/callback_group.hpp",
+        "https://github.com/ros2/rclcpp/blob/53cf81e42e6530c2ed7a23489d6640966dccd083/rclcpp/src/rclcpp/executor.cpp",
+        "https://github.com/ros2/rclcpp/tree/53cf81e42e6530c2ed7a23489d6640966dccd083",
+        "https://github.com/ros2/ros2/blob/a38203a7da336eb123122bc241f53e78d2a0284f/ros2.repos",
+        "https://github.com/ros2/ros2/releases/tag/release-jazzy-20260618",
+        "https://github.com/ros2/ros2/tree/a38203a7da336eb123122bc241f53e78d2a0284f"
+      ],
+      "related_cases": [],
+      "reviewed_at": "2026-07-22",
+      "published": true,
+      "presentation": {
+        "case_catalog": {
+          "title": "ROS 2 + DDS Agent Lifecycle：为物理智能体选择通信语义与受管状态",
+          "slug": "/cases/ros2-dds-agent-lifecycle",
+          "summary": "用 Topic、Service、Action、DDS QoS 与 Managed Node 区分消息流、工具调用、长任务和执行授权。",
+          "difficulty": "advanced",
+          "series": "edge-physical",
+          "catalog_order": 15,
+          "featured": false,
+          "source_kinds": [
+            "official-docs",
+            "open-source-project",
+            "reference-architecture"
+          ],
+          "migration_targets": [
+            "communication-semantics",
+            "managed-lifecycle",
+            "qos-policy",
+            "task-cancellation"
+          ],
+          "tags": [
+            "ROS 2",
+            "DDS",
+            "生命周期",
+            "物理智能体"
+          ]
+        }
+      }
+    },
+    {
+      "id": "DOC-CASE-TEMPORAL-SAGA-DURABLE-EXECUTION",
+      "type": "case",
+      "title": "Temporal Durable Execution + Saga：为长时智能体任务建立可恢复边界",
+      "slug": "/cases/temporal-saga-durable-execution",
+      "priority": null,
+      "status": {
+        "scope": "content-lifecycle",
+        "value": "reviewed",
+        "source": "content/cases/temporal-saga-durable-execution.mdx"
+      },
+      "dependencies": [],
+      "primary_sources": [
+        "https://docs.temporal.io/activities",
+        "https://docs.temporal.io/activity-definition",
+        "https://docs.temporal.io/activity-execution",
+        "https://docs.temporal.io/encyclopedia/detecting-activity-failures",
+        "https://docs.temporal.io/encyclopedia/event-history",
+        "https://docs.temporal.io/encyclopedia/retry-policies",
+        "https://docs.temporal.io/task-queue",
+        "https://docs.temporal.io/temporal-service",
+        "https://docs.temporal.io/workflow-definition",
+        "https://docs.temporal.io/workflows",
+        "https://doi.org/10.1145/38713.38742",
+        "https://github.com/temporalio/sdk-go/blob/3cebc26908119368df3911df6146f756bad3882b/internal/internal_task_handlers.go",
+        "https://github.com/temporalio/sdk-go/blob/3cebc26908119368df3911df6146f756bad3882b/internal/internal_worker_heartbeat.go",
+        "https://github.com/temporalio/sdk-go/tree/3cebc26908119368df3911df6146f756bad3882b",
+        "https://github.com/temporalio/sdk-java/blob/6d09a341c14daeddf9b3795cd43721de770fec2c/temporal-sdk/src/main/java/io/temporal/internal/activity/ActivityExecutionContextFactoryImpl.java",
+        "https://github.com/temporalio/sdk-java/blob/6d09a341c14daeddf9b3795cd43721de770fec2c/temporal-sdk/src/main/java/io/temporal/internal/activity/HeartbeatContextImpl.java",
+        "https://github.com/temporalio/sdk-java/blob/6d09a341c14daeddf9b3795cd43721de770fec2c/temporal-sdk/src/main/java/io/temporal/internal/worker/WorkerCommandTaskHandler.java",
+        "https://github.com/temporalio/sdk-java/blob/6d09a341c14daeddf9b3795cd43721de770fec2c/temporal-sdk/src/main/java/io/temporal/worker/WorkerFactory.java",
+        "https://github.com/temporalio/sdk-java/tree/6d09a341c14daeddf9b3795cd43721de770fec2c",
+        "https://github.com/temporalio/temporal/blob/955948007cc6d9d94fa8ef484225954bd9328451/service/history/api/respondworkflowtaskcompleted/workflow_task_completed_handler.go",
+        "https://github.com/temporalio/temporal/blob/955948007cc6d9d94fa8ef484225954bd9328451/service/history/timer_queue_active_task_executor.go",
+        "https://github.com/temporalio/temporal/blob/955948007cc6d9d94fa8ef484225954bd9328451/service/history/workflow/mutable_state_impl.go",
+        "https://github.com/temporalio/temporal/blob/955948007cc6d9d94fa8ef484225954bd9328451/service/history/workflow/retry.go",
+        "https://github.com/temporalio/temporal/blob/955948007cc6d9d94fa8ef484225954bd9328451/service/matching/handler.go",
+        "https://github.com/temporalio/temporal/blob/955948007cc6d9d94fa8ef484225954bd9328451/service/matching/matching_engine.go",
+        "https://github.com/temporalio/temporal/tree/955948007cc6d9d94fa8ef484225954bd9328451"
+      ],
+      "related_cases": [],
+      "reviewed_at": "2026-07-22",
+      "published": true,
+      "presentation": {
+        "case_catalog": {
+          "title": "Temporal Durable Execution + Saga：为长时智能体任务建立可恢复边界",
+          "slug": "/cases/temporal-saga-durable-execution",
+          "summary": "结合 Saga 补偿和 Temporal 事件历史，分析 LLM 与外部副作用应落在哪个耐久执行边界。",
+          "difficulty": "advanced",
+          "series": "classic-distributed",
+          "catalog_order": 8,
+          "featured": false,
+          "source_kinds": [
+            "official-docs",
+            "open-source-project",
+            "classic-paper"
+          ],
+          "migration_targets": [
+            "durable-execution",
+            "saga-compensation",
+            "idempotent-activity",
+            "human-intervention"
+          ],
+          "tags": [
+            "Temporal",
+            "Saga",
+            "durable-execution",
+            "deterministic-replay",
+            "idempotency",
+            "compensation"
+          ]
+        }
+      }
+    },
+    {
+      "id": "DOC-CASE-YJS-CRDT-COLLABORATION",
+      "type": "case",
+      "title": "Yjs CRDT Collaboration：让人和多个 Agent 合并共享工作区状态",
+      "slug": "/cases/yjs-crdt-collaboration",
+      "priority": null,
+      "status": {
+        "scope": "content-lifecycle",
+        "value": "reviewed",
+        "source": "content/cases/yjs-crdt-collaboration.mdx"
+      },
+      "dependencies": [],
+      "primary_sources": [
+        "https://docs.yjs.dev/api/about-awareness",
+        "https://docs.yjs.dev/api/document-updates",
+        "https://docs.yjs.dev/ecosystem/connection-provider/y-websocket",
+        "https://docs.yjs.dev/ecosystem/database-provider/y-indexeddb",
+        "https://docs.yjs.dev/getting-started/allowing-offline-editing",
+        "https://docs.yjs.dev/getting-started/working-with-shared-types",
+        "https://github.com/yjs/yjs/blob/9c1994547d7bc86245a21e1a4c8319f056d05ecf/INTERNALS.md",
+        "https://github.com/yjs/yjs/blob/9c1994547d7bc86245a21e1a4c8319f056d05ecf/THREAT_MODEL.md",
+        "https://github.com/yjs/yjs/tree/9c1994547d7bc86245a21e1a4c8319f056d05ecf"
+      ],
+      "related_cases": [],
+      "reviewed_at": "2026-07-22",
+      "published": true,
+      "presentation": {
+        "case_catalog": {
+          "title": "Yjs CRDT Collaboration：让人和多个 Agent 合并共享工作区状态",
+          "slug": "/cases/yjs-crdt-collaboration",
+          "summary": "用 CRDT update、provider、awareness 和离线同步区分收敛数据、临时意图与业务语义。",
+          "difficulty": "advanced",
+          "series": "frontend-architecture",
+          "catalog_order": 12,
+          "featured": false,
+          "source_kinds": [
+            "official-docs",
+            "open-source-project"
+          ],
+          "migration_targets": [
+            "convergent-state",
+            "offline-sync",
+            "collaborative-editing",
+            "ephemeral-awareness"
+          ],
+          "tags": [
+            "yjs",
+            "crdt",
+            "collaborative-editing",
+            "offline-first",
+            "awareness",
+            "state-vector",
+            "multi-agent"
+          ]
+        }
+      }
+    }
+  ],
+  "question": [
+    {
+      "id": "QST-01",
+      "type": "question",
+      "title": "建立设计题回答契约",
+      "slug": "/questions/qst-01",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "QST-02",
+      "type": "question",
+      "title": "为现有三道设计题补完整参考答案和评分 rubric",
+      "slug": "/questions/qst-02",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "QST-03",
+      "type": "question",
+      "title": "模块化单体还是微服务",
+      "slug": "/questions/qst-03",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "QST-04",
+      "type": "question",
+      "title": "订单、库存与支付的一致性设计",
+      "slug": "/questions/qst-04",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "QST-05",
+      "type": "question",
+      "title": "多租户限流、配额与隔离",
+      "slug": "/questions/qst-05",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "QST-06",
+      "type": "question",
+      "title": "高流量通知系统与背压",
+      "slug": "/questions/qst-06",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "QST-07",
+      "type": "question",
+      "title": "多人协作编辑与离线冲突",
+      "slug": "/questions/qst-07",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "QST-08",
+      "type": "question",
+      "title": "跨区域读写、故障切换与恢复",
+      "slug": "/questions/qst-08",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "QST-09",
+      "type": "question",
+      "title": "Agent 工具副作用、审批与恢复",
+      "slug": "/questions/qst-09",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "QST-10",
+      "type": "question",
+      "title": "边缘断网自治与物理安全",
+      "slug": "/questions/qst-10",
+      "priority": "P2",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    }
+  ],
+  "path": [
+    {
+      "id": "AGT-01",
+      "type": "path",
+      "title": "跨供应商能力声明、语义回退和数据驻留约束验证",
+      "slug": "/paths/agt-01",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "AGT-02",
+      "type": "path",
+      "title": "端用户、服务、Agent、工具和上游模型之间的身份委托与撤销",
+      "slug": "/paths/agt-02",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "AGT-03",
+      "type": "path",
+      "title": "输入、输出、工具执行和人工审批多层 Guardrail 的绕过测试",
+      "slug": "/paths/agt-03",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "AGT-04",
+      "type": "path",
+      "title": "A2A 与 MCP 的发现、版本协商、授权和失败恢复互操作测试",
+      "slug": "/paths/agt-04",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "AGT-05",
+      "type": "path",
+      "title": "离线评估、在线反馈、追踪、成本和安全事件关联到同一任务",
+      "slug": "/paths/agt-05",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "AGT-06",
+      "type": "path",
+      "title": "多租户执行沙箱、缓存/记忆泄漏和故障半径验证",
+      "slug": "/paths/agt-06",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "CLD-01",
+      "type": "path",
+      "title": "镜像供应链、签名验证、制品晋级与运行时准入案例",
+      "slug": "/paths/cld-01",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "CLD-02",
+      "type": "path",
+      "title": "Service Mesh、Gateway API 与多集群流量故障切换比较",
+      "slug": "/paths/cld-02",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "CLD-03",
+      "type": "path",
+      "title": "HPA、VPA、集群扩容和队列背压的容量联动案例",
+      "slug": "/paths/cld-03",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "CLD-04",
+      "type": "path",
+      "title": "GitOps 漂移处理、IaC 状态所有权和平台 API 版本演进案例",
+      "slug": "/paths/cld-04",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "CLD-05",
+      "type": "path",
+      "title": "从 SLI 到错误预算、发布暂停和复盘的完整闭环案例",
+      "slug": "/paths/cld-05",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "EDGE-01",
+      "type": "path",
+      "title": "云边模型、工具和配置包的签名分发、回滚与反回滚",
+      "slug": "/paths/edge-01",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "EDGE-02",
+      "type": "path",
+      "title": "长时间断网后的冲突分类、审计重放与人工裁决",
+      "slug": "/paths/edge-02",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "EDGE-04",
+      "type": "path",
+      "title": "急停、限位、硬件联锁与软件降级相互独立的安全案例",
+      "slug": "/paths/edge-04",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "EDGE-05",
+      "type": "path",
+      "title": "网络分区下避免重复物理任务和双重控制",
+      "slug": "/paths/edge-05",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "FE-01",
+      "type": "path",
+      "title": "OT 与 CRDT 在同一编辑场景中的语义和失败窗口对照",
+      "slug": "/paths/fe-01",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "FE-02",
+      "type": "path",
+      "title": "离线队列、快照压缩、增量同步与服务端恢复案例",
+      "slug": "/paths/fe-02",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "FE-03",
+      "type": "path",
+      "title": "权限撤销与离线编辑相遇时的重新授权、拒绝和审计",
+      "slug": "/paths/fe-03",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "FE-04",
+      "type": "path",
+      "title": "评论、审批、删除和唯一约束的语义冲突案例",
+      "slug": "/paths/fe-04",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "FE-05",
+      "type": "path",
+      "title": "共享依赖升级、跨微前端通信和 shell 故障隔离案例",
+      "slug": "/paths/fe-05",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "CLD-06",
+      "type": "path",
+      "title": "平台工程责任模型",
+      "slug": "/paths/cld-06",
+      "priority": "P2",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "CLD-07",
+      "type": "path",
+      "title": "CNCF Reference Architecture 案例组",
+      "slug": "/paths/cld-07",
+      "priority": "P2",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "EDGE-03",
+      "type": "path",
+      "title": "ROS 2、实时操作系统和设备总线的端到端延迟预算案例",
+      "slug": "/paths/edge-03",
+      "priority": "P2",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false
+    },
+    {
+      "id": "DOC-PATH-AGENT-PLATFORM-GATEWAY",
+      "type": "path",
+      "title": "Agent 平台与模型网关",
+      "slug": "/paths/agent-platform-gateway",
+      "priority": null,
+      "status": {
+        "scope": "content-lifecycle",
+        "value": "reviewed",
+        "source": "content/paths/10-agent-platform-gateway.mdx"
+      },
+      "dependencies": [],
+      "primary_sources": [
+        "https://a2a-protocol.org/latest/",
+        "https://aigateway.envoyproxy.io/docs/getting-started/",
+        "https://docs.litellm.ai/docs/proxy/virtual_keys",
+        "https://github.com/EthicalML/awesome-agentic-engineering-resources",
+        "https://modelcontextprotocol.io/docs/getting-started/intro",
+        "https://openai.github.io/openai-agents-python/multi_agent/"
+      ],
+      "related_cases": [],
+      "reviewed_at": "2026-07-23",
+      "published": true,
+      "presentation": {}
+    },
+    {
+      "id": "DOC-PATH-AGENTIC-ARCHITECTURE",
+      "type": "path",
+      "title": "Agentic 架构专项",
+      "slug": "/paths/agentic-architecture",
+      "priority": null,
+      "status": {
+        "scope": "content-lifecycle",
+        "value": "reviewed",
+        "source": "content/paths/06-agentic-architecture.mdx"
+      },
+      "dependencies": [],
+      "primary_sources": [
+        "https://a2a-protocol.org/latest/",
+        "https://docs.langchain.com/oss/python/langgraph/overview",
+        "https://google.github.io/adk-docs/agents/multi-agents/",
+        "https://modelcontextprotocol.io/docs/getting-started/intro",
+        "https://openai.github.io/openai-agents-python/multi_agent/"
+      ],
+      "related_cases": [],
+      "reviewed_at": "2026-07-23",
+      "published": true,
+      "presentation": {}
+    },
+    {
+      "id": "DOC-PATH-ARCHITECTURE-THINKING",
+      "type": "path",
+      "title": "架构思维与表达",
+      "slug": "/paths/architecture-thinking",
+      "priority": null,
+      "status": {
+        "scope": "content-lifecycle",
+        "value": "reviewed",
+        "source": "content/paths/01-architecture-thinking.mdx"
+      },
+      "dependencies": [],
+      "primary_sources": [
+        "https://arc42.org/",
+        "https://c4model.com/",
+        "https://github.com/mehdihadeli/awesome-software-architecture/blob/main/docs/architecture-documententation.md",
+        "https://github.com/mehdihadeli/awesome-software-architecture#architectural-design-principles"
+      ],
+      "related_cases": [],
+      "reviewed_at": "2026-07-23",
+      "published": true,
+      "presentation": {}
+    },
+    {
+      "id": "DOC-PATH-CLOUD-NATIVE-PLATFORM",
+      "type": "path",
+      "title": "云原生与平台",
+      "slug": "/paths/cloud-native-platform",
+      "priority": null,
+      "status": {
+        "scope": "content-lifecycle",
+        "value": "reviewed",
+        "source": "content/paths/07-cloud-native-platform.mdx"
+      },
+      "dependencies": [],
+      "primary_sources": [
+        "https://github.com/cncf/curriculum",
+        "https://github.com/mehdihadeli/awesome-software-architecture",
+        "https://kubernetes.io/docs/tutorials/kubernetes-basics/",
+        "https://sre.google/workbook/table-of-contents/"
+      ],
+      "related_cases": [],
+      "reviewed_at": "2026-07-23",
+      "published": true,
+      "presentation": {}
+    },
+    {
+      "id": "DOC-PATH-COLLABORATIVE-STATE-FRONTEND",
+      "type": "path",
+      "title": "协作状态与前端",
+      "slug": "/paths/collaborative-state-frontend",
+      "priority": null,
+      "status": {
+        "scope": "content-lifecycle",
+        "value": "reviewed",
+        "source": "content/paths/08-collaborative-state-frontend.mdx"
+      },
+      "dependencies": [],
+      "primary_sources": [
+        "https://docs.yjs.dev/",
+        "https://github.com/greatfrontend/awesome-front-end-system-design",
+        "https://github.com/mehdihadeli/awesome-software-architecture#micro-frontend"
+      ],
+      "related_cases": [],
+      "reviewed_at": "2026-07-23",
+      "published": true,
+      "presentation": {}
+    },
+    {
+      "id": "DOC-PATH-DISTRIBUTED-SYSTEMS",
+      "type": "path",
+      "title": "分布式系统基础",
+      "slug": "/paths/distributed-systems",
+      "priority": null,
+      "status": {
+        "scope": "content-lifecycle",
+        "value": "reviewed",
+        "source": "content/paths/03-distributed-systems.mdx"
+      },
+      "dependencies": [],
+      "primary_sources": [
+        "https://dataintensive.net/",
+        "https://github.com/donnemartin/system-design-primer#system-design-interview-questions-with-solutions",
+        "https://github.com/donnemartin/system-design-primer#system-design-topics-start-here",
+        "https://github.com/mehdihadeli/awesome-software-architecture"
+      ],
+      "related_cases": [],
+      "reviewed_at": "2026-07-23",
+      "published": true,
+      "presentation": {}
+    },
+    {
+      "id": "DOC-PATH-EDGE-PHYSICAL-AGENTS",
+      "type": "path",
+      "title": "边缘与物理智能体",
+      "slug": "/paths/edge-physical-agents",
+      "priority": null,
+      "status": {
+        "scope": "content-lifecycle",
+        "value": "reviewed",
+        "source": "content/paths/09-edge-physical-agents.mdx"
+      },
+      "dependencies": [],
+      "primary_sources": [
+        "https://docs.ros.org/en/jazzy/Concepts/Basic.html",
+        "https://kubeedge.io/docs/"
+      ],
+      "related_cases": [],
+      "reviewed_at": "2026-07-23",
+      "published": true,
+      "presentation": {}
+    },
+    {
+      "id": "DOC-PATH-MODULE-BOUNDARIES",
+      "type": "path",
+      "title": "模块边界与应用架构",
+      "slug": "/paths/module-boundaries",
+      "priority": null,
+      "status": {
+        "scope": "content-lifecycle",
+        "value": "reviewed",
+        "source": "content/paths/02-module-boundaries.mdx"
+      },
+      "dependencies": [],
+      "primary_sources": [
+        "https://github.com/mehdihadeli/awesome-software-architecture#architectural-design-principles",
+        "https://github.com/mehdihadeli/awesome-software-architecture#clean-architecture",
+        "https://github.com/mehdihadeli/awesome-software-architecture#domain-driven-design",
+        "https://github.com/mehdihadeli/awesome-software-architecture#hexagonal-architecture",
+        "https://github.com/mehdihadeli/awesome-software-architecture#modular-monolith",
+        "https://github.com/mehdihadeli/awesome-software-architecture#vertical-slice-architecture"
+      ],
+      "related_cases": [],
+      "reviewed_at": "2026-07-23",
+      "published": true,
+      "presentation": {}
+    },
+    {
+      "id": "DOC-PATH-PRODUCTION-GOVERNANCE",
+      "type": "path",
+      "title": "扩展、隔离与生产治理",
+      "slug": "/paths/production-governance",
+      "priority": null,
+      "status": {
+        "scope": "content-lifecycle",
+        "value": "reviewed",
+        "source": "content/paths/05-production-governance.mdx"
+      },
+      "dependencies": [],
+      "primary_sources": [
+        "https://aws.amazon.com/builders-library/workload-isolation-using-shuffle-sharding/",
+        "https://github.com/donnemartin/system-design-primer#how-to-approach-a-system-design-interview-question",
+        "https://github.com/mehdihadeli/awesome-software-architecture",
+        "https://sre.google/workbook/table-of-contents/"
+      ],
+      "related_cases": [],
+      "reviewed_at": "2026-07-23",
+      "published": true,
+      "presentation": {}
+    },
+    {
+      "id": "DOC-PATH-RELIABILITY-STATE",
+      "type": "path",
+      "title": "可靠性与状态管理",
+      "slug": "/paths/reliability-state",
+      "priority": null,
+      "status": {
+        "scope": "content-lifecycle",
+        "value": "reviewed",
+        "source": "content/paths/04-reliability-state.mdx"
+      },
+      "dependencies": [],
+      "primary_sources": [
+        "https://github.com/mehdihadeli/awesome-software-architecture#back-pressure",
+        "https://github.com/mehdihadeli/awesome-software-architecture#cloud-design-patterns",
+        "https://github.com/mehdihadeli/awesome-software-architecture#microservices",
+        "https://sre.google/workbook/table-of-contents/"
+      ],
+      "related_cases": [],
+      "reviewed_at": "2026-07-23",
+      "published": true,
+      "presentation": {}
+    }
+  ]
+}

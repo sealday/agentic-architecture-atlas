@@ -151,6 +151,24 @@ function projectDocument(id, file, metadata, existing) {
   };
 }
 
+export function projectPublishedDocuments(documents) {
+  return documents
+    .filter(
+      ({file, metadata}) =>
+        file !== 'index.mdx' &&
+        !file.endsWith('/index.mdx') &&
+        metadata.content_type !== 'reference',
+    )
+    .map(({file, metadata}) =>
+      projectDocument(
+        metadata.topic_id ??
+          legacyDocumentId(metadata.content_type, metadata.slug),
+        file,
+        metadata,
+      ),
+    );
+}
+
 function validateRelationArray(topicId, field, value, errors) {
   if (!Array.isArray(value)) {
     errors.push(

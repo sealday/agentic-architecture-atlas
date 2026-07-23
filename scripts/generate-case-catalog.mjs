@@ -3,6 +3,7 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 import {validateContent} from './validate-content.mjs';
+import {projectPublishedDocuments} from './topic-manifest.mjs';
 
 export const catalogFields = [
   'title',
@@ -41,11 +42,16 @@ export async function buildCaseCatalog(root) {
     throw new Error(`Content validation failed:\n${validation.errors.join('\n')}`);
   }
 
-  return validation.documents
-    .filter(({metadata}) => metadata.content_type === 'case')
-    .map(({metadata}) =>
-      Object.fromEntries(catalogFields.map((field) => [field, metadata[field]])),
-    )
+  return buildCaseCatalogFromManifest({
+    schema_version: 1,
+    topics: projectPublishedDocuments(validation.documents),
+  });
+}
+
+export function buildCaseCatalogFromManifest(manifest) {
+  return manifest.topics
+    .filter((topic) => topic.type === 'case' && topic.published)
+    .map((topic) => topic.presentation.case_catalog)
     .sort((left, right) => left.catalog_order - right.catalog_order);
 }
 

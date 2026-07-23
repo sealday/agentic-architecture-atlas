@@ -13,12 +13,14 @@
     "write-translations": "docusaurus write-translations",
     "write-heading-ids": "docusaurus write-heading-ids",
     "test": "node --test tests/*.test.mjs",
-    "generate:catalog": "node scripts/generate-case-catalog.mjs content src/generated/case-catalog.json",
-    "check:catalog": "node scripts/generate-case-catalog.mjs content src/generated/case-catalog.json --check",
+    "generate:content": "node scripts/generate-content-platform.mjs --write",
+    "check:content": "node scripts/generate-content-platform.mjs --check",
+    "generate:catalog": "npm run generate:content",
+    "check:catalog": "npm run check:content",
     "validate:content": "node scripts/validate-content.mjs content --require-complete-catalog",
     "report:writing-density": "node .codex/skills/writing-architecture-cases/scripts/analyze_case_density.mjs content/cases",
     "typecheck": "tsc --noEmit",
-    "verify": "npm run test && npm run validate:content && npm run check:catalog && npm run typecheck && npm run build"
+    "verify": "npm run test && npm run validate:content && npm run check:content && npm run typecheck && npm run build"
   },
   "dependencies": {
     "@docusaurus/core": "3.10.2",
