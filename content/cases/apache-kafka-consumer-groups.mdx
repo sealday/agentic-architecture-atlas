@@ -79,236 +79,221 @@ official_sources:
 
 # Apache Kafka Consumer Groups：用分区所有权组织可重放的 Agent 工作
 
-Kafka Consumer Group 最值得 Agent 平台借鉴的不是“接入一个消息中间件”，而是把并行工作约束为一组可说明的分区所有权：事件先进入可保留的分区日志；同一消费组内，一个分区在任一时刻只交给一个成员；处理者以 offset 表达下一次恢复位置；成员变化时，协调器重新分配分区。这个模型把任务归属、恢复与扩缩容连在一起，也把两个事实暴露得很清楚：处理完成与 offset 提交之间存在失败窗口，rebalance 期间旧持有者的外部副作用不会被 Kafka 自动撤销。
+rebalance 把 partition 3 从 Consumer A 转给 Consumer B 时，A 发出的 HTTP 请求可能仍在执行。Kafka 能阻止失去 assignment 的成员继续用旧 generation 提交 offset，却不会撤回这个请求，也不会替业务数据库选择哪次写入有效。
 
-本案例以 Apache Kafka 4.3.1 官方文档和 `apache/kafka@ebac341b28d4224c296ada31eb45122176e8b27b` 为当前证据截面，重点阅读 classic consumer group。Kafka 4.3 同时提供新的 `consumer` group protocol，且默认客户端配置仍是 `classic`；本文不把两套协议混成一个状态机，也不讨论 share group 的逐记录获取语义。历史部分以 LinkedIn 2011 年原始工程文章确认 NetDB ’11 论文，再引用 Microsoft Research 当前托管的原论文 PDF。
+Consumer Group 的可迁移价值，正是把“取数所有权”和“业务动作所有权”拆开。partition assignment、offset 与 retained log 支撑接管和重放；inbox、幂等键、lease、fencing 与对账才负责处理在途工作的重叠。
+
+**证据范围**：本文以 Apache Kafka 4.3.1 文档和 `apache/kafka@ebac341b28d4224c296ada31eb45122176e8b27b` 为截面，重点讨论默认仍为 `classic` 的 consumer group protocol。必须先记住：partition 内顺序不等于跨 partition 全局顺序；Kafka transaction 也不等于任意数据库、邮件、支付和工具调用的通用事务。
 
 ## 学习问题
 
-1. append-only、partition 与 offset 怎样把 Agent 输入从“发完即失”变成可检查、可重放的工作日志？
-2. classic group 的 coordinator、leader、assignor 和普通 member 分别拥有哪部分控制权，为什么 partition assignment 不是业务锁？
-3. `poll()` 的当前位置与 committed offset 有何区别，哪个失败窗口会产生 at-least-once 重复执行？
-4. rebalance 为什么既能恢复失败成员的分区，也会放大长时 Agent 调用、状态迁移和外部副作用的风险？
-5. user、tenant、task、conversation 四种 partition key 分别牺牲什么顺序、并行度、公平性与隔离性？
-6. lag、`max.poll.interval.ms`、`max.poll.records`、`pause`/`resume` 如何共同表达背压，为什么消息条数不足以衡量 Agent 工作量？
-7. poison event、重放、retention、幂等 consumer、outbox/inbox 和 fencing 怎样组成可审计的重复处理边界？
+1. partition、offset 与 retained log 如何共同定义恢复位置？
+2. classic rebalance 转移 partition 时，为什么旧 owner 的在途动作仍可能完成？
+3. position、committed offset 与业务完成状态为何是三件事？
+4. partition key 怎样交换局部顺序、并行度、公平性与热点风险？
+5. Agent 平台如何用 inbox、fencing、背压和 replay 管住重复处理？
 
 ## 一页摘要
 
-**已证实事实**：Kafka topic 被切成多个 partition；新事件追加到其中一个 partition。相同 key 的事件进入同一 partition，给定 topic-partition 的消费者按写入顺序读取。这个顺序保证是 **partition-local**：Kafka 不提供跨 partition 的全局顺序。LinkedIn 的日志文章也明确说明，每个 partition 是全序日志，而 partition 之间没有全局顺序。
+**已证实事实**：Kafka topic 分成 partitions，事件追加到其中一个 partition。相同 key 的事件进入同一 partition；consumer 按 topic-partition 内的写入顺序读取。该保证是 partition-local，不提供跨 partition 的全局顺序。
 
-**已证实事实**：一个 `group.id` 标识一个消费组。组内成员共同订阅 topic，Kafka 把每个 partition 分给组内恰好一个 consumer；成员崩溃、加入、离开或订阅匹配到新 partition 时会 rebalance。classic 协议下，broker group coordinator 管理成员、generation 与状态；被选为 group leader 的客户端收集订阅，用选定 assignor 计算 member → partition 映射，再通过 SyncGroup 让 coordinator 持久化并传播 assignment。
+同一 `group.id` 内，一个 partition 在当前 assignment 中交给一个 consumer。classic 协议由 broker coordinator 管理成员、generation 和状态；被选为 leader 的客户端执行 assignor，再通过 SyncGroup 让 coordinator 保存并传播 assignment。
 
-**已证实事实**：consumer position 是下一条将由 `poll()` 返回的 offset，会随取数前进；committed position 是失败重启或 rebalance 后恢复使用的 offset。若应用先完成数据库写入、工具调用或消息发送，再提交 offset，进程在二者之间失败，接管者会从旧 committed offset 再读并重复执行。这正是默认 at-least-once 的重复窗口。
+consumer position 是下一次 `poll()` 返回的位置，committed offset 是失败或 rebalance 后的恢复位置。业务动作成功而 offset 未提交时进程失败，接管者会从旧 offset 重读。这是 at-least-once 的重复窗口。
 
-**基于证据的推断**：对于 Agent 工作，partition assignment 只决定“哪个 consumer 可以继续从这条分区日志取数”，不证明旧 consumer 已停止推理、终止 HTTP 请求或撤销工具副作用。高风险动作要在业务存储中使用 `event_id`/`task_id` 幂等键、inbox 唯一约束和可递增 fencing token，拒绝被 rebalance 淘汰的旧执行者迟到写入。
+**个人分析**：partition assignment 只决定谁能继续取数。长时 Agent 应先把事件耐久登记为 work item，再由具有独立 lease 和 epoch 的 worker 执行；最终目的地必须以幂等键或原子 fencing 拒绝旧 owner 的迟到写。
 
-**个人分析**：Agent 平台应让消费循环快速完成一个可耐久状态转移，而不是在 `poll()` 线程里等待几十分钟的模型/人工/工具链。长任务可以先把事件登记为 inbox/work item，再由受租约约束的 worker 执行；只有登记与去重已持久化后才提交 offset。lag 是背压症状，不是业务完成量；应同时观察最老待处理事件年龄、各 key 的处理时长、活跃租约、重试/DLQ 率和预计清空时间。
-
-| Kafka 边界 | 对 Agent 工作的含义 | 不能推出的保证 |
+| Kafka 边界 | 它实际保证什么 | 不能推出什么 |
 | --- | --- | --- |
-| partition-local order | 同一 key 的状态变化可交给一个分区顺序读取 | 跨用户、跨任务或跨 partition 的全局顺序 |
-| one partition / one group member | 在当前 generation 内限制组内取数所有者 | 单条任务锁、旧执行者已停止、外部写 exactly-once |
-| committed offset | rebalance/重启后的恢复位置 | offset 之前的业务副作用都成功且只发生一次 |
-| retained log + `seek`/reset | 在仍保留的 offset 范围内重放 | 无限历史、确定性 Agent 输出、自动审计还原 |
-| Kafka transaction | 可原子写 Kafka 输出与消费 offset | 任意数据库、邮件、支付和工具调用的通用分布式事务 |
+| partition-local order | 同一 partition 按日志顺序读取 | 跨 partition 的 global order |
+| one partition / one group member | 当前 assignment 的取数 owner | 单任务锁、旧 worker 已停止 |
+| committed offset | 重启与 rebalance 的恢复游标 | 前序副作用已成功且只发生一次 |
+| retained log + seek/reset | 保留范围内重放输入 | 无限历史、确定性 Agent 输出 |
+| Kafka transaction | Kafka 输出与输入 offset 的原子边界 | 任意外部系统的通用 transaction |
+
+应保留的结论是：顺序域、取数所有权、恢复游标和业务事务各有边界，不能用“Kafka 已经 exactly-once”把它们合并。
 
 ## 事实边界
 
-**已证实事实**
+**已证实事实**：consumer 数量超过 partition 数量时，多出的成员不能增加该 topic 的分区并行度。成员崩溃、加入、离开或订阅出现新 partition 时会 rebalance；heartbeat、`session.timeout.ms` 和持续 `poll()` 共同维持 classic group 活性。
 
-- Kafka 官方介绍把事件描述为 key、value、timestamp 与 headers，并把事件追加到 topic 的某个 partition。相同 key 进入同一 partition；顺序保证针对给定 topic-partition。
-- 2013 年 LinkedIn 工程文章把 log 定义为 append-only 的有序记录序列，并在 Kafka 分区一节明确说明：partition 内全序，partition 之间没有全局顺序。本文据此明确否认“一个 topic 就是一条全局有序队列”。
-- 同一 `group.id` 的进程构成 consumer group。组内每个 partition 分给恰好一个 consumer；consumer 数量超过 partition 数量时，额外成员不能增加该 topic 的分区级并行度。
-- Kafka 4.3 的 consumer 配置支持 `classic` 与 `consumer` 两种 group protocol，默认是 `classic`。官方迁移文档说明新协议从 Kafka 4.0 起 GA，并且不再依赖全局同步屏障；因此本文的 JoinGroup/SyncGroup 状态分析只适用于 classic 路径。
-- 固定源码中 `ClassicGroup` 直接声明 assignment 由客户端驱动；状态按 `EMPTY → PREPARING_REBALANCE → COMPLETING_REBALANCE → STABLE` 演进。join 阶段选出 leader 并提升 generation，leader 客户端执行 assignor，coordinator 收到 SyncGroup assignment 后传播给成员并进入 `STABLE`。
-- consumer 以 heartbeat 和持续 `poll()` 维持组内活性。classic 配置下，超过 `session.timeout.ms` 没有 heartbeat 会被移出；超过 `max.poll.interval.ms` 没有再次 poll，会被视为失败并触发 partition 重分配。
-- `max.poll.records` 限制一次 `poll()` 返回给应用的记录数，但不限制底层 fetch 缓存；`pause`/`resume` 可以暂停或恢复已分配 partition 的后续返回。它们是消费侧流量控制原语，不会让 producer 自动停止写入。
-- `poll()` 后的内存 position 与 committed offset 是不同状态。committed offset 应是“下一条要处理的记录”；自动或手动 commit 只把 offset 提交给 Kafka，不会提交外部数据库事务、模型结果或工具副作用。
-- consumer 可 `seek` 到更早或更晚 offset，也可用 group reset 工具改写恢复点；前提是目标记录仍在 retention 范围。topic 的 `retention.ms`/`retention.bytes` 是消费者必须及时读取的 SLA，group committed offsets 还受独立的 `offsets.retention.minutes` 约束。
-- 官方 delivery semantics 将“先处理、后保存 position”归为 at-least-once：在输出成功而 offset 未保存时崩溃，会再次处理。固定客户端源码也先从 fetch buffer 解析记录并推进 position，之后是否提交由应用决定。
-- producer idempotence 针对 producer retry 写入 Kafka 的重复，并且官方 Javadoc 明确限制在单个 producer session；它不去重应用主动重发，也不去重 consumer 的业务 handler。
-- Kafka transaction 可把 Kafka 输出记录与 consumer offset 放在同一 transaction 中，配合 `read_committed` 形成 Kafka topic → Kafka topic 的 read-process-write 原子边界。写任意外部系统仍需要该系统配合，例如把结果与 offset 放进同一个数据库事务。
+**已证实事实**：`max.poll.records` 限制一次返回给应用的记录数，不限制底层 fetch 缓存。`pause`/`resume` 只控制已分配 partition 的后续返回，不会让 producer 停止写入。
 
-**基于证据的推断**
+**已证实事实**：producer idempotence 针对 producer retry 写 Kafka，并受单个 producer session 边界限制。Kafka transaction 可原子提交 Kafka 输出与 consumer offsets，配合 `read_committed` 形成 Kafka-to-Kafka 边界；任意外部系统仍需自己配合。
 
-- group coordinator 的 generation/member 校验能拒绝失去 assignment 的成员继续提交 offset，却不能 fence 已发往外部系统的请求。业务写入需要携带更高层的 ownership epoch，并由目标存储比较 epoch 后接受或拒绝。
-- committed offset 是恢复游标，不是逐记录 ack。一次提交越过一个 batch 后，Kafka 不再知道 batch 中每条 Agent 动作是否分别成功；若需要逐任务审计，应用必须保存 inbox/result 状态。
-- replay 只重放输入字节和顺序，不重建模型、prompt、工具、知识库、权限与外部世界的历史版本。要审计 Agent 决策，应在事件或结果账本中保存这些版本引用，而不是把 Kafka offset 当完整执行快照。
-- lag 增长表示消费位置落后于日志尾部，但同样 100 条事件可能分别代表毫秒级路由或小时级调查。Agent 容量规划应把 record lag 转成 age lag、预计服务时间和每个 key 的排队时间。
+**基于证据的推断**：group generation 能拒绝 stale member 提交 offset，却不能 fence 已发送的业务请求。目标存储必须比较更高层 ownership epoch，并在同一原子操作中决定是否应用业务变更。
 
-**个人分析与未知项**
+**个人分析**：Kafka offset 不是完整审计快照。重放只恢复输入字节和顺序，不恢复模型、prompt、工具、知识、权限与外部世界的历史版本；这些版本需要独立账本。
 
-- 本文研究传统 consumer group，不把 Kafka 4.3 share group 的逐记录 acquisition lock、delivery attempt 计数或 reject 语义倒推到 consumer group。
-- Kafka 没有为 Agent 定义 task、conversation、approval、tool call 或 compensation；这些都是应用协议。partition key 只是路由与局部顺序决策。
-- Kafka 不提供跨 partition 的全局顺序，也不提供覆盖 Kafka、任意业务数据库、LLM provider、邮件、支付和第三方工具的通用分布式事务。
-- 来源访问与分析日期为 **2026-07-22**；动态文档为 Kafka 4.3.1，源码固定在 `ebac341b28d4224c296ada31eb45122176e8b27b`。后续默认 protocol、rebalance 状态机或 share group 行为变化不在本文事实范围内。
+<details className="evidence-card">
+  <summary>证据：版本、协议与历史材料范围</summary>
+
+  - **当前文档：** Apache Kafka 4.3.1；consumer 配置支持 `classic` 与 `consumer`，默认仍为 `classic`。
+  - **新协议边界：** `consumer` protocol 自 Kafka 4.0 起 GA，且不依赖 classic 的全局同步屏障；本文不把两套状态机混写。
+  - **排除项：** 不把 Kafka 4.3 share group 的逐记录 acquisition、delivery attempt 或 reject 语义倒推到 consumer group。
+  - **固定源码：** `apache/kafka@ebac341b28d4224c296ada31eb45122176e8b27b`。
+  - **历史来源：** LinkedIn 2011 原始工程文章用于确认 NetDB ’11 论文；论文 PDF 由 Microsoft Research 托管。
+  - **时间边界：** 来源访问与分析日期为 2026-07-22。
+</details>
 
 ## 架构图
 
-下图把 Agent 工作的 partition ownership、offset 与重复窗口放在同一条时间线上。红色语义由应用补充，不是 Kafka 自动提供。
+下面跟踪 ownership 转移最危险的时间窗：业务动作已经提交，offset 还没提交，rebalance 又让新 consumer 接管。Kafka generation 与应用 work epoch 故意画成两个变量，因为前者不会自动保护外部目的地。
 
 ```mermaid
 sequenceDiagram
-  accTitle: Kafka consumer group 驱动 Agent 工作与重复执行窗口
-  accDescr: Producer 按业务 key 把任务追加到分区。Classic group coordinator 组织成员和 generation，被选出的客户端 leader 计算 assignment。Consumer poll 后登记 inbox，并在受保护目的地的 work ledger 原子取得独立 ownership epoch；目的地把 epoch 比较与业务变更放在同一原子操作中。若动作成功后、offset 提交前崩溃，rebalance 后的新 owner 会取得更高 epoch，旧 owner 的条件变更因此不产生副作用。
-
-  participant P as Producer / Outbox Relay
+  accTitle: Rebalance 时 partition owner 变化而旧工作仍在途
   participant L as Partition Log
   participant G as Group Coordinator
-  participant C1 as Consumer A / old owner
-  participant C2 as Consumer B / new owner
+  participant A as Consumer A / old owner
+  participant B as Consumer B / new owner
   participant I as Durable Inbox
-  participant X as Protected Destination + Work Ledger
+  participant X as Protected Destination
 
-  P->>L: append(event_id, key, payload)
-  C1->>G: JoinGroup + subscription
-  C2->>G: JoinGroup + subscription
-  G-->>C1: leader + all subscriptions
-  C1->>C1: assignor 计算 member → partitions
-  C1->>G: SyncGroup(assignments)
-  G-->>C1: SyncGroup assignment (generation N)：拥有 partition 3
-  G-->>C2: SyncGroup assignment (generation N)：拥有其他 partitions
+  G-->>A: generation N：partition 3
+  A->>L: Fetch committed offset 41
+  L-->>A: E at offset 41
+  A->>I: INSERT event_id E
+  I-->>A: 首次登记
+  A->>X: acquire task epoch F
+  X-->>A: epoch F
+  A->>X: mutate(E, expected_epoch=F)
+  X->>X: 原子比较 F 并应用变更
+  X-->>A: committed
 
-  C1->>L: Fetch partition 3 from committed offset 41
-  L-->>C1: offset 41 / event_id E
-  C1->>I: INSERT inbox(E)，唯一约束确认首次登记
-  I-->>C1: inbox E 已持久化
-  C1->>X: 原子取得 E 的 work epoch F
-  X-->>C1: 当前 epoch F
-  C1->>X: conditional_mutate(E, expected_epoch=F)
-  X->>X: 同一原子操作：比较 F 并应用业务变更
-  X-->>C1: epoch 匹配，业务变更已提交
-
-  Note over C1,G: 失败窗口：业务成功，offset 42 尚未 commit
-  C1-xG: crash / max.poll.interval 超时
-  G-->>C2: SyncGroup assignment (generation N+1)：接管 partition 3
-  C2->>L: Fetch again from committed offset 41
-  L-->>C2: duplicate delivery E
-  C2->>I: INSERT inbox(E)
-  I-->>C2: E 已存在；读取已有状态
-  C2->>X: 原子接管 E，work epoch F → F+1
-  X-->>C2: 当前 epoch F+1
-  C1-->>X: conditional_mutate(E, expected_epoch=F)
-  X->>X: 同一原子操作：比较到 F+1，不应用业务变更
-  X--xC1: 旧 F 条件变更被拒绝
-  C2->>G: OffsetCommit(next=42, generation N+1)
+  Note over A,G: 业务已成功，next offset 42 尚未 commit
+  A-xG: crash / max.poll.interval 超时
+  G-->>B: generation N+1：接管 partition 3
+  B->>L: Fetch again from offset 41
+  L-->>B: duplicate E
+  B->>I: INSERT event_id E
+  I-->>B: 已存在；读取状态
+  B->>X: takeover E，epoch F → F+1
+  A-->>X: late mutate(E, expected_epoch=F)
+  X--xA: stale epoch；拒绝业务变更
+  B->>G: OffsetCommit(next=42, generation N+1)
 ```
 
-文字等价描述：producer 只负责把带稳定 `event_id` 与 partition key 的事实追加到日志；classic group 的 leader client 计算 assignment，broker coordinator 管理 Kafka generation 并传播结果。consumer 先把事件登记到 durable inbox，再从受保护目的地的应用 work ledger 原子取得 epoch `F`。目的地必须在同一原子操作中比较“当前 epoch 仍为 `F`”并应用业务变更，不能先校验再另行写入。若旧 owner 在业务变更成功后死亡，新 owner 会从旧 committed offset 重读，并原子接管为 `F+1`；此后旧 owner 携带 `F` 的条件变更在目的地内比较失败，业务变更不会发生。Kafka generation `N/N+1` 只出现在 group 协议与 OffsetCommit 校验中，不充当外部业务 fence；最后才提交下一 offset。若目的地无法将 epoch 比较与业务变更原子绑定，则这套方案不提供真正 fencing，只能依靠幂等去重、dispatcher、补偿与对账降低重复副作用。
+若目的地不能把 epoch 比较和业务变更原子绑定，这个设计就不是真正的 fencing。此时只能依赖幂等键、单写 dispatcher、补偿与对账来降低重复副作用。
 
 ## 控制权与任务流
 
-**从日志到所有权。** Producer 按 key 选择 partition，Kafka 给 partition 中的记录分配 offset。consumer group 不是把每条消息随机发给任意 worker，而是先分配 partition；一个 member 可拥有多个 partition，一个 partition 在同一组当前 assignment 中只有一个 owner。不同 group 可以独立读取同一份日志，因此在线执行、审计、索引与离线评估应使用不同 group，而不是共享 offset 互相推进。
+**说明性场景**：Consumer A 在 generation N 拥有 partition 3。它从 offset 41 读取任务 E，调用外部工具后尚未提交 next offset 42；长调用使它超过 `max.poll.interval.ms`，group 开始 rebalance，Consumer B 在 generation N+1 接管 partition 3。
 
-**classic rebalance。** JoinGroup 收集成员支持的协议与订阅；coordinator 选出 leader 和共同 protocol。leader 在 [`ConsumerCoordinator.onLeaderElected`](https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/clients/src/main/java/org/apache/kafka/clients/consumer/internals/ConsumerCoordinator.java#L655-L715) 中运行 assignor、序列化 assignment；broker 在 SyncGroup 路径保存并向每个成员传播。成员收到新 assignment 后，cooperative 路径会对被撤销 partition 先调用 `onPartitionsRevoked`，再改变 assignment；分配路径则先执行 `subscriptions.assignFromSubscribed(...)` 更新本地 assignment，随后才调用用户的 `onPartitionsAssigned`。rebalance 是所有权转移协议，不是暂停世界的事务。
+B 从 committed offset 41 再次读到 E。A 并不会因此被 Kafka 强制终止，它发出的请求也可能迟到完成。若目的地只检查“请求来自合法 consumer”，A 与 B 都可能造成副作用；若目标端原子比较 work epoch，只有当前 epoch 的变更生效。
 
-**处理与提交。** 对每个 partition，应用应只提交已经连续完成的最高 offset 的下一位置。若把同一 partition 的记录并发交给多个线程，offset 43 先完成而 42 仍失败时，直接提交 44 会永久跳过 42；要么保持 partition 内串行，要么维护完成水位，只有无缺口前缀可 commit。Kafka 保证多次 `commitAsync` 按调用顺序发送，对应 callback 也按调用顺序触发；风险不来自 Kafka 调乱 callback，而来自应用在较旧提交失败的 callback 中重新提交旧 offset，或在 callback 外异步更新外部进度账本，使旧状态晚到覆盖新状态。关停或 rebalance 前应使用可确认且不会倒退水位的 commit 策略。
+这个场景是对官方 at-least-once 与 group ownership 机制的说明性组合，不是一次真实事故。它揭示了恢复协议的分界：Kafka 负责重新交付，应用负责判定重复动作能否生效。
 
-**长时 Agent。** 直接在 poll 线程执行模型链会让处理时间撞上 `max.poll.interval.ms`；简单调大超时会延长真实故障的接管时间。更稳妥的边界是：consumer 校验 schema、写入 inbox/work ledger、提交该耐久登记对应的 offset；独立 worker 以 lease、deadline、attempt、fence 和幂等键推进任务。若必须在 consumer 内处理，就限制 `max.poll.records`、对繁忙 partition `pause`、继续及时 poll，并确保提交不越过未完成记录。
+classic JoinGroup 收集成员协议与订阅，coordinator 选 leader 和共同 protocol。leader 客户端运行 assignor，SyncGroup 把 member-to-partition mapping 交回 broker，再由 coordinator 传播。rebalance 是 assignment 转移，不是暂停所有在途业务的事务。
 
-**重放。** 临时排障可 `seek`；批量 backfill 更适合新建专用 `group.id`，从时间点或明确 offset 读取，避免改写生产组恢复点。重放计划要先比较目标 offset 与 log start offset、retention headroom、下游限额和副作用模式；生产 offset reset 必须审批、预演、记录操作者与 before/after offset。
+处理同一 partition 的并发任务时，只能提交连续完成前缀的下一 offset。若 43 已完成、42 仍失败，提交 44 会跳过 42；可以保持 partition 内串行，或维护无缺口完成水位。
+
+长时 Agent 不应占住 poll 活性。consumer 可以校验 schema、写 durable inbox/work ledger，然后提交“已耐久登记”的 offset；独立 worker 再以 lease、deadline、attempt、epoch 和幂等键执行。若仍在 consumer 内处理，就限制 `max.poll.records`、暂停繁忙 partition，并继续及时 poll。
+
+重放也需要独立所有权。临时定位可 `seek`；批量 backfill 应新建专用 group，从明确时间或 offset 读取，不改写生产组游标。执行前核对 log start offset、retention 余量、下游限额和副作用模式。
 
 ## 关键源码导读
 
-建议按“请求入口 → classic group 状态 → leader assignment → offset → record delivery”阅读固定提交：
+最短阅读路径从 classic group 状态与 Join/Sync 开始，再沿 leader assignment、offset commit 和 fetch position 前进。这样可以直接回答：谁算 assignment、谁传播 assignment、offset 证明了什么、记录何时推进本地 position。
 
-1. [`KafkaApis.scala`](https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/core/src/main/scala/kafka/server/KafkaApis.scala#L1389-L1440)：JoinGroup/SyncGroup 先检查 group 的 `READ` 权限，再交给 group coordinator。OffsetCommit 还检查 group 与 topic 权限；Fetch 对普通 consumer 检查每个 topic 的 `READ` 权限。这里是网络请求、安全与 coordinator/storage 的分界。
-2. [`ClassicGroup.java`](https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/group-coordinator/src/main/java/org/apache/kafka/coordinator/group/classic/ClassicGroup.java#L72-L154) 与 [`ClassicGroupState.java`](https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/group-coordinator/src/main/java/org/apache/kafka/coordinator/group/classic/ClassicGroupState.java#L29-L126)：前者说明 classic assignment 完全由客户端驱动并保存 member、leader、generation、pending join/sync；后者定义合法状态和成员失败、join、sync 引起的迁移。
-3. [`GroupMetadataManager.classicGroupJoin`](https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/group-coordinator/src/main/java/org/apache/kafka/coordinator/group/GroupMetadataManager.java#L6822-L6946) 与 [`prepareRebalance`](https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/group-coordinator/src/main/java/org/apache/kafka/coordinator/group/GroupMetadataManager.java#L7648-L7732)：观察 coordinator 怎样创建/查找 classic group、接纳新旧成员、进入 `PREPARING_REBALANCE`，等待成员重 join 或 timeout，再推进 generation。
-4. [`ConsumerCoordinator.onLeaderElected`](https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/clients/src/main/java/org/apache/kafka/clients/consumer/internals/ConsumerCoordinator.java#L655-L715) 与 [`onJoinComplete`](https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/clients/src/main/java/org/apache/kafka/clients/consumer/internals/ConsumerCoordinator.java#L379-L474)：leader 反序列化所有 subscription、执行 assignor、生成映射；成员收到结果后，cooperative revoke callback 在 assignment 变更前执行，而 `subscriptions.assignFromSubscribed(...)` 先于用户的 assigned callback。这证明“broker 管协调、classic leader client 算分配”，也给出两类 callback 的准确时序。
-5. [`GroupMetadataManager` 的 assignment 传播](https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/group-coordinator/src/main/java/org/apache/kafka/coordinator/group/GroupMetadataManager.java#L7757-L7833)：coordinator 把 leader 提交的结果设置到各 member，完成等待中的 SyncGroup future 并重排 heartbeat；成功后 group 才能稳定。
-6. [`OffsetMetadataManager.commitOffset`](https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/group-coordinator/src/main/java/org/apache/kafka/coordinator/group/OffsetMetadataManager.java#L620-L693)：逐 partition 校验提交者与 metadata，生成 offset commit coordinator record。它没有调用用户数据库或检查 Agent 结果，因此 offset 不是业务事务证明。
-7. [`ClassicKafkaConsumer.pollForFetches`](https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/clients/src/main/java/org/apache/kafka/clients/consumer/internals/ClassicKafkaConsumer.java#L700-L771)、[`FetchCollector.collectFetch`](https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/clients/src/main/java/org/apache/kafka/clients/consumer/internals/FetchCollector.java#L91-L190) 与 [`CompletedFetch.fetchRecords`](https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/clients/src/main/java/org/apache/kafka/clients/consumer/internals/CompletedFetch.java#L257-L329)：客户端从 buffer 收集可 fetch 的 assigned partition，按 `max.poll.records` 解析记录并推进 next offset；deserialization poison 会在当前 offset 重复抛错，源码提示显式 seek past 才能继续。
+**已证实事实**：`ClassicGroup` 声明 assignment 由客户端驱动；状态经过 `EMPTY → PREPARING_REBALANCE → COMPLETING_REBALANCE → STABLE`。leader 客户端执行 assignor，coordinator 保存并传播结果。
+
+**已证实事实**：OffsetMetadataManager 校验并生成 offset coordinator record，但不调用用户数据库，也不检查 Agent 结果。客户端则从 fetch buffer 解析已分配 partition 的记录并推进 next offset；提交与业务完成仍由应用负责。
+
+<details className="evidence-card">
+  <summary>证据：fixed commit 中的 classic assignment、offset 与 fetch seam</summary>
+
+  - [`KafkaApis.scala` 1389–1440](https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/core/src/main/scala/kafka/server/KafkaApis.scala#L1389-L1440)：JoinGroup/SyncGroup、OffsetCommit 与 Fetch 的权限和后端入口。
+  - [`ClassicGroup.java` 72–154](https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/group-coordinator/src/main/java/org/apache/kafka/coordinator/group/classic/ClassicGroup.java#L72-L154) 与 [`ClassicGroupState.java` 29–126](https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/group-coordinator/src/main/java/org/apache/kafka/coordinator/group/classic/ClassicGroupState.java#L29-L126)：成员、leader、generation 与状态迁移。
+  - [`GroupMetadataManager.classicGroupJoin` 6822–6946](https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/group-coordinator/src/main/java/org/apache/kafka/coordinator/group/GroupMetadataManager.java#L6822-L6946) 与 [`prepareRebalance` 7648–7732](https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/group-coordinator/src/main/java/org/apache/kafka/coordinator/group/GroupMetadataManager.java#L7648-L7732)：join、等待与 generation 推进。
+  - [`ConsumerCoordinator.onLeaderElected` 655–715](https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/clients/src/main/java/org/apache/kafka/clients/consumer/internals/ConsumerCoordinator.java#L655-L715) 与 [`onJoinComplete` 379–474](https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/clients/src/main/java/org/apache/kafka/clients/consumer/internals/ConsumerCoordinator.java#L379-L474)：assignor 与 revoke/assigned callback 时序。
+  - [`GroupMetadataManager` 7757–7833](https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/group-coordinator/src/main/java/org/apache/kafka/coordinator/group/GroupMetadataManager.java#L7757-L7833)：assignment 保存与传播。
+  - [`OffsetMetadataManager.commitOffset` 620–693](https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/group-coordinator/src/main/java/org/apache/kafka/coordinator/group/OffsetMetadataManager.java#L620-L693)：提交者校验与 coordinator record。
+  - [`ClassicKafkaConsumer` 700–771](https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/clients/src/main/java/org/apache/kafka/clients/consumer/internals/ClassicKafkaConsumer.java#L700-L771)、[`FetchCollector` 91–190](https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/clients/src/main/java/org/apache/kafka/clients/consumer/internals/FetchCollector.java#L91-L190) 与 [`CompletedFetch` 257–329](https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/clients/src/main/java/org/apache/kafka/clients/consumer/internals/CompletedFetch.java#L257-L329)：poll/fetch、assignment 检查、position 推进与 poison deserialization。
+  - **证明边界：** 这些位置证明 Kafka 的 group 与 offset 控制流，不证明用户 handler 或外部写具备 exactly-once。
+</details>
 
 ## 架构决策与权衡
 
-Partition key 决定顺序域、热点和可扩展上限。它不是纯性能参数；topic 增加 partition 后，同一 key 的未来映射可能变化，历史记录不会重新分区，因此变更 partition 数量要作为顺序协议迁移处理。
+Partition key 决定顺序域、热点和并行上限。增加 partition 后，同一 key 的未来映射可能变化，历史记录不会重分区；因此 partition 数量与 key 变化都是顺序协议迁移。
 
-| key | 获得的局部顺序 | 优点 | 主要代价与适用边界 |
+| key | 获得的局部顺序 | 优点 | 代价与边界 |
 | --- | --- | --- | --- |
-| `user_id` | 同一用户的所有 Agent 事件 | 适合用户级偏好、权限变化和通知去重 | 大客户/机器人用户可能热点；跨用户协作无序；删除与隐私范围扩大 |
-| `tenant_id` | 租户内所有事件 | tenant 级审计与串行治理直观 | 粗粒度导致并行度低、头部租户热点和 noisy neighbor；通常只适合低流量控制流 |
-| `task_id` | 单任务的 plan/attempt/result | 最大化任务间并行，失败与重放边界清楚 | 同一 conversation 的多个 task 可乱序；跨任务额度/权限变化需另行版本化 |
-| `conversation_id` | 同一会话的消息与任务派生 | 适合聊天因果、轮次和 human-in-the-loop | 超长会话热点；fork/merge 语义必须显式；租户公平性仍需调度层 |
+| `user_id` | 用户内事件 | 偏好、权限、通知去重直观 | 大用户热点，跨用户无序 |
+| `tenant_id` | 租户内事件 | 租户审计与串行治理 | 并行度低，noisy neighbor |
+| `task_id` | 单任务 plan/attempt/result | 任务间并行、重放边界清楚 | 跨任务政策需额外版本化 |
+| `conversation_id` | 会话内消息与派生任务 | 适合聊天因果与人工轮次 | 长会话热点，fork/merge 要显式 |
 
-默认建议以 `task_id` 作为执行 topic 的 key，把 `conversation_id`、`user_id`、`tenant_id` 保留为索引与策略字段；若业务不变量要求同一 conversation 严格串行，再选择 `conversation_id`。不要为了“看起来完整”选择 `tenant_id` 并牺牲整个租户的并行度，也不要声称任何选择能提供跨 partition 的全局顺序。
+默认可用 `task_id` 作为执行 topic key，把 conversation、user、tenant 保留为索引和策略字段。只有业务不变量要求会话严格串行时，才用 `conversation_id`。任何选择都不提供跨 partition 全局顺序。
 
-| 决策 | 推荐 | 代价 |
-| --- | --- | --- |
-| offset 提交 | 处理后提交；外部 DB 用 inbox 唯一约束，或结果与 offset 同库原子保存 | 故障时可能重读，必须幂等 |
-| poison event | 原始 bytes + schema/version + error + offset 写 quarantine/DLQ，按审批策略跳过 | 破坏“主流内所有事件都成功”的简单叙事，需要补偿队列 |
-| 慢任务 | durable work ledger + 独立 lease worker；consumer 只登记 | 多一个状态机，但不会用 poll 活性冒充业务活性 |
-| replay | 新 group、只读预演、限速、明确起止 offset | 额外资源与结果对账成本 |
-| Kafka-to-Kafka exactly-once | transactional producer + offsets in transaction + `read_committed` | 只覆盖 Kafka transaction 边界，异常处理与 rewind 仍需正确 |
+offset 提交也取决于业务边界。外部数据库可用 inbox 唯一约束，或把业务结果与恢复游标放在同库事务；Kafka-to-Kafka 处理可用 transactional producer 与 `read_committed`。邮件、支付和工具调用仍需外部幂等、dispatcher 或补偿。
 
-Poison event 不应无限阻塞一个 partition，也不应静默 `seek`。quarantine 记录至少包含 topic/partition/offset、原始 payload 或受控对象地址、schema 版本、exception、首次/最近失败时间、attempt、tenant、correlation ID 和处置状态。若事件已能反序列化但业务不可处理，使用稳定 `event_id` 将其标为 rejected；若跳过会破坏同 key 的后续不变量，则暂停该 key/partition 并升级人工，而不是让后续状态越过它。
+Poison event 不能无限阻塞 partition，也不能静默跳过。quarantine 至少保存 topic/partition/offset、原始数据或受控地址、schema、异常、attempt、tenant 与处置状态；若事件是同 key 后续不变量的前置条件，应暂停并升级。
 
 ## 生产化分析
 
-**背压与容量。** partition 数量给出单组活跃 consumer 的上限，却不等于有效 Agent 并行度。为每类工作建立处理时长分布和并发预算；使用 `max.poll.records` 限制每轮暴露量，对下游拥塞的 partition `pause`，在容量恢复后 `resume`。不要把 poll 后的记录无限堆进内存 executor；否则 position 继续前进、真实完成滞后，commit 很容易越过未完成工作。必要时在 producer 侧做 tenant 配额、低优先级 topic 分流和 admission control。
+partition 数只给出一组的活跃 consumer 上限，不代表有效 Agent 并行度。按工作类型维护处理时长和并发预算；用 `max.poll.records` 控制暴露量，对下游拥塞 partition `pause`。不要把 poll 出来的记录无限堆入内存 executor。
 
-**可观测性。** 官方监控建议观察 consumer max lag 与最小 fetch rate；生产仪表盘还应组合 `records-lag-max`、`records-consumed-rate`、`time-between-poll-max`、`last-poll-seconds-ago`、assigned partitions、commit latency/error、rebalance latency/rate/failure。注意客户端 `records-lag-max` 基于 current position，不是 committed offset；用 `kafka-consumer-groups.sh --describe` 的 CURRENT-OFFSET/LOG-END-OFFSET 补充恢复 lag。Agent 层另看 oldest-event age、queue wait、lease age、tool latency、重复抑制次数、poison/DLQ age、每 tenant backlog 与 `drain ETA = remaining work / sustainable completion rate`。
+lag 是症状，不是业务完成量。结合 `records-lag-max`、消费速率、poll 间隔、assigned partitions、commit 错误和 rebalance 指标，再看 oldest-event age、lease age、tool latency、duplicate suppression、DLQ age、tenant backlog 与 drain ETA。
 
-**幂等与 outbox/inbox。** 生产者若在业务事务提交后单独发送 Kafka，崩溃会造成数据库有事实而日志无事件；应在同一数据库事务写业务行与 outbox，再由 relay/CDC 发送。消费者在一个数据库事务内以 `event_id` 写 inbox 唯一行并推进业务状态；事务成功后提交 Kafka offset。若数据库成功而 commit 前崩溃，重放命中 inbox 并读取已存结果。对邮件、支付、工单和工具调用继续传外部 idempotency key，并保存 request/result hash；仅有 inbox 不能阻止“外部成功、结果落库前崩溃”的第二次调用。
+生产者用 transactional outbox 避免“数据库已有事实，Kafka 无事件”。消费者在数据库事务中登记稳定 `event_id`，业务成功后再提交 offset。对于外部调用，继续传 idempotency key 并保存 request/result hash；inbox 单独不能消除“外部成功、落库前崩溃”的重复窗口。
 
-**fencing 与取消。** 受保护目的地或拥有权威业务变更的 ledger/dispatcher 为每次 owner/attempt 提升 epoch；所有状态写携带 `(task_id, epoch)`，并在同一事务或条件写中原子比较 epoch 与应用业务变更，旧 epoch 影响零行即停止。若目的地只能先查询 epoch、随后单独执行变更，两步之间的 takeover 会形成 TOCTOU，因此不是真正 fencing。对无法原子校验的邮件、支付或外部工具，只能使用幂等键、单独 side-effect dispatcher、审批、补偿和 reconciliation 缓解重复风险。rebalance callback 可以停止接收、flush 安全进度和释放本地资源，但无法强杀已发出的 HTTP 请求；取消必须是协作式，并由最终状态对账。
+fencing 必须由权威目的地原子执行。所有状态写带 `(task_id, epoch)`；旧 epoch 影响零行后停止。若只能先读 epoch 再单独写，中间 takeover 会形成 TOCTOU，这不是真 fencing。
 
-**retention 与审计。** retention 要覆盖最长中断、检测时间、修复时间和预期 replay 窗口，并为流量峰值留容量。业务审计不能只依赖会按策略删除或 compact 的 topic；把不可变 `event_id`、输入 hash、schema、producer identity、topic/partition/offset、模型/prompt/tool 版本、attempt、owner epoch、结果 hash、offset commit 与人工决策写入受控账本。对 PII 设置数据分类、字段级最小化、删除/加密密钥策略，不能用“日志不可变”回避合规删除。
+retention 应覆盖最长中断、检测、修复和 replay 窗口。业务审计另存 event ID、输入 hash、schema、producer、topic/partition/offset、模型/prompt/tool 版本、attempt、epoch、结果、offset commit 与人工决策。日志保留策略不能替代合规删除与密钥治理。
 
-**安全。** Kafka 安全能力是可选配置；生产集群应启用 TLS、SASL 身份和 ACL。producer 只写允许的 input/outbox topic；consumer principal 只读所需 topic、只访问自己的 group，并把 offset reset、group delete、topic alter 与 DLQ replay 留给受审计的运维角色。按 tenant 或敏感级别拆 topic/cluster 取决于隔离要求；无论如何都不要把 provider secret、访问令牌或完整敏感 prompt 直接放入长期保留事件，可发送短期对象引用并在读取端再次授权。
+生产集群应启用 TLS、SASL 与 ACL，限制 producer topic、consumer topic/group，以及 offset reset、group delete、topic alter 与 DLQ replay 权限。长期事件中不要放 provider secret、访问令牌或完整敏感 prompt。
 
-**运行手册。** lag 上升时先区分 producer surge、单 key 热点、下游限流、poison、GC/网络、rebalance storm 和处理变慢；不要先盲目加 consumer，因为 partition 上限与热点可能使扩容无效。rebalance 频繁时检查 `max.poll.interval.ms`、处理分位数、heartbeat、deploy churn 和静态 membership；poison 时冻结证据再 quarantine；retention 逼近时优先保护未处理输入、限流 replay 与低优先级生产，不能假设过期 offset 仍可恢复。
+**不可隐藏的非等价边界**：partition order 不是 global order，assignment 不是业务锁，offset 不是逐记录业务 ack，Kafka transaction 也不是跨任意外部系统的通用事务。Agent 架构必须逐项补足，而不能用一个“exactly-once”标签覆盖。
 
 ## 可迁移经验
 
 ### 可直接复用的机制
 
-- 用稳定 key 把需要串行的不变量放进同一 partition，并把“没有跨 partition 全局顺序”写进接口契约。
-- 用独立 consumer group 分隔在线执行、审计、索引与 backfill，各自拥有 offset 和容量预算。
-- 把 committed offset 当恢复游标；处理完成后提交，并保存 next offset、leader epoch 与业务结果引用。
-- 用 lag/age、poll 活性、rebalance、commit、DLQ 和 duplicate suppression 构建端到端运维信号。
-- 为 replay 预留 retention、专用 group、限速、dry-run、对账与可回滚的结果命名空间。
+1. 用稳定 key 把需要串行的不变量放进同一 partition。
+2. 用不同 group 分隔在线执行、审计、索引和 backfill。
+3. 把 committed offset 当恢复游标，保存 next offset 与业务结果引用。
+4. 用 lag/age、poll、rebalance、commit、DLQ 和去重构建端到端信号。
+5. 为 replay 预留 retention、专用 group、限速、dry-run 与对账。
 
 ### 只能有限类比的部分
 
-- partition assignment 可类比 Agent work ownership，但它只控制取数；业务 lease、deadline、取消和 stale writer fencing 仍由应用实现。
-- offset replay 可恢复输入流，不能恢复模型的确定性内部状态；prompt、model、tool、知识与权限版本必须另外快照。
-- consumer group 的 failover 可接管未提交工作，但新旧 worker 可能在外部系统短暂重叠；只能以幂等键、fence 和 reconciliation 控制结果。
-- Kafka transaction 可精确覆盖 Kafka 输入 offset 与 Kafka 输出，不自动覆盖 Agent 调用的任意目的地。
+1. partition assignment 可类比 work ownership，但只控制取数。
+2. replay 恢复输入流，不恢复模型的确定性内部状态。
+3. group failover 接管未提交工作，新旧 worker 仍可能在外部重叠。
+4. Kafka transaction 精确覆盖 Kafka offset 与 Kafka output，不自动覆盖任意目的地。
 
 ### 不应照搬的部分
 
-- 不要把一个大 tenant 全部放进单 partition，只为获得并不需要的总顺序。
-- 不要在 poll 线程里无界等待长时模型、工具或人工，然后靠无限增大 `max.poll.interval.ms` 维持表面稳定。
-- 不要先 commit 再执行高价值动作，也不要把 auto commit 当业务 ack；前者可能丢工作，后者可能把内存中未完成 batch 标成已消费。
-- 不要把 DLQ 当垃圾桶后直接推进所有后续状态；poison 事件可能是同 key 后续不变量的前置条件。
-- 不要宣称 Kafka 提供跨 partition 全局顺序、consumer handler 恰好执行一次，或为 Agent 世界提供通用分布式事务。
+1. 不要为不需要的总顺序把大 tenant 全放进一个 partition。
+2. 不要在 poll 线程无界等待长时模型、工具或人工。
+3. 不要先 commit 再执行高价值动作，也不要把 auto commit 当业务 ack。
+4. 不要把 DLQ 当垃圾桶后无条件推进同 key 后续状态。
+5. 不要宣称 Kafka 提供 global order、handler exactly-once 或通用分布式事务。
 
 ## 来源
 
-**官方文档与 API**
+**官方文档与 API（已证实事实）**
 
-- [Apache Kafka Introduction](https://kafka.apache.org/intro/)：topic、partition、key、retention 与 partition-local order。
-- [Kafka 4.3 Design](https://kafka.apache.org/43/design/design/)：consumer position、static membership、delivery semantics、transactions 及外部系统 exactly-once 的合作边界。
-- [KafkaConsumer 4.3.1 Javadoc](https://kafka.apache.org/43/javadoc/org/apache/kafka/clients/consumer/KafkaConsumer.html)：group assignment、failure detection、manual commit、at-least-once 重复窗口、seek、pause/resume 与 position/committed position。
-- [KafkaProducer 4.3.1 Javadoc](https://kafka.apache.org/43/javadoc/org/apache/kafka/clients/producer/KafkaProducer.html)：producer idempotence 的 session 边界、transactional producer 与 `sendOffsetsToTransaction`。
-- [Consumer Configs](https://kafka.apache.org/43/configuration/consumer-configs/) 与 [Consumer Rebalance Protocol](https://kafka.apache.org/43/operations/consumer-rebalance-protocol/)：classic/consumer protocol 范围、poll/session timeout 与新协议差异。
-- [Topic Configs](https://kafka.apache.org/43/configuration/topic-configs/) 与 [Broker Configs](https://kafka.apache.org/43/configuration/broker-configs/)：topic log retention、offset retention 和 durable write 配置。
-- [Basic Kafka Operations](https://kafka.apache.org/43/operations/basic-kafka-operations/)、[Monitoring](https://kafka.apache.org/43/operations/monitoring/) 与 [Security Overview](https://kafka.apache.org/43/security/security-overview/)：group/offset/lag 操作、consumer 指标、TLS/SASL/ACL 能力及安全默认边界。
+- [Apache Kafka Introduction](https://kafka.apache.org/intro/) 与 [Kafka 4.3 Design](https://kafka.apache.org/43/design/design/)：topic、partition、key、position、delivery semantics、transaction 与外部系统边界。
+- [KafkaConsumer 4.3.1 Javadoc](https://kafka.apache.org/43/javadoc/org/apache/kafka/clients/consumer/KafkaConsumer.html) 与 [KafkaProducer 4.3.1 Javadoc](https://kafka.apache.org/43/javadoc/org/apache/kafka/clients/producer/KafkaProducer.html)：assignment、commit、seek、pause/resume、producer idempotence 与 transaction。
+- [Consumer Configs](https://kafka.apache.org/43/configuration/consumer-configs/) 与 [Consumer Rebalance Protocol](https://kafka.apache.org/43/operations/consumer-rebalance-protocol/)：classic/consumer protocol、poll/session timeout 与新协议差异。
+- [Topic Configs](https://kafka.apache.org/43/configuration/topic-configs/) 与 [Broker Configs](https://kafka.apache.org/43/configuration/broker-configs/)：log retention 与 offset retention。
+- [Basic Operations](https://kafka.apache.org/43/operations/basic-kafka-operations/)、[Monitoring](https://kafka.apache.org/43/operations/monitoring/) 与 [Security](https://kafka.apache.org/43/security/security-overview/)：group/offset/lag 操作、指标及 TLS/SASL/ACL。
 
-**经典论文与原始工程资料**
+**经典论文与原始工程资料（已证实事实）**
 
-- Kreps, Narkhede, Rao, [Kafka: a Distributed Messaging System for Log Processing](https://www.microsoft.com/en-us/research/wp-content/uploads/2017/09/Kafka.pdf), NetDB ’11：Kafka 的原始日志、partition、consumer group 与显式 offset 设计。论文身份由 LinkedIn 2011 年 6 月工程文章链接及 NetDB ’11 program 交叉确认。
-- LinkedIn, [Open-sourcing Kafka, LinkedIn's distributed message queue](https://www.linkedin.com/blog/member/archive/open-source-linkedin-kafka), 2011-01-11：最早公开发布背景与设计目标。
-- LinkedIn, [Project Kafka reaches v0.6](https://www.linkedin.com/blog/engineering/open-source/project-kafka-distributed-publish-subscribe-messaging-system-reaches-v06), 2011-06-16：明确链接 NetDB ’11 原论文，并给出按 member ID 语义分区的早期例子。
-- Jay Kreps, [The Log](https://www.linkedin.com/blog/engineering/distributed-systems/log-what-every-software-engineer-should-know-about-real-time-datas-unifying), 2013：append-only log、partition 内全序与 partition 间无全局顺序的工程说明。
+- Kreps, Narkhede, Rao, [Kafka: a Distributed Messaging System for Log Processing](https://www.microsoft.com/en-us/research/wp-content/uploads/2017/09/Kafka.pdf), NetDB ’11：原始日志、partition、consumer group 与显式 offset 设计。
+- LinkedIn, [Open-sourcing Kafka](https://www.linkedin.com/blog/member/archive/open-source-linkedin-kafka), 2011-01-11，与 [Project Kafka reaches v0.6](https://www.linkedin.com/blog/engineering/open-source/project-kafka-distributed-publish-subscribe-messaging-system-reaches-v06), 2011-06-16：公开背景、早期语义与论文链接。
+- Jay Kreps, [The Log](https://www.linkedin.com/blog/engineering/distributed-systems/log-what-every-software-engineer-should-know-about-real-time-datas-unifying), 2013：append-only log、partition 内全序与 partition 间无 global order。
 
-**固定源码**
+**固定源码（已证实事实）**
 
-- [`apache/kafka@ebac341b28d4224c296ada31eb45122176e8b27b`](https://github.com/apache/kafka/tree/ebac341b28d4224c296ada31eb45122176e8b27b)：本文所有源码判断的唯一提交截面。
-- [`ClassicGroup` / `ClassicGroupState`](https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/group-coordinator/src/main/java/org/apache/kafka/coordinator/group/classic/ClassicGroup.java)：classic membership、generation、leader、pending join/sync 与状态机。
-- [`GroupMetadataManager`](https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/group-coordinator/src/main/java/org/apache/kafka/coordinator/group/GroupMetadataManager.java) 与 [`OffsetMetadataManager`](https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/group-coordinator/src/main/java/org/apache/kafka/coordinator/group/OffsetMetadataManager.java)：join/rebalance/sync/assignment 传播、offset 校验与 coordinator record。
-- [`ConsumerCoordinator`](https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/clients/src/main/java/org/apache/kafka/clients/consumer/internals/ConsumerCoordinator.java)：classic leader 的 assignor 执行和成员 assignment callback。
-- [`ClassicKafkaConsumer`](https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/clients/src/main/java/org/apache/kafka/clients/consumer/internals/ClassicKafkaConsumer.java)、[`FetchCollector`](https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/clients/src/main/java/org/apache/kafka/clients/consumer/internals/FetchCollector.java) 与 [`CompletedFetch`](https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/clients/src/main/java/org/apache/kafka/clients/consumer/internals/CompletedFetch.java)：poll/fetch、assignment 检查、position 推进与 poison deserialization 接缝。
-- [`KafkaApis.scala`](https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/core/src/main/scala/kafka/server/KafkaApis.scala)：JoinGroup、SyncGroup、OffsetCommit 与 Fetch 的 broker API、安全和后端调用入口。
+- [`apache/kafka@ebac341b28d4224c296ada31eb45122176e8b27b`](https://github.com/apache/kafka/tree/ebac341b28d4224c296ada31eb45122176e8b27b)：本文唯一源码截面。
+- [`ClassicGroup` / `ClassicGroupState`](https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/group-coordinator/src/main/java/org/apache/kafka/coordinator/group/classic/ClassicGroup.java)：membership、generation、leader 与状态机。
+- [`GroupMetadataManager`](https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/group-coordinator/src/main/java/org/apache/kafka/coordinator/group/GroupMetadataManager.java) 与 [`OffsetMetadataManager`](https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/group-coordinator/src/main/java/org/apache/kafka/coordinator/group/OffsetMetadataManager.java)：join/rebalance/sync/assignment 与 offset record。
+- [`ConsumerCoordinator`](https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/clients/src/main/java/org/apache/kafka/clients/consumer/internals/ConsumerCoordinator.java)：classic leader assignor 与 callbacks。
+- [`ClassicKafkaConsumer`](https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/clients/src/main/java/org/apache/kafka/clients/consumer/internals/ClassicKafkaConsumer.java)、[`FetchCollector`](https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/clients/src/main/java/org/apache/kafka/clients/consumer/internals/FetchCollector.java) 与 [`CompletedFetch`](https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/clients/src/main/java/org/apache/kafka/clients/consumer/internals/CompletedFetch.java)：poll/fetch、position 与 poison seam。
+- [`KafkaApis.scala`](https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/core/src/main/scala/kafka/server/KafkaApis.scala)：broker API、安全与后端入口。
+
+**证据边界说明**：官方与固定源码支持 Kafka 机制；Agent task、approval、tool call、compensation、inbox 和业务 fencing 是本文迁移设计。访问与截断日期均为 **2026-07-22**。
