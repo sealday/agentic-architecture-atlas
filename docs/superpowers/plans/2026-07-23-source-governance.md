@@ -4,7 +4,7 @@
 
 **Goal:** 建立覆盖全部文章的单一 source ledger、可执行版权与署名门槛、离线可重复且失败可见的外链检查，并强制学习索引不能充当事实证据。
 
-**Architecture:** `data/source-ledger.json` 是来源元数据和文档使用关系的唯一机器真源；内容、topic manifest 和 `/references` 都消费同一验证快照。`data/source-link-health.json` 仅保存网络观测，默认 CI 离线校验，显式命令和定时 workflow 执行 live 检查。
+**Architecture:** `data/source-ledger.json` 是来源元数据和 document citations 的唯一机器真源；内容、topic manifest 和 `/references` 都消费同一验证快照。`data/source-link-health.json` 仅保存网络观测，默认 CI 离线校验，显式命令和定时 workflow 执行 live 检查。
 
 **Tech Stack:** Node.js 24 ESM、`node:test`、Docusaurus 3.10、React 19、TypeScript 6、JSON、GitHub Actions
 
@@ -12,7 +12,7 @@
 
 - `docs/content-backlog.md` checkbox 是唯一人工任务状态；实现 worker 不修改 checkbox、发布基线或 Ultragoal 状态。
 - 不增加 npm 依赖；使用 Node.js 24 内置 `fetch`、`AbortSignal.timeout`、`crypto` 和 `fs/promises`。
-- 所有来源元数据和文档使用关系只人工维护在 `data/source-ledger.json`。
+- 所有来源元数据和 document citations 只人工维护在 `data/source-ledger.json`。
 - `data/source-link-health.json` 是观测缓存，不得被解释为来源真相或任务状态。
 - `community-index` 和 `tier=discovery` 只能承担 `discovery` 或 `learning`，不能满足事实证据门槛。
 - 生成文件继续使用 G002 的 staging + digest + fixed-order replace 恢复协议。
@@ -26,9 +26,9 @@
 
 ### New files
 
-- `data/source-ledger.json`：全站来源记录、文档使用关系和版权审查记录的 canonical source。
+- `data/source-ledger.json`：全站来源记录、document citations 和版权审查记录的 canonical source。
 - `data/source-link-health.json`：已提交的外链观测缓存。
-- `scripts/source-ledger.mjs`：ledger schema、正文 URL 提取、使用关系和证据门槛校验。
+- `scripts/source-ledger.mjs`：ledger schema、正文 URL 提取、citations 和证据门槛校验。
 - `scripts/source-link-health.mjs`：离线缓存校验、live HTTP 检查和 CLI。
 - `tests/source-ledger.test.mjs`：ledger schema、覆盖、版权和索引证据边界。
 - `tests/source-link-health.test.mjs`：缓存及可注入 live checker。
@@ -37,6 +37,7 @@
 - `src/components/SourceLedger/styles.module.css`：资料库响应式样式。
 - `.github/pull_request_template.md`：发布版权与来源检查清单。
 - `.github/workflows/link-health.yml`：月度和手工 live 外链检查。
+- `docs/source-license-inventory.md`：迁移前逐来源家族的许可证证据与最终映射审计。
 
 ### Modified files
 
@@ -185,6 +186,71 @@ Expected: both test files PASS; one focused commit.
 
 ---
 
+### Precondition Gate: Inventory current source licenses before Task 2
+
+**Files:**
+- Create: `docs/source-license-inventory.md`
+- Inspect: `content/**/*.mdx`
+
+- [ ] **Step 1: Inventory every current external source family**
+
+从现有 40 篇 MDX 的 frontmatter/body 提取 URL，按作品/仓库而不是锚点去重。inventory 每行必须有：
+
+```text
+source family | current URLs | author/org | license evidence URL | evidence checked date |
+exact SPDX/LicenseRef | scope exclusions | migration policy
+```
+
+网页没有复用许可时，记录页面上的版权证据和
+`LicenseRef-All-Rights-Reserved`，不能填 Unknown。仓库 license 只覆盖仓库声明的范围，不扩张到
+README 外链、图片、书籍或视频。
+
+- [ ] **Step 2: Lock the allowlist from actual inventory**
+
+初始支持：
+
+```js
+[
+  'Apache-2.0',
+  'MIT',
+  'BSD-3-Clause',
+  'EPL-2.0',
+  'MPL-2.0',
+  'AGPL-3.0-only',
+  'GPL-3.0-only',
+  'CC-BY-4.0',
+  'CC-BY-SA-4.0',
+  'LicenseRef-US-Gov-Public-Domain',
+  'LicenseRef-All-Rights-Reserved',
+  'LicenseRef-Proprietary-Standard',
+  'LicenseRef-Atlas-Original',
+]
+```
+
+inventory 发现新 SPDX 时，先在本文件加入证据与使用策略，再扩 schema/test；不得把它降级成
+Unknown 或使用相近许可证代替。
+
+- [ ] **Step 3: Enforce the gate**
+
+Run:
+
+```bash
+test -z "$(rg -n 'Unknown|待核查|未确定|T[B]D|T[O]DO' docs/source-license-inventory.md || true)"
+rg -q 'license evidence URL' docs/source-license-inventory.md
+git diff --check docs/source-license-inventory.md
+```
+
+Expected: no unresolved license rows. Task 2 cannot start until this gate passes.
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add docs/source-license-inventory.md
+git commit -m "docs: inventory source license evidence"
+```
+
+---
+
 ### Task 2: Define and validate the canonical source ledger
 
 **Files:**
@@ -232,6 +298,7 @@ const validSource = {
   id: 'src-c4-model',
   canonical_locator: 'https://c4model.com/',
   transport_locator: 'https://c4model.com/',
+  query_insensitive: false,
   locator_aliases: [],
   tombstone: null,
   title: 'C4 model',
@@ -244,10 +311,14 @@ const validSource = {
   allowed_evidence_roles: ['definition', 'method'],
   license: 'LicenseRef-All-Rights-Reserved',
   license_scope: 'Page text and diagrams; third-party links excluded',
+  license_evidence_url: 'https://c4model.com/',
+  license_evidence_note: 'No reuse license is declared on the checked page',
   copyright_policy: 'facts-and-short-quotation',
   usage_boundary: 'Defines the model; does not prove concrete fitness.',
   link_policy: 'stable',
   expected_final_transport_locator: 'https://c4model.com/',
+  expected_final_approved_at: '2026-07-23',
+  expected_final_approval_note: 'Initial reviewed transport baseline',
 };
 
 const validDocument = {
@@ -278,11 +349,12 @@ const validDocument = {
 - 未知字段；
 - 非法 `source_kind`、`tier`、role、license、copyright policy、link policy；
 - `community-index` 使用非 discovery tier 或事实 role；
-- use 指向不存在 source；
-- use role 不在 source allowed roles；
+- citation 指向不存在 source；
+- citation role 不在 source allowed roles；
 - document path 不以 `content/` 开头或不存在；
 - 日期无效；
 - 空作者、空版本、空 license scope、空 usage boundary；
+- canonical/alias 缺 expected-final approval date/note；
 - alias 对象缺 locator/transport/expected final/superseded_at，或与其他 source canonical/alias 冲突；
 - tombstone replacement 指向不存在 source 或形成 replacement cycle；
 - retired source 缺 tombstone，active source 意外携带 tombstone；
@@ -290,12 +362,14 @@ const validDocument = {
 - 本地 illustration 使用事实角色。
 - citation URL 不能匹配 source canonical/alias transport base；
 - exact duplicate citation；
-- canonical/transport locator 含不允许的 fragment/query；
+- canonical/transport locator 含 fragment，或 query preservation/query-insensitive 声明不一致；
 
 稳定身份测试使用同一 GitHub file source ID，citations 分别为 `#L10-L20`、`#L30-L35` 和
-`?plain=1#L10-L20`，断言只产生一个 source record 和一个去 query/fragment 的 transport key。
+`?plain=1#L10-L20`；只有 fixture 显式 `query_insensitive: true` 时才断言一个 transport。
+另用 `?version=1`/`?version=2` 负测，断言默认保留 query、不能共享 source/transport。
 随后把 canonical 从旧 URL 移入
-`locator_aliases: [{locator, transport_locator, expected_final_transport_locator, superseded_at}]`、
+`locator_aliases: [{locator, transport_locator, expected_final_transport_locator,
+expected_final_approved_at, expected_final_approval_note, superseded_at}]`、
 换成新 URL，断言 source ID 和历史 citation 继续有效；删除 alias 时历史 citation 必须失败。
 
 - [ ] **Step 2: Run source-ledger RED**
@@ -345,12 +419,16 @@ export const linkPolicies = ['stable', 'floating', 'auth-required', 'retired'];
 export const approvedLicenses = [
   'Apache-2.0',
   'MIT',
+  'BSD-3-Clause',
+  'EPL-2.0',
+  'MPL-2.0',
+  'AGPL-3.0-only',
+  'GPL-3.0-only',
   'CC-BY-4.0',
   'CC-BY-SA-4.0',
   'LicenseRef-US-Gov-Public-Domain',
   'LicenseRef-All-Rights-Reserved',
   'LicenseRef-Proprietary-Standard',
-  'LicenseRef-Unknown',
   'LicenseRef-Atlas-Original',
 ];
 export const requiredCopyrightChecks = [
@@ -369,15 +447,16 @@ export const requiredCopyrightChecks = [
 
 ```js
 canonicalizeTransportLocator(locator)
-// lowercase scheme/host, remove default port, query and fragment;
+// lowercase scheme/host, remove default port and fragment, preserve query;
 // preserve path case and trailing slash
 
 citationMatchesSource(citationUrl, source)
 // true when citation transport equals canonical or one locator_alias.transport_locator
 ```
 
-`transport_locator` 必须等于 `canonicalizeTransportLocator(canonical_locator)`；validator 不静默
-改写 ledger，而是报告不一致。
+默认 `transport_locator` 必须等于 `canonicalizeTransportLocator(canonical_locator)`。
+`query_insensitive: true` 时允许显式 transport 再清空 query，并要求正/负 fixture 证明参数只是
+展示用途；validator 不静默改写 ledger，而是报告不一致。
 
 - [ ] **Step 4: Implement visible-link extraction**
 
@@ -407,8 +486,8 @@ const mdxHref = /\bhref=(?:["'])(https:\/\/[^"']+)(?:["'])/g;
 - 厂商参考架构标为 `vendor-reference-architecture` / `first-party`；
 - 对发布日期未知使用 JSON `null`，不能用访问日期代替；
 - 每条 source 填写具体作者/机构、版本、许可证范围、署名和使用边界；
-- 同一 GitHub file 的多个 `#L`、query 或 fragment 变体合并为一个 source record；精确 URL 保留在
-  citations，transport 去 query/fragment 后去重；
+- 同一 GitHub file 的多个 `#L`/fragment 变体合并为一个 source record；query 默认保留，只有
+  inventory 证明为展示参数并显式 query-insensitive 时才共享 transport；精确 URL 保留在 citations；
 - 每篇 document 填写四个 copyright checks；
 - 每个 citation 填写 usage mode、attribution note 和条件性 quotation/adaptation 字段；
 - `sources`、documents keys、citations 均稳定排序。
@@ -419,7 +498,7 @@ const mdxHref = /\bhref=(?:["'])(https:\/\/[^"']+)(?:["'])/g;
 
 从 `requiredFields` 删除 `'official_sources'`。删除全部 40 篇 MDX frontmatter 的
 `official_sources` 块，正文链接保持不变。若一个索引来源原先只存在于 frontmatter，则在该索引
-正文增加一个简短的“外部学习起点”链接，使 ledger use 仍有可见消费点。删除 `validateContent()` 针对
+正文增加一个简短的“外部学习起点”链接，使 ledger citation 仍有可见消费点。删除 `validateContent()` 针对
 `official_sources` 的旧 URL 检查；来源完整性在 `validateSourceGovernance()` 中统一处理。
 
 更新 `tests/content-validation.test.mjs`：
@@ -521,6 +600,7 @@ test('does not treat learning indexes as factual evidence', () => {});
 test('enforces license-specific copyright policies', () => {});
 test('keeps vendor claims and illustration rights explicit', () => {});
 test('enforces citation-level quotation adaptation and attribution records', () => {});
+test('matches normalized quotation excerpts in the corresponding visible document body', () => {});
 ```
 
 fixtures 必须覆盖：
@@ -531,10 +611,11 @@ fixtures 必须覆盖：
 - CC BY 缺 `adapt-with-attribution` 失败；
 - CC BY-SA 缺 `adapt-sharealike-review` 失败；
 - US government work 缺 `public-domain-with-provenance` 失败；
-- `LicenseRef-Unknown`/`LicenseRef-All-Rights-Reserved` 使用改编策略失败；
+- 未盘点许可证和 `LicenseRef-All-Rights-Reserved` 使用改编策略失败；
 - vendor reference architecture 缺 `vendor-claims-separated` 失败；
 - original illustration 缺 `illustration` role 或 document `illustration-rights` 失败。
 - short quotation 缺 excerpt、attribution note 或 quotation review 失败；
+- short quotation excerpt 只存在 ledger、未出现在对应 document visible body 失败；
 - adapted text/illustration 缺 modification note 或使用不允许改编的 LicenseRef 失败；
 - facts summary/navigation 带 excerpt 失败；
 - navigation-only 带事实 role 失败；
@@ -560,7 +641,6 @@ const requiredPolicyByLicense = new Map([
   ['CC-BY-SA-4.0', 'adapt-sharealike-review'],
   ['LicenseRef-US-Gov-Public-Domain', 'public-domain-with-provenance'],
   ['LicenseRef-All-Rights-Reserved', 'facts-and-short-quotation'],
-  ['LicenseRef-Unknown', 'facts-and-short-quotation'],
 ]);
 
 const requiredPolicyByKind = new Map([
@@ -578,13 +658,24 @@ const adaptedModes = new Set(['adapted-text', 'adapted-illustration']);
 const noAdaptLicenses = new Set([
   'LicenseRef-All-Rights-Reserved',
   'LicenseRef-Proprietary-Standard',
-  'LicenseRef-Unknown',
 ]);
 ```
 
 所有 citation 要求非空 attribution note；short quotation 要求 1–300 Unicode code points excerpt +
 `quotation_reviewed=true`；adapted modes 要求 modification note +
 `quotation_reviewed=true` 且 license 可改编；facts summary/navigation 的 excerpt 必须为 null。
+
+实现：
+
+```js
+normalizeVisibleQuotation(text)
+// Unicode NFC; replace Markdown links with labels; remove emphasis markers;
+// ignore fenced code and HTML comments; collapse all whitespace to one space
+```
+
+对 excerpt 和对应 document body 调用该函数，并要求
+`normalizedBody.includes(normalizedExcerpt)`。正测使用跨行 blockquote；负测使用
+`excerpt: '示例占位摘录'` 且正文不含该字符串，必须带 document path 与 source ID 报错。
 
 - [ ] **Step 4: Add the exact PR checklist**
 
@@ -932,12 +1023,17 @@ buildLinkTargets(ledger)
 // => Array<{
 //   transport_locator: string,
 //   expected_final_transport_locator: string,
+//   expected_final_approved_at: string,
+//   expected_final_approval_note: string,
 //   source_ids: string[],
 //   link_policy: 'stable' | 'floating' | 'auth-required' | 'retired',
 // }>
 
-validateLinkHealthCache(ledger, cache, {now = new Date()})
+validateLinkHealthCacheStructure(ledger, cache)
 // => {errors: string[]}
+
+evaluateLinkHealthVerdict(ledger, cache, {now = new Date()})
+// => {failures: string[]}
 
 checkSourceLink(
   target,
@@ -985,27 +1081,43 @@ node scripts/source-link-health.mjs --refresh
 test('validates complete transport-deduplicated link-health cache coverage', () => {});
 test('separates last attempt last success and stale review status', () => {});
 test('rejects missing duplicate stale and policy-incompatible cache results', () => {});
+test('generates a stale public ledger while the offline link verdict fails', async () => {});
 ```
 
 fixtures 覆盖：
 
 - every canonical and cited-alias unique HTTPS transport（active、auth-required、retired 都包括）
   恰有一个 result；
-- 同一 GitHub file 的多个 query/fragment citations 共享一个 transport result；
+- 同一 GitHub file 的 fragments 默认共享；`?plain=1` 只有显式 query-insensitive 时共享；
+- `?version=1`/`?version=2` 默认保留 query 并形成不同 source/transport；
 - local illustration 无 result；
 - cache 超过 120 calendar days；
 - cache transport/source_ids 与 ledger canonicalization 分组不同；
 - 同一 deduped transport 的 sources 声明冲突 policy 或 expected final；
-- stable source 的 final transport URL 不同；比较前用
-  `const transportUrl = new URL(locator); transportUrl.hash = ''; transportUrl.search = ''`
-  移除 fragment/query；
-- final transport 与 expected final 或 previous last success 不同；
+- stable source 的 final transport URL 不同；默认比较前只用
+  `const transportUrl = new URL(locator); transportUrl.hash = ''` 移除 fragment 并保留 query；
+- final transport 与人工批准 expected final 不同；previous final 只报告变化，不作为 verdict；
 - auth-required 只接受 `outcome=auth-required` 与 401/403，或
   `http_status=200 + login_wall_detected=true`；
 - retired 只接受 `outcome=retired` 与 404/410；
 - healthy 只接受 200–299；
 - failed last attempt 保留旧 last success，但 review status 必须 stale；
 - unknown outcome、duplicate source、orphan result 均失败。
+
+前两类错误分开断言：missing/duplicate/coverage/policy conflict 进入 structure errors；stale、
+age、unexpected outcome、unapproved redirect 进入 verdict failures。共享 stale fixture 必须断言：
+
+```js
+assert.deepEqual(validateLinkHealthCacheStructure(ledger, staleCache).errors, []);
+assert.match(
+  evaluateLinkHealthVerdict(ledger, staleCache, {now}).failures.join('\n'),
+  /stale/,
+);
+assert.match(
+  (await buildContentArtifacts(root))[generatedPaths.sourceLedger],
+  /"health_summary": "stale"/,
+);
+```
 
 - [ ] **Step 2: Write live-check RED tests**
 
@@ -1017,6 +1129,7 @@ test('falls back from unsupported HEAD to ranged GET', async () => {});
 test('limits global and per-origin concurrency', async () => {});
 test('retries bounded Retry-After responses and recovers from 429', async () => {});
 test('detects a 200 HTML login wall instead of reporting healthy', async () => {});
+test('accepts an approved expected-final change without previous-success veto', async () => {});
 test('classifies auth retired timeout server and redirect failures', async () => {});
 test('does not reuse an old healthy result when the live request fails', async () => {});
 ```
@@ -1044,7 +1157,7 @@ node --test tests/source-link-health.test.mjs
 
 Expected: FAIL with `ERR_MODULE_NOT_FOUND`.
 
-- [ ] **Step 4: Implement cache validation**
+- [ ] **Step 4: Implement separate cache structure and verdict evaluation**
 
 严格检查：
 
@@ -1059,6 +1172,11 @@ const checkedSources = ledger.sources.filter(
 `last_attempt` 永远代表本次结果；`last_success` 只在 policy 可接受的
 healthy/auth-required/retired outcome 时更新。所有 errors 按
 transport locator 排序，不依赖 JSON 输入顺序。
+
+structure function 绝不检查 freshness/review status；verdict function 不重复 schema/coverage。
+两者的诊断都格式为
+`data/source-link-health.json: transport "<locator>" sources ["id-a","id-b"]: ...`，先按
+transport locator、再按排序后的 source IDs 输出。
 
 - [ ] **Step 5: Implement live checking**
 
@@ -1080,19 +1198,30 @@ const response = await fetchImpl(transportUrl, {
 - 301/302/303/307/308 读取 Location，最多 5 跳；
 - relative Location 用 `new URL(location, currentUrl)`；
 - final URL 必须 HTTPS；
-- request/citation 保留完整 URL；网络请求按 `transport_locator` 去 query/fragment 后去重；
+- request/citation 保留完整 URL；默认 transport 只去 fragment、保留 query。只有
+  `query_insensitive: true` 与显式无 query transport 才合并 query variants；
 - HEAD 403/405/501 时回退 ranged GET；
 - HTML HEAD 200 也执行最多 64 KiB GET；login/signin/auth final path 或 password/sign-in HTML
   分类为 login wall；
 - stable 的 final URL 变化为 `redirect-changed`；
-- stable/floating 都与 `expected_final_transport_locator` 和 previous last-success final 比较，变化
-  必须人工审查后更新 expected final/alias；
+- stable/floating 都只与人工批准的 `expected_final_transport_locator` 比较；previous last-success
+  只生成变化报告，不参与 pass/fail；
 - auth-required 的 401/403 或 detected 200 login wall 为 `auth-required`；
 - retired 的 404/410 为 `retired`；
 - 429/503 按 Retry-After 最多重试 2 次，单次等待上限 5 秒；其他
   5xx/timeout/DNS/TLS/loop 为 error；
 - 任一 error 使 live/refresh CLI exit 1；
-- refresh 即使失败也原子写入本次 last attempt；旧 success 只作为历史保留并把 status 置 stale。
+- refresh 即使失败也原子写入本次 last attempt 和 append-only `attempt_history`；旧 success 只
+  作为历史保留并把 status 置 stale。
+
+批准流测试完整执行三次：
+
+1. expected=old，old final healthy；
+2. final=new，结果 redirect-changed，last success 仍 old，history 追加 failure；
+3. 只更新 ledger expected/approved date/approval note 后再次请求 new，结果 healthy，last success
+   更新 new，history 同时保留 old success、redirect failure、new success。
+
+第三步必须证明 previous old success 只产生 report note，不再 veto。
 
 并发调度用两个 semaphore：global 6、按 `new URL(transport).origin` 2。测试注入 promise gate
 测量峰值，不依赖真实计时。
@@ -1121,11 +1250,13 @@ health_checks: [{
 }]
 ```
 
-`buildContentArtifacts()` 新增读取 `data/source-link-health.json`，离线验证后再生成
+`buildContentArtifacts()` 新增读取 `data/source-link-health.json`，只调用
+`validateLinkHealthCacheStructure()` 后再生成
 `src/generated/source-ledger.json`；source ledger component 显示四种状态、last attempt 和 last
 success。summary 使用 `stale > auth-required > retired > healthy` 最差优先顺序；没有 cache 或
 cache 结构/coverage 非法时 generation fail closed。显式 `review_status=stale` 仍可生成并展示，
-但 `npm run check:links` 与总 verify 退出 1，直到人工审查并提交新 cache/ledger。
+但 `npm run check:links` 同时运行 structure + `evaluateLinkHealthVerdict()`，与总 verify 一起退出
+1，直到人工审查并提交新 cache/ledger。
 
 - [ ] **Step 7: Add exact package commands**
 
@@ -1383,7 +1514,7 @@ Review with fresh eyes against E0-03/E0-05/E0-11/E0-12 and the design:
 - verify Awesome/System Design Primer/roadmap/community indexes cannot satisfy factual gate;
 - verify a source URL added only to article body fails;
 - verify a ledger source added without document citation fails or is explicitly permitted as discovery inventory;
-- verify CC BY, CC BY-SA, US government, unknown and vendor policies;
+- verify CC BY, CC BY-SA, US government, all-rights-reserved and vendor policies;
 - verify GitHub repository license scope does not claim linked third-party material;
 - verify local roadmap image provenance;
 - verify expected/previous redirect changes, 200 login wall, 403 fallback, bounded Retry-After recovery,
