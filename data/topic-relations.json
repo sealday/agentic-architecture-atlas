@@ -1,0 +1,34 @@
+{
+  "FND-02": {
+    "dependencies": ["FND-01"],
+    "related_cases": []
+  },
+  "FND-03": {
+    "dependencies": ["FND-01"],
+    "related_cases": []
+  },
+  "QA-00": {
+    "dependencies": ["FND-02"],
+    "related_cases": []
+  },
+  "QA-01": {
+    "dependencies": ["FND-02", "QA-00"],
+    "related_cases": []
+  },
+  "MTH-01": {
+    "dependencies": ["QA-01"],
+    "related_cases": []
+  },
+  "MTH-02": {
+    "dependencies": ["QA-01"],
+    "related_cases": []
+  },
+  "MTH-06": {
+    "dependencies": ["MTH-01", "MTH-02", "MTH-03", "MTH-04"],
+    "related_cases": []
+  },
+  "STY-14": {
+    "dependencies": ["STY-04", "STY-05", "STY-06"],
+    "related_cases": []
+  }
+}
