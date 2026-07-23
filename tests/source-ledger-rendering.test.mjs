@@ -21,30 +21,103 @@ function attributeValue(tag, name) {
   return match?.[1] ?? match?.[2] ?? match?.[3] ?? null;
 }
 
-function sourceArticles(html) {
-  return [...html.matchAll(/<article\b[^>]*data-source-id=[^>]+>/g)].map(
-    (match) => {
-      const end = html.indexOf('</article>', match.index);
-      assert.notEqual(end, -1, `source article is not closed: ${match[0]}`);
-      return {
-        id: attributeValue(match[0], 'data-source-id'),
-        tier: attributeValue(match[0], 'data-source-tier'),
-        kind: attributeValue(match[0], 'data-source-kind'),
-        html: html.slice(match.index, end + '</article>'.length),
-      };
+function decodeHtml(value) {
+  const named = {
+    amp: '&',
+    apos: "'",
+    gt: '>',
+    lt: '<',
+    quot: '"',
+  };
+  return value.replace(
+    /&(?:#(\d+)|#x([\da-f]+)|([a-z]+));/gi,
+    (entity, decimal, hexadecimal, name) => {
+      if (decimal) {
+        return String.fromCodePoint(Number(decimal));
+      }
+      if (hexadecimal) {
+        return String.fromCodePoint(Number.parseInt(hexadecimal, 16));
+      }
+      return named[name.toLowerCase()] ?? entity;
     },
   );
 }
 
-function fieldMarkup(article, field) {
-  const marker = new RegExp(
-    `<dd\\b[^>]*data-source-field=(?:"${field}"|'${field}'|${field})[^>]*>`,
+function textContent(markup) {
+  return decodeHtml(
+    markup
+      .replace(/<!--[\s\S]*?-->/g, '')
+      .replace(/<[^>]+>/g, '')
+      .replace(/\s+/g, ' ')
+      .trim(),
   );
-  const match = article.match(marker);
-  assert.ok(match, `missing rendered field ${field}`);
-  const start = match.index + match[0].length;
-  const end = article.indexOf('<dt', start);
-  return article.slice(start, end === -1 ? article.length : end);
+}
+
+function parseDefinitionList(article) {
+  const start = article.indexOf('<dl');
+  const openEnd = article.indexOf('>', start);
+  const end = article.indexOf('</dl>', openEnd);
+  assert.ok(start !== -1 && openEnd !== -1 && end !== -1);
+  const markup = article.slice(openEnd + 1, end);
+  const tokens = [...markup.matchAll(/<(dt|dd)\b[^>]*>/g)];
+  assert.equal(tokens.length, 24);
+
+  const fields = new Map();
+  for (let index = 0; index < tokens.length; index += 2) {
+    const term = tokens[index];
+    const definition = tokens[index + 1];
+    assert.equal(term[1], 'dt');
+    assert.equal(definition[1], 'dd');
+    const termEnd = term.index + term[0].length;
+    const definitionEnd = definition.index + definition[0].length;
+    const next = tokens[index + 2]?.index ?? markup.length;
+    fields.set(textContent(markup.slice(termEnd, definition.index)), {
+      html: markup.slice(definitionEnd, next),
+      text: textContent(markup.slice(definitionEnd, next)),
+    });
+  }
+  return fields;
+}
+
+function parseArticles(section) {
+  return [...section.matchAll(/<article\b[^>]*>/g)].map((match) => {
+    const end = section.indexOf('</article>', match.index);
+    assert.notEqual(end, -1, `source article is not closed: ${match[0]}`);
+    const html = section.slice(match.index, end + '</article>'.length);
+    const heading = html.match(/<h4>([\s\S]*?)<\/h4>/);
+    assert.ok(heading, 'source article has no H4');
+    const anchor = heading[1].match(/<a\b[^>]*>/);
+    return {
+      fields: parseDefinitionList(html),
+      headingHref: anchor ? attributeValue(anchor[0], 'href') : null,
+      html,
+      title: textContent(heading[1]),
+    };
+  });
+}
+
+function parseLedgerSections(html) {
+  return [...html.matchAll(/<section\b[^>]*>/g)]
+    .map((match) => ({
+      headingId: attributeValue(match[0], 'aria-labelledby'),
+      index: match.index,
+    }))
+    .filter(({headingId}) => headingId?.startsWith('source-ledger-'))
+    .map(({headingId, index}) => {
+      const end = html.indexOf('</section>', index);
+      assert.notEqual(end, -1, `ledger section is not closed: ${headingId}`);
+      const section = html.slice(index, end + '</section>'.length);
+      const heading = section.match(
+        new RegExp(`<h3 id=${headingId}>([\\s\\S]*?)<\\/h3>`),
+      );
+      assert.ok(heading, `ledger section has no matching heading: ${headingId}`);
+      return {
+        articles: parseArticles(section),
+        heading: textContent(heading[1]),
+        html: section,
+        tier: headingId.replace('source-ledger-', ''),
+      };
+    });
 }
 
 test('renders the generated source ledger instead of a hand-maintained catalog', async () => {
@@ -217,6 +290,26 @@ test('renders the complete sorted ledger in production HTML', async () => {
     'community-index',
     'original-illustration',
   ];
+  const kindLabels = {
+    standard: '标准',
+    paper: '论文',
+    'official-docs': '官方文档',
+    'official-repository': '官方仓库',
+    'source-code': '源码',
+    'engineering-blog': '工程团队博客',
+    'incident-report': '事故报告',
+    'vendor-reference-architecture': '厂商参考架构',
+    textbook: '教材',
+    'independent-blog': '独立博客',
+    'community-index': '社区索引',
+    'original-illustration': '本站原创插图',
+  };
+  const tierLabels = {
+    primary: '一手来源',
+    'first-party': '第一方工程资料',
+    secondary: '可信二手来源',
+    discovery: '发现与导航',
+  };
   const expectedSources = [...ledger.sources].sort(
     (left, right) =>
       tierOrder.indexOf(left.tier) - tierOrder.indexOf(right.tier) ||
@@ -224,17 +317,31 @@ test('renders the complete sorted ledger in production HTML', async () => {
         kindOrder.indexOf(right.source_kind) ||
       left.title.localeCompare(right.title, 'en'),
   );
-  const articles = sourceArticles(html);
+  const sections = parseLedgerSections(html);
+  const articles = sections.flatMap(({articles: tierArticles}) => tierArticles);
 
+  assert.doesNotMatch(html, /data-source-/);
+  assert.ok(
+    Buffer.byteLength(html) < 500_000,
+    `references HTML exceeds 500 KB: ${Buffer.byteLength(html)} bytes`,
+  );
   assert.equal(articles.length, 361);
   assert.deepEqual(
-    articles.map(({id}) => id),
-    expectedSources.map(({id}) => id),
+    articles.map(({title}) => title),
+    expectedSources.map(({title}) => title),
+  );
+  assert.deepEqual(
+    articles.map(({fields}) => fields.get('来源类型').text),
+    expectedSources.map(({source_kind: kind}) => kindLabels[kind]),
+  );
+  assert.deepEqual(
+    articles.map(({fields}) => fields.get('来源层级').text),
+    expectedSources.map(({tier}) => tierLabels[tier]),
   );
   assert.deepEqual(
     tierOrder.map((tier) => [
       tier,
-      articles.filter((article) => article.tier === tier).length,
+      sections.find((section) => section.tier === tier).articles.length,
     ]),
     [
       ['primary', 329],
@@ -244,49 +351,43 @@ test('renders the complete sorted ledger in production HTML', async () => {
     ],
   );
   assert.deepEqual(
-    [...html.matchAll(/<section\b[^>]*data-source-tier-section=[^>]+>/g)].map(
-      (match) => attributeValue(match[0], 'data-source-tier-section'),
-    ),
+    sections.map(({tier}) => tier),
     tierOrder,
   );
-  assert.ok(
-    articles.every(
-      ({html: article}) =>
-        [...article.matchAll(/data-source-field=/g)].length === 12,
-    ),
+  assert.deepEqual(
+    sections.map(({heading}) => heading),
+    tierOrder.map((tier) => tierLabels[tier]),
   );
+  assert.ok(articles.every(({fields}) => fields.size === 12));
 
-  const c4 = articles.find(({id}) => id === 'src-c4model-f5342a5e8659');
+  const c4 = articles.find(({title}) => title === 'C4 Model');
   assert.ok(c4);
+  assert.equal(c4.headingHref, 'https://c4model.com/');
+  assert.equal(c4.fields.get('作者或机构').text, 'Simon Brown');
+  assert.equal(c4.fields.get('来源层级').text, '一手来源');
+  assert.equal(c4.fields.get('来源类型').text, '官方文档');
+  assert.match(c4.fields.get('版本').text, /2026-07-24/);
+  assert.equal(c4.fields.get('核查日期').text, '2026-07-24');
+  assert.equal(c4.fields.get('许可证').text, 'CC-BY-4.0');
+  assert.equal(c4.fields.get('版权处理').text, '允许改编，必须署名');
+  assert.match(c4.fields.get('可支持的证据角色').text, /定义/);
+  assert.match(c4.fields.get('署名说明').text, /C4 Model, Simon Brown/);
   assert.match(
-    c4.html,
-    /<h4><a href=https:\/\/c4model\.com\/>C4 Model<\/a><\/h4>/,
-  );
-  assert.match(fieldMarkup(c4.html, 'author'), /Simon Brown/);
-  assert.match(fieldMarkup(c4.html, 'tier'), /一手来源/);
-  assert.match(fieldMarkup(c4.html, 'kind'), /官方文档/);
-  assert.match(fieldMarkup(c4.html, 'version'), /2026-07-24/);
-  assert.match(fieldMarkup(c4.html, 'checked-at'), /2026-07-24/);
-  assert.match(fieldMarkup(c4.html, 'license'), /CC-BY-4.0/);
-  assert.match(fieldMarkup(c4.html, 'copyright-policy'), /允许改编，必须署名/);
-  assert.match(fieldMarkup(c4.html, 'evidence-roles'), /定义/);
-  assert.match(fieldMarkup(c4.html, 'attribution'), /C4 Model, Simon Brown/);
-  assert.match(
-    fieldMarkup(c4.html, 'usage-boundary'),
+    c4.fields.get('使用边界').text,
     /Supports documented semantics/,
   );
-  assert.match(fieldMarkup(c4.html, 'used-by'), /href=.*\/references/);
-  assert.match(fieldMarkup(c4.html, 'used-by'), /文档复核：.*2026-07-24/);
-  assert.match(fieldMarkup(c4.html, 'health'), /Task 6 接入后显示/);
+  assert.match(c4.fields.get('使用位置').html, /href=.*\/references/);
+  assert.match(c4.fields.get('使用位置').text, /文档复核：.*2026-07-24/);
+  assert.equal(c4.fields.get('链接状态').text, 'Task 6 接入后显示');
 
   const illustration = articles.find(
-    ({kind}) => kind === 'original-illustration',
+    ({fields}) => fields.get('来源类型').text === '本站原创插图',
   );
   assert.ok(illustration);
-  assert.doesNotMatch(illustration.html.match(/<h4>[\s\S]*?<\/h4>/)[0], /<a\b/);
+  assert.equal(illustration.headingHref, null);
 
-  const discoverySection = html.slice(
-    html.indexOf('data-source-tier-section=discovery'),
+  const discoverySection = sections.find(
+    ({tier}) => tier === 'discovery',
   );
-  assert.match(discoverySection, /选题\/学习导航，不是事实证据/);
+  assert.match(discoverySection.html, /选题\/学习导航，不是事实证据/);
 });
