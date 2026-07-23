@@ -82,6 +82,45 @@ const allowedRequiredSourceTypes = new Set([
   '奠基性论文',
 ]);
 
+const communityRequiredSourceTypes = new Set([
+  'GitHub 索引',
+  '工程博客与第三方教程',
+]);
+
+const requiredRegistryFields = [
+  '来源类型',
+  '适用范围',
+  '用途',
+  '核查日期',
+  '使用边界',
+  '入口',
+];
+
+const registryTypesByParent = new Map([
+  ['官方文档', new Set(['官方文档'])],
+  ['官方仓库', new Set(['官方仓库'])],
+  ['论文与工程演讲', new Set(['论文与工程演讲', '奠基性论文'])],
+  ['GitHub 索引', new Set(['GitHub 索引'])],
+  ['工程博客与第三方教程', new Set(['工程博客与第三方教程'])],
+  ['公认教材', new Set(['公认教材'])],
+]);
+
+const commonSectionMinimums = new Map([
+  ['为什么学', 30],
+  ['前置能力与跳过条件', 30],
+  ['核心问题', 24],
+  ['推荐学习顺序', 24],
+  ['必读起点', 12],
+  ['查漏补缺', 20],
+  ['深入拓展', 20],
+  ['用本站案例深化', 20],
+  ['实践产出', 20],
+  ['检查点', 20],
+  ['继续学习', 12],
+]);
+
+const canonicalCaseSlugs = new Set(requiredCaseSlugs);
+
 const topicStageLinks = new Map([
   ['/paths/cloud-native-platform', '/paths/production-governance'],
   ['/paths/collaborative-state-frontend', '/paths/module-boundaries'],
@@ -205,6 +244,10 @@ function visibleMarkdownText(source) {
     .trim();
 }
 
+function substantiveCharacterCount(source) {
+  return visibleMarkdownText(source).match(/[\p{L}\p{N}]/gu)?.length ?? 0;
+}
+
 function sectionForHeading(source, headingText) {
   const headings = findMarkdownHeadings(source).filter(
     ({level}) => level === 2,
@@ -217,15 +260,80 @@ function sectionForHeading(source, headingText) {
   return source.slice(start === -1 ? end : start + 1, end);
 }
 
-function assertSectionHasVisibleContent(source, headingText, label) {
+function assertSectionHasVisibleContent(
+  source,
+  headingText,
+  label,
+  minimumCharacters = 1,
+) {
   const section = sectionForHeading(source, headingText);
-  const visible = visibleMarkdownText(section);
+  const count = substantiveCharacterCount(section);
 
-  assert.match(
-    visible,
-    /[\p{L}\p{N}]/u,
-    `## ${headingText} has no visible content in ${label}`,
+  assert.ok(
+    count >= minimumCharacters,
+    `## ${headingText} in ${label} must contain at least ${minimumCharacters} substantive characters, found ${count}`,
   );
+}
+
+function assertArticleSubstance(body, label, {topic = false} = {}) {
+  const visible = visibleMarkdownText(body);
+  assert.doesNotMatch(
+    visible,
+    /(?:\bTODO\b|\bTBD\b|\bPLACEHOLDER\b|占位(?:符|内容)?|待填(?:写|充)?)/iu,
+    `${label} contains a placeholder marker`,
+  );
+
+  for (const [heading, minimum] of commonSectionMinimums) {
+    assertSectionHasVisibleContent(body, heading, label, minimum);
+  }
+
+  const sequence = sectionForHeading(body, '推荐学习顺序');
+  const orderedItems = sequence
+    .split(/\r?\n/)
+    .filter((line) => /^ {0,3}\d+[.)]\s+/.test(line));
+  assert.ok(
+    orderedItems.length >= 3,
+    `${label} ## 推荐学习顺序 must contain at least 3 ordered items`,
+  );
+  for (const item of orderedItems) {
+    assert.ok(
+      substantiveCharacterCount(item) >= 8,
+      `${label} has a non-substantive recommended step: ${item}`,
+    );
+  }
+
+  const startingPoint = sectionForHeading(body, '必读起点');
+  assert.ok(
+    extractExternalLinks(startingPoint).size > 0,
+    `${label} ## 必读起点 must contain a real external link`,
+  );
+
+  const caseStudySection = sectionForHeading(body, '用本站案例深化');
+  const caseLinks = [...extractMarkdownLinks(caseStudySection)].filter((href) =>
+    canonicalCaseSlugs.has(href),
+  );
+  assert.ok(
+    caseLinks.length > 0,
+    `${label} ## 用本站案例深化 must contain a canonical case link`,
+  );
+
+  assertSectionHasVisibleContent(body, '实践产出', label, 20);
+  assertSectionHasVisibleContent(body, '检查点', label, 20);
+
+  if (topic) {
+    const coverage = sectionForHeading(body, '当前已覆盖');
+    assert.ok(
+      substantiveCharacterCount(coverage) >= 30,
+      `${label} ## 当前已覆盖 must contain substantive coverage text`,
+    );
+    const coverageCaseLinks = [...extractMarkdownLinks(coverage)].filter(
+      (href) => canonicalCaseSlugs.has(href),
+    );
+    assert.ok(
+      coverageCaseLinks.length > 0,
+      `${label} ## 当前已覆盖 must contain a canonical case link`,
+    );
+  }
 }
 
 function assertHeadingsInOrder(source, headings, label) {
@@ -247,6 +355,20 @@ function assertHeadingsInOrder(source, headings, label) {
   }
 }
 
+function isValidIsoDate(value) {
+  const match = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) {
+    return false;
+  }
+  const [, year, month, day] = match.map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  return (
+    date.getUTCFullYear() === year &&
+    date.getUTCMonth() === month - 1 &&
+    date.getUTCDate() === day
+  );
+}
+
 function parseSourceRegistry(source) {
   const headings = findMarkdownHeadings(source);
   const entries = headings.filter(({level}) => level === 3);
@@ -254,6 +376,16 @@ function parseSourceRegistry(source) {
 
   const byUrl = new Map();
   for (const entry of entries) {
+    const parent = headings
+      .filter(({level, offset}) => level === 2 && offset < entry.offset)
+      .at(-1);
+    assert.ok(parent, `### ${entry.text} has no parent H2 category`);
+    const allowedTypes = registryTypesByParent.get(parent.text);
+    assert.ok(
+      allowedTypes,
+      `### ${entry.text} is under disallowed parent ## ${parent.text}`,
+    );
+
     const start = source.indexOf('\n', entry.offset);
     const nextHeading = headings.find(
       ({level, offset}) => offset > entry.offset && level <= 3,
@@ -263,28 +395,37 @@ function parseSourceRegistry(source) {
       nextHeading?.offset ?? source.length,
     );
     const visible = stripIgnoredMarkdown(section);
-    const sourceTypeFields = [
-      ...visible.matchAll(
-        /^ {0,3}[-*+]\s+\*\*来源类型\*\*[：:]\s*(.+?)\s*$/gm,
-      ),
-    ];
-    assert.equal(
-      sourceTypeFields.length,
-      1,
-      `### ${entry.text} must contain exactly one **来源类型** field`,
-    );
-    const sourceType = sourceTypeFields[0][1].trim();
-    const entryLines = visible
-      .split(/\r?\n/)
-      .filter((line) =>
-        /^ {0,3}[-*+]\s+\*\*入口\*\*[：:]/.test(line),
+    const fields = new Map();
+    for (const field of requiredRegistryFields) {
+      const matches = [
+        ...visible.matchAll(
+          new RegExp(
+            `^ {0,3}[-*+][ \\t]+\\*\\*${field}\\*\\*[：:][ \\t]*(.*?)[ \\t]*$`,
+            'gm',
+          ),
+        ),
+      ];
+      assert.equal(
+        matches.length,
+        1,
+        `### ${entry.text} must contain exactly one **${field}** field`,
       );
-    assert.equal(
-      entryLines.length,
-      1,
-      `### ${entry.text} must contain exactly one **入口** field`,
+      const value = matches[0][1].trim();
+      assert.ok(value, `### ${entry.text} has an empty **${field}** field`);
+      fields.set(field, value);
+    }
+
+    const sourceType = fields.get('来源类型');
+    assert.ok(
+      allowedTypes.has(sourceType),
+      `### ${entry.text} under ## ${parent.text} cannot use source type ${sourceType}`,
     );
-    const entryLinks = [...extractMarkdownLinks(entryLines[0])].filter((href) =>
+    const checkedAt = fields.get('核查日期');
+    assert.ok(
+      isValidIsoDate(checkedAt),
+      `### ${entry.text} has invalid **核查日期**: ${checkedAt}`,
+    );
+    const entryLinks = [...extractMarkdownLinks(fields.get('入口'))].filter((href) =>
       href.startsWith('https://'),
     );
     assert.ok(
@@ -297,7 +438,11 @@ function parseSourceRegistry(source) {
         !byUrl.has(href),
         `${href} is registered by more than one H3 source entry`,
       );
-      byUrl.set(href, {sourceType, title: entry.text});
+      byUrl.set(href, {
+        parent: parent.text,
+        sourceType,
+        title: entry.text,
+      });
     }
   }
 
@@ -465,12 +610,32 @@ test('defines ordered slugs and non-empty article sections', async () => {
       commonArticleHeadings,
       document.filename,
     );
+    assertArticleSubstance(document.body, document.filename, {
+      topic: index >= mainStages.length,
+    });
   }
 
   for (const document of documents.slice(mainStages.length)) {
     const topicHeadings = ['## 当前已覆盖', '## 后续待补'];
     assertHeadingsInOrder(document.body, topicHeadings, document.filename);
   }
+});
+
+test('rejects placeholder markers and below-threshold roadmap sections', () => {
+  assert.throws(
+    () => assertArticleSubstance('TODO: fill this article', 'fixture.mdx'),
+    /placeholder marker/,
+  );
+  assert.throws(
+    () =>
+      assertSectionHasVisibleContent(
+        '## 实践产出\n短句',
+        '实践产出',
+        'fixture.mdx',
+        20,
+      ),
+    /at least 20 substantive characters/,
+  );
 });
 
 test('stops automatic pagination after the final main stage', async () => {
@@ -552,6 +717,64 @@ test('structures every source registry H3 entry with type and entry links', asyn
   parseSourceRegistry(extractMarkdownBody(referencesSource));
 });
 
+test('rejects incomplete, invalid-date, and misclassified registry entries', () => {
+  const validFields = `
+- **来源类型**：官方文档
+- **适用范围**：测试
+- **用途**：测试严格资料契约。
+- **核查日期**：2026-07-23
+- **使用边界**：只用于测试。
+- **入口**：[测试](https://example.com/source)
+`;
+
+  assert.throws(
+    () =>
+      parseSourceRegistry(`
+## 官方文档
+### 缺字段
+${validFields.replace('- **用途**：测试严格资料契约。\n', '')}
+`),
+    /exactly one \*\*用途\*\* field/,
+  );
+  assert.throws(
+    () =>
+      parseSourceRegistry(`
+## 官方文档
+### 空字段
+${validFields.replace('- **适用范围**：测试\n', '- **适用范围**：\n')}
+`),
+    /empty \*\*适用范围\*\* field/,
+  );
+  assert.throws(
+    () =>
+      parseSourceRegistry(`
+## 官方文档
+### 重复字段
+${validFields}
+- **用途**：重复用途。
+`),
+    /exactly one \*\*用途\*\* field/,
+  );
+  assert.throws(
+    () =>
+      parseSourceRegistry(`
+## 官方文档
+### 无效日期
+${validFields.replace('2026-07-23', '2026-02-30')}
+`),
+    /invalid \*\*核查日期\*\*/,
+  );
+  assert.throws(
+    () =>
+      parseSourceRegistry(`
+## GitHub 索引
+### 错误分类
+${validFields}
+`),
+    /cannot use source type 官方文档/,
+  );
+});
+
 test('registers every real external learning-path link exactly', async () => {
   const [overviewSource, referencesSource, documents] = await Promise.all([
     readRequiredFile(learningPathFile, 'roadmap overview'),
@@ -614,6 +837,10 @@ test('requires every main-stage starting link to resolve to an allowed registry 
       assert.ok(
         registryEntry,
         `${href} from ${document.filename} has no exact H3 registry entry`,
+      );
+      assert.ok(
+        !communityRequiredSourceTypes.has(registryEntry.sourceType),
+        `${href} from ${document.filename} resolves to disallowed community type ${registryEntry.sourceType}`,
       );
       assert.ok(
         allowedRequiredSourceTypes.has(registryEntry.sourceType),
