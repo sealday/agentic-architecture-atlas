@@ -213,20 +213,6 @@ export async function validateContent(root, {requiredCollection} = {}) {
       }
     }
 
-    if ('official_sources' in metadata) {
-      if (!Array.isArray(metadata.official_sources)) {
-        errors.push(`${file}: field "official_sources" must be an array`);
-      } else if (metadata.official_sources.length === 0) {
-        errors.push(`${file}: field "official_sources" must be a non-empty array`);
-      } else {
-        for (const value of metadata.official_sources) {
-          if (typeof value !== 'string' || !value.startsWith('https://')) {
-            errors.push(`${file}: invalid official_sources value "${value}"; expected HTTPS URL`);
-          }
-        }
-      }
-    }
-
     if (metadata.content_type === 'case') {
       for (const field of caseRequiredFields) {
         if (!(field in metadata)) {
@@ -403,7 +389,7 @@ export async function validateContent(root, {requiredCollection} = {}) {
   }
 
   return {
-    documents: documents.map(({file, metadata}) => ({file, metadata})),
+    documents,
     errors,
   };
 }

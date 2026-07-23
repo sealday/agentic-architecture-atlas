@@ -91,7 +91,6 @@ function validCaseFrontMatter(slug, overrides = {}) {
     protocols: [],
     quality_attributes: ['reliability'],
     tags: ['launch'],
-    official_sources: ['https://example.com/official'],
     summary: 'A catalog summary',
     series: 'classic-distributed',
     catalog_order: 1,
@@ -219,41 +218,7 @@ test('reports staged catalog coverage failures', async () => {
   });
 });
 
-test('accepts all five valid launch cases with HTTPS official sources', async () => {
-  await withTempRoot(async (root) => {
-    await writeMdx(
-      root,
-      'empty-sources.mdx',
-      validCaseFrontMatter('/cases/empty-sources', {official_sources: []}),
-    );
-
-    const result = await validateContent(root);
-
-    assert.ok(
-      result.errors.some(
-        (error) => error.includes('official_sources') && error.includes('non-empty'),
-      ),
-    );
-  });
-
-  await withTempRoot(async (root) => {
-    await writeMdx(
-      root,
-      'insecure-source.mdx',
-      validCaseFrontMatter('/cases/insecure-source', {
-        official_sources: ['http://example.com'],
-      }),
-    );
-
-    const result = await validateContent(root);
-
-    assert.ok(
-      result.errors.some(
-        (error) => error.includes('official_sources') && error.includes('HTTPS'),
-      ),
-    );
-  });
-
+test('accepts all five structurally valid launch cases', async () => {
   await withTempRoot(async (root) => {
     await Promise.all(
       expectedLaunchCases.map(({slug, catalog_order}) =>
@@ -269,6 +234,14 @@ test('accepts all five valid launch cases with HTTPS official sources', async ()
 
     assert.equal(result.documents.length, 5);
     assert.deepEqual(result.errors, []);
+    for (const snapshot of result.documents) {
+      assert.equal(typeof snapshot.filePath, 'string');
+      assert.equal(typeof snapshot.file, 'string');
+      assert.equal(typeof snapshot.source, 'string');
+      assert.equal(typeof snapshot.body, 'string');
+      assert.equal(typeof snapshot.metadata, 'object');
+      assert.ok(Array.isArray(snapshot.headings));
+    }
 
     const cli = spawnSync(
       process.execPath,
@@ -447,8 +420,6 @@ test('validates catalog metadata only for cases', async () => {
         'protocols: []',
         'quality_attributes: []',
         'tags: []',
-        'official_sources:',
-        '  - https://example.com/official',
       ].join('\n'),
       '# Reference',
     );

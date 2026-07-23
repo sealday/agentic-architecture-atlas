@@ -12,7 +12,6 @@ export const requiredFields = [
   'protocols',
   'quality_attributes',
   'tags',
-  'official_sources',
 ];
 
 export const knowledgeContentTypes = [
