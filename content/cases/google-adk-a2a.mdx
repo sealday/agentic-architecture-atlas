@@ -393,7 +393,7 @@ A2A 版本兼容应在连接前完成：读取 `supportedInterfaces`，选择双
 
 **已证实事实**：A2A Cancel Task 只要求服务尝试取消，取消可能不受支持或任务已终止；Send Message 仅 MAY 通过 `messageId` 去重。固定版本 `RemoteA2aAgent` 没有把本地取消意图映射到 A2A Cancel Task 的端到端 client 路径，ADK 服务端 executor 的 `cancel()` 还直接抛出 `NotImplementedError`。
 
-因此超时关闭 HTTP 连接、用户点击“停止”和远端副作用停止是三件不同的事。需要取消时，应用必须自建支持该操作的 A2A client/gateway，并在接入时验证远端实现。
+**基于证据的推断**：因此超时关闭 HTTP 连接、用户点击“停止”和远端副作用停止是三件不同的事。需要取消时，应用必须自建支持该操作的 A2A client/gateway，并在接入时验证远端实现。
 
 生产建议：
 
