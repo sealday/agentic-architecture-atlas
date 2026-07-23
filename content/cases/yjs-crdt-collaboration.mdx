@@ -186,10 +186,12 @@ flowchart LR
 
 最短阅读路径从 `Doc` 的 transaction 边界进入，再看 encoding 如何应用 update 和计算差异，最后用 `Snapshot`、`INTERNALS.md` 与威胁模型检查恢复和安全边界。它能证明结构怎样合并以及哪些历史可能被 GC；它不能证明合并结果有业务权限或语义正确性。
 
-固定源码快照为 [`9c1994547d7bc86245a21e1a4c8319f056d05ecf`](https://github.com/yjs/yjs/tree/9c1994547d7bc86245a21e1a4c8319f056d05ecf)。以下只描述该快照以及 2026-07-22 访问到的官方文档。
+本节只描述 2026-07-22 固定源码快照和同日访问的官方文档。候选版与受支持稳定版的差异仍以“事实边界”中的版本说明为准。
 
 <details className="evidence-card">
   <summary>证据：文档更新、快照与威胁模型接缝</summary>
+
+- **固定提交：** [`9c1994547d7bc86245a21e1a4c8319f056d05ecf`](https://github.com/yjs/yjs/tree/9c1994547d7bc86245a21e1a4c8319f056d05ecf)，提交时间为 2026-07-18，`package.json` 为 `14.0.0-rc.24`。
 
 | 源码或文档接缝 | 已证实行为 | 边界 | Agent 协作含义 |
 | --- | --- | --- | --- |

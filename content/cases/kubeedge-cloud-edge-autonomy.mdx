@@ -176,7 +176,7 @@ flowchart TB
 
 2. **CloudHub 下发。** CloudHub 把消息按 node ID 放入节点队列。需要 ACK 的资源消息必须带 resource version；EdgeCore 成功存入 MetaManager 后确认，超时会重试。ObjectSync/ClusterObjectSync 保存成功点，SyncController 周期比较云端对象版本，形成后续 reconciliation。
 
-3. **EdgeHub 接收。** EdgeHub 从 WebSocket/QUIC 收取消息并按 group 路由到 MetaManager、DeviceTwin 或 EventBus。它也把边缘状态反向发送。读、写或 heartbeat 错误会触发断开；连接状态广播给 meta/twin/bus group，随后按 heartbeat 配置重连。
+3. **EdgeHub 接收。** EdgeHub 从 WebSocket/QUIC 收取消息并按 group 路由到 MetaManager、DeviceTwin 或 EventBus。读、写或 heartbeat 错误会触发断开；连接状态广播给 meta/twin/bus group，随后等待恰好两个 heartbeat 周期再重连。因此恢复延迟受 heartbeat 配置约束，不能把断线重连视为即时切换。
 
 4. **metadata 落地。** MetaManager 先把 insert/update/delete/response 写入节点 SQLite，再通知 Edged 或 DeviceTwin。Edged 查询 pod、ConfigMap、Secret 等时，在线且资源类型要求远端查询才会请求云端；断网或不需远端时读取本地 DB。
 
@@ -198,10 +198,12 @@ flowchart TB
 
 最短源码路径沿一条消息走：EdgeHub 处理连接，CloudHub dispatcher 和 SyncController 确认可重试资源，MetaManager/Edged 负责节点 cache 与 pod 恢复，Device API 与 DeviceTwin 区分期望和观测。它能证明基础同步与恢复接缝，不能证明物理副作用 exactly-once。
 
-固定快照：[`kubeedge/kubeedge@bae61505d4919c404665f70347ad0646aaa98958`](https://github.com/kubeedge/kubeedge/tree/bae61505d4919c404665f70347ad0646aaa98958)，tag `v1.20.0`。
+本节只解释 KubeEdge v1.20.0 固定快照。release 范围决定组件、字段与重连语义，后续分支修复不倒灌到本文结论。
 
 <details className="evidence-card">
   <summary>证据：连接、资源同步、本地 cache 与设备状态源码</summary>
+
+- **固定提交：** [`kubeedge/kubeedge@bae61505d4919c404665f70347ad0646aaa98958`](https://github.com/kubeedge/kubeedge/tree/bae61505d4919c404665f70347ad0646aaa98958)，tag `v1.20.0`。
 
 | 固定源码 | 可观察事实 | 支持的结论 | 不支持的结论 |
 | --- | --- | --- | --- |
