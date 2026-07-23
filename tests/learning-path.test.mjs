@@ -1,150 +1,223 @@
 import assert from 'node:assert/strict';
-import {readFile} from 'node:fs/promises';
+import {readFile, stat} from 'node:fs/promises';
+import path from 'node:path';
 import test from 'node:test';
 import {fileURLToPath} from 'node:url';
 
-import {extractMarkdownBody} from '../scripts/content-metadata.mjs';
+import {
+  extractMarkdownBody,
+  parseFrontMatter,
+} from '../scripts/content-metadata.mjs';
 import {requiredCaseSlugs} from '../scripts/content-schema.mjs';
 
 const learningPathFile = fileURLToPath(
   new URL('../content/paths/index.mdx', import.meta.url),
 );
-const homepageFile = fileURLToPath(
-  new URL('../src/pages/index.tsx', import.meta.url),
+const pathDirectory = fileURLToPath(
+  new URL('../content/paths/', import.meta.url),
 );
-const caseIndexFile = fileURLToPath(
-  new URL('../content/cases/index.mdx', import.meta.url),
+const referencesFile = fileURLToPath(
+  new URL('../content/references/index.mdx', import.meta.url),
+);
+const roadmapImageFile = fileURLToPath(
+  new URL(
+    '../static/img/paths/software-architecture-learning-roadmap.png',
+    import.meta.url,
+  ),
 );
 
-const stageHeadings = [
-  '## 第一阶段：架构思维与表达',
-  '## 第二阶段：模块边界与应用架构',
-  '## 第三阶段：分布式系统基础',
-  '## 第四阶段：可靠性与状态管理',
-  '## 第五阶段：扩展、隔离与生产治理',
-  '## 第六阶段：Agentic 架构专项',
+const mainStages = [
+  ['01-architecture-thinking.mdx', '/paths/architecture-thinking'],
+  ['02-module-boundaries.mdx', '/paths/module-boundaries'],
+  ['03-distributed-systems.mdx', '/paths/distributed-systems'],
+  ['04-reliability-state.mdx', '/paths/reliability-state'],
+  ['05-production-governance.mdx', '/paths/production-governance'],
+  ['06-agentic-architecture.mdx', '/paths/agentic-architecture'],
 ];
 
-const stageFields = [
-  '**为什么学**',
-  '**掌握这些问题**',
-  '**外部补充**',
-  '**用本站案例深化**',
-  '**检查点**',
-  '**下一步**',
+const topicPaths = [
+  ['07-cloud-native-platform.mdx', '/paths/cloud-native-platform'],
+  ['08-collaborative-state-frontend.mdx', '/paths/collaborative-state-frontend'],
+  ['09-edge-physical-agents.mdx', '/paths/edge-physical-agents'],
+  ['10-agent-platform-gateway.mdx', '/paths/agent-platform-gateway'],
 ];
 
-const branchHeadings = [
-  '### 云原生与平台',
-  '### 协作状态与前端架构',
-  '### 边缘与物理智能体',
-  '### Agent 平台与模型网关',
+const roadmapDocuments = [...mainStages, ...topicPaths];
+
+const commonArticleHeadings = [
+  '## 为什么学',
+  '## 前置能力与跳过条件',
+  '## 核心问题',
+  '## 推荐学习顺序',
+  '## 必读起点',
+  '## 查漏补缺',
+  '## 深入拓展',
+  '## 用本站案例深化',
+  '## 实践产出',
+  '## 检查点',
+  '## 继续学习',
 ];
 
-const externalAnchors = [
-  'https://github.com/mehdihadeli/awesome-software-architecture',
-  'https://github.com/donnemartin/system-design-primer',
-  'https://roadmap.sh/software-architect',
-  'https://c4model.com/',
-  'https://arc42.org/',
-  'https://sre.google/workbook/table-of-contents/',
-  'https://github.com/cncf/curriculum',
-  'https://kubernetes.io/docs/tutorials/kubernetes-basics/',
-];
+function assertHeadingsInOrder(source, headings, label) {
+  let previousOffset = -1;
+  for (const heading of headings) {
+    const offset = source.indexOf(heading);
+    assert.ok(
+      offset > previousOffset,
+      `${heading} is missing or out of order in ${label}`,
+    );
+    previousOffset = offset;
+  }
+}
 
-function markdownExternalLinks(source) {
-  return [...source.matchAll(/\[[^\]]+\]\((https:\/\/[^)\s]+)\)/g)].map(
-    ([, href]) => href,
+function assertLinksTo(body, slug, label) {
+  assert.ok(body.includes(`](${slug})`), `${label} does not link to ${slug}`);
+}
+
+async function readRoadmapDocuments() {
+  return Promise.all(
+    roadmapDocuments.map(async ([filename, slug]) => {
+      const source = await readFile(path.join(pathDirectory, filename), 'utf8');
+      return {
+        body: extractMarkdownBody(source),
+        filename,
+        metadata: parseFrontMatter(source),
+        slug,
+        source,
+      };
+    }),
   );
 }
 
-function toChineseNumber(value) {
-  const digits = ['', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
-  if (value < 10) {
-    return digits[value];
+test('defines ordered slugs and article structure for every roadmap document', async () => {
+  const documents = await readRoadmapDocuments();
+
+  for (const [index, document] of documents.entries()) {
+    assert.equal(document.metadata.slug, document.slug);
+    assert.equal(document.metadata.sidebar_position, index + 2);
+    assertHeadingsInOrder(
+      document.body,
+      commonArticleHeadings,
+      document.filename,
+    );
   }
 
-  const tens = Math.floor(value / 10);
-  const ones = value % 10;
-  return `${tens === 1 ? '' : digits[tens]}十${digits[ones]}`;
-}
-
-test('structures the architecture roadmap as six complete stages', async () => {
-  const source = await readFile(learningPathFile, 'utf8');
-
-  for (const [index, heading] of stageHeadings.entries()) {
-    const start = source.indexOf(heading);
-    const end =
-      index === stageHeadings.length - 1
-        ? source.indexOf('## 专题分支', start)
-        : source.indexOf(stageHeadings[index + 1], start);
-
-    assert.notEqual(start, -1, `Missing stage heading: ${heading}`);
-    assert.ok(end > start, `Stage has no bounded body: ${heading}`);
-
-    const stage = source.slice(start, end);
-    let previousOffset = -1;
-    for (const field of stageFields) {
-      assert.match(stage, new RegExp(field.replaceAll('*', '\\*')));
-      const offset = stage.indexOf(field);
-      assert.ok(offset > previousOffset, `${field} is out of order in ${heading}`);
-      previousOffset = offset;
-    }
-    for (const label of ['必读起点', '查漏补缺', '深入拓展']) {
-      assert.match(stage, new RegExp(`\\*\\*${label}\\*\\*`));
-    }
+  for (const document of documents.slice(mainStages.length)) {
+    assert.ok(
+      document.body.includes('## 当前已覆盖'),
+      `## 当前已覆盖 is missing in ${document.filename}`,
+    );
+    assert.ok(
+      document.body.includes('## 后续待补'),
+      `## 后续待补 is missing in ${document.filename}`,
+    );
   }
 });
 
-test('labels external resources and links every canonical case', async () => {
+test('defines the roadmap overview visual contract', async () => {
   const source = await readFile(learningPathFile, 'utf8');
+  const metadata = parseFrontMatter(source);
   const body = extractMarkdownBody(source);
-  const externalLinks = markdownExternalLinks(body);
 
-  for (const label of ['必读起点', '查漏补缺', '深入拓展']) {
-    assert.match(body, new RegExp(`\\*\\*${label}\\*\\*`));
-  }
-  for (const anchor of externalAnchors) {
-    assert.ok(
-      externalLinks.some((href) => href.startsWith(anchor)),
-      `Missing clickable external resource: ${anchor}`,
-    );
-  }
-  for (const slug of requiredCaseSlugs) {
-    assert.ok(body.includes(`](${slug})`), `Missing canonical case: ${slug}`);
-  }
+  assert.equal(metadata.sidebar_position, 1);
+  assert.ok(
+    body.includes('/img/paths/software-architecture-learning-roadmap.png'),
+    'Overview does not reference the generated roadmap image',
+  );
+  assert.match(body, /```mermaid(?:\r?\n|[ \t])/);
 });
 
-test('provides four optional branches with external starting points', async () => {
-  const body = extractMarkdownBody(await readFile(learningPathFile, 'utf8'));
-
-  for (const [index, heading] of branchHeadings.entries()) {
-    const start = body.indexOf(heading);
-    const end =
-      index === branchHeadings.length - 1
-        ? body.indexOf('## 如何把阅读变成架构能力', start)
-        : body.indexOf(branchHeadings[index + 1], start);
-
-    assert.notEqual(start, -1, `Missing branch heading: ${heading}`);
-    assert.ok(end > start, `Branch has no bounded body: ${heading}`);
-    assert.ok(
-      markdownExternalLinks(body.slice(start, end)).length > 0,
-      `Branch has no external starting point: ${heading}`,
-    );
-  }
-});
-
-test('describes one staged roadmap and the current catalog size', async () => {
-  const [homepage, caseIndex] = await Promise.all([
-    readFile(homepageFile, 'utf8'),
-    readFile(caseIndexFile, 'utf8'),
+test('registers every learning-path source and covers every canonical case', async () => {
+  const [overviewSource, referencesSource, documents] = await Promise.all([
+    readFile(learningPathFile, 'utf8'),
+    readFile(referencesFile, 'utf8'),
+    readRoadmapDocuments(),
   ]);
+  const referencesBody = extractMarkdownBody(referencesSource);
+  const pathBodies = [
+    extractMarkdownBody(overviewSource),
+    ...documents.map(({body}) => body),
+  ];
 
-  assert.match(homepage, /沿软件架构主干开始/);
-  assert.doesNotMatch(homepage, /选择一条专题学习路径/);
-  assert.match(homepage, new RegExp(`${requiredCaseSlugs.length} 个跨生态案例`));
-  assert.match(
-    caseIndex,
-    new RegExp(`${toChineseNumber(requiredCaseSlugs.length)}篇中的首发五篇`),
+  for (const [index, body] of pathBodies.entries()) {
+    const externalLinks = [
+      ...body.matchAll(/\[[^\]]+\]\((https:\/\/[^)\s]+)\)/g),
+    ].map(([, href]) => href);
+
+    for (const href of externalLinks) {
+      assert.ok(
+        referencesBody.includes(href),
+        `${href} from roadmap document ${index + 1} is not registered`,
+      );
+    }
+  }
+
+  const combinedBodies = pathBodies.join('\n');
+  for (const slug of requiredCaseSlugs) {
+    assert.ok(
+      combinedBodies.includes(slug),
+      `Canonical case is not covered by the roadmap: ${slug}`,
+    );
+  }
+});
+
+test('keeps third-party indexes and tutorials out of main-stage starting lists', async () => {
+  const documents = (await readRoadmapDocuments()).slice(0, mainStages.length);
+
+  for (const document of documents) {
+    const start = document.body.indexOf('## 必读起点');
+    const end = document.body.indexOf('## 查漏补缺', start);
+
+    assert.ok(
+      start !== -1 && end > start,
+      `Invalid 必读起点 section in ${document.filename}`,
+    );
+    const requiredStartingPoints = document.body.slice(start, end);
+    assert.doesNotMatch(
+      requiredStartingPoints,
+      /^\s*[-*+]\s+.*(?:GitHub 索引|第三方教程).*$/m,
+      `Disallowed starting-point label in ${document.filename}`,
+    );
+  }
+});
+
+test('links the main stages in sequence and every topic back to the overview', async () => {
+  const documents = await readRoadmapDocuments();
+  const stages = documents.slice(0, mainStages.length);
+  const topics = documents.slice(mainStages.length);
+
+  assertLinksTo(stages[0].body, mainStages[1][1], mainStages[0][0]);
+
+  for (let index = 1; index < stages.length - 1; index += 1) {
+    assertLinksTo(
+      stages[index].body,
+      mainStages[index - 1][1],
+      mainStages[index][0],
+    );
+    assertLinksTo(
+      stages[index].body,
+      mainStages[index + 1][1],
+      mainStages[index][0],
+    );
+  }
+
+  assertLinksTo(
+    stages.at(-1).body,
+    mainStages.at(-2)[1],
+    mainStages.at(-1)[0],
+  );
+  assertLinksTo(stages.at(-1).body, '/paths', mainStages.at(-1)[0]);
+
+  for (const topic of topics) {
+    assertLinksTo(topic.body, '/paths', topic.filename);
+  }
+});
+
+test('ships a generated roadmap image larger than 50 KB', async () => {
+  const image = await stat(roadmapImageFile);
+
+  assert.ok(
+    image.size > 50 * 1024,
+    `Roadmap image is only ${image.size} bytes`,
   );
 });
