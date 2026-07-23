@@ -76,258 +76,348 @@ official_sources:
 
 # Temporal Durable Execution + Saga：为长时智能体任务建立可恢复边界
 
-Temporal 与 Saga 解决的不是同一个问题。Temporal 用事件历史和确定性重放恢复工作流决策；Saga 则把已提交的长时业务步骤视为可见事实，在后续失败时以反向、语义级补偿修复业务意图。两者结合后，可以让跨进程、跨天和等待人工的 Agent 任务恢复控制状态，却不会把邮件、支付、工单、LLM 调用或网络写入变成业务上的“恰好一次”。
+付款已经成功，确认邮件尚未发送，执行器却在这两步之间崩溃。重启之后，系统必须回答的不是“任务要不要再跑一次”，而是“哪一段历史可以重放，哪个外部动作绝不能重复”。
 
-本案例以 Garcia-Molina 与 Salem 的 1987 年《Sagas》、Temporal 官方概念文档，以及 `temporalio/temporal@955948007cc6d9d94fa8ef484225954bd9328451` 为服务端证据截面；取消交付的能力边界另以 `temporalio/sdk-go@3cebc26908119368df3911df6146f756bad3882b` 和 `temporalio/sdk-java@6d09a341c14daeddf9b3795cd43721de770fec2c` 核对。Workflow 语言级重放由 SDK 完成，因此本文用官方 Workflow/Event History 文档证实重放契约，用固定服务端源码定位 Command、Activity 持久状态、重试、计时任务与 Task Queue 接缝，只在取消小节引用上述两个 SDK 的具体实现，不把服务端误说成 SDK 解释器，也不把两个 SDK 当前行为外推到所有 SDK/版本。
+Temporal 用事件历史恢复控制状态，Saga 用新的业务动作补偿已经提交的步骤。前者解决“编排如何继续”，后者解决“部分成功如何收束”；它们都不会自动把付款、邮件、工单、LLM 调用或网络写入变成业务上的恰好一次。
+
+本文以 Temporal 官方文档、1987 年《Sagas》和固定上游源码为证据，详细版本与文件锚点收进证据卡。Workflow 重放契约由官方文档支持。快速取消只在本文核对的服务端能力与 Go/Java SDK 版本组合中成立，不能外推到全部 SDK 或部署。
 
 ## 学习问题
 
-1. Event History 如何使 Workflow Worker 在崩溃后通过重放重建状态，为什么这要求 Workflow 对同一历史产生同样的 Commands？
-2. 为什么时钟、随机、网络、数据库、LLM 与工具调用不能直接放在确定性 Workflow 路径中？
-3. 已完成 Activity 不会因 Workflow replay 重执行，为什么 Activity 的外部副作用仍然可能发生多次？
-4. Task Queue、Activity retry、`Schedule-To-Start`、`Start-To-Close`、`Schedule-To-Close`、Heartbeat 与 cancellation 分别约束什么？
-5. Saga 为什么要按已成功步骤的反向顺序补偿，而补偿又为什么不是数据库物理回滚？
-6. 如何为 LLM/工具步骤定义稳定输入、Activity ID、外部幂等键、结果地址、去重与补偿证据？
-7. 当外部结果未知、补偿本身失败、操作不可逆或重试预算耗尽时，为什么必须有可耐久的人工介入状态？
+1. Event History 如何恢复 Workflow 状态，确定性重放又限制了哪些代码？
+2. Workflow、Activity、外部系统与人工分别拥有什么控制权？
+3. 为什么 Activity 完成可被重放复用，外部副作用却仍可能发生多次？
+4. 超时、重试、取消、对账与 Saga 补偿应在什么条件下分流？
+5. 权限、费用、版本和不可逆动作如何成为显式生产边界？
+6. 哪些机制能迁移到长时 Agent，哪些类比会制造错误保证？
 
 ## 一页摘要
 
-**已证实事实**：Temporal 的 Workflow Execution 通过有序 Event History 记录 Events；Workflow 代码在需要恢复时重新执行，并以历史中已记录的结果重建内存状态。同一历史下的 Workflow 必须产生同样的 Temporal API 调用/Commands；无版本管理地改变 Command 顺序或在内联逻辑中使用未记录的随机、时间和网络结果，可以导致 nondeterminism error。
+**已证实事实**：Temporal 把 Workflow 的决策记录为有序 Event History。Worker 崩溃后，Workflow 代码以历史输入和已记录结果重建内存状态；同一历史必须产生相同顺序的 Commands，否则可能出现 nondeterminism error。
 
-**已证实事实**：Temporal 官方 Workflow Definition 文档直接将 API、LLM/AI、数据库与其他外部交互指向 Activities。Activity 是允许非确定性的普通函数；已记录的完成结果在 Workflow replay 中被复用，不重新调用 Activity。但如果 Activity 已经在外部系统成功，Worker 却在向 Temporal Service 报告完成前崩溃，Event History 没有完成记录，后续 attempt 会再执行 Activity。
+**已证实事实**：API、LLM、数据库和其他外部交互应放入 Activity。历史已经记录的 Activity 完成结果会在 Workflow replay 时复用；但若外部调用成功、Worker 在 completion RPC 前崩溃，历史中没有完成事件，后续 attempt 仍可能再次执行。
 
-**已证实事实**：Temporal 对允许重试的 Activity 提供的准确保证是“Workflow 观察到一次完成”，不是“Activity 只执行一次”。官方文档明确说 Activity 可执行多次、甚至部分完成多次，并建议使用由外部服务强制的幂等键；`Workflow Run ID + Activity ID` 可作为重试间稳定的组合。
+**基于证据的推断**：可靠边界不是“所有动作都重放”。Workflow 重放决策，Activity 重试执行，外部目标按稳定业务键去重，Saga 对已确认的副作用做语义补偿。外部结果为 `unknown` 时必须冻结新写入，先对账或转人工。
 
-**已证实事实**：原始 Saga 论文将长事务拆成可与其他事务交错的 `T1...Tn`，并要求为已提交子事务定义补偿 `C1...Cn-1`。若只执行到 `Tj`，可接受的向后恢复顺序是 `T1...Tj, Cj...C1`。`Ci` 在语义上修正 `Ti`，却不必、往往也不能把数据库恢复成 `Ti` 之前的字节级状态，因为中间已有其他事务观察或修改这些数据。
+这张表回答“崩溃后每一层究竟负责什么”。
 
-**基于证据的推断**：Agent 耐久执行的正确分层是：Workflow 保存已授权计划、步骤状态、定时器、审批门、试次预算和补偿栈；Activity 承担 LLM/工具/网络/文件/数据库交互；外部目标以稳定幂等键或结果账本抑制重复效果；Saga 只对“业务已承诺”的步骤入栈，失败时反向调用显式补偿。
-
-**个人分析**：对带副作用的 Agent 任务，“Activity 成功返回”不应是唯一业务事实。Activity 应返回可对账的 `effect_ref`、外部状态和证据摘要；重试前先用同一业务键查询。如果结果处于 `unknown`，应停止新写入并转对账/人工，不应用新的 LLM 采样或重试去“猜”外部世界。
-
-| 责任 | 确定性 Workflow | 可重试 Activity | 外部系统/人工 |
+| 层 | 保存或执行什么 | 恢复动作 | 不能保证 |
 | --- | --- | --- | --- |
-| 主要职责 | 排序、状态机、定时器、预算、审批、补偿栈 | LLM、工具、API、DB、文件与网络 I/O | 幂等去重、真实业务状态、账本、审批和修复 |
-| 重放/重试 | 对历史重放，不应产生新外部事实 | 可以从头再执行，也可用 heartbeat details 恢复进度 | 必须识别相同业务请求，不得依赖 Worker 内存去重 |
-| 稳定身份 | Workflow ID/Run ID、业务版本、步骤键 | 显式 Activity ID、输入哈希、attempt 可观测 | `tenant + operation + business_object + step_version` 等业务幂等键 |
-| 不能保证 | 业务副作用恰好一次 | 外部调用只发生一次 | 补偿必然可行或能还原历史状态 |
+| Workflow | 顺序、状态机、定时器、预算、审批、补偿指针 | 从 Event History 确定性重放 | 外部副作用恰好一次 |
+| Activity | LLM、工具、API、DB、文件与网络 I/O | 按 timeout/retry 重新执行，或从 heartbeat details 恢复 | 一个 attempt 已停止、调用只发生一次 |
+| 外部系统 | 付款、邮件、资源、账本等业务事实 | 以稳定幂等键查询或返回原结果 | 补偿必然可行 |
+| Saga/人工 | 已确认步骤、补偿顺序、审批与修复 | 反向补偿、向前恢复或人工处置 | 回到从未发生过的历史 |
+
+结论是：Temporal 的耐久性覆盖控制面；业务效果能否安全恢复，仍取决于 Activity 边界、外部幂等契约和补偿设计。
 
 ## 事实边界
 
+这一节区分“Temporal 直接保证的机制”与“应用必须补上的业务契约”。
+
 **已证实事实**
 
-- Temporal 将 Workflow Definition、Workflow Type 和 Workflow Execution 分开；执行通过 Commands 与 Events 推进，Events 按序记入 Event History。恢复时不是把 Worker 进程内存快照直接装回，而是从 Workflow 代码重建状态；SDK 可以使用缓存优化，但不改变历史是恢复依据的语义。
-- Workflow 代码对相同输入与历史必须以相同顺序产生相同 Workflow API 调用。Timer、Activity 调度/取消、Child Workflow、外部 Signal 与 Workflow 终止等都可生成 Commands；对已在运行的历史改变这些顺序，需要使用正式 Workflow Versioning/Patching 机制。
-- Activity 参数和返回值可被记入 Workflow Event History。Activity 代码可非确定，在失败重试时默认从初始状态开始；长时 Activity 可将应用进度放入 heartbeat details，供下一个 attempt 恢复。
-- Activity 默认带 Retry Policy，Workflow Execution 默认不带。当 Activity Task attempt 失败且策略允许时，Temporal Service 向相应 Activity Task Queue 放入新任务。当前官方文档的默认是初始间隔 1 秒、系数 2.0、最大间隔 100 秒且尝试次数不限；这些默认值不是 Agent 业务的安全预算。
-- Task Queue 是 Worker 主动长轮询的路由与负载均衡边界。Workflow 与 Activity Tasks 会持久化，Worker 下线时任务保留；同一队列上的任意 Worker 都可能取任务，所以不能依赖某台 Worker 的本地状态或缓存来保证幂等。多分区 Task Queue 也不承诺整体 FIFO。
-- `Schedule-To-Start` 约束单次 Task 等待 Worker 的时间，该超时不会因 Retry Policy 而重试，因为重试仍会放回同一队列；`Start-To-Close` 约束一次 attempt 并帮助服务端检测 Worker 失联；`Schedule-To-Close` 约束整个 Activity Execution 连同所有 retries 的总时间；Heartbeat Timeout 约束长任务心跳间隔。
-- Activity cancellation 是协作式请求。官方 Activity 文档把 Activity heartbeat 描述为通用的取消交付基线/回退路径；但在本文固定的服务端与 Go/Java SDK 提交中，若 namespace/server 报告 Worker Commands 能力且 Worker 注册了 `WorkerControlTaskQueue`，服务端可发送带 task token 的 `CancelActivityCommand`，兼容 SDK 将它映射到正在运行 Activity 的取消 callback，不必等待下一次 Activity heartbeat。这个快速路径依赖服务端能力、SDK 实现与部署版本，不能外推到所有 SDK/版本；无论走哪条路径，Activity 仍可选择如何响应，取消都不是强制 kill 或外部副作用回滚。
-- Saga 论文允许各子事务提交后释放资源，也因此允许其他事务看到部分 Saga 结果。补偿发生后，系统不会通知或中止曾经看到部分结果的其他事务；Saga 提供的不是全局隔离性。
-- 论文专门讨论补偿代码错误：如果补偿既不能完成，重试又将遇到同一缺陷，系统会卡住。原文给出备选实现与人工修复两类办法，也明确承认有些现实动作（例如发射导弹）不可撤销。
+- Workflow Definition、Workflow Type 与 Workflow Execution 是不同概念。执行通过 Commands 与 Events 推进；恢复依据是 Event History，而不是 Worker 内存快照。
+- 相同输入与历史必须产生相同顺序的 Temporal API 调用。时钟、随机、网络、数据库、LLM 与工具结果若未通过 Temporal 的重放安全 API 或 Activity 记录，就不能直接参与 Workflow 决策；存量历史上的 Command 变化需要 Workflow Versioning/Patching。
+- Activity 可执行非确定性代码，参数和结果可进入历史。失败重试默认从头开始；长任务可把安全进度放进 heartbeat details，供下一个 attempt 恢复。
+- Activity 默认有 Retry Policy，Workflow Execution 默认没有。当前文档所列默认退避并不是 Agent 的费用或风险预算，生产系统仍要限制总时间、尝试次数、token、供应商配额和写入次数。
+- Task Queue 是 Worker 主动长轮询的持久路由与负载均衡边界。任务可在 Worker 下线时保留，同一队列的任意 Worker 都可能接单，多分区也不承诺全局 FIFO；因此本地内存不能承担幂等或业务总序。
+- Saga 允许已提交子事务释放资源，其他事务可能看到中间结果。`Ci` 是对 `Ti` 的语义修复，不是字节级回滚，也不撤销其他参与者已经观察到的事实。
 
 **基于证据的推断**
 
-- Event History 是 Temporal 控制面的真相，不是外部业务系统的真相。历史中“ActivityTaskTimedOut”不证明付款未发生，“已发送取消”也不证明远程请求已停止。重试与补偿前需以稳定业务键查询外部账本。
-- Activity ID 在一个 Workflow Run 的打开 Activity Executions 中唯一，且官方建议将 `Workflow Run ID + Activity ID` 用作外部幂等键。对业务跨 Run 的重启/重放，还需要不随 Run 变化的业务键；否则“新 Run”可能绕过外部去重。
-- LLM 调用本身通常没有可逆副作用，但它消耗费用、供应商配额，输出又可能被后续工具写入采用。将 LLM 放入 Activity 只解决 replay 确定性；还应将提示、模型、参数、工具 schema、上下文快照和政策版本固定为 Activity 输入，对结果建内容哈希和费用账本。
-- Saga 补偿必须在正向步骤得到可对账的成功证据后才入栈。若在证据未持久前入栈，可能补偿一个未发生的动作；若外部成功后未入栈，又可能泄漏已发生的副作用。这个不可原子窗口需由外部幂等账本与对账 Activity 弥合，不能靠 Workflow 内存标志消除。
+- Event History 是控制面的真相，不是外部业务系统的真相。`ActivityTaskTimedOut` 不证明付款未发生，“已请求取消”也不证明远端写入已停止。
+- `Workflow Run ID + Activity ID` 能为同一 Run 的 attempts 提供稳定身份；跨 Run 恢复还要使用不随 Run 改变的业务键。目标系统必须原子地记录键、请求哈希和结果，才能拒绝“同键不同输入”并复用“同键同输入”的原结果。
+- LLM 调用进入 Activity 只解决确定性重放问题。提示、模型、参数、工具 schema、上下文快照和政策版本仍应固定为输入，结果需内容哈希和费用账本；否则重试会放大成本、配额与数据暴露。
+- Saga 只应在正向步骤有可对账成功证据后入补偿栈。外部成功与 Workflow 记录成功之间无法仅靠内存标志原子化，必须以目标侧幂等或只读对账处理 `unknown`。
 
-**个人分析与未知项**
+**个人分析**
 
-- Temporal 不知道“退款”是否能修复“扣款”的所有业务后果，也不知道已收件人是否看到错误邮件。补偿动作、可补偿时限、审批人、会计处理与残余风险都是应用契约。
-- 模型提供商是否支持请求级幂等、响应查询和确切计费去重，必须按具体 API 验证。对不支持的供应商，本地结果表只能抑制已知成功的重复调用，无法消除“供应商已处理、客户未收到响应”的不确定窗口。
-- 本案例讨论顺序 Saga。并行 Saga 需要根据依赖图和 fork/join 关系计算补偿偏序，不能把多条并行分支随意压成一个全局 LIFO 栈。
+Temporal 不知道退款是否修复了扣款的会计后果，也不知道收件人是否已经看过错误邮件。补偿动作、可补偿时限、审批人、残余风险和不可逆动作都属于应用契约；补偿失败或结果不明必须成为有 owner、SLA 和权限门的耐久状态。
+
+原始 Saga 论文甚至用“发射导弹”说明某些现实动作不可撤销，也指出确定性代码缺陷会让补偿反复失败。它给出的出路是备选补偿实现或人工修复，而不是无限重试同一缺陷。
+
+模型供应商是否支持请求幂等、结果查询与计费去重，也必须逐 API 验证。本地结果表只能抑制已知成功的重复请求，不能消除“供应商已处理、客户端未收到响应”的窗口。
+
+本文只讨论顺序 Saga。并行分支必须按依赖图计算补偿偏序，不能把 fork/join 结果随意压成一个全局 LIFO 栈。
+
+<details className="evidence-card">
+  <summary>证据：固定版本与适用边界</summary>
+
+  - **来源截断：** `2026-07-22`
+  - **服务端：** `temporalio/temporal@955948007cc6d9d94fa8ef484225954bd9328451`
+  - **Go SDK：** `temporalio/sdk-go@3cebc26908119368df3911df6146f756bad3882b`
+  - **Java SDK：** `temporalio/sdk-java@6d09a341c14daeddf9b3795cd43721de770fec2c`
+  - **边界：** 官方 Workflow/Event History 文档支持语言级重放契约；固定服务端源码只定位 Command、Activity 状态、重试、计时任务与 Task Queue 接缝。Go/Java SDK 仅核对快速取消 callback，不证明其他 SDK 或版本具有相同行为。
+</details>
+
+<details className="evidence-card">
+  <summary>证据：当前文档中的默认重试参数</summary>
+
+  - **Activity：** 默认 Retry Policy 的初始间隔为 1 秒、系数 2.0、最大间隔 100 秒、尝试次数不限。
+  - **Workflow Execution：** 默认不重试。
+  - **边界：** 这些是来源截断日的文档默认值，不是费用、安全或业务终止保证；显式生产配置优先。
+</details>
 
 ## 架构图
 
-下图把“重放”、“Activity 重试”与“Saga 补偿”分成三条路径。Workflow replay 只使用历史重建决策状态；Activity retry 可再次调用外部世界；Saga 补偿是新的、显式记录的业务动作，不是删除旧历史。
+阅读下图时先找三条路径。Workflow replay 只重建决策，Activity retry 可能再次触碰外部世界，Saga compensation 则创建新的业务事实。
 
 ```mermaid
 flowchart LR
-    C["客户端：启动/信号/更新"] --> TS["Temporal Service"]
+    C["client request"] --> CMD["Workflow command"]
+    CMD --> H["durable history"]
+    H --> WTQ["Workflow Task Queue"]
+    WTQ --> WW["Workflow Worker"]
+    WW -->|"deterministic replay"| CMD
 
-    subgraph CTRL["确定性控制边界"]
-        H["Event History\n有序 Events + Activity 结果"]
-        WTQ["Workflow Task Queue"]
-        WW["Workflow Worker\n重放状态机"]
-        D{"下一个确定决策"}
-        ST["步骤状态 + 预算\n已完成栈 + 补偿指针"]
-        H --> WTQ --> WW --> D --> ST
-        ST -->|"Command：定时/调度/取消"| TS
-        TS -->|"Worker 恢复"| H
-    end
+    CMD --> ATQ["Activity Task Queue"]
+    ATQ --> A["Activity task"]
+    A --> K{"stable operation key\n已有结果？"}
+    K -->|"是"| L["读取 effect_ref"]
+    K -->|"否"| E["external side effect"]
+    E --> L
+    L --> R["completion RPC"]
+    E -. "worker crash\n回执前失败" .-> U["unknown"]
 
-    TS --> H
+    U --> Q["只读对账"]
+    Q -->|"confirmed"| L
+    Q -->|"not found"| A
+    Q -->|"ambiguous"| M["manual escalation"]
 
-    subgraph EFFECT["非确定副作用边界"]
-        ATQ["Activity Task Queue"]
-        AW["Activity Worker"]
-        G{"stable operation key\n已有可确认结果？"}
-        EXT["LLM / tool / API / DB / file"]
-        LEDGER["外部幂等账本\neffect_ref + 状态"]
-        WINDOW["非原子窗口\n外部已成功，Temporal 尚未确认"]
-        ATQ --> AW --> G
-        G -->|"是：读取原结果"| LEDGER
-        G -->|"否"| EXT --> LEDGER
-        LEDGER -->|"outcome / effect_ref"| AW
-        LEDGER -. "外部成功但 Worker 尚未回执" .-> WINDOW
-        AW -. "在 completion RPC 前崩溃" .-> WINDOW
-    end
-
-    TS --> ATQ
-    AW -->|"完成 / 失败 / heartbeat RPC"| TS
-    TS -->|"超时或可重试失败：新 attempt"| ATQ
-
-    subgraph SAGA["Saga 向后恢复"]
-        F{"Ti 有可对账成功证据？"}
-        PUSH["记录 Ti / Ci / effect_ref"]
-        POP["Workflow 逆序选择 Cj ... C1"]
-        CCMD["Command：调度补偿 Activity\n同样幂等、可重试"]
-        HUMAN["冻结新副作用\n对账 + 人工修复"]
-        F -->|"是"| PUSH
-        F -->|"未知"| HUMAN
-        POP --> CCMD
-    end
-
-    ST --> F
-    ST -->|"后续步骤失败"| POP
-    CCMD --> TS
-    ST -->|"补偿 confirmed：弹栈并选下一项"| POP
-    ST -->|"补偿未知/永久失败/不可补偿"| HUMAN
-    HUMAN -->|"人工决策作为新事件"| C
+    H --> S{"后续步骤失败？"}
+    S -->|"可继续"| F["retry / forward recovery"]
+    S -->|"已确认副作用"| B["reverse compensation"]
+    S -->|"不可逆或补偿失败"| M
 ```
 
-**个人分析**：图中的外部幂等账本必须与真实副作用处在同一原子边界，或由外部 API 原生实现。如果 Activity 只在本地数据库先写“即将发邮件”，再调用不支持幂等的邮件 API，这两步之间仍有双写窗口。账本可以将结果从“完全未知”改进为 `planned/submitted/confirmed/failed/unknown/compensated`，但不会凭空创造外部原子性。
+图中的说明性任务流是：
+
+`client request → Workflow command → durable history → Activity task → external side effect → worker crash → replay → retry / compensation / manual escalation`
+
+**个人分析**：外部账本只有与真实副作用处于同一原子边界，或由外部 API 原生实现时，才能消除重复效果。先在本地写“即将发送”再调用不支持幂等的邮件 API，仍有双写窗口。
+
+`planned/submitted/confirmed/failed/unknown/compensated` 能暴露不确定性，却不会凭空创造外部原子性。
 
 ## 控制权与任务流
 
-**Workflow 控制权。** **已证实事实**：Workflow Worker 在任务上运行 Workflow 代码，把 Commands 返回 Temporal Service；重放时生成的 Commands 与已有 Event History 匹配。因此“是否进入下一步”、“是否已经获得批准”、“还剩多少尝试/费用预算”与“下一个应补偿哪一步”属于 Workflow。这些决策的输入必须来自历史中的输入、Activity 结果、Signals/Updates 或 Temporal 重放安全 API，不能即时读外部世界。
+**说明性场景：付款成功后 Worker 崩溃。** 这个场景不声称来自某个真实事故，只用前述机制解释一次恢复。
 
-**Activity 执行权。** **已证实事实**：Activity 可以调用其他服务、写数据库、发邮件或调用 LLM。这是网络与工具 capability 应被授予的边界；同时也是超时、重试、身份、租户、数据分级与幂等契约必须强制的边界。**基于证据的推断**：不同风险和权限的 Activity 应路由到分开的 Task Queues/Worker pools，例如只读检索、LLM 推理、生产写入与补偿，以分离凭证、扩容、限流和紧急停机面。
+1. 客户端启动 Workflow。Workflow 生成调度付款 Activity 的 Command，Service 将事件写入 Event History。
 
-**稳定输入与身份。** 一个 LLM Activity 的输入应包含 `task_id`、`step_id`、业务对象版本、提示/模型/参数/工具 schema 版本、权限与输入快照哈希；Activity ID 用一个可重建的步骤键，不用当前时间或随机串。外部写入键可以是 `tenant_id:business_task_id:step_name:step_version`，并由目标服务对该键的首次请求参数哈希做约束：相同键相同输入返回原结果，相同键不同输入应冲突，不应默默复用错误结果。
+2. Activity Worker 以稳定业务键请求支付系统。支付成功并返回付款号，但 Worker 在向 Temporal 报告完成前崩溃。
 
-**超时与重试流。**
+3. 新 Worker 从历史重放 Workflow。由于历史只有“已调度”而没有“已完成”，Temporal 可以按 Retry Policy 产生新 Activity attempt。
 
-| 机制 | 已证实的 Temporal 语义 | Agent 配置问题 | 错误解读 |
-| --- | --- | --- | --- |
-| `Schedule-To-Start` | 一次 Task 在队列等 Worker 的上限；超时不重试 | 是否有备用队列/区域，且有明确重路由计划 | 将 Worker 容量不足当成业务失败 |
-| `Start-To-Close` | 一次 Activity Task attempt 的上限；可触发后续 attempt | 设为单次 LLM/工具可能完成的上界 | 认为超时一到，旧网络请求就消失 |
-| `Schedule-To-Close` | 整个 Activity Execution 包含所有 attempts 的总上限 | 与业务 SLA、费用和供应商配额联动 | 只设无限次数而不设总时间/成本门 |
-| Heartbeat | 报进度，可带下次 attempt 恢复用 payload，也是官方文档中的取消交付基线/回退点；兼容 Worker Commands 的部署可另行触发 callback | 只记录可安全恢复的进度和外部引用，并验证当前服务端/SDK 是否启用快速取消路径 | 把 heartbeat 当作唯一取消通道或跨系统事务提交 |
-| Retry Policy | Activity 默认指数退避；可设最大尝试和不重试错误 | 区分限流/短暂网络错误、永久输入错误、未知副作用 | 对越权、内容拒绝或不可逆结果无限重试 |
+4. 新 attempt 不能直接再扣款。它先用相同业务键查询外部账本：`confirmed` 时返回原付款号，`not_found` 时才允许重试，`ambiguous` 时冻结后续写入并进入人工对账。
 
-**Saga 正向与反向流。** 以“预留额度 `T1` → 生成合同 `T2` → 发出签署邀请 `T3`”为例，仅在 Activity 返回可对账 `effect_ref` 后记录对应补偿。若 `T3` 失败，补偿顺序是 `C2` 后 `C1`；若 `T3` 已发出邀请却回执丢失，先对账，不能直接假设 `T3` 失败并重发。
+5. 付款确认后 Workflow 才把 `effect_ref` 与退款补偿入栈，再调度邮件 Activity。若后续失败，系统按业务条件选择重试、退款补偿或保留付款并人工处理。
 
-| 步骤 | 正向成功证据 | 补偿 | 补偿后的残余事实 |
-| --- | --- | --- | --- |
-| `T1` 预留额度 | 预留号与过期时间 | `C1` 释放该预留号 | 审计记录和短期额度占用曾经存在 |
-| `T2` 创建合同草稿 | 版本化合同 ID/内容哈希 | `C2` 作废该版本，不物理删除 | 已作废文档仍需保留供合规审计 |
-| `T3` 发签署邀请 | 供应商请求 ID 与收件人 | `C3` 撤销请求或发更正通知 | 收件人可能已读，不能“撤销知识” |
+这个流程也划清控制权。Workflow 决定状态、顺序、预算、审批与补偿指针；Activity 获得网络、LLM、数据库和工具 capability。外部系统裁定真实业务状态；人工只通过 Signal/Update 等耐久输入改变流程，不直接篡改 Workflow 内部字段。
 
-**取消与补偿分流。** Workflow 取消可以停止尚未调度的正向步骤，并请求运行中 Activity 协作停止。交付可能来自 heartbeat 基线/回退，也可能在本文固定、能力兼容的 Go/Java SDK 路径中来自 Worker Command callback；后者减少等待下一次 Activity heartbeat 的延迟，却仍只是通知正在运行的代码。已获得 `effect_ref` 的子事务要走补偿路径；取消只表达“不要继续”，补偿才表达“用新业务动作修正已发生的事实”。补偿 Activity 也会超时、重试、重复执行或遭遇永久错误，所以也需幂等键、独立预算和人工终态。
+超时与取消回答的是不同问题：
+
+| 机制 | Temporal 语义 | 业务边界 |
+| --- | --- | --- |
+| `Schedule-To-Start` | 一次 Task 等待 Worker 的上限；该超时不会因 Retry Policy 在同一队列重试 | 容量不足不是业务失败，需要备用队列/区域或明确重路由 |
+| `Start-To-Close` | 单个 attempt 的上限，可触发后续 attempt | 超时不证明旧网络请求已停止，新旧 attempt 可能并存 |
+| `Schedule-To-Close` | Activity Execution 连同全部 retries 的总上限 | 应与 SLA、费用、配额和风险预算联动 |
+| Heartbeat Timeout | 长 Activity 的心跳间隔上限；heartbeat details 可保存安全进度 | Heartbeat 不是跨系统提交，也不证明外部状态 |
+| Cancellation | 协作式停止请求 | Activity 可以决定如何响应；取消不是强杀、补偿或外部回滚 |
+| Retry Policy | Activity 默认指数退避，可配置最大尝试与 non-retryable errors | 限流、短暂网络错误、永久输入错误和未知副作用必须分流 |
+
+**已证实事实**：官方 Activity 文档把 heartbeat 作为通用取消交付基线/回退。若 namespace/server 宣告 Worker Commands 能力且 Worker 注册 control queue，本文固定的服务端与 Go/Java SDK 还可发送带 task token 的 `CancelActivityCommand`。
+
+该命令可触发本地 callback，不必等下一次 heartbeat，但只是版本相关的更快通知路径。
+
+取消只能阻止尚未开始的正向工作，或请求运行中代码协作停止。已经取得 `effect_ref` 的动作必须进入补偿判断；补偿 Activity 本身也可能超时、重复执行或永久失败，因此同样需要幂等键、独立预算、最小权限和人工终态。
+
+<details className="evidence-card">
+  <summary>证据：Activity 输入与稳定身份契约</summary>
+
+  - **LLM Activity 输入：** `task_id`、`step_id`、业务对象版本、提示/模型/参数/工具 schema 版本、权限和输入快照哈希。
+  - **Temporal 身份：** Activity ID 应由稳定步骤键重建，不使用当前时间或随机串；它在一个 Workflow Run 的打开 Activity Executions 中唯一。
+  - **外部身份：** 可采用 `tenant_id:business_task_id:step_name:step_version`。相同键与相同输入返回原结果，相同键与不同输入应拒绝冲突。
+  - **边界：** `Workflow Run ID + Activity ID` 可稳定标识同一 Run 的重试；跨 Run 仍需不随 Run 改变的业务键，且由目标系统强制。
+</details>
+
+<details className="evidence-card">
+  <summary>证据：快速取消的固定实现条件</summary>
+
+  - **服务端条件：** 已开始 Activity 记录 control queue/clock 后，取消处理可按 queue 汇集 `CancelActivityCommand` 并创建 Worker Commands tasks。
+  - **SDK 条件：** 固定 Go SDK 读取 Worker Heartbeats/Commands capabilities 并把 task token 映射到 Activity context cancel callback；固定 Java SDK 仅在 `isWorkerCommands()` 时启动 command worker，并将 token 交给运行上下文。
+  - **边界：** 该路径证明“callback 可更早触发”，不证明 Activity 被强杀、远端请求停止或副作用回滚。
+</details>
 
 ## 关键源码导读
 
-服务端链接固定到 `temporalio/temporal@955948007cc6d9d94fa8ef484225954bd9328451`；取消快速路径另固定到 `sdk-go@3cebc26908119368df3911df6146f756bad3882b` 与 `sdk-java@6d09a341c14daeddf9b3795cd43721de770fec2c`。服务端源码展示 Command、Activity mutable state、retry 与 matching；SDK 链接只证明这两个固定版本的 Worker Command/callback 路径，不用于外推 Workflow replay 实现或其他 SDK 行为。
+源码阅读只需要回答四个问题：Command 在哪里成为持久状态，Activity retry 如何转移，Task 如何路由，快速取消如何到达运行中的 callback。
 
-| 源码 seam | 已证实行为 | 迁移阅读价值 |
-| --- | --- | --- |
-| [`workflow_task_completed_handler.go` 275–330](https://github.com/temporalio/temporal/blob/955948007cc6d9d94fa8ef484225954bd9328451/service/history/api/respondworkflowtaskcompleted/workflow_task_completed_handler.go#L275-L330) | `handleCommand` 分派调度/取消 Activity、Timer、Child Workflow、Signal 和终止等 Workflow Commands | Workflow 产生持久控制命令，不在该函数里直接执行 LLM/业务 API |
-| [`workflow_task_completed_handler.go` 467–571](https://github.com/temporalio/temporal/blob/955948007cc6d9d94fa8ef484225954bd9328451/service/history/api/respondworkflowtaskcompleted/workflow_task_completed_handler.go#L467-L571) | 校验 Activity 属性、Task Queue 与输入大小，再调用 `AddActivityTaskScheduledEvent`；重复 Activity ID 会成为 Workflow Task 失败原因 | 稳定 Activity ID 是调度身份，不等于外部服务已实现幂等 |
-| [`workflow_task_completed_handler.go` 670–768](https://github.com/temporalio/temporal/blob/955948007cc6d9d94fa8ef484225954bd9328451/service/history/api/respondworkflowtaskcompleted/workflow_task_completed_handler.go#L670-L768) | 取消请求先入历史；未开始 Activity 立即取消；已开始且记录了 control queue/clock 时，服务端按 queue 汇集 `CancelActivityCommand` 并生成 Worker Commands tasks | 快速交付是能力/版本相关分支；“请求取消”、“callback 触发”与“外部效果已停止”仍是三个状态 |
-| [`mutable_state_impl.go` 4187–4283](https://github.com/temporalio/temporal/blob/955948007cc6d9d94fa8ef484225954bd9328451/service/history/workflow/mutable_state_impl.go#L4187-L4283) | 按 Activity ID 检测当前重复，写入 scheduled event，并持久队列、四类 timeout、cancel 标志、attempt 与 retry policy | “耐久调度状态”不应与“外部业务事实”混成一个字段 |
-| [`mutable_state_impl.go` 6758–6853](https://github.com/temporalio/temporal/blob/955948007cc6d9d94fa8ef484225954bd9328451/service/history/workflow/mutable_state_impl.go#L6758-L6853) | `RetryActivity` 先处理无策略、已取消、timeout 和 non-retryable failure，再计算 backoff、增加 attempt 并生成 retry tasks | 重试是显式状态转移；应用还要把费用、写入次数与风险加入业务门 |
-| [`retry.go` 70–113](https://github.com/temporalio/temporal/blob/955948007cc6d9d94fa8ef484225954bd9328451/service/history/workflow/retry.go#L70-L113) | `nextBackoffInterval` 检查最大 attempts、最大间隔与过期时间，返回终止或继续的 retry state | 不要在 Activity 内再隐藏一套无观测重试，否则系统级预算会被乘法放大 |
-| [`timer_queue_active_task_executor.go` 527–615](https://github.com/temporalio/temporal/blob/955948007cc6d9d94fa8ef484225954bd9328451/service/history/timer_queue_active_task_executor.go#L527-L615) | retry timer 加载 mutable state，检查 stamp/attempt/当前运行状态，忽略旧或重复 timer，然后向 matching 添加 Activity Task | 内部调度任务去重与外部业务去重必须同时存在 |
-| [`matching/handler.go` 175–278](https://github.com/temporalio/temporal/blob/955948007cc6d9d94fa8ef484225954bd9328451/service/matching/handler.go#L175-L278) | Matching handler 分别提供 Activity/Workflow Task 添加与长轮询入口 | Task Queue 是工作分发边界，不是长时业务状态本身 |
-| [`matching_engine.go` 583–669](https://github.com/temporalio/temporal/blob/955948007cc6d9d94fa8ef484225954bd9328451/service/matching/matching_engine.go#L583-L669) | Workflow/Activity Task 转换为带 namespace、workflow/run、scheduled event、过期时间与优先级的 task info；Activity 可直接 sync match 给 poller 或持久到队列 | 路由和持久队列可恢复分发，但不认证上一个 Worker 已对外做了什么 |
-| [`sdk-go/internal_worker_heartbeat.go` 88–117、172–185、239–327](https://github.com/temporalio/sdk-go/blob/3cebc26908119368df3911df6146f756bad3882b/internal/internal_worker_heartbeat.go#L88-L117) 与 [`internal_task_handlers.go` 2122–2147、2388–2398](https://github.com/temporalio/sdk-go/blob/3cebc26908119368df3911df6146f756bad3882b/internal/internal_task_handlers.go#L2122-L2147) | Go SDK 读取 Worker Heartbeats/Commands capabilities；能力存在时轮询 control queue，将 `CancelActivity` task token 映射到已注册的 Activity context cancel callback | 证明该固定 Go SDK 可不等待下一次 Activity heartbeat 触发本地取消；不代表 Activity 被强杀 |
-| [`sdk-java/WorkerFactory.java` 291–349](https://github.com/temporalio/sdk-java/blob/6d09a341c14daeddf9b3795cd43721de770fec2c/temporal-sdk/src/main/java/io/temporal/worker/WorkerFactory.java#L291-L349)、[`WorkerCommandTaskHandler.java` 28–126](https://github.com/temporalio/sdk-java/blob/6d09a341c14daeddf9b3795cd43721de770fec2c/temporal-sdk/src/main/java/io/temporal/internal/worker/WorkerCommandTaskHandler.java#L28-L126)、[`ActivityExecutionContextFactoryImpl.java` 71–80](https://github.com/temporalio/sdk-java/blob/6d09a341c14daeddf9b3795cd43721de770fec2c/temporal-sdk/src/main/java/io/temporal/internal/activity/ActivityExecutionContextFactoryImpl.java#L71-L80) 与 [`HeartbeatContextImpl.java` 239–247](https://github.com/temporalio/sdk-java/blob/6d09a341c14daeddf9b3795cd43721de770fec2c/temporal-sdk/src/main/java/io/temporal/internal/activity/HeartbeatContextImpl.java#L239-L247) | Java SDK 仅在 `isWorkerCommands()` 时启动 command worker；handler 将 task token 交给 Activity cancel callback，运行上下文最终调用 `cancelFromWorkerCommand` 请求本地取消 | 证明该固定 Java SDK 的能力门与 callback 路径；不应外推到旧版本或全部 SDK |
+这些服务端接缝不负责证明业务幂等、补偿正确或 Workflow SDK 的语言级解释器行为。
 
-**基于证据的推断**：服务端源码中的 `ActivityId`、`ScheduledEventId`、`Attempt`、`Stamp` 和 task token 用于 Temporal 内部状态机与任务有效性。它们可以构成很好的外部请求素材，却只有当目标服务在同一原子写中记录并检查幂等键时，才能抑制重复业务效果。
+最短路径是先看 Command 分派与 Activity mutable state，再看 retry timer 和 matching；只有部署依赖快速取消时，才继续核对固定 Go/Java SDK。
+
+<details className="evidence-card">
+  <summary>证据：Command 与 Activity 持久状态接缝</summary>
+
+  - [`workflow_task_completed_handler.go` 275–330](https://github.com/temporalio/temporal/blob/955948007cc6d9d94fa8ef484225954bd9328451/service/history/api/respondworkflowtaskcompleted/workflow_task_completed_handler.go#L275-L330)：`handleCommand` 分派 Activity、Timer、Child Workflow、Signal、取消与终止等 Commands。
+  - [`workflow_task_completed_handler.go` 467–571](https://github.com/temporalio/temporal/blob/955948007cc6d9d94fa8ef484225954bd9328451/service/history/api/respondworkflowtaskcompleted/workflow_task_completed_handler.go#L467-L571)：校验 Activity 属性、队列和输入，再写 scheduled event；当前重复 Activity ID 会使 Workflow Task 失败。
+  - [`mutable_state_impl.go` 4187–4283](https://github.com/temporalio/temporal/blob/955948007cc6d9d94fa8ef484225954bd9328451/service/history/workflow/mutable_state_impl.go#L4187-L4283)：持久化 Activity ID、scheduled event、队列、四类 timeout、cancel 标志、attempt 与 retry policy。
+  - **边界：** 这些锚点证明 Temporal 的持久调度状态，不证明目标服务已经按 Activity ID 去重。
+</details>
+
+<details className="evidence-card">
+  <summary>证据：重试计时与 Task Queue 接缝</summary>
+
+  - [`mutable_state_impl.go` 6758–6853](https://github.com/temporalio/temporal/blob/955948007cc6d9d94fa8ef484225954bd9328451/service/history/workflow/mutable_state_impl.go#L6758-L6853)：`RetryActivity` 处理无策略、取消、timeout 与 non-retryable failure，再计算 backoff、增加 attempt 并生成 retry task。
+  - [`retry.go` 70–113](https://github.com/temporalio/temporal/blob/955948007cc6d9d94fa8ef484225954bd9328451/service/history/workflow/retry.go#L70-L113)：`nextBackoffInterval` 检查最大 attempts、最大间隔与过期时间。
+  - [`timer_queue_active_task_executor.go` 527–615](https://github.com/temporalio/temporal/blob/955948007cc6d9d94fa8ef484225954bd9328451/service/history/timer_queue_active_task_executor.go#L527-L615)：retry timer 以 stamp/attempt/当前状态排除旧任务，再送往 matching。
+  - [`matching/handler.go` 175–278](https://github.com/temporalio/temporal/blob/955948007cc6d9d94fa8ef484225954bd9328451/service/matching/handler.go#L175-L278)：Workflow/Activity Task 的添加与长轮询入口。
+  - [`matching_engine.go` 583–669](https://github.com/temporalio/temporal/blob/955948007cc6d9d94fa8ef484225954bd9328451/service/matching/matching_engine.go#L583-L669)：task info 包含 namespace、workflow/run、scheduled event、过期时间和优先级，并可 sync match 或持久入队。
+  - **边界：** 内部任务去重与恢复分发不认证上一个 Worker 是否已经完成外部写入。
+</details>
+
+<details className="evidence-card">
+  <summary>证据：Go/Java SDK 的取消 callback 接缝</summary>
+
+  - [`workflow_task_completed_handler.go` 670–768](https://github.com/temporalio/temporal/blob/955948007cc6d9d94fa8ef484225954bd9328451/service/history/api/respondworkflowtaskcompleted/workflow_task_completed_handler.go#L670-L768)：取消请求入历史，并在能力条件满足时创建 Worker Commands tasks。
+  - [`internal_worker_heartbeat.go` 88–117、172–185、239–327](https://github.com/temporalio/sdk-go/blob/3cebc26908119368df3911df6146f756bad3882b/internal/internal_worker_heartbeat.go#L88-L117) 与 [`internal_task_handlers.go` 2122–2147、2388–2398](https://github.com/temporalio/sdk-go/blob/3cebc26908119368df3911df6146f756bad3882b/internal/internal_task_handlers.go#L2122-L2147)：固定 Go SDK 的 capability、control queue 与 context cancel 路径。
+  - [`WorkerFactory.java` 291–349](https://github.com/temporalio/sdk-java/blob/6d09a341c14daeddf9b3795cd43721de770fec2c/temporal-sdk/src/main/java/io/temporal/worker/WorkerFactory.java#L291-L349)、[`WorkerCommandTaskHandler.java` 28–126](https://github.com/temporalio/sdk-java/blob/6d09a341c14daeddf9b3795cd43721de770fec2c/temporal-sdk/src/main/java/io/temporal/internal/worker/WorkerCommandTaskHandler.java#L28-L126)、[`ActivityExecutionContextFactoryImpl.java` 71–80](https://github.com/temporalio/sdk-java/blob/6d09a341c14daeddf9b3795cd43721de770fec2c/temporal-sdk/src/main/java/io/temporal/internal/activity/ActivityExecutionContextFactoryImpl.java#L71-L80) 与 [`HeartbeatContextImpl.java` 239–247](https://github.com/temporalio/sdk-java/blob/6d09a341c14daeddf9b3795cd43721de770fec2c/temporal-sdk/src/main/java/io/temporal/internal/activity/HeartbeatContextImpl.java#L239-L247)：固定 Java SDK 的能力门、handler 与本地取消请求。
+  - **边界：** 只证明固定提交中的 callback 路径，不外推到旧版本、其他 SDK 或强制终止。
+</details>
+
+**基于证据的推断**：服务端的 `ActivityId`、`ScheduledEventId`、`Attempt`、`Stamp` 和 task token 适合组成外部请求证据。只有目标服务在同一原子写中检查稳定幂等键，才能抑制重复业务效果。
 
 ## 架构决策与权衡
 
-**先按副作用边界切 Activity，再按失败与补偿语义切粒度。** 过粗 Activity 可在最后一个小步失败时重做前面的多个写入；过细 Activity 增大 Event History、调度开销和版本面。合适切点是：一个 Activity 有一个主要幂等键、一个可判定成功事实、一组可解释 timeout，并有明确的重试/对账策略。
+第一个决策是 Activity 粒度。切点应同时满足：一个主要幂等键、一个可判定成功事实、一组可解释 timeout，以及明确的重试、对账和补偿策略。
 
-| 条件 | 建议边界 | 代价/例外 |
+| 条件 | 建议边界 | 代价或停止条件 |
 | --- | --- | --- |
-| 纯状态转移、定时等待、补偿顺序选择 | Workflow | 必须可确定重放，代码变更要版本化 |
-| LLM 调用、HTTP、DB、文件、任意工具调用 | Activity | 可多次执行，需幂等/去重/查询外部结果 |
-| 一个写入有原生幂等 API | 一个窄 Activity | 还要检查同键不同参数冲突和保留期 |
-| 多个写入只有各自局部事务 | 多 Activity + Saga | 部分结果对其他事务可见，要接受弱隔离性 |
-| 长时外部任务有可恢复进度 | Heartbeating Activity 或外部 callback/Signal | Heartbeat 会被节流；人工等待通常不应占住一个周级 attempt |
-| 副作用结果不可查询且不可幂等 | 冻结 + 人工决策 | 耐久编排无法补上外部契约缺口 |
+| 纯状态转移、定时等待、补偿顺序 | Workflow | 必须可确定重放，Command 变化要版本化 |
+| LLM、HTTP、DB、文件、工具调用 | Activity | 可重复执行，必须查询或去重外部结果 |
+| 单个写入有原生幂等 API | 一个窄 Activity | 核对参数冲突语义与幂等记录保留期 |
+| 多个写入只有局部事务 | 多 Activity + Saga | 接受中间可见和弱隔离 |
+| 长任务有安全进度 | Heartbeating Activity 或外部 callback/Signal | 人工等待不应占住周级 attempt |
+| 副作用不可查询且不可幂等 | 冻结并人工决策 | 耐久编排无法补上外部契约缺口 |
 
-**重试还是补偿。** 对“未发生且短暂失败”的正向操作重试；对“已成功、后续步骤使整体意图无法完成”的操作补偿；对“可能已成功”的操作先对账。这三个状态若只用 `failed=true` 表达，系统会在最危险的不确定窗口做出自动重放。
+第二个决策是恢复方向。对明确“未发生”的暂时失败重试；对“已经成功但整体意图无法完成”的动作补偿；对“可能成功”的动作先对账。业务允许剩余步骤最终完成时可向前恢复，但必须保证代码和输入可用，并设置终止预算；用户撤回、风险越界或流程不可继续时才向后补偿。
 
-**向后还是向前恢复。** 原始论文同时讨论 backward recovery 与 forward recovery。当业务规则允许后续步骤最终完成，向前恢复可避免损失已完成工作；但它需要保证剩余代码与输入可获得，并有终止预算。当用户撤回、不可继续或风险越界，走向后补偿。无论哪一种，“一直重试就会成功”都是需要证明的业务前提，不是 Temporal 属性。
+第三个决策是补偿是否能自动化。原始 Saga 的顺序为 `T1...Tj,Cj...C1`，但 `Ci` 只是业务修复。每个补偿都需要原 `effect_ref`、独立幂等键、前置状态、时窗、最小权限、重试上限与成功证据；若 `Cj` 永久失败，不能默认跳过它继续 `Cj-1`。
 
-**补偿也是一等工作流。** 每个 `Ci` 应有独立幂等键、输入中的原 `effect_ref`、前置状态、可执行时窗、权限、重试上限、成功证据和人工 owner。已成功补偿也应去重，以允许 Workflow 在中途崩溃后重放补偿顺序而不重复退款。若 `Cj` 失败，不要默默跳过它继续 `Cj-1`；是否可继续必须由业务依赖与风险规则明确决定。
-
-**人工并不是耐久执行的失败。** Saga 原文把手工修复补偿代码/状态视为不优雅但实用的办法。在 Agent 平台中，`needs_reconciliation`、`needs_compensation_approval`、`compensation_failed` 应是可查询、有 owner/SLA/权限的耐久状态；人的决定通过 Signal/Update 成为新历史事件，而不是直接在数据库修改 Workflow 内部字段。
+**个人分析**：人工介入不是耐久执行失败，而是明确的恢复分支。`needs_reconciliation`、`needs_compensation_approval`、`compensation_failed` 应可查询且有 owner/SLA；审批结果作为新历史事件进入 Workflow，而不是运维人员删除历史或修改内部状态。
 
 ## 生产化分析
 
-**业务不变量与状态模型。** 为每个正向/补偿步骤明确 `not_scheduled`、`running`、`succeeded`、`failed_retryable`、`failed_permanent`、`unknown`、`compensating`、`compensated`、`compensation_failed`。不变量至少包括：只有 `succeeded + effect_ref` 可入补偿栈；`unknown` 禁止新写且必须对账；每个已承诺副作用必须是整体成功的一部分，或最终抵达 `compensated/已批准保留`。
+生产检查应从故障动作出发，而不是只看“Workflow 仍在运行”。
 
-**幂等与对账。** 外部服务有原生幂等键时，保留期要长于 Workflow 最长重试/恢复窗口，返回值应包含原请求哈希和资源 ID。没有原生幂等时，优先改造目标系统为 inbox/dedup table 或使用可查询业务 ID；不得用 Worker 本地缓存、“成功后写一行”或消息队列消费位点代替目标侧去重。对账 Activity 要只读或使用独立权限，返回 `not_found/confirmed/rejected/pending/ambiguous`，不在查询路径偷做第二次写入。
+**外部结果未知。** 每个步骤至少区分 `not_scheduled`、`running`、`succeeded`、`failed_retryable`、`failed_permanent`、`unknown`、`compensating`、`compensated`、`compensation_failed`。
 
-**版本化与长历史。** Workflow 代码变更要对存量历史使用 Temporal 的版本机制，并在发布前用生产 History replay test 验证。Activity 的输入/输出 schema 要向后兼容；补偿代码的保留时间必须覆盖最长可补偿任务。超长 Agent 任务要规划 Continue-As-New/历史大小，但必须在新 Run 中传递稳定业务键、剩余预算、已成功 `effect_ref` 和补偿指针，不能只复制对话摘要。
+只有 `succeeded + effect_ref` 可入补偿栈；`unknown` 禁止新写并必须对账。对账 Activity 应只读或使用独立权限，返回 `not_found/confirmed/rejected/pending/ambiguous`，不能在查询路径发起第二次写入。
 
-**可观测性与 SLO。** 按 namespace/task queue/workflow type/activity type/业务租户跟踪：Task Queue backlog 和 schedule-to-start latency、Activity attempt 分布、start-to-close/heartbeat timeout、non-retryable 率、Workflow Task nondeterminism、每成功任务 token/费用/写次数、`unknown` 停留时间、补偿成功率/耗时、人工队列龄期和重复副作用数。Temporal 平台“Workflow 还在运行”不等于业务健康；SLO 必须包含未知外部状态和补偿债务。
+**外部请求重复。** 原生幂等记录的保留期要长于 Workflow 最长恢复窗口，并返回原请求哈希和资源 ID。
 
-**容量、隔离与停机。** 分离 Workflow、读 Activity、LLM Activity、高风险写 Activity 和 compensation Activity 队列；为各队列设并发、派发速率、供应商配额与租户公平性上限。紧急停机时先停止新正向副作用，保留只读对账与经批准补偿通道；不能简单停掉所有 Worker，否则正在扩大的业务不一致将无法止损。
+没有原生支持时，应改造目标系统使用 inbox/dedup table 或可查询业务 ID。Worker 本地缓存、“成功后再写一行”和消息消费位点都不能替代目标侧原子去重。
 
-**安全、隐私与滥用。** Workflow History 会持久输入、Activity 结果与部分失败信息，不应直接放密钥、完整敏感文档或无需持久的 LLM 原始上下文；使用加密 payload/data converter、密钥引用、最小化输入与按保留期管理的外部 artifact store。Task Queue 不是授权边界：Worker 凭证、namespace 访问、Activity 参数校验、租户绑定和目标系统授权都要独立强制。防止恶意输入通过可重试 LLM/工具调用放大费用，并为补偿 Worker 使用比正向 Worker 更窄的 capability。
+**代码升级撞上旧历史。** Workflow 代码变化要使用 Temporal 版本机制，并以生产 History 做 replay test。Activity 输入/输出 schema 要向后兼容，补偿代码保留时间要覆盖最长可补偿任务。
 
-**人工介入运维契约。** 升级包应至少有 `workflow_id/run_id`、租户与业务对象、当前状态、代码/政策版本、已完成步骤和 `effect_ref`、幂等键、外部查询证据、attempt/timeout/cancellation 时间线、待补偿栈、费用预算、风险与可执行选项。每个队列项必须有 owner、SLA、允许的 Signal/Update 操作与双人审批门；不得通过重启 Worker 或手动删历史“解决”补偿债务。
+Continue-As-New 后仍需传递稳定业务键、剩余预算、已成功 `effect_ref` 与补偿指针，不能只复制对话摘要。
 
-**演练与发布门禁。** 在预发环境注入：Activity 外部成功后 Worker 在报告前崩溃、重复 retry timer、LLM 429/超时、取消延迟、Task Queue 无 poller、补偿永久失败、人工回复重复投递、Workflow 代码版本与旧历史不兼容。验证每一项最终落在可证明的成功、可对账未知或有 owner 的人工状态，并检查无重复扣款/邮件/工单。
+**队列拥塞或供应商故障。** 分离 Workflow、只读、LLM、高风险写入和补偿队列，并分别限制并发、派发速率、供应商配额与租户公平性。
+
+紧急停机应先阻止新的正向副作用，保留只读对账和经批准的补偿通道。停掉全部 Worker 可能让业务不一致失去处置能力。
+
+**费用或重试失控。** 主线观测排队时延、attempt 分布、timeout、每任务费用、`unknown` 龄期、补偿成功率与人工队列龄期。完整字段放入下方证据卡。
+
+Activity 内隐藏重试会与 Temporal 重试形成乘法预算。所有重试必须统一计数，并在 Workflow 中设置总门限。
+
+<details className="evidence-card">
+  <summary>证据：生产观测字段</summary>
+
+  - **路由与执行：** namespace、task queue、workflow type、activity type、业务租户、Task Queue backlog、schedule-to-start latency、attempt 分布、start-to-close/heartbeat timeout、non-retryable 率、Workflow Task nondeterminism。
+  - **业务与费用：** 每成功任务的 token、费用和写次数，`unknown` 停留时间，补偿成功率/耗时，人工队列龄期，重复副作用数。
+  - **边界：** 指标要同时覆盖控制面健康与外部不确定性；“Workflow 仍在运行”不等于业务健康。
+</details>
+
+**权限与敏感数据泄露。** Task Queue 不是授权边界；Worker 凭证、namespace 访问、Activity 参数、租户绑定和目标系统权限必须分别校验。
+
+Event History 会持久化输入、结果和部分失败信息，不应直接保存密钥、完整敏感文档或无界 LLM 上下文。应使用加密 payload/data converter、密钥引用、最小化输入和有保留期的外部 artifact store。补偿 Worker 的 capability 应更窄，并经过审批。
+
+**补偿失败或动作不可逆。** 升级包要覆盖身份与状态、代码/政策版本、已完成步骤和 `effect_ref`、幂等键、外部查询证据、执行时间线、补偿栈、费用预算、风险和可执行选项。
+
+每项必须有 owner、SLA、允许的 Signal/Update 与双人审批门。不得靠重启 Worker 或手动删历史“解决”补偿债务。
+
+<details className="evidence-card">
+  <summary>证据：人工升级包的完整字段</summary>
+
+  - **身份与状态：** `workflow_id/run_id`、租户、业务对象、当前状态、代码/政策版本。
+  - **执行证据：** 已完成步骤、`effect_ref`、幂等键、外部查询证据、attempt/timeout/cancellation 时间线、待补偿栈。
+  - **处置约束：** 费用预算、风险、可执行选项、owner、SLA、允许的 Signal/Update 与双人审批门。
+  - **边界：** 证据包支持授权处置，不授权直接删除历史或绕过业务审批。
+</details>
+
+发布前应注入回执前崩溃、重复 retry timer、LLM 429/超时、取消延迟、队列无 poller、补偿永久失败、人工回复重复投递和 replay 不兼容。
+
+通过条件是每种故障都进入可证明成功、可对账未知或有 owner 的人工状态，并验证没有重复扣款、邮件或工单。
 
 ## 可迁移经验
 
 ### 可直接复用的机制
 
-1. **确定性编排与非确定执行分离。** Workflow 只管状态、顺序、定时、预算与补偿指针；LLM、工具与网络调用放 Activity。
-2. **以事件历史恢复控制状态。** 进程重启后不依赖模型“记得”上一步，而从已记录输入和结果重建。
-3. **稳定步骤身份。** 用可重建 Activity ID、业务幂等键、输入哈希和外部 `effect_ref` 串起所有 attempts。
-4. **将重试与超时声明化。** 对单 attempt、总 Activity、心跳和队列等待分别建模，不用一个“任务超时”混淆所有故障。
-5. **顺序 Saga 反向补偿。** 只对有可对账成功证据的步骤入栈，失败时以 `Cj...C1` 反向修复依赖。
-6. **把人工决策作为耐久事件。** 不可逆、未知或补偿失败时进入有 owner/SLA 的状态，审批结果再进入历史。
+当任务跨进程、跨天，或需要等待人工与外部回调时，可以迁移以下机制：
+
+1. 用确定性 Workflow 保存状态、顺序、定时、预算与补偿指针，把 LLM、工具和网络放进 Activity。
+2. 用 Event History 重建控制状态，不依赖进程或模型“记得”上一步。
+3. 用可重建 Activity ID、跨 Run 业务键、输入哈希与 `effect_ref` 串起所有 attempts。
+4. 分开建模单 attempt、总 Activity、队列等待与 heartbeat，不用一个“任务超时”覆盖所有故障。
+5. 顺序依赖明确且正向结果可对账时，才按 `Cj...C1` 反向补偿。
+6. 不可逆、未知或补偿失败时，把人工决定作为耐久事件，并设置 owner、SLA 与权限门。
+
+迁移条件是目标系统能提供稳定身份、查询证据或明确的人工终态；否则只能获得编排耐久性，不能获得副作用安全。
 
 ### 只能有限类比的部分
 
-1. **Activity 的“原子单元”。** 对 Temporal 而言它是调度/结果单元；对外部世界而言，一个 Activity 可以部分执行多次，不是分布式 ACID 事务。
-2. **Workflow 的“只执行一次”。** 逻辑 Workflow Execution 可最终完成一次，但 Workflow Function 可因重放运行多次；内联副作用会被放大。
-3. **Task Queue 作为信息通道。** 可用于隔离容量和处理器，但不是业务总序、授权系统、幂等账本或数据驻留策略。
-4. **Saga 补偿类比 rollback。** `Ci` 修复业务语义，并保留中间可见事实；它可能是退款、作废或第二封更正邮件，不是恢复字节快照。
-5. **Heartbeat 类比 checkpoint。** 它可保存 Activity 进度，也是官方取消交付基线/回退；本文固定的兼容 Go/Java SDK 还可通过 Worker Command callback 更快交付，但两条路径都不代表外部系统与 Temporal 原子提交或强制终止。
-6. **LLM 调用类比普通读 Activity。** 输出可被 Event History 复用，但调用费、配额、数据泄露与后续工具决策使其仍是有风险的外部操作。
+当团队试图把 Temporal 概念类比成数据库或消息语义时，应保留这些限制：
+
+1. Activity 是 Temporal 的调度/结果单元，不是外部世界的 ACID 事务；它可能部分执行多次。
+2. Workflow Execution 可完成一次，但 Workflow Function 会因 replay 多次运行；内联副作用会被放大。
+3. Task Queue 可隔离处理器与容量，但不是业务总序、授权、幂等账本或数据驻留策略。
+4. Saga compensation 类似修复，不等于 rollback；退款、作废或更正邮件都会留下中间可见事实。
+5. Heartbeat 类似 checkpoint，但也只是取消交付基线/回退和进度载体；固定 Go/Java SDK 的快速 callback 同样不提供原子提交或强制终止。
+6. LLM Activity 的结果可被历史复用，但费用、配额、数据泄露和后续工具采用使它不能按普通无副作用读取处理。
+
+有限类比成立的条件是只借用控制结构，不把局部机制升级成业务 exactly-once、全局隔离或强制取消保证。
 
 ### 不应照搬的部分
 
-1. **不要在 Workflow 重放路径直接调 LLM、工具、HTTP、数据库或文件系统。** 一次 Worker 恢复就可能产生新结果或重复写入，并破坏 Command/History 匹配。
-2. **不要宣称耐久执行提供业务 exactly-once。** Temporal 可让 Workflow 观察一次 Activity completion，Activity 和其部分副作用仍可执行多次。
-3. **不要把 Activity ID 当成外部去重已完成。** 目标服务必须强制幂等键，并为相同键不同参数拒绝冲突。
-4. **不要把 timeout 或 cancellation 当成旧执行已终止。** 超时后可与新 attempt 并存；取消可经 heartbeat 基线/回退或能力兼容的 Worker Command callback 交付，但都依赖 Activity 代码协作，外部状态未知时先对账。
-5. **不要认为 Temporal 会发明正确补偿。** 补偿函数、依赖顺序、会计/合规语义、时窗与人工权限全部由应用设计。
-6. **不要无限重试补偿或永久错误。** Saga 论文已指出补偿代码错误会让系统卡住；需备选补偿、限制预算与人工修复。
-7. **不要在人工处理期间保留无主任务或宽权限 Worker。** 冻结新副作用，记录 owner/SLA/证据包，只开放对账与经批准的修复能力。
-8. **不要将业务秘密与无界 LLM 上下文直接放入 Event History。** 历史是耐久恢复资产，同时也是需要加密、最小化、审计和保留期管理的敏感数据面。
+以下做法在外部副作用、权限或费用重要时应直接禁止：
+
+1. 不要在 Workflow replay 路径调用 LLM、工具、HTTP、数据库或文件系统。
+2. 不要宣称耐久执行提供业务 exactly-once，也不要把 Activity ID 当成目标侧幂等已经完成。
+3. 不要把 timeout 或 cancellation 当成旧执行已终止；外部状态未知时先对账。
+4. 不要认为 Temporal 会发明正确补偿；顺序、会计/合规语义、时窗和审批权限都由应用设计。
+5. 不要无限重试补偿、永久错误或付费 LLM；设置总预算、备选补偿和人工修复。
+6. 不要在人工处理期保留无主任务或宽权限 Worker；冻结新副作用，只开放对账和经批准的修复能力。
+7. 不要把业务秘密与无界上下文直接写入 Event History。
+
+禁止条件很简单：一旦错误重试可能造成重复付款、错误通知、越权写入、无界费用或无法撤销的现实动作，就必须先建立外部幂等、对账、审批和停止边界。
 
 ## 来源
 
-以下均为经典论文、Temporal 官方文档或上游源码。访问日期与来源截断日期：**2026-07-22**。当日远程 HEAD 分别解析并固定为：`temporalio/temporal@955948007cc6d9d94fa8ef484225954bd9328451`、`temporalio/sdk-go@3cebc26908119368df3911df6146f756bad3882b`、`temporalio/sdk-java@6d09a341c14daeddf9b3795cd43721de770fec2c`。
+以下来源的访问与截断日期为 **2026-07-22**。证据标签中，`已证实事实` 只陈述论文、官方文档或固定源码直接支持的行为；`基于证据的推断` 用这些机制推导 Agent 边界；`个人分析` 表达官方机制不会自动提供的业务契约。
 
-- [Garcia-Molina & Salem, 《Sagas》（ACM SIGMOD 1987）](https://doi.org/10.1145/38713.38742) — 长事务拆分、子事务交错、语义补偿、`T1...Tj,Cj...C1` 执行序列、向前/向后恢复、补偿错误和人工修复。
-- [Temporal Workflow](https://docs.temporal.io/workflows) 与 [Workflow Definition](https://docs.temporal.io/workflow-definition) — Workflow/Execution 区分、Event History replay、确定性 Command 契约，以及将 API、LLM/AI、DB 与其他外部交互放入 Activity 的明确指导。
-- [Temporal Event History](https://docs.temporal.io/encyclopedia/event-history) — Command 转为持久 Event，Worker 崩溃后以 History 重建 Workflow 状态。
-- [Temporal Activity](https://docs.temporal.io/activities)、[Activity Definition](https://docs.temporal.io/activity-definition) 与 [Activity Execution](https://docs.temporal.io/activity-execution) — Activity 非确定性、已完成结果的 replay 复用、Worker 在报告前崩溃导致重执行、幂等键、Activity ID，以及 heartbeat 作为官方文档中的协作式取消基线/回退。
-- [Temporal Retry Policies](https://docs.temporal.io/encyclopedia/retry-policies) 与 [Detecting Activity Failures](https://docs.temporal.io/encyclopedia/detecting-activity-failures) — Activity/Workflow 默认重试差异、退避参数、non-retryable errors、四类 Activity timeout、heartbeat 进度和文档基线取消交付。
-- [Temporal Task Queues](https://docs.temporal.io/task-queue) 与 [Temporal Service](https://docs.temporal.io/temporal-service) — Worker 主动轮询、Workflow/Activity Task 持久、负载均衡、队列分区/顺序边界与 Service 组成。
-- [`temporalio/temporal` 固定提交](https://github.com/temporalio/temporal/tree/955948007cc6d9d94fa8ef484225954bd9328451) 及上文固定文件 — Workflow Command 分派、Activity mutable state/retry/timer task、Matching add/poll 的实际服务端接缝。
-- [`temporalio/sdk-go` 固定提交](https://github.com/temporalio/sdk-go/tree/3cebc26908119368df3911df6146f756bad3882b) 与 [`temporalio/sdk-java` 固定提交](https://github.com/temporalio/sdk-java/tree/6d09a341c14daeddf9b3795cd43721de770fec2c) — 仅用于证明这两个版本在服务端/namespace 宣告 Worker Commands 能力时，可通过 control queue 的 `CancelActivityCommand` 触发运行中 Activity callback，而不必等待下一次 Activity heartbeat；不代表所有 SDK/版本都具备该路径。
+**主要架构来源**
 
-证据标签说明：`已证实事实` 只陈述论文、Temporal 官方文档或固定源码直接支持的行为；`基于证据的推断` 将这些机制映射为 Agent 的状态、幂等、对账与故障边界；`个人分析` 给出官方机制不会自动提供的业务补偿、安全预算、人工修复与运维契约。
+- [Garcia-Molina & Salem, 《Sagas》（ACM SIGMOD 1987）](https://doi.org/10.1145/38713.38742) — 长事务拆分、子事务交错、`T1...Tj,Cj...C1`、向前/向后恢复、补偿错误与人工修复。
+- [Temporal Workflow](https://docs.temporal.io/workflows) 与 [Workflow Definition](https://docs.temporal.io/workflow-definition) — Workflow/Execution、确定性 Command 契约，以及将 API、LLM/AI、DB 与外部交互放入 Activity。
+- [Temporal Event History](https://docs.temporal.io/encyclopedia/event-history) — Command、持久 Event 与崩溃后状态重建。
+- [Temporal Activity](https://docs.temporal.io/activities)、[Activity Definition](https://docs.temporal.io/activity-definition) 与 [Activity Execution](https://docs.temporal.io/activity-execution) — 非确定性 Activity、结果复用、completion RPC 前崩溃、幂等键、Activity ID 与 heartbeat。
+
+**源码**
+
+- [`temporalio/temporal@955948007cc6d9d94fa8ef484225954bd9328451`](https://github.com/temporalio/temporal/tree/955948007cc6d9d94fa8ef484225954bd9328451) — Command、Activity mutable state、retry/timer 与 matching 的服务端截面。
+- [`temporalio/sdk-go@3cebc26908119368df3911df6146f756bad3882b`](https://github.com/temporalio/sdk-go/tree/3cebc26908119368df3911df6146f756bad3882b) 与 [`temporalio/sdk-java@6d09a341c14daeddf9b3795cd43721de770fec2c`](https://github.com/temporalio/sdk-java/tree/6d09a341c14daeddf9b3795cd43721de770fec2c) — 仅证明 Worker Commands 能力条件下的快速取消 callback，不代表所有 SDK/版本。
+
+**补充说明**
+
+- [Temporal Retry Policies](https://docs.temporal.io/encyclopedia/retry-policies) 与 [Detecting Activity Failures](https://docs.temporal.io/encyclopedia/detecting-activity-failures) — 默认重试差异、退避、non-retryable errors、Activity timeout、heartbeat 进度与文档基线取消交付。
+- [Temporal Task Queues](https://docs.temporal.io/task-queue) 与 [Temporal Service](https://docs.temporal.io/temporal-service) — 主动轮询、持久任务、负载均衡、队列分区/顺序边界与 Service 组成。
