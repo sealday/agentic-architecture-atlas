@@ -216,6 +216,7 @@ official_sources:
 - [AWS Cell Architecture + Shuffle Sharding](/cases/aws-cell-shuffle-sharding)：研究租户隔离、容量边界和故障半径。
 - [Cloudflare Durable Objects + workerd](/cases/cloudflare-durable-objects-workerd)：研究身份寻址的状态单元、热点 key 和重分片边界。
 - [New API Channel Pool Routing](/cases/new-api-channel-pool-routing)：研究能力路由、Key 池、故障恢复和合规隔离。
+- [LiteLLM Virtual Keys](/cases/litellm-virtual-keys-governance)：研究分层权限、预算限流、Guardrail 时序和供应商凭据托管。
 - [Microsoft 多智能体参考架构](/cases/microsoft-multi-agent-reference-architecture)：研究身份、网络、数据、评估和平台治理。
 
 **检查点**
@@ -284,7 +285,7 @@ Agentic 系统把非确定性决策、工具副作用和长时状态带入同一
 
 ### Agent 平台与模型网关
 
-围绕能力路由、租户隔离、身份权限、成本、评估和可观测性学习。组合阅读 [New API Channel Pool Routing](/cases/new-api-channel-pool-routing)、[Microsoft 多智能体参考架构](/cases/microsoft-multi-agent-reference-architecture)、[OpenAI Agents SDK](/cases/openai-agents-sdk)、[LangGraph Supervisor](/cases/langgraph-supervisor) 与 [Google ADK/A2A](/cases/google-adk-a2a)。
+围绕能力路由、租户隔离、身份权限、成本、评估和可观测性学习。先比较 [New API Channel Pool Routing](/cases/new-api-channel-pool-routing) 与 [LiteLLM Virtual Keys](/cases/litellm-virtual-keys-governance) 的路由和治理边界，再组合阅读 [Microsoft 多智能体参考架构](/cases/microsoft-multi-agent-reference-architecture)、[OpenAI Agents SDK](/cases/openai-agents-sdk)、[LangGraph Supervisor](/cases/langgraph-supervisor) 与 [Google ADK/A2A](/cases/google-adk-a2a)。
 
 ## 如何把阅读变成架构能力
 

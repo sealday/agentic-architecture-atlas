@@ -85,8 +85,8 @@ test('describes one staged roadmap and the current catalog size', async () => {
 
   assert.match(homepage, /沿软件架构主干开始/);
   assert.doesNotMatch(homepage, /选择一条专题学习路径/);
-  assert.match(homepage, /16 个跨生态案例/);
-  assert.doesNotMatch(homepage, /15 个跨生态案例/);
-  assert.match(caseIndex, /十六篇中的首发五篇/);
-  assert.doesNotMatch(caseIndex, /十五篇中的首发五篇/);
+  assert.match(homepage, /17 个跨生态案例/);
+  assert.doesNotMatch(homepage, /(?:15|16) 个跨生态案例/);
+  assert.match(caseIndex, /十七篇中的首发五篇/);
+  assert.doesNotMatch(caseIndex, /十[五六]篇中的首发五篇/);
 });

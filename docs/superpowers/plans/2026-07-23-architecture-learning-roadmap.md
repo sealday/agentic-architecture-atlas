@@ -18,7 +18,7 @@
 - Prefer original/official sources, then mature open-source roadmaps, then curated topic collections.
 - Do not modify the factual claims, evidence labels, source cutoffs, or conclusions of existing case articles.
 - Do not add dependencies, a progress system, accounts, scored quizzes, or mandatory large projects.
-- Preserve the untracked `content/cases/litellm-virtual-keys-governance.mdx`; it is outside this plan unless separately integrated into the canonical catalog.
+- Include the concurrently committed `content/cases/litellm-virtual-keys-governance.mdx` as canonical catalog order 17 and cover it in the governance stage.
 
 ---
 
@@ -31,7 +31,7 @@
 
 **Interfaces:**
 - Consumes: the tracked case metadata in `content/cases/new-api-channel-pool-routing.mdx`.
-- Produces: `requiredCaseSlugs` containing all 16 tracked cases and a generated catalog whose bytes match the current content tree.
+- Produces: `requiredCaseSlugs` containing all 17 tracked cases and a generated catalog whose bytes match the current content tree.
 
 - [ ] **Step 1: Extend the failing catalog expectation**
 
@@ -55,6 +55,7 @@ const expectedCaseCatalog = [
   {slug: '/cases/kubeedge-cloud-edge-autonomy', catalog_order: 14},
   {slug: '/cases/ros2-dds-agent-lifecycle', catalog_order: 15},
   {slug: '/cases/new-api-channel-pool-routing', catalog_order: 16},
+  {slug: '/cases/litellm-virtual-keys-governance', catalog_order: 17},
 ];
 ```
 
@@ -90,6 +91,7 @@ export const caseCatalogManifest = [
   {slug: '/cases/kubeedge-cloud-edge-autonomy', catalog_order: 14},
   {slug: '/cases/ros2-dds-agent-lifecycle', catalog_order: 15},
   {slug: '/cases/new-api-channel-pool-routing', catalog_order: 16},
+  {slug: '/cases/litellm-virtual-keys-governance', catalog_order: 17},
 ];
 ```
 
@@ -101,7 +103,7 @@ Run:
 npm run generate:catalog
 ```
 
-Expected: `src/generated/case-catalog.json` is rewritten with New API as order 16.
+Expected: `src/generated/case-catalog.json` is rewritten with New API as order 16 and LiteLLM as order 17.
 
 - [ ] **Step 5: Verify the catalog contract**
 
@@ -533,7 +535,7 @@ git diff 4e0edbe --check
 git diff 4e0edbe --stat
 ```
 
-Expected: no whitespace errors; only the canonical catalog repair, roadmap test/content, homepage copy, and this implementation plan are in scope. The untracked LiteLLM case remains untouched.
+Expected: no whitespace errors; only the canonical catalog repair, roadmap test/content, homepage copy, and implementation/design documentation are in scope.
 
 - [ ] **Step 5: Commit any verification-only correction**
 

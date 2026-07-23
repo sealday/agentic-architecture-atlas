@@ -35,6 +35,7 @@ const expectedCaseCatalog = [
   {slug: '/cases/kubeedge-cloud-edge-autonomy', catalog_order: 14},
   {slug: '/cases/ros2-dds-agent-lifecycle', catalog_order: 15},
   {slug: '/cases/new-api-channel-pool-routing', catalog_order: 16},
+  {slug: '/cases/litellm-virtual-keys-governance', catalog_order: 17},
 ];
 
 const expectedLaunchCases = expectedCaseCatalog.slice(0, 5);
@@ -212,7 +213,7 @@ test('reports staged catalog coverage failures', async () => {
     );
     assert.equal(
       complete.errors.filter((error) => error.includes('Missing complete catalog case')).length,
-      10,
+      expectedCaseCatalog.length - expectedLaunchCases.length,
     );
   });
 });
