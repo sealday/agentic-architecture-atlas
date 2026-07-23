@@ -15,10 +15,15 @@ import {
   buildCaseCatalogFromManifest,
   serializeCaseCatalog,
 } from './generate-case-catalog.mjs';
+import {
+  parseSourceLedger,
+  validateSourceGovernance,
+} from './source-ledger.mjs';
 import {buildTopicManifest} from './topic-manifest.mjs';
 import {validateContent} from './validate-content.mjs';
 
 export const generatedPaths = {
+  sourceLedger: 'src/generated/source-ledger.json',
   manifest: 'src/generated/topic-manifest.json',
   indexes: 'src/generated/topic-indexes.json',
   caseCatalog: 'src/generated/case-catalog.json',
@@ -167,6 +172,10 @@ async function checkExpectedArtifacts(root, artifacts) {
   return {matches: stale.length === 0, stale};
 }
 
+export function serializePublicSourceLedger(governedLedger) {
+  return `${JSON.stringify(governedLedger, null, 2)}\n`;
+}
+
 export async function buildContentArtifacts(
   root,
   {requiredCollection = 'complete'} = {},
@@ -179,6 +188,16 @@ export async function buildContentArtifacts(
   const relations = JSON.parse(
     await readFile(path.join(root, 'data/topic-relations.json'), 'utf8'),
   );
+  const parsedLedger = parseSourceLedger(
+    JSON.parse(
+      await readFile(path.join(root, 'data/source-ledger.json'), 'utf8'),
+    ),
+  );
+  if (parsedLedger.errors.length) {
+    throw new Error(
+      `Source ledger failed:\n${parsedLedger.errors.join('\n')}`,
+    );
+  }
   const validation =
     requiredCollection === null
       ? await validateContent(contentRoot)
@@ -189,10 +208,21 @@ export async function buildContentArtifacts(
     );
   }
 
+  const governance = validateSourceGovernance(
+    validation.documents,
+    parsedLedger.ledger,
+  );
+  if (governance.errors.length) {
+    throw new Error(
+      `Source governance failed:\n${governance.errors.join('\n')}`,
+    );
+  }
+
   const built = buildTopicManifest({
     backlogSource,
     documents: validation.documents,
     relations,
+    primarySourcesByFile: governance.primarySourcesByFile,
   });
   if (built.errors.length) {
     throw new Error(`Topic manifest failed:\n${built.errors.join('\n')}`);
@@ -200,6 +230,9 @@ export async function buildContentArtifacts(
 
   const caseCatalog = buildCaseCatalogFromManifest(built.manifest);
   return {
+    [generatedPaths.sourceLedger]: serializePublicSourceLedger(
+      governance.governedLedger,
+    ),
     [generatedPaths.manifest]: `${JSON.stringify(built.manifest, null, 2)}\n`,
     [generatedPaths.indexes]: `${JSON.stringify(built.indexes, null, 2)}\n`,
     [generatedPaths.caseCatalog]: serializeCaseCatalog(caseCatalog),

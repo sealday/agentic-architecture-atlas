@@ -23,6 +23,7 @@ import {
   buildContentArtifacts,
   checkContentArtifacts,
   generatedPaths,
+  serializePublicSourceLedger,
   writeContentArtifacts,
 } from '../scripts/generate-content-platform.mjs';
 
@@ -43,6 +44,7 @@ const caseBody = [
   '## 生产化分析',
   '## 可迁移经验',
   '## 来源',
+  '[C4 model](https://c4model.com/#SystemContextDiagram)',
 ].join('\n\n');
 
 const conceptBody = [
@@ -54,7 +56,61 @@ const conceptBody = [
   '## 说明性场景',
   '## 相邻主题',
   '## 来源',
+  '[C4 model](https://c4model.com/#SystemContextDiagram)',
 ].join('\n\n');
+
+const governedSource = {
+  id: 'src-c4-model',
+  canonical_locator: 'https://c4model.com/',
+  transport_locator: 'https://c4model.com/',
+  query_insensitive: false,
+  locator_aliases: [],
+  tombstone: null,
+  title: 'C4 model',
+  author_or_org: 'Simon Brown',
+  published_at: null,
+  checked_at: '2026-07-23',
+  version: 'current page checked on 2026-07-23',
+  source_kind: 'official-docs',
+  tier: 'primary',
+  allowed_evidence_roles: ['definition', 'method'],
+  license: 'LicenseRef-All-Rights-Reserved',
+  license_scope: 'Page text and diagrams; third-party links excluded',
+  license_evidence_url: 'https://c4model.com/',
+  license_evidence_note: 'No reuse license is declared on the checked page',
+  license_family_id: 'https://c4model.com/',
+  license_family_grouping: 'identity',
+  family_grouping_evidence_url: null,
+  copyright_policy: 'facts-and-short-quotation',
+  usage_boundary: 'Defines the model; does not prove concrete fitness.',
+  link_policy: 'stable',
+  expected_final_transport_locator: 'https://c4model.com/',
+  expected_final_approved_at: '2026-07-23',
+  expected_final_approval_note: 'Initial reviewed transport baseline',
+};
+
+const governedCitation = {
+  source_id: 'src-c4-model',
+  citation_url: 'https://c4model.com/#SystemContextDiagram',
+  roles: ['definition'],
+  manifest_primary: true,
+  usage_mode: 'facts-summary',
+  attribution_note: 'C4 model, Simon Brown',
+  modification_note: null,
+  excerpt: null,
+  quotation_reviewed: false,
+};
+
+const governedDocument = {
+  reviewed_at: '2026-07-23',
+  copyright_checks: [
+    'original-structure',
+    'quotation-boundary',
+    'attribution-complete',
+    'illustration-rights',
+  ],
+  citations: [governedCitation],
+};
 
 function frontMatter(values) {
   return Object.entries(values)
@@ -140,6 +196,17 @@ async function withRepositoryFixture(run) {
         '- [x] **FND-01 P0｜Example concept**。\n',
       ),
       writeFile(path.join(root, 'data/topic-relations.json'), '{}\n'),
+      writeFile(
+        path.join(root, 'data/source-ledger.json'),
+        `${JSON.stringify({
+          schema_version: 1,
+          sources: [governedSource],
+          documents: {
+            'content/cases/example.mdx': governedDocument,
+            'content/concepts/example.mdx': governedDocument,
+          },
+        }, null, 2)}\n`,
+      ),
     ]);
 
     await run(root);
@@ -152,6 +219,7 @@ test('builds all artifacts from one validated snapshot', async () => {
   await withRepositoryFixture(async (root) => {
     const originalReadFile = fs.promises.readFile;
     let sourceReads = 0;
+    let ledgerReads = 0;
     fs.promises.readFile = async (...args) => {
       const [filePath] = args;
       if (
@@ -160,6 +228,9 @@ test('builds all artifacts from one validated snapshot', async () => {
         filePath.endsWith('.mdx')
       ) {
         sourceReads += 1;
+      }
+      if (filePath === path.join(root, 'data/source-ledger.json')) {
+        ledgerReads += 1;
       }
       return originalReadFile(...args);
     };
@@ -170,14 +241,32 @@ test('builds all artifacts from one validated snapshot', async () => {
     try {
       first = await buildContentArtifacts(root, {requiredCollection: null});
       assert.equal(sourceReads, 2);
+      assert.equal(ledgerReads, 1);
       second = await buildContentArtifacts(root, {requiredCollection: null});
       assert.equal(sourceReads, 4);
+      assert.equal(ledgerReads, 2);
     } finally {
       fs.promises.readFile = originalReadFile;
       syncBuiltinESMExports();
     }
 
-    assert.deepEqual(Object.keys(first), Object.values(generatedPaths));
+    assert.deepEqual(Object.keys(first), [
+      generatedPaths.sourceLedger,
+      generatedPaths.manifest,
+      generatedPaths.indexes,
+      generatedPaths.caseCatalog,
+    ]);
+    assert.equal(
+      first[generatedPaths.sourceLedger],
+      serializePublicSourceLedger({
+        schema_version: 1,
+        sources: [governedSource],
+        documents: {
+          'content/cases/example.mdx': governedDocument,
+          'content/concepts/example.mdx': governedDocument,
+        },
+      }),
+    );
     assert.deepEqual(second, first);
     for (const serialized of Object.values(first)) {
       assert.ok(serialized.endsWith('\n'));
@@ -247,6 +336,7 @@ test('recovers idempotently after an interrupted replacement', async () => {
     assert.deepEqual(stagedNames, [
       'case-catalog.json',
       'manifest.json',
+      'source-ledger.json',
       'topic-indexes.json',
       'topic-manifest.json',
     ]);

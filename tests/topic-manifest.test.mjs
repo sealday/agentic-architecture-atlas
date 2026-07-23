@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
-  buildTopicManifest,
+  buildTopicManifest as buildTopicManifestCore,
   indexedTopicTypes,
 } from '../scripts/topic-manifest.mjs';
 
@@ -10,6 +10,20 @@ const backlog = (...rows) => rows.join('\n');
 
 const topic = (id, priority, title = id, checked = false) =>
   `- [${checked ? 'x' : ' '}] **${id} ${priority}｜${title}**。`;
+
+const primarySources = (...entries) =>
+  new Map(entries.length ? entries : [
+    [
+      'concepts/architecture-scale.mdx',
+      ['https://example.com/architecture-scale'],
+    ],
+  ]);
+
+const buildTopicManifest = (options) =>
+  buildTopicManifestCore({
+    primarySourcesByFile: primarySources(),
+    ...options,
+  });
 
 const publishedConcept = (overrides = {}) => ({
   file: 'concepts/architecture-scale.mdx',
@@ -125,6 +139,47 @@ test('merges published knowledge content by topic id', () => {
   ]);
 });
 
+test('projects only validated ledger sources into the manifest', () => {
+  const result = buildTopicManifest({
+    backlogSource: topic('FND-01', 'P0', '计划标题'),
+    documents: [
+      publishedConcept({
+        official_sources: [
+          'https://example.com/frontmatter-must-be-ignored',
+        ],
+      }),
+    ],
+    primarySourcesByFile: primarySources([
+      'concepts/architecture-scale.mdx',
+      ['https://example.com/validated-primary-factual'],
+    ]),
+  });
+
+  assert.deepEqual(result.errors, []);
+  assert.deepEqual(
+    result.manifest.topics[0].primary_sources,
+    ['https://example.com/validated-primary-factual'],
+  );
+
+  const missing = buildTopicManifest({
+    backlogSource: topic('FND-01', 'P0'),
+    documents: [publishedConcept()],
+    primarySourcesByFile: primarySources([
+      'concepts/unrelated.mdx',
+      [
+        'https://example.com/secondary-comparison',
+        'https://example.com/community-index',
+        'https://example.com/navigation-only',
+        'https://example.com/not-explicitly-primary',
+      ],
+    ]),
+  });
+  assert.match(
+    missing.errors.join('\n'),
+    /published topic "FND-01" must have at least one primary source/,
+  );
+});
+
 test('projects legacy documents with explicit compatibility defaults', () => {
   const result = buildTopicManifest({
     backlogSource: '',
@@ -145,6 +200,10 @@ test('projects legacy documents with explicit compatibility defaults', () => {
         },
       },
     ],
+    primarySourcesByFile: primarySources([
+      'cases/openai-agents-sdk.mdx',
+      ['https://openai.github.io/openai-agents-python/multi_agent/'],
+    ]),
   });
 
   assert.deepEqual(result.errors, []);
@@ -405,7 +464,11 @@ test('rejects invalid published source and review metadata', () => {
 
   const emptySources = buildTopicManifest({
     backlogSource: source,
-    documents: [publishedConcept({official_sources: []})],
+    documents: [publishedConcept()],
+    primarySourcesByFile: primarySources([
+      'concepts/architecture-scale.mdx',
+      [],
+    ]),
   });
   assert.match(
     emptySources.errors.join('\n'),
@@ -419,7 +482,11 @@ test('rejects invalid published source and review metadata', () => {
   ]) {
     const invalid = buildTopicManifest({
       backlogSource: source,
-      documents: [publishedConcept({official_sources: invalidSources})],
+      documents: [publishedConcept()],
+      primarySourcesByFile: primarySources([
+        'concepts/architecture-scale.mdx',
+        invalidSources,
+      ]),
     });
     assert.match(
       invalid.errors.join('\n'),
@@ -493,6 +560,10 @@ test('derives published case catalog data from manifest projections', () => {
   const {manifest, errors} = buildTopicManifest({
     backlogSource: '',
     documents,
+    primarySourcesByFile: primarySources(
+      ['cases/second.mdx', ['https://example.com/second']],
+      ['cases/first.mdx', ['https://example.com/first']],
+    ),
   });
 
   assert.deepEqual(errors, []);

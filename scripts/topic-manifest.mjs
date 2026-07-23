@@ -126,7 +126,7 @@ function projectBacklogTopic(topic) {
   };
 }
 
-function projectDocument(id, file, metadata, existing) {
+function projectDocument(id, file, metadata, existing, primarySources) {
   const caseCatalog =
     metadata.content_type === 'case'
       ? Object.fromEntries(
@@ -143,7 +143,7 @@ function projectDocument(id, file, metadata, existing) {
     priority: existing?.priority ?? metadata.priority ?? null,
     status: existing?.status ?? contentStatus(file, metadata.status),
     dependencies: copyArray(metadata.depends_on ?? []),
-    primary_sources: copyArray(metadata.official_sources ?? []),
+    primary_sources: copyArray(primarySources ?? []),
     related_cases: copyArray(metadata.related_cases ?? []),
     reviewed_at: metadata.analyzed_at,
     published: true,
@@ -151,7 +151,10 @@ function projectDocument(id, file, metadata, existing) {
   };
 }
 
-export function projectPublishedDocuments(documents) {
+export function projectPublishedDocuments(
+  documents,
+  primarySourcesByFile = new Map(),
+) {
   return documents
     .filter(
       ({file, metadata}) =>
@@ -165,6 +168,8 @@ export function projectPublishedDocuments(documents) {
           legacyDocumentId(metadata.content_type, metadata.slug),
         file,
         metadata,
+        undefined,
+        primarySourcesByFile.get(file) ?? [],
       ),
     );
 }
@@ -232,6 +237,7 @@ export function buildTopicManifest({
   backlogSource,
   documents,
   relations = {},
+  primarySourcesByFile,
 }) {
   const parsed = parseBacklogTopics(
     backlogSource,
@@ -288,7 +294,14 @@ export function buildTopicManifest({
       );
     }
 
-    const projected = projectDocument(id, file, metadata, existing);
+    const primarySources = primarySourcesByFile.get(file) ?? [];
+    const projected = projectDocument(
+      id,
+      file,
+      metadata,
+      existing,
+      primarySources,
+    );
     topicsById.set(id, projected);
     topicSources.set(id, `content/${file}`);
     publishedRelations.set(id, {
@@ -311,7 +324,11 @@ export function buildTopicManifest({
         `content/${file}: published topic "${id}" must have at least one primary source`,
       );
     }
-    for (const primarySource of projected.primary_sources ?? []) {
+    for (
+      const primarySource of Array.isArray(projected.primary_sources)
+        ? projected.primary_sources
+        : []
+    ) {
       if (
         typeof primarySource !== 'string' ||
         !primarySource.startsWith('https://')

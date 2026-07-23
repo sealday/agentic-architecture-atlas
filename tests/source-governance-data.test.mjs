@@ -1,7 +1,15 @@
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
+import path from 'node:path';
 import test from 'node:test';
+import {fileURLToPath} from 'node:url';
 
+import {readContentDocuments} from '../scripts/content-metadata.mjs';
+import {
+  extractExternalLinks,
+  parseSourceLedger,
+  validateSourceGovernance,
+} from '../scripts/source-ledger.mjs';
 import {
   validateInventoryLedgerConsistency,
   validateSourceLicenseInventory,
@@ -9,6 +17,7 @@ import {
 
 const inventoryPath = new URL('../docs/source-license-inventory.md', import.meta.url);
 const ledgerPath = new URL('../data/source-ledger.json', import.meta.url);
+const contentRoot = fileURLToPath(new URL('../content', import.meta.url));
 
 async function governedData() {
   const [inventoryMarkdown, ledgerText, microFrontendsBody] = await Promise.all([
@@ -119,7 +128,7 @@ test('records the known Micro Frontends author and publication date consistently
   );
 });
 
-test('records both Microsoft Learn families as CC-BY-4.0 from their official source repositories', async () => {
+test('records all Microsoft Learn families as CC-BY-4.0 from their official source repositories', async () => {
   const {inventory, ledger} = await governedData();
   const rows = inventory.entries.filter((entry) =>
     entry.source_family.startsWith('https://learn.microsoft.com/'));
@@ -127,7 +136,7 @@ test('records both Microsoft Learn families as CC-BY-4.0 from their official sou
     source.license_family_id.startsWith('https://learn.microsoft.com/'));
 
   assert.equal(rows.length, 2);
-  assert.equal(sources.length, 2);
+  assert.equal(sources.length, 3);
   for (const item of [...rows, ...sources]) {
     assert.equal(item.exact_license ?? item.license, 'CC-BY-4.0');
     assert.match(item.license_evidence_url, /^https:\/\/github\.com\/(?:microsoftdocs\/architecture-center|dotnet\/docs)\/blob\/main\/LICENSE$/i);
@@ -222,4 +231,52 @@ test('keeps the migration inventory snapshot aligned with runtime ledger authori
   const {inventory, ledger} = await governedData();
   const consistency = validateInventoryLedgerConsistency(inventory.entries, ledger.sources);
   assert.deepEqual(consistency.errors, []);
+});
+
+test('projects one visible governed primary source for every published learning path', async () => {
+  const [documents, ledgerText] = await Promise.all([
+    readContentDocuments(contentRoot),
+    readFile(ledgerPath, 'utf8'),
+  ]);
+  const parsed = parseSourceLedger(JSON.parse(ledgerText));
+  assert.deepEqual(parsed.errors, []);
+  const governed = validateSourceGovernance(documents, parsed.ledger);
+  assert.deepEqual(governed.errors, []);
+
+  const sourceByUrl = new Map(
+    parsed.ledger.sources.map((source) => [source.canonical_locator, source]),
+  );
+  for (const document of documents.filter(({file}) =>
+    /^paths\/\d{2}-.+\.mdx$/.test(file))) {
+    const projected = governed.primarySourcesByFile.get(document.file);
+    assert.ok(projected?.length > 0, `${document.file} primary source`);
+    const visible = new Set(extractExternalLinks(document));
+    const ledgerEntry = parsed.ledger.documents[
+      path.posix.join('content', document.file)
+    ];
+    for (const url of projected) {
+      assert.ok(visible.has(url), `${document.file}: ${url} must be visible`);
+      const citation = ledgerEntry.citations.find(
+        (entry) => entry.citation_url === url && entry.manifest_primary,
+      );
+      assert.ok(citation, `${document.file}: ${url} citation`);
+      const source = parsed.ledger.sources.find(
+        (entry) => entry.id === citation.source_id,
+      );
+      assert.ok(sourceByUrl.has(source.canonical_locator));
+      assert.ok(['primary', 'first-party'].includes(source.tier));
+      assert.notEqual(source.source_kind, 'community-index');
+      assert.ok(
+        citation.roles.some((role) =>
+          [
+            'definition',
+            'method',
+            'runtime-fact',
+            'case-evidence',
+            'implementation',
+          ].includes(role)),
+      );
+      assert.notEqual(citation.usage_mode, 'navigation-only');
+    }
+  }
 });
