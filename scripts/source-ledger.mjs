@@ -868,7 +868,17 @@ export function normalizeVisibleQuotation(text) {
     .replace(/\[([^\]]+)\]\((?:[^()]|\([^)]*\))*\)/gu, '$1')
     .replace(/<(https:\/\/[^>\s]+)>/gu, '$1')
     .replace(/^\s{0,3}>\s?/gmu, '')
-    .replace(/[*_~]+/gu, '')
+    .replace(/\*\*(?=\S)(.+?\S)\*\*/gsu, '$1')
+    .replace(
+      /(^|[\s([{>"'])__(?=\S)(.+?\S)__(?=$|[\s)\]}>.,!?;:'"])/gmu,
+      '$1$2',
+    )
+    .replace(/\*(?=\S)(.+?\S)\*/gsu, '$1')
+    .replace(
+      /(^|[\s([{>"'])_(?=\S)(.+?\S)_(?=$|[\s)\]}>.,!?;:'"])/gmu,
+      '$1$2',
+    )
+    .replace(/~~(?=\S)(.+?\S)~~/gsu, '$1')
     .replace(/\s+/gu, ' ')
     .trim();
 }

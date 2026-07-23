@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+  approvedLicenses,
   canonicalizeTransportLocator,
   citationMatchesSource,
   extractExternalLinks,
@@ -906,6 +907,125 @@ test('enforces citation-level quotation adaptation and attribution records', () 
     assert.match(parsed.errors.join('\n'), new RegExp(`${source.id}.*${license}.*adapted-text`, 'i'));
   }
 
+  const conservativeLicenses = [
+    'LicenseRef-All-Rights-Reserved',
+    'LicenseRef-Proprietary-Standard',
+    'CC-BY-NC-ND-4.0',
+    'LicenseRef-MCP-Specification-Transition',
+    'LicenseRef-CC-BY-NC-ND-Unversioned',
+    'LicenseRef-New-API-Docs-License-Conflict',
+    'CC0-1.0',
+  ];
+  for (const [index, license] of conservativeLicenses.entries()) {
+    const isCommunity = license === 'CC0-1.0';
+    const source = sourceFixture(`src-conservative-${index}`, {
+      license,
+      source_kind: isCommunity ? 'community-index' : 'official-docs',
+      tier: isCommunity ? 'discovery' : 'primary',
+      allowed_evidence_roles: isCommunity
+        ? ['discovery', 'learning']
+        : ['implementation', 'learning'],
+      copyright_policy: 'facts-and-short-quotation',
+    });
+    const citations = [
+      citationFixture(source, {
+        roles: ['learning'],
+        usage_mode: 'navigation-only',
+      }),
+      citationFixture(source, {
+        citation_url: `${source.canonical_locator}#facts`,
+        roles: [isCommunity ? 'learning' : 'implementation'],
+        usage_mode: 'facts-summary',
+      }),
+      citationFixture(source, {
+        citation_url: `${source.canonical_locator}#quote`,
+        roles: [isCommunity ? 'learning' : 'implementation'],
+        usage_mode: 'short-quotation',
+        excerpt: 'quoted words',
+        quotation_reviewed: true,
+      }),
+    ];
+    assert.deepEqual(
+      parseSourceLedger(ledger({
+        sources: [source],
+        documents: {
+          'content/cases/example.mdx': {...validDocument, citations},
+        },
+      })).errors,
+      [],
+      license,
+    );
+
+    if (isCommunity) {
+      const factual = citationFixture(source, {
+        roles: ['implementation'],
+        usage_mode: 'facts-summary',
+      });
+      assert.match(
+        parseSourceLedger(ledger({
+          sources: [source],
+          documents: {
+            'content/cases/example.mdx': {
+              ...validDocument,
+              citations: [factual],
+            },
+          },
+        })).errors.join('\n'),
+        /community-index|citation role "implementation"/i,
+      );
+    }
+  }
+
+  const unapproved = sourceFixture('src-unapproved-adapt', {
+    license: 'LicenseRef-Future-Unapproved',
+  });
+  const unapprovedCitation = citationFixture(unapproved, {
+    usage_mode: 'adapted-text',
+    modification_note: 'Adapted for Atlas',
+    quotation_reviewed: true,
+  });
+  const unapprovedErrors = parseSourceLedger(ledger({
+    sources: [unapproved],
+    documents: {
+      'content/cases/example.mdx': {
+        ...validDocument,
+        citations: [unapprovedCitation],
+      },
+    },
+  })).errors.join('\n');
+  assert.match(unapprovedErrors, /license allowlist.*LicenseRef-Future-Unapproved/i);
+  assert.match(
+    unapprovedErrors,
+    /src-unapproved-adapt.*LicenseRef-Future-Unapproved.*adapted-text.*explicit adaptation policy required/i,
+  );
+
+  const futureLicense = 'LicenseRef-Future-Schema-Approved';
+  approvedLicenses.push(futureLicense);
+  try {
+    const future = sourceFixture('src-future-adapt', {license: futureLicense});
+    const futureCitation = citationFixture(future, {
+      usage_mode: 'adapted-illustration',
+      modification_note: 'Adapted for Atlas',
+      quotation_reviewed: true,
+    });
+    const futureErrors = parseSourceLedger(ledger({
+      sources: [future],
+      documents: {
+        'content/cases/example.mdx': {
+          ...validDocument,
+          citations: [futureCitation],
+        },
+      },
+    })).errors.join('\n');
+    assert.doesNotMatch(futureErrors, /license allowlist/i);
+    assert.match(
+      futureErrors,
+      /src-future-adapt.*LicenseRef-Future-Schema-Approved.*adapted-illustration.*explicit adaptation policy required/i,
+    );
+  } finally {
+    approvedLicenses.splice(approvedLicenses.indexOf(futureLicense), 1);
+  }
+
   for (const [index, license] of [
     'CC-BY-4.0',
     'CC-BY-SA-4.0',
@@ -1017,6 +1137,14 @@ test('matches normalized quotation excerpts in the corresponding visible documen
       '**Visible** [label](https://example.com/destination) <https://example.com/auto>',
     ),
     'Visible label https://example.com/auto',
+  );
+  assert.equal(
+    normalizeVisibleQuotation('`foo_bar` and v1~beta remain distinct from foobar and v1beta'),
+    '`foo_bar` and v1~beta remain distinct from foobar and v1beta',
+  );
+  assert.equal(
+    normalizeVisibleQuotation('**strong** _emphasis_ and ~~reviewed removal~~'),
+    'strong emphasis and reviewed removal',
   );
 
   const quotation = {
