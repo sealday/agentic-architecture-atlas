@@ -770,6 +770,244 @@ test('does not count migration headings hidden outside Markdown body structure',
   }
 });
 
+function frontMatter(values) {
+  return Object.entries(values)
+    .map(([field, value]) => {
+      if (Array.isArray(value)) {
+        return value.length === 0
+          ? `${field}: []`
+          : `${field}:\n${value.map((item) => `  - ${item}`).join('\n')}`;
+      }
+      return `${field}: ${value}`;
+    })
+    .join('\n');
+}
+
+const knowledgeFixtures = new Map([
+  ['concept', [
+    '## 学习问题',
+    '## 定义与尺度边界',
+    '## 核心机制',
+    '## 常见混淆',
+    '## 说明性场景',
+    '## 相邻主题',
+    '## 来源',
+  ]],
+  ['principle', [
+    '## 学习问题',
+    '## 要保护的性质',
+    '## 冲突与适用上下文',
+    '## 机制',
+    '## 误用与反原则',
+    '## 适用尺度',
+    '## 相邻原则',
+    '## 说明性场景',
+    '## 来源',
+  ]],
+  ['quality-attribute', [
+    '## 学习问题',
+    '## 定义与业务目标',
+    '## 质量属性场景',
+    '### Source',
+    '### Stimulus',
+    '### Environment',
+    '### Artifact',
+    '### Response',
+    '### Response measure',
+    '## 架构策略',
+    '## 测量信号与阈值',
+    '## 权衡与失败模式',
+    '## 相邻质量属性',
+    '## 说明性场景',
+    '## 来源',
+  ]],
+  ['method', [
+    '## 学习问题',
+    '## 输入与参与者',
+    '## 步骤',
+    '## 产物',
+    '## 完成判断',
+    '## 常见失败',
+    '## 与其他方法的衔接',
+    '## 完整演练',
+    '## 来源',
+  ]],
+  ['modeling', [
+    '## 学习问题',
+    '## 建模目标与输入',
+    '## 参与者与步骤',
+    '## 模型产物',
+    '## 完成判断',
+    '## 常见失败',
+    '## 与其他模型的衔接',
+    '## 完整演练',
+    '## 来源',
+  ]],
+  ['style', [
+    '## 学习问题',
+    '## 组件、连接器与约束',
+    '## 边界与控制流',
+    '## 数据所有权与一致性',
+    '## 部署单元与故障域',
+    '## 团队拓扑',
+    '## 质量属性收益与成本',
+    '## 迁移路径',
+    '## 禁用条件',
+    '## 对比案例',
+    '## 来源',
+  ]],
+]);
+
+function validKnowledgeFrontMatter(type, overrides = {}) {
+  return frontMatter({
+    title: `${type} fixture`,
+    slug: `/${type}s/fixture`,
+    content_type: type,
+    status: 'reviewed',
+    difficulty: 'intermediate',
+    analyzed_at: '2026-07-23',
+    source_cutoff: '2026-07-23',
+    confidence: 'high',
+    domains: ['software-architecture'],
+    agent_patterns: [],
+    protocols: [],
+    quality_attributes: ['maintainability'],
+    tags: [type],
+    official_sources: ['https://example.com/official'],
+    summary: `${type} summary`,
+    topic_id: 'FND-01',
+    priority: 'P0',
+    depends_on: [],
+    related_cases: [],
+    ...overrides,
+  });
+}
+
+test('accepts all six knowledge content contracts', async () => {
+  await withTempRoot(async (root) => {
+    await Promise.all(
+      [...knowledgeFixtures].map(([type, headings]) =>
+        writeMdx(
+          root,
+          `${type}.mdx`,
+          validKnowledgeFrontMatter(type),
+          headings.join('\n\n'),
+        ),
+      ),
+    );
+
+    const result = await validateContent(root);
+
+    assert.deepEqual(result.errors, []);
+  });
+});
+
+test('rejects invalid knowledge metadata', async () => {
+  const invalidFixtures = [
+    ['missing-summary.mdx', 'concept', {summary: undefined}, 'summary'],
+    ['invalid-priority.mdx', 'principle', {priority: 'P9'}, 'priority'],
+    ['scalar-dependency.mdx', 'method', {depends_on: 'FND-02'}, 'depends_on'],
+  ];
+
+  for (const [file, type, overrides, field] of invalidFixtures) {
+    await withTempRoot(async (root) => {
+      const metadata = validKnowledgeFrontMatter(type, overrides)
+        .split('\n')
+        .filter((line) => !line.endsWith(': undefined'))
+        .join('\n');
+      await writeMdx(root, file, metadata, knowledgeFixtures.get(type).join('\n\n'));
+
+      const result = await validateContent(root);
+
+      assert.ok(
+        result.errors.some(
+          (error) =>
+            error.includes(file) &&
+            error.includes(type) &&
+            error.includes(field),
+        ),
+        `${type} ${field}`,
+      );
+    });
+  }
+});
+
+test('rejects missing or reordered knowledge headings', async () => {
+  await withTempRoot(async (root) => {
+    const type = 'concept';
+    const headings = knowledgeFixtures.get(type);
+    const relativePath = 'missing-heading.mdx';
+    await writeMdx(
+      root,
+      relativePath,
+      validKnowledgeFrontMatter(type),
+      headings.filter((heading) => heading !== '## 核心机制').join('\n\n'),
+    );
+
+    const result = await validateContent(root);
+
+    assert.ok(
+      result.errors.some(
+        (error) =>
+          error.includes(relativePath) &&
+          error.includes('## 核心机制'),
+      ),
+    );
+  });
+
+  await withTempRoot(async (root) => {
+    const type = 'style';
+    const headings = knowledgeFixtures.get(type);
+    const relativePath = 'reordered-heading.mdx';
+    const body = [
+      headings[1],
+      headings[0],
+      ...headings.slice(2),
+    ].join('\n\n');
+    await writeMdx(root, relativePath, validKnowledgeFrontMatter(type), body);
+
+    const result = await validateContent(root);
+
+    assert.ok(
+      result.errors.some(
+        (error) =>
+          error.includes(relativePath) &&
+          error.includes('position 1') &&
+          error.includes('## 学习问题') &&
+          error.includes('## 组件、连接器与约束'),
+      ),
+    );
+  });
+});
+
+test('keeps quality attribute scenario fields inside their section', async () => {
+  await withTempRoot(async (root) => {
+    const type = 'quality-attribute';
+    const relativePath = 'misplaced-response-measure.mdx';
+    const headings = knowledgeFixtures.get(type);
+    const body = headings
+      .filter((heading) => heading !== '### Response measure')
+      .flatMap((heading) =>
+        heading === '## 架构策略'
+          ? [heading, '### Response measure']
+          : [heading],
+      )
+      .join('\n\n');
+    await writeMdx(root, relativePath, validKnowledgeFrontMatter(type), body);
+
+    const result = await validateContent(root);
+
+    assert.ok(
+      result.errors.some(
+        (error) =>
+          error.includes(relativePath) &&
+          error.includes('### Response measure') &&
+          error.includes('## 质量属性场景'),
+      ),
+    );
+  });
+});
+
 test('rejects conflicting catalog coverage flags', async () => {
   await withTempRoot(async (root) => {
     const cli = spawnSync(

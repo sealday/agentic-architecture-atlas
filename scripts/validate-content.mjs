@@ -3,13 +3,18 @@ import {fileURLToPath} from 'node:url';
 
 import {readContentDocuments} from './content-metadata.mjs';
 import {
+  allowedPriorities,
   allowedSeries,
   allowedSourceKinds,
   allowedValues,
   caseCatalogManifest,
   caseRequiredFields,
   classicCollectionSlugs,
+  knowledgeContentTypes,
+  knowledgeRequiredFields,
+  knowledgeTypeContracts,
   launchCaseSlugs,
+  qualityAttributeScenarioHeadings,
   requiredCaseHeadings,
   requiredMigrationHeadings,
   requiredCaseSlugs,
@@ -42,6 +47,71 @@ function headingText(heading) {
 
 function formatHeading({level, text}) {
   return `${'#'.repeat(level)} ${text}`;
+}
+
+function validateOrderedH2Contract(file, headings, required, errors) {
+  const actual = headings.filter(({level}) => level === 2);
+  const expected = required.map(headingText);
+
+  if (actual.length !== expected.length) {
+    errors.push(
+      `${file}: expected exactly ${expected.length} ${required[0]}-contract H2 headings; found ${actual.length}`,
+    );
+  }
+
+  expected.forEach((text, index) => {
+    if (actual[index]?.text !== text) {
+      errors.push(
+        `${file}: invalid ${required[0]}-contract H2 sequence at position ${index + 1}; expected "## ${text}", actual "${actual[index] ? formatHeading(actual[index]) : 'missing'}"`,
+      );
+    }
+  });
+}
+
+function validateStringArray(file, type, field, value, errors) {
+  if (!Array.isArray(value)) {
+    errors.push(`${file}: ${type} field "${field}" must be an array`);
+    return;
+  }
+  for (const item of value) {
+    if (typeof item !== 'string' || item.trim() === '') {
+      errors.push(
+        `${file}: ${type} field "${field}" contains a non-string or empty value`,
+      );
+    }
+  }
+}
+
+function validateSectionH3Contract(file, headings, section, required, errors) {
+  const sectionText = headingText(section);
+  const sectionIndex = headings.findIndex(
+    ({level, text}) => level === 2 && text === sectionText,
+  );
+  const nextH2Index = headings.findIndex(
+    ({level}, index) => index > sectionIndex && level === 2,
+  );
+  const sectionEnd = nextH2Index === -1 ? headings.length : nextH2Index;
+  const actual =
+    sectionIndex === -1
+      ? []
+      : headings
+          .slice(sectionIndex + 1, sectionEnd)
+          .filter(({level}) => level === 3);
+  const expected = required.map(headingText);
+
+  if (actual.length !== expected.length) {
+    errors.push(
+      `${file}: expected exactly ${expected.length} H3 headings under "${section}"; found ${actual.length}`,
+    );
+  }
+
+  expected.forEach((text, index) => {
+    if (actual[index]?.text !== text) {
+      errors.push(
+        `${file}: invalid H3 sequence under "${section}" at position ${index + 1}; expected "### ${text}", actual "${actual[index] ? formatHeading(actual[index]) : 'missing'}"`,
+      );
+    }
+  });
 }
 
 function validateCaseHeadingContract(file, headings, errors) {
@@ -237,6 +307,74 @@ export async function validateContent(root, {requiredCollection} = {}) {
         } else {
           catalogOrderFiles.set(metadata.catalog_order, file);
         }
+      }
+    }
+
+    if (knowledgeContentTypes.includes(metadata.content_type)) {
+      const type = metadata.content_type;
+
+      for (const field of knowledgeRequiredFields) {
+        if (!(field in metadata)) {
+          errors.push(`${file}: missing required ${type} field "${field}"`);
+        }
+      }
+
+      if (
+        'summary' in metadata &&
+        (typeof metadata.summary !== 'string' || metadata.summary.trim() === '')
+      ) {
+        errors.push(`${file}: ${type} field "summary" must be a non-empty string`);
+      }
+
+      if (
+        'topic_id' in metadata &&
+        (typeof metadata.topic_id !== 'string' ||
+          !/^[A-Z]+(?:-[A-Z]+)*-\d{2}$/.test(metadata.topic_id))
+      ) {
+        errors.push(`${file}: ${type} field "topic_id" has an invalid value`);
+      }
+
+      if ('priority' in metadata && !allowedPriorities.includes(metadata.priority)) {
+        errors.push(
+          `${file}: ${type} field "priority" has invalid value "${metadata.priority}"`,
+        );
+      }
+
+      if ('depends_on' in metadata) {
+        validateStringArray(file, type, 'depends_on', metadata.depends_on, errors);
+      }
+
+      if ('related_cases' in metadata) {
+        validateStringArray(file, type, 'related_cases', metadata.related_cases, errors);
+        if (Array.isArray(metadata.related_cases)) {
+          for (const relatedCase of metadata.related_cases) {
+            if (
+              typeof relatedCase === 'string' &&
+              !/^\/cases\/[a-z0-9]+(?:-[a-z0-9]+)*$/.test(relatedCase)
+            ) {
+              errors.push(
+                `${file}: ${type} field "related_cases" has invalid case slug "${relatedCase}"`,
+              );
+            }
+          }
+        }
+      }
+
+      validateOrderedH2Contract(
+        file,
+        headings,
+        knowledgeTypeContracts[type],
+        errors,
+      );
+
+      if (type === 'quality-attribute') {
+        validateSectionH3Contract(
+          file,
+          headings,
+          '## 质量属性场景',
+          qualityAttributeScenarioHeadings,
+          errors,
+        );
       }
     }
 

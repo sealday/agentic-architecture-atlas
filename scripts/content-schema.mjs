@@ -15,8 +15,112 @@ export const requiredFields = [
   'official_sources',
 ];
 
+export const knowledgeContentTypes = [
+  'concept',
+  'principle',
+  'quality-attribute',
+  'method',
+  'modeling',
+  'style',
+];
+
+export const knowledgeRequiredFields = [
+  'summary',
+  'topic_id',
+  'priority',
+  'depends_on',
+  'related_cases',
+];
+
+export const allowedPriorities = ['P0', 'P1', 'P2', 'P3'];
+
+export const knowledgeTypeContracts = {
+  concept: [
+    '## 学习问题',
+    '## 定义与尺度边界',
+    '## 核心机制',
+    '## 常见混淆',
+    '## 说明性场景',
+    '## 相邻主题',
+    '## 来源',
+  ],
+  principle: [
+    '## 学习问题',
+    '## 要保护的性质',
+    '## 冲突与适用上下文',
+    '## 机制',
+    '## 误用与反原则',
+    '## 适用尺度',
+    '## 相邻原则',
+    '## 说明性场景',
+    '## 来源',
+  ],
+  'quality-attribute': [
+    '## 学习问题',
+    '## 定义与业务目标',
+    '## 质量属性场景',
+    '## 架构策略',
+    '## 测量信号与阈值',
+    '## 权衡与失败模式',
+    '## 相邻质量属性',
+    '## 说明性场景',
+    '## 来源',
+  ],
+  method: [
+    '## 学习问题',
+    '## 输入与参与者',
+    '## 步骤',
+    '## 产物',
+    '## 完成判断',
+    '## 常见失败',
+    '## 与其他方法的衔接',
+    '## 完整演练',
+    '## 来源',
+  ],
+  modeling: [
+    '## 学习问题',
+    '## 建模目标与输入',
+    '## 参与者与步骤',
+    '## 模型产物',
+    '## 完成判断',
+    '## 常见失败',
+    '## 与其他模型的衔接',
+    '## 完整演练',
+    '## 来源',
+  ],
+  style: [
+    '## 学习问题',
+    '## 组件、连接器与约束',
+    '## 边界与控制流',
+    '## 数据所有权与一致性',
+    '## 部署单元与故障域',
+    '## 团队拓扑',
+    '## 质量属性收益与成本',
+    '## 迁移路径',
+    '## 禁用条件',
+    '## 对比案例',
+    '## 来源',
+  ],
+};
+
+export const qualityAttributeScenarioHeadings = [
+  '### Source',
+  '### Stimulus',
+  '### Environment',
+  '### Artifact',
+  '### Response',
+  '### Response measure',
+];
+
 export const allowedValues = {
-  content_type: ['case', 'pattern', 'question', 'path', 'reference'],
+  content_type: [
+    'case',
+    'pattern',
+    'question',
+    'path',
+    'reference',
+    ...knowledgeContentTypes,
+  ],
   status: ['draft', 'reviewed', 'revisited'],
   difficulty: ['beginner', 'intermediate', 'advanced'],
   confidence: ['low', 'medium', 'high'],
