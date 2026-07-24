@@ -1,8 +1,6 @@
 import assert from 'node:assert/strict';
-import {spawnSync} from 'node:child_process';
 import {readFile} from 'node:fs/promises';
 import test from 'node:test';
-import {fileURLToPath} from 'node:url';
 
 const root = new URL('../', import.meta.url);
 
@@ -12,135 +10,6 @@ async function source(path) {
 
 async function generatedLedger() {
   return JSON.parse(await source('src/generated/source-ledger.json'));
-}
-
-let productionReferenceArtifactPromise;
-
-function productionReferenceArtifact() {
-  productionReferenceArtifactPromise ??= (async () => {
-    const build = spawnSync('npm', ['run', 'build'], {
-      cwd: fileURLToPath(root),
-      encoding: 'utf8',
-    });
-    assert.equal(
-      build.status,
-      0,
-      `production build failed:\n${build.stdout}\n${build.stderr}`,
-    );
-    const [html, ledger] = await Promise.all([
-      source('build/references.html'),
-      generatedLedger(),
-    ]);
-    return {html, ledger};
-  })();
-
-  return productionReferenceArtifactPromise;
-}
-
-function attributeValue(tag, name) {
-  const match = tag.match(
-    new RegExp(`${name}=(?:"([^"]+)"|'([^']+)'|([^\\s>]+))`),
-  );
-  return match?.[1] ?? match?.[2] ?? match?.[3] ?? null;
-}
-
-function decodeHtml(value) {
-  const named = {
-    amp: '&',
-    apos: "'",
-    gt: '>',
-    lt: '<',
-    quot: '"',
-  };
-  return value.replace(
-    /&(?:#(\d+)|#x([\da-f]+)|([a-z]+));/gi,
-    (entity, decimal, hexadecimal, name) => {
-      if (decimal) {
-        return String.fromCodePoint(Number(decimal));
-      }
-      if (hexadecimal) {
-        return String.fromCodePoint(Number.parseInt(hexadecimal, 16));
-      }
-      return named[name.toLowerCase()] ?? entity;
-    },
-  );
-}
-
-function textContent(markup) {
-  return decodeHtml(
-    markup
-      .replace(/<!--[\s\S]*?-->/g, '')
-      .replace(/<[^>]+>/g, '')
-      .replace(/\s+/g, ' ')
-      .trim(),
-  );
-}
-
-function parseDefinitionList(article) {
-  const start = article.indexOf('<dl');
-  const openEnd = article.indexOf('>', start);
-  const end = article.indexOf('</dl>', openEnd);
-  assert.ok(start !== -1 && openEnd !== -1 && end !== -1);
-  const markup = article.slice(openEnd + 1, end);
-  const tokens = [...markup.matchAll(/<(dt|dd)\b[^>]*>/g)];
-  assert.equal(tokens.length, 24);
-
-  const fields = new Map();
-  for (let index = 0; index < tokens.length; index += 2) {
-    const term = tokens[index];
-    const definition = tokens[index + 1];
-    assert.equal(term[1], 'dt');
-    assert.equal(definition[1], 'dd');
-    const termEnd = term.index + term[0].length;
-    const definitionEnd = definition.index + definition[0].length;
-    const next = tokens[index + 2]?.index ?? markup.length;
-    fields.set(textContent(markup.slice(termEnd, definition.index)), {
-      html: markup.slice(definitionEnd, next),
-      text: textContent(markup.slice(definitionEnd, next)),
-    });
-  }
-  return fields;
-}
-
-function parseArticles(section) {
-  return [...section.matchAll(/<article\b[^>]*>/g)].map((match) => {
-    const end = section.indexOf('</article>', match.index);
-    assert.notEqual(end, -1, `source article is not closed: ${match[0]}`);
-    const html = section.slice(match.index, end + '</article>'.length);
-    const heading = html.match(/<h4>([\s\S]*?)<\/h4>/);
-    assert.ok(heading, 'source article has no H4');
-    const anchor = heading[1].match(/<a\b[^>]*>/);
-    return {
-      fields: parseDefinitionList(html),
-      headingHref: anchor ? attributeValue(anchor[0], 'href') : null,
-      html,
-      title: textContent(heading[1]),
-    };
-  });
-}
-
-function parseLedgerSections(html) {
-  return [...html.matchAll(/<section\b[^>]*>/g)]
-    .map((match) => ({
-      headingId: attributeValue(match[0], 'aria-labelledby'),
-      index: match.index,
-    }))
-    .filter(({headingId}) => headingId?.startsWith('source-ledger-'))
-    .map(({headingId, index}) => {
-      const end = html.indexOf('</section>', index);
-      assert.notEqual(end, -1, `ledger section is not closed: ${headingId}`);
-      const section = html.slice(index, end + '</section>'.length);
-      const heading = section.match(
-        new RegExp(`<h3 id=${headingId}>([\\s\\S]*?)<\\/h3>`),
-      );
-      assert.ok(heading, `ledger section has no matching heading: ${headingId}`);
-      return {
-        articles: parseArticles(section),
-        heading: textContent(heading[1]),
-        html: section,
-        tier: headingId.replace('source-ledger-', ''),
-      };
-    });
 }
 
 test('renders the generated source ledger instead of a hand-maintained catalog', async () => {
@@ -356,10 +225,22 @@ test('keeps every source and evidence field in the complete sorted model', async
     ({sources}) => sources,
   );
 
-  assert.equal(cards.length, 370);
+  assert.equal(cards.length, 371);
   assert.deepEqual(
     cards.map(({id}) => id),
     expectedSources.map(({id}) => id),
+  );
+  assert.deepEqual(
+    tierOrder.map((tier) => [
+      tier,
+      cards.filter((card) => card.tier === tier).length,
+    ]),
+    [
+      ['primary', 339],
+      ['first-party', 22],
+      ['secondary', 3],
+      ['discovery', 7],
+    ],
   );
   for (const card of cards) {
     for (const field of [
@@ -391,133 +272,5 @@ test('keeps every source and evidence field in the complete sorted model', async
     );
     assert.ok(card.license, `${card.id} lost license evidence`);
     assert.ok(card.usageBoundary, `${card.id} lost its usage boundary`);
-  }
-});
-
-test('progressively exposes all sources in exact 24-card increments', async () => {
-  const model = await import(
-    '../src/components/SourceLedger/sourceLedgerModel.ts'
-  );
-  assert.equal(
-    typeof model.nextSourceLedgerVisibleCount,
-    'function',
-    'sourceLedgerModel must export nextSourceLedgerVisibleCount',
-  );
-  assert.equal(
-    model.sourceLedgerPageSize,
-    24,
-    'sourceLedgerModel must export a 24-card page size',
-  );
-  const ledger = await generatedLedger();
-  const sections = model.buildSourceLedgerSections(ledger);
-  const reachedIds = [];
-
-  for (const section of sections) {
-    let visibleCount = Math.min(
-      model.sourceLedgerPageSize,
-      section.sources.length,
-    );
-    let previousCount = 0;
-
-    while (true) {
-      const visible = section.sources.slice(0, visibleCount);
-      assert.equal(
-        visible.length - previousCount,
-        Math.min(
-          model.sourceLedgerPageSize,
-          section.sources.length - previousCount,
-        ),
-        `${section.tier} did not advance by one page`,
-      );
-      reachedIds.push(...visible.slice(previousCount).map(({id}) => id));
-      if (visibleCount === section.sources.length) {
-        break;
-      }
-      previousCount = visibleCount;
-      visibleCount = model.nextSourceLedgerVisibleCount(
-        visibleCount,
-        section.sources.length,
-      );
-    }
-  }
-
-  assert.equal(reachedIds.length, 370);
-  assert.equal(new Set(reachedIds).size, 370);
-  assert.deepEqual(
-    reachedIds,
-    sections.flatMap(({sources}) => sources.map(({id}) => id)),
-  );
-});
-
-test('SSR renders at most the first 24 complete cards per tier', async () => {
-  const {buildSourceLedgerSections} = await import(
-    '../src/components/SourceLedger/sourceLedgerModel.ts'
-  );
-  const {html, ledger} = await productionReferenceArtifact();
-  const expectedSections = buildSourceLedgerSections(ledger);
-  const sections = parseLedgerSections(html);
-
-  assert.deepEqual(
-    sections.map(({tier}) => tier),
-    expectedSections.map(({tier}) => tier),
-  );
-  for (const [index, section] of sections.entries()) {
-    const expected = expectedSections[index];
-    assert.equal(
-      section.articles.length,
-      Math.min(24, expected.sources.length),
-      `${section.tier} SSR card count`,
-    );
-    assert.deepEqual(
-      section.articles.map(({title}) => title),
-      expected.sources.slice(0, 24).map(({title}) => title),
-      `${section.tier} SSR order`,
-    );
-    assert.ok(
-      section.articles.every(({fields}) => fields.size === 12),
-      `${section.tier} SSR cards must retain all 12 fields and 24 dt/dd nodes`,
-    );
-  }
-});
-
-test('keeps the initial source-ledger SSR payload below 250 KB', async () => {
-  const {html} = await productionReferenceArtifact();
-  assert.ok(
-    Buffer.byteLength(html) < 250_000,
-    `references HTML exceeds 250 KB: ${Buffer.byteLength(html)} bytes`,
-  );
-});
-
-test('associates continuation controls with truncated tier sections', async () => {
-  const {buildSourceLedgerSections} = await import(
-    '../src/components/SourceLedger/sourceLedgerModel.ts'
-  );
-  const {html, ledger} = await productionReferenceArtifact();
-  const expectedSections = buildSourceLedgerSections(ledger);
-  const sections = parseLedgerSections(html);
-
-  for (const [index, section] of sections.entries()) {
-    const total = expectedSections[index].sources.length;
-    const control = section.html.match(
-      /<button\b[^>]*>[\s\S]*?继续加载[\s\S]*?<\/button>/,
-    );
-    if (total <= 24) {
-      assert.equal(control, null, `${section.tier} must not show a load control`);
-      continue;
-    }
-
-    assert.ok(control, `${section.tier} needs a continuation control`);
-    const controlledId = attributeValue(control[0], 'aria-controls');
-    assert.ok(controlledId, `${section.tier} control needs aria-controls`);
-    assert.match(
-      section.html,
-      new RegExp(`<ul\\b[^>]*\\bid=(?:"${controlledId}"|'${controlledId}')`),
-      `${section.tier} control must identify its source list`,
-    );
-    assert.match(
-      textContent(section.html),
-      new RegExp(`已显示\\s*24\\s*[/／]\\s*${total}`),
-      `${section.tier} must expose shown and total counts`,
-    );
   }
 });

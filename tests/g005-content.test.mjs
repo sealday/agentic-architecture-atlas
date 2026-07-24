@@ -217,13 +217,24 @@ test('records four PASS review gates and route-specific render evidence per page
     import.meta.url,
   );
   const review = await readRequiredText(reviewFile, 'G005 Batch 1 review record');
+  assert.doesNotMatch(
+    review,
+    /<!--[\s\S]*?\bPASS\b[\s\S]*?-->/iu,
+    'Review PASS evidence must not be hidden in HTML comments',
+  );
+  assert.doesNotMatch(
+    review,
+    /\\(?:n|b)/u,
+    'Review evidence must not contain backslash compatibility markers',
+  );
+  const visibleReview = review.replace(/<!--[\s\S]*?-->/gu, '');
 
   for (const [id, {slug}] of expectedFoundations) {
-    const section = sectionForHeading(review, id);
+    const section = sectionForHeading(visibleReview, id);
     for (const gate of ['editorial', 'fact', 'copyright', 'render']) {
       assert.match(
         section,
-        new RegExp(`(?:^|\\\\n)[^\\\\n]*${gate}[^\\\\n]*\\\\bPASS\\\\b`, 'iu'),
+        new RegExp(`(?:^|\\n)[^\\n]*${gate}[^\\n]*\\bPASS\\b`, 'iu'),
         `${id} must record ${gate} PASS`,
       );
     }
@@ -236,7 +247,7 @@ test('records four PASS review gates and route-specific render evidence per page
     );
     assert.match(
       section,
-      new RegExp(`${slug.replaceAll('/', '\\/')}(?:\\\\b|[?#])`, 'u'),
+      new RegExp(`${slug.replaceAll('/', '\\/')}(?:\\b|[?#])`, 'u'),
       `${id} render evidence needs ${slug}`,
     );
   }

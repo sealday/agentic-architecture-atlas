@@ -286,7 +286,7 @@ test('loads non-empty canonical review inputs through generator plumbing', async
   const inputs = await loadContentReviewInputs(projectRoot);
   assert.deepEqual(inputs.errors, []);
   assert.equal(inputs.documents.length, 49);
-  assert.equal(inputs.ledger.sources.length, 370);
+  assert.equal(inputs.ledger.sources.length, 371);
   assert.equal(
     inputs.policyById.get('quarterly-version-sensitive')?.calendar_months,
     3,
@@ -295,8 +295,8 @@ test('loads non-empty canonical review inputs through generator plumbing', async
     ...inputs,
     asOf: '2026-08-01',
   }).report;
-  assert.equal(report.new_source_ids.length, 370);
-  assert.equal(report.new_sources.length, 370);
+  assert.equal(report.new_source_ids.length, 371);
+  assert.equal(report.new_sources.length, 371);
   assert.equal(
     report.new_sources.every(({id, citations, discovery_learning_only}) =>
       typeof id === 'string' &&
