@@ -16,6 +16,7 @@ import {
   loadCaseSeriesRegistry,
   loadPatternGroupRegistry,
 } from './content-registries.mjs';
+import {validateContentRelations} from './content-relations.mjs';
 import {
   buildCaseCatalogFromManifest,
   serializeCaseCatalog,
@@ -313,6 +314,16 @@ export async function buildContentArtifacts(root) {
   });
   if (built.errors.length) {
     throw new Error(`Topic manifest failed:\n${built.errors.join('\n')}`);
+  }
+
+  const relationValidation = validateContentRelations({
+    documents: validation.documents,
+    manifest: built.manifest,
+  });
+  if (relationValidation.errors.length) {
+    throw new Error(
+      `Content relations failed:\n${relationValidation.errors.join('\n')}`,
+    );
   }
 
   const caseCatalog = buildCaseCatalogFromManifest(built.manifest);

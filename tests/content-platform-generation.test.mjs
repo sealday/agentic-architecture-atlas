@@ -58,6 +58,10 @@ const caseBody = [
 
 const conceptBody = [
   '# Example concept',
+  '[概念入口](/concepts)',
+  '[Example concept](/concepts/example)',
+  '[Adjacent concept](/concepts/adjacent)',
+  '[Example case](/cases/example)',
   '## 学习问题',
   '## 定义与尺度边界',
   '## 核心机制',
@@ -445,6 +449,37 @@ test('builds all artifacts from one validated snapshot', async () => {
       assert.ok(serialized.endsWith('\n'));
       assert.ok(!serialized.endsWith('\n\n'));
       assert.ok(!serialized.includes(root));
+    }
+  });
+});
+
+test('rejects snapshots with hidden or missing visible knowledge relationships', async () => {
+  await withRepositoryFixture(async (root) => {
+    const documentPath = path.join(root, 'content/concepts/example.mdx');
+    const original = await readFile(documentPath, 'utf8');
+    const scenarios = [
+      {
+        visible: '[概念入口](/concepts)',
+        hidden: '<!-- [概念入口](/concepts) -->',
+        error: /content\/concepts\/example\.mdx: missing visible parent link "\/concepts"/,
+      },
+      {
+        visible: '[Adjacent concept](/concepts/adjacent)',
+        hidden: '```\n[Adjacent concept](/concepts/adjacent)\n```',
+        error:
+          /content\/concepts\/example\.mdx: missing visible adjacent topic link "\/concepts\/adjacent"/,
+      },
+      {
+        visible: '[Example case](/cases/example)',
+        hidden: '`[Example case](/cases/example)`',
+        error:
+          /content\/concepts\/example\.mdx: missing visible related case or question link/,
+      },
+    ];
+
+    for (const {visible, hidden, error} of scenarios) {
+      await writeFile(documentPath, original.replace(visible, hidden));
+      await assert.rejects(buildContentArtifacts(root), error);
     }
   });
 });

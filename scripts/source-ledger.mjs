@@ -864,7 +864,7 @@ function cleanExtractedUrl(url) {
   return url.replace(/[.,;:!?]+$/u, '');
 }
 
-function visibleMdxLines(document) {
+export function visibleMdxLines(document) {
   const lines = [];
   const state = {inComment: false};
   let fence;
