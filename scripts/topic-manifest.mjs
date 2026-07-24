@@ -498,7 +498,7 @@ export function buildTopicManifest({
 
   for (const topic of topicsById.values()) {
     topic.dependencies = normalizedStrings(topic.dependencies);
-    topic.adjacent_topics = normalizedStrings(topic.adjacent_topics);
+    topic.adjacent_topics = copyArray(topic.adjacent_topics);
     topic.related_cases = normalizedStrings(topic.related_cases);
     topic.related_questions = normalizedStrings(topic.related_questions);
 

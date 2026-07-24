@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-07-24T12:44:40.442Z",
+  "generated_at": "2026-07-24T13:46:27.480Z",
   "results": [
     {
       "transport_locator": "https://a2a-protocol.org/latest/",
@@ -1630,6 +1630,37 @@
           "outcome": "healthy",
           "final_transport_locator": "https://c4model.com/abstractions",
           "http_status": 200,
+          "login_wall_detected": false
+        }
+      ],
+      "review_status": "healthy"
+    },
+    {
+      "transport_locator": "https://cheatsheetseries.owasp.org/cheatsheets/Threat_Modeling_Cheat_Sheet.html",
+      "source_ids": [
+        "src-cheatsheetseries-ea079221bd09"
+      ],
+      "last_attempt": {
+        "at": "2026-07-24T13:46:23.274Z",
+        "outcome": "healthy",
+        "final_transport_locator": "https://cheatsheetseries.owasp.org/cheatsheets/Threat_Modeling_Cheat_Sheet.html",
+        "http_status": 206,
+        "login_wall_detected": false,
+        "redirects": []
+      },
+      "last_success": {
+        "at": "2026-07-24T13:46:23.274Z",
+        "outcome": "healthy",
+        "final_transport_locator": "https://cheatsheetseries.owasp.org/cheatsheets/Threat_Modeling_Cheat_Sheet.html",
+        "http_status": 206,
+        "login_wall_detected": false
+      },
+      "attempt_history": [
+        {
+          "at": "2026-07-24T13:46:23.274Z",
+          "outcome": "healthy",
+          "final_transport_locator": "https://cheatsheetseries.owasp.org/cheatsheets/Threat_Modeling_Cheat_Sheet.html",
+          "http_status": 206,
           "login_wall_detected": false
         }
       ],
@@ -4663,6 +4694,37 @@
           "at": "2026-07-24T12:13:42.427Z",
           "outcome": "healthy",
           "final_transport_locator": "https://docs.aws.amazon.com/solutions/cell-based-architecture-on-aws/",
+          "http_status": 206,
+          "login_wall_detected": false
+        }
+      ],
+      "review_status": "healthy"
+    },
+    {
+      "transport_locator": "https://docs.aws.amazon.com/wellarchitected/latest/framework/rel_testing_resiliency_game_days_resiliency.html",
+      "source_ids": [
+        "src-docs-930fe7f32f90"
+      ],
+      "last_attempt": {
+        "at": "2026-07-24T13:46:23.837Z",
+        "outcome": "healthy",
+        "final_transport_locator": "https://docs.aws.amazon.com/wellarchitected/latest/framework/rel_testing_resiliency_game_days_resiliency.html",
+        "http_status": 206,
+        "login_wall_detected": false,
+        "redirects": []
+      },
+      "last_success": {
+        "at": "2026-07-24T13:46:23.837Z",
+        "outcome": "healthy",
+        "final_transport_locator": "https://docs.aws.amazon.com/wellarchitected/latest/framework/rel_testing_resiliency_game_days_resiliency.html",
+        "http_status": 206,
+        "login_wall_detected": false
+      },
+      "attempt_history": [
+        {
+          "at": "2026-07-24T13:46:23.837Z",
+          "outcome": "healthy",
+          "final_transport_locator": "https://docs.aws.amazon.com/wellarchitected/latest/framework/rel_testing_resiliency_game_days_resiliency.html",
           "http_status": 206,
           "login_wall_detected": false
         }
@@ -24458,6 +24520,37 @@
       "review_status": "healthy"
     },
     {
+      "transport_locator": "https://hbr.org/2007/09/performing-a-project-premortem",
+      "source_ids": [
+        "src-hbr-081d06c5edff"
+      ],
+      "last_attempt": {
+        "at": "2026-07-24T13:46:24.101Z",
+        "outcome": "healthy",
+        "final_transport_locator": "https://hbr.org/2007/09/performing-a-project-premortem",
+        "http_status": 206,
+        "login_wall_detected": false,
+        "redirects": []
+      },
+      "last_success": {
+        "at": "2026-07-24T13:46:24.101Z",
+        "outcome": "healthy",
+        "final_transport_locator": "https://hbr.org/2007/09/performing-a-project-premortem",
+        "http_status": 206,
+        "login_wall_detected": false
+      },
+      "attempt_history": [
+        {
+          "at": "2026-07-24T13:46:24.101Z",
+          "outcome": "healthy",
+          "final_transport_locator": "https://hbr.org/2007/09/performing-a-project-premortem",
+          "http_status": 206,
+          "login_wall_detected": false
+        }
+      ],
+      "review_status": "healthy"
+    },
+    {
       "transport_locator": "https://kafka.apache.org/43/configuration/broker-configs/",
       "source_ids": [
         "src-kafka-580ea02caa84"
@@ -27367,6 +27460,37 @@
       "review_status": "healthy"
     },
     {
+      "transport_locator": "https://riskstorming.com/",
+      "source_ids": [
+        "src-riskstorming-4c7868451f0e"
+      ],
+      "last_attempt": {
+        "at": "2026-07-24T13:46:25.850Z",
+        "outcome": "healthy",
+        "final_transport_locator": "https://riskstorming.com/",
+        "http_status": 206,
+        "login_wall_detected": false,
+        "redirects": []
+      },
+      "last_success": {
+        "at": "2026-07-24T13:46:25.850Z",
+        "outcome": "healthy",
+        "final_transport_locator": "https://riskstorming.com/",
+        "http_status": 206,
+        "login_wall_detected": false
+      },
+      "attempt_history": [
+        {
+          "at": "2026-07-24T13:46:25.850Z",
+          "outcome": "healthy",
+          "final_transport_locator": "https://riskstorming.com/",
+          "http_status": 206,
+          "login_wall_detected": false
+        }
+      ],
+      "review_status": "healthy"
+    },
+    {
       "transport_locator": "https://roadmap.sh/software-architect",
       "source_ids": [
         "src-roadmap-0135fbda874b"
@@ -28771,6 +28895,37 @@
       "review_status": "healthy"
     },
     {
+      "transport_locator": "https://www.oreilly.com/library/view/building-evolutionary-architectures/9781492097532/",
+      "source_ids": [
+        "src-oreilly-7eb3a574d599"
+      ],
+      "last_attempt": {
+        "at": "2026-07-24T13:46:26.240Z",
+        "outcome": "auth-required",
+        "final_transport_locator": "https://www.oreilly.com/library/view/building-evolutionary-architectures/9781492097532/",
+        "http_status": 403,
+        "login_wall_detected": false,
+        "redirects": []
+      },
+      "last_success": {
+        "at": "2026-07-24T13:46:26.240Z",
+        "outcome": "auth-required",
+        "final_transport_locator": "https://www.oreilly.com/library/view/building-evolutionary-architectures/9781492097532/",
+        "http_status": 403,
+        "login_wall_detected": false
+      },
+      "attempt_history": [
+        {
+          "at": "2026-07-24T13:46:26.240Z",
+          "outcome": "auth-required",
+          "final_transport_locator": "https://www.oreilly.com/library/view/building-evolutionary-architectures/9781492097532/",
+          "http_status": 403,
+          "login_wall_detected": false
+        }
+      ],
+      "review_status": "auth-required"
+    },
+    {
       "transport_locator": "https://www.sei.cmu.edu/library/attribute-based-architectural-styles/",
       "source_ids": [
         "src-sei-abas-1999"
@@ -29178,6 +29333,37 @@
           "outcome": "healthy",
           "final_transport_locator": "https://www.sei.cmu.edu/training/software-architecture-principles-practices/",
           "http_status": 200,
+          "login_wall_detected": false
+        }
+      ],
+      "review_status": "healthy"
+    },
+    {
+      "transport_locator": "https://www.thoughtworks.com/en-us/insights/articles/fitness-function-driven-development",
+      "source_ids": [
+        "src-thoughtworks-32a10834c10f"
+      ],
+      "last_attempt": {
+        "at": "2026-07-24T13:46:27.219Z",
+        "outcome": "healthy",
+        "final_transport_locator": "https://www.thoughtworks.com/en-us/insights/articles/fitness-function-driven-development",
+        "http_status": 206,
+        "login_wall_detected": false,
+        "redirects": []
+      },
+      "last_success": {
+        "at": "2026-07-24T13:46:27.219Z",
+        "outcome": "healthy",
+        "final_transport_locator": "https://www.thoughtworks.com/en-us/insights/articles/fitness-function-driven-development",
+        "http_status": 206,
+        "login_wall_detected": false
+      },
+      "attempt_history": [
+        {
+          "at": "2026-07-24T13:46:27.219Z",
+          "outcome": "healthy",
+          "final_transport_locator": "https://www.thoughtworks.com/en-us/insights/articles/fitness-function-driven-development",
+          "http_status": 206,
           "login_wall_detected": false
         }
       ],

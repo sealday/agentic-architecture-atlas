@@ -27,6 +27,7 @@ depends_on:
   - FND-04
 adjacent_topics:
   - MTH-03
+  - MTH-06
 related_cases:
   - /cases/kubernetes-reconciliation-loop
 related_questions: []
@@ -109,7 +110,7 @@ flowchart LR
 
 本文依赖[权衡、敏感点与风险](/concepts/fnd-04)：债务是否值得偿还，取决于本金、利息暴露、质量属性风险和迁移代价的共同判断。完整学习位置见[架构思维与表达路径](/paths/architecture-thinking)，父级术语入口见[概念目录](/concepts)。
 
-相邻的[ADR 生命周期](/methods/mth-03)用于保存接受、限制或偿还债务的决策理由与复核条件。[Kubernetes Reconciliation Loop 案例](/cases/kubernetes-reconciliation-loop)可继续检验期望状态、观察状态、重试所有权和副作用边界；它展示可用于演进的控制机制，但不是所有架构债的通用偿还方案。
+相邻的[ADR 生命周期](/methods/mth-03)用于保存接受、限制或偿还债务的决策理由与复核条件，[需求到演进闭环](/methods/mth-06)把这些决定与持续反馈连接起来。[Kubernetes Reconciliation Loop 案例](/cases/kubernetes-reconciliation-loop)可继续检验期望状态、观察状态、重试所有权和副作用边界；它展示可用于演进的控制机制，但不是所有架构债的通用偿还方案。
 
 ## 来源
 

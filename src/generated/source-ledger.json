@@ -1529,6 +1529,52 @@
       ]
     },
     {
+      "id": "src-cheatsheetseries-ea079221bd09",
+      "canonical_locator": "https://cheatsheetseries.owasp.org/cheatsheets/Threat_Modeling_Cheat_Sheet.html",
+      "transport_locator": "https://cheatsheetseries.owasp.org/cheatsheets/Threat_Modeling_Cheat_Sheet.html",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "Threat Modeling Cheat Sheet",
+      "author_or_org": "OWASP Cheat Sheet Series",
+      "published_at": null,
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "Current OWASP Cheat Sheet Series page checked on 2026-07-24",
+      "source_kind": "official-docs",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "comparison",
+        "definition",
+        "learning",
+        "method"
+      ],
+      "license": "CC-BY-SA-4.0",
+      "license_scope": "OWASP Cheat Sheet Series content covered by CC BY-SA 4.0; linked works, code, marks, media, and third-party material under separate notices excluded",
+      "license_evidence_url": "https://github.com/OWASP/CheatSheetSeries/blob/master/LICENSE.md",
+      "license_evidence_note": "The OWASP Cheat Sheet Series repository LICENSE identifies Creative Commons Attribution-ShareAlike 4.0.",
+      "license_family_id": "https://cheatsheetseries.owasp.org/cheatsheets/Threat_Modeling_Cheat_Sheet.html",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "adapt-sharealike-review",
+      "usage_boundary": "Supports a practical threat-modeling workflow and its lifecycle use; it does not make threat modeling a substitute for broader architecture risk analysis or operational exercises.",
+      "link_policy": "floating",
+      "expected_final_transport_locator": "https://cheatsheetseries.owasp.org/cheatsheets/Threat_Modeling_Cheat_Sheet.html",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Reviewed current OWASP Cheat Sheet Series transport and CC BY-SA 4.0 baseline",
+      "health_summary": "healthy",
+      "health_checks": [
+        {
+          "transport_locator": "https://cheatsheetseries.owasp.org/cheatsheets/Threat_Modeling_Cheat_Sheet.html",
+          "status": "healthy",
+          "last_attempt_at": "2026-07-24T13:46:23.274Z",
+          "last_success_at": "2026-07-24T13:46:23.274Z",
+          "http_status": 206,
+          "final_transport_locator": "https://cheatsheetseries.owasp.org/cheatsheets/Threat_Modeling_Cheat_Sheet.html"
+        }
+      ]
+    },
+    {
       "id": "src-cosmicpython-dfb7a7470477",
       "canonical_locator": "https://www.cosmicpython.com/book/preface.html",
       "transport_locator": "https://www.cosmicpython.com/book/preface.html",
@@ -5074,6 +5120,53 @@
           "last_success_at": "2026-07-24T12:13:42.427Z",
           "http_status": 200,
           "final_transport_locator": "https://docs.newapi.pro/zh/docs/guide/feature-guide/admin/group"
+        }
+      ]
+    },
+    {
+      "id": "src-docs-930fe7f32f90",
+      "canonical_locator": "https://docs.aws.amazon.com/wellarchitected/latest/framework/rel_testing_resiliency_game_days_resiliency.html",
+      "transport_locator": "https://docs.aws.amazon.com/wellarchitected/latest/framework/rel_testing_resiliency_game_days_resiliency.html",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "REL12-BP05 Conduct game days regularly",
+      "author_or_org": "Amazon Web Services",
+      "published_at": null,
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "Current AWS Well-Architected Framework best-practice page checked on 2026-07-24",
+      "source_kind": "official-docs",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "comparison",
+        "definition",
+        "implementation",
+        "learning",
+        "method"
+      ],
+      "license": "CC-BY-SA-4.0",
+      "license_scope": "The named AWS documentation page covered by the AWS documentation CC BY-SA 4.0 notice; linked works, code, images, marks, and third-party material excluded",
+      "license_evidence_url": "https://aws.amazon.com/documentation-overview/",
+      "license_evidence_note": "AWS Documentation states that documentation content is licensed under Creative Commons Attribution-ShareAlike 4.0 unless otherwise indicated.",
+      "license_family_id": "https://docs.aws.amazon.com/wellarchitected/latest/framework/rel_testing_resiliency_game_days_resiliency.html",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "adapt-sharealike-review",
+      "usage_boundary": "Supports regular game days as exercises of systems, processes, and team response with lessons fed back into resilience work; AWS-specific services and risk levels are not universal requirements.",
+      "link_policy": "floating",
+      "expected_final_transport_locator": "https://docs.aws.amazon.com/wellarchitected/latest/framework/rel_testing_resiliency_game_days_resiliency.html",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Reviewed current AWS Well-Architected best-practice transport baseline",
+      "health_summary": "healthy",
+      "health_checks": [
+        {
+          "transport_locator": "https://docs.aws.amazon.com/wellarchitected/latest/framework/rel_testing_resiliency_game_days_resiliency.html",
+          "status": "healthy",
+          "last_attempt_at": "2026-07-24T13:46:23.837Z",
+          "last_success_at": "2026-07-24T13:46:23.837Z",
+          "http_status": 206,
+          "final_transport_locator": "https://docs.aws.amazon.com/wellarchitected/latest/framework/rel_testing_resiliency_game_days_resiliency.html"
         }
       ]
     },
@@ -16101,6 +16194,52 @@
       ]
     },
     {
+      "id": "src-hbr-081d06c5edff",
+      "canonical_locator": "https://hbr.org/2007/09/performing-a-project-premortem",
+      "transport_locator": "https://hbr.org/2007/09/performing-a-project-premortem",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "Performing a Project Premortem",
+      "author_or_org": "Gary Klein / Harvard Business Review",
+      "published_at": "2007-09-01",
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "Harvard Business Review Reprint F0709A, September 2007; page checked on 2026-07-24",
+      "source_kind": "independent-blog",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "definition",
+        "historical-context",
+        "learning",
+        "method"
+      ],
+      "license": "LicenseRef-All-Rights-Reserved",
+      "license_scope": "The named Harvard Business Review article only; full article text, linked works, images, marks, and third-party material excluded",
+      "license_evidence_url": "https://hbr.org/2007/09/performing-a-project-premortem",
+      "license_evidence_note": "No reusable license was established for the article; Atlas uses bibliographic facts and original factual summaries only.",
+      "license_family_id": "https://hbr.org/2007/09/performing-a-project-premortem",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "facts-and-short-quotation",
+      "usage_boundary": "Supports the premortem device of assuming project failure and eliciting plausible causes; it is not an incident postmortem procedure or proof that every identified cause is likely.",
+      "link_policy": "stable",
+      "expected_final_transport_locator": "https://hbr.org/2007/09/performing-a-project-premortem",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Reviewed HBR article transport baseline; bounded recheck returned a healthy article response",
+      "health_summary": "healthy",
+      "health_checks": [
+        {
+          "transport_locator": "https://hbr.org/2007/09/performing-a-project-premortem",
+          "status": "healthy",
+          "last_attempt_at": "2026-07-24T13:46:24.101Z",
+          "last_success_at": "2026-07-24T13:46:24.101Z",
+          "http_status": 206,
+          "final_transport_locator": "https://hbr.org/2007/09/performing-a-project-premortem"
+        }
+      ]
+    },
+    {
       "id": "src-iso-11f3b103e932",
       "canonical_locator": "https://www.iso.org/standard/78176.html",
       "transport_locator": "https://www.iso.org/standard/78176.html",
@@ -18036,6 +18175,52 @@
       ]
     },
     {
+      "id": "src-oreilly-7eb3a574d599",
+      "canonical_locator": "https://www.oreilly.com/library/view/building-evolutionary-architectures/9781492097532/",
+      "transport_locator": "https://www.oreilly.com/library/view/building-evolutionary-architectures/9781492097532/",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "Building Evolutionary Architectures, 2nd Edition",
+      "author_or_org": "Neal Ford, Rebecca Parsons, Patrick Kua, and Pramod Sadalage / O'Reilly Media",
+      "published_at": "2022-11-01",
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "Second edition, November 2022, ISBN 9781492097532; catalog page checked on 2026-07-24",
+      "source_kind": "textbook",
+      "tier": "secondary",
+      "allowed_evidence_roles": [
+        "definition",
+        "historical-context",
+        "learning",
+        "method"
+      ],
+      "license": "LicenseRef-All-Rights-Reserved",
+      "license_scope": "The named O'Reilly catalog and book work only; book text, code examples, linked works, cover art, marks, and third-party material excluded",
+      "license_evidence_url": "https://www.oreilly.com/library/view/building-evolutionary-architectures/9781492097532/",
+      "license_evidence_note": "No reusable license was established for the book; Atlas retains bibliographic facts, the link, and original factual summaries only.",
+      "license_family_id": "https://www.oreilly.com/library/view/building-evolutionary-architectures/9781492097532/",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "facts-and-short-quotation",
+      "usage_boundary": "Supports the definition, categories, and governance context of architectural fitness functions; it does not make one implementation, threshold, or release policy universally correct.",
+      "link_policy": "auth-required",
+      "expected_final_transport_locator": "https://www.oreilly.com/library/view/building-evolutionary-architectures/9781492097532/",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Reviewed O'Reilly second-edition catalog baseline; automated transport may return access-control responses",
+      "health_summary": "auth-required",
+      "health_checks": [
+        {
+          "transport_locator": "https://www.oreilly.com/library/view/building-evolutionary-architectures/9781492097532/",
+          "status": "auth-required",
+          "last_attempt_at": "2026-07-24T13:46:26.240Z",
+          "last_success_at": "2026-07-24T13:46:26.240Z",
+          "http_status": 403,
+          "final_transport_locator": "https://www.oreilly.com/library/view/building-evolutionary-architectures/9781492097532/"
+        }
+      ]
+    },
+    {
       "id": "src-release-1-20-1f4600ed7c4e",
       "canonical_locator": "https://release-1-20.docs.kubeedge.io/docs/architecture/edge/edgehub/",
       "transport_locator": "https://release-1-20.docs.kubeedge.io/docs/architecture/edge/edgehub/",
@@ -18432,6 +18617,51 @@
           "last_success_at": "2026-07-24T12:13:42.427Z",
           "http_status": 206,
           "final_transport_locator": "https://release-1-20.docs.kubeedge.io/docs/architecture/cloud/device_controller/"
+        }
+      ]
+    },
+    {
+      "id": "src-riskstorming-4c7868451f0e",
+      "canonical_locator": "https://riskstorming.com/",
+      "transport_locator": "https://riskstorming.com/",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "Risk-storming",
+      "author_or_org": "Simon Brown",
+      "published_at": null,
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "Current method site checked on 2026-07-24",
+      "source_kind": "independent-blog",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "definition",
+        "learning",
+        "method"
+      ],
+      "license": "CC-BY-4.0",
+      "license_scope": "Risk-storming site content covered by the CC BY 4.0 notice; linked works, marks, media, and third-party assets excluded",
+      "license_evidence_url": "https://riskstorming.com/",
+      "license_evidence_note": "The Risk-storming site footer identifies the work as licensed under Creative Commons Attribution 4.0.",
+      "license_family_id": "https://riskstorming.com/",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "adapt-with-attribution",
+      "usage_boundary": "Supports collaborative risk identification on architecture diagrams; it does not replace security threat modeling, quantitative risk analysis, or operational validation.",
+      "link_policy": "stable",
+      "expected_final_transport_locator": "https://riskstorming.com/",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Reviewed method site and CC BY 4.0 footer transport baseline",
+      "health_summary": "healthy",
+      "health_checks": [
+        {
+          "transport_locator": "https://riskstorming.com/",
+          "status": "healthy",
+          "last_attempt_at": "2026-07-24T13:46:25.850Z",
+          "last_success_at": "2026-07-24T13:46:25.850Z",
+          "http_status": 206,
+          "final_transport_locator": "https://riskstorming.com/"
         }
       ]
     },
@@ -19107,6 +19337,52 @@
           "last_success_at": "2026-07-24T12:13:42.427Z",
           "http_status": 206,
           "final_transport_locator": "https://sre.google/workbook/table-of-contents/"
+        }
+      ]
+    },
+    {
+      "id": "src-thoughtworks-32a10834c10f",
+      "canonical_locator": "https://www.thoughtworks.com/en-us/insights/articles/fitness-function-driven-development",
+      "transport_locator": "https://www.thoughtworks.com/en-us/insights/articles/fitness-function-driven-development",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "Fitness function-driven development",
+      "author_or_org": "Paula Paul and Rosemary Wang / Thoughtworks",
+      "published_at": "2019-01-11",
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "Article published 2019-01-11; canonical page checked on 2026-07-24",
+      "source_kind": "engineering-blog",
+      "tier": "first-party",
+      "allowed_evidence_roles": [
+        "definition",
+        "implementation",
+        "learning",
+        "method"
+      ],
+      "license": "LicenseRef-All-Rights-Reserved",
+      "license_scope": "The named Thoughtworks article only; linked works, code, images, marks, and third-party material excluded",
+      "license_evidence_url": "https://www.thoughtworks.com/en-us/insights/articles/fitness-function-driven-development",
+      "license_evidence_note": "No reusable license was established for the article; Atlas retains the link and original factual summaries only.",
+      "license_family_id": "https://www.thoughtworks.com/en-us/insights/articles/fitness-function-driven-development",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "facts-and-short-quotation",
+      "usage_boundary": "Supports continuous architectural feedback and pipeline practice; examples do not define universal thresholds or require every fitness function to block release.",
+      "link_policy": "floating",
+      "expected_final_transport_locator": "https://www.thoughtworks.com/en-us/insights/articles/fitness-function-driven-development",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Reviewed canonical Thoughtworks article transport baseline",
+      "health_summary": "healthy",
+      "health_checks": [
+        {
+          "transport_locator": "https://www.thoughtworks.com/en-us/insights/articles/fitness-function-driven-development",
+          "status": "healthy",
+          "last_attempt_at": "2026-07-24T13:46:27.219Z",
+          "last_success_at": "2026-07-24T13:46:27.219Z",
+          "http_status": 206,
+          "final_transport_locator": "https://www.thoughtworks.com/en-us/insights/articles/fitness-function-driven-development"
         }
       ]
     }
@@ -25024,6 +25300,185 @@
           "manifest_primary": true,
           "usage_mode": "facts-summary",
           "attribution_note": "Documenting Architecture Decisions, Michael Nygard / Cognitect",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        }
+      ]
+    },
+    "content/methods/mth-04-architecture-fitness-functions.mdx": {
+      "title": "架构适应度函数",
+      "slug": "/methods/mth-04",
+      "reviewed_at": "2026-07-24",
+      "copyright_checks": [
+        "original-structure",
+        "quotation-boundary",
+        "attribution-complete",
+        "illustration-rights"
+      ],
+      "citations": [
+        {
+          "source_id": "src-oreilly-7eb3a574d599",
+          "citation_url": "https://www.oreilly.com/library/view/building-evolutionary-architectures/9781492097532/",
+          "roles": [
+            "definition",
+            "method"
+          ],
+          "manifest_primary": false,
+          "usage_mode": "facts-summary",
+          "attribution_note": "Building Evolutionary Architectures, 2nd Edition, Neal Ford, Rebecca Parsons, Patrick Kua, and Pramod Sadalage / O'Reilly Media",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-thoughtworks-32a10834c10f",
+          "citation_url": "https://www.thoughtworks.com/en-us/insights/articles/fitness-function-driven-development",
+          "roles": [
+            "implementation",
+            "method"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "Fitness function-driven development, Paula Paul and Rosemary Wang / Thoughtworks",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        }
+      ]
+    },
+    "content/methods/mth-05-risk-storming-premortem.mdx": {
+      "title": "风险风暴与事前验尸",
+      "slug": "/methods/mth-05",
+      "reviewed_at": "2026-07-24",
+      "copyright_checks": [
+        "original-structure",
+        "quotation-boundary",
+        "attribution-complete",
+        "illustration-rights"
+      ],
+      "citations": [
+        {
+          "source_id": "src-cheatsheetseries-ea079221bd09",
+          "citation_url": "https://cheatsheetseries.owasp.org/cheatsheets/Threat_Modeling_Cheat_Sheet.html",
+          "roles": [
+            "comparison",
+            "method"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "Threat Modeling Cheat Sheet, OWASP Cheat Sheet Series",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-docs-930fe7f32f90",
+          "citation_url": "https://docs.aws.amazon.com/wellarchitected/latest/framework/rel_testing_resiliency_game_days_resiliency.html",
+          "roles": [
+            "comparison",
+            "method"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "REL12-BP05 Conduct game days regularly, Amazon Web Services",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-hbr-081d06c5edff",
+          "citation_url": "https://hbr.org/2007/09/performing-a-project-premortem",
+          "roles": [
+            "definition",
+            "method"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "Performing a Project Premortem, Gary Klein / Harvard Business Review",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-riskstorming-4c7868451f0e",
+          "citation_url": "https://riskstorming.com/",
+          "roles": [
+            "definition",
+            "method"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "Risk-storming, Simon Brown",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        }
+      ]
+    },
+    "content/methods/mth-06-requirements-to-evolution-loop.mdx": {
+      "title": "从需求到演进的架构闭环",
+      "slug": "/methods/mth-06",
+      "reviewed_at": "2026-07-24",
+      "copyright_checks": [
+        "original-structure",
+        "quotation-boundary",
+        "attribution-complete",
+        "illustration-rights"
+      ],
+      "citations": [
+        {
+          "source_id": "src-nygard-documenting-architecture-decisions-2011",
+          "citation_url": "https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions",
+          "roles": [
+            "definition",
+            "method"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "Documenting Architecture Decisions, Michael Nygard / Cognitect",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-sei-0547756e19ba",
+          "citation_url": "https://www.sei.cmu.edu/library/quality-attribute-workshops-qaws-third-edition/",
+          "roles": [
+            "definition",
+            "method"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "Quality Attribute Workshops (QAWs), Third Edition, Carnegie Mellon Software Engineering Institute",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-sei-atam-1998",
+          "citation_url": "https://www.sei.cmu.edu/library/the-architecture-tradeoff-analysis-method/",
+          "roles": [
+            "definition",
+            "method"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "The Architecture Tradeoff Analysis Method, Carnegie Mellon Software Engineering Institute",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-thoughtworks-32a10834c10f",
+          "citation_url": "https://www.thoughtworks.com/en-us/insights/articles/fitness-function-driven-development",
+          "roles": [
+            "implementation",
+            "method"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "Fitness function-driven development, Paula Paul and Rosemary Wang / Thoughtworks",
           "modification_note": null,
           "excerpt": null,
           "quotation_reviewed": false

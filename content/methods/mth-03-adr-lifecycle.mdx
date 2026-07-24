@@ -25,6 +25,7 @@ depends_on:
   - QA-01
 adjacent_topics:
   - FND-05
+  - MTH-04
   - QA-01
 related_cases:
   - /cases/kubernetes-reconciliation-loop
@@ -75,7 +76,7 @@ stateDiagram-v2
 
 ## 与其他方法的衔接
 
-场景评审提供决策输入，风险分析揭示失败后果，ADR 固化被授权的取舍，实施验证再为复核提供证据。[架构债与演进式设计](/concepts/fnd-05)说明为什么决定需要随证据演进，[质量属性场景写法](/quality-attributes/qa-01)提供可比较的决策输入。在 [Kubernetes reconciliation loop 案例](/cases/kubernetes-reconciliation-loop)中，可用 ADR 区分“采用声明式期望状态”的决定与具体控制器实现细节。
+场景评审提供决策输入，风险分析揭示失败后果，ADR 固化被授权的取舍，实施验证再为复核提供证据。[架构债与演进式设计](/concepts/fnd-05)说明为什么决定需要随证据演进，[架构适应度函数](/methods/mth-04)把决定转成持续反馈，[质量属性场景写法](/quality-attributes/qa-01)提供可比较的决策输入。在 [Kubernetes reconciliation loop 案例](/cases/kubernetes-reconciliation-loop)中，可用 ADR 区分“采用声明式期望状态”的决定与具体控制器实现细节。
 
 ## 完整演练
 

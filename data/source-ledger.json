@@ -694,6 +694,102 @@
       "expected_final_approval_note": "Initial reviewed migration transport baseline"
     },
     {
+      "id": "src-atlas-agents-guardrail-boundary-de06a6a05869",
+      "canonical_locator": "/img/illustrations/openai-agents-sdk-guardrail-boundary.png",
+      "transport_locator": "/img/illustrations/openai-agents-sdk-guardrail-boundary.png",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "OpenAI Agents SDK guardrail and business-action boundary illustration — Agentic Architecture Atlas maintainers",
+      "author_or_org": "Agentic Architecture Atlas maintainers",
+      "published_at": null,
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "Original PNG generated and QA-checked on 2026-07-24",
+      "source_kind": "original-illustration",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "illustration"
+      ],
+      "license": "LicenseRef-Atlas-Original",
+      "license_scope": "The named run guardrails and an independent pre-write business-action gate illustration only",
+      "license_evidence_url": "https://github.com/sealday/agentic-architecture-atlas/blob/main/static/img/illustrations/openai-agents-sdk-guardrail-boundary.png",
+      "license_evidence_note": "The image was generated from a project-authored brief for this atlas; original-illustration coverage is limited to the named PNG.",
+      "license_family_id": "/img/illustrations/openai-agents-sdk-guardrail-boundary.png",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "original-atlas",
+      "usage_boundary": "Explains the separation between SDK guardrails and business authorization, approval, idempotency, and external-state checks; it does not establish factual claims or guarantee side-effect safety.",
+      "link_policy": null,
+      "expected_final_transport_locator": "/img/illustrations/openai-agents-sdk-guardrail-boundary.png",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Original atlas illustration approved after text, topology, originality, and responsive QA"
+    },
+    {
+      "id": "src-atlas-agents-handoff-tool-fa2c6ce9ffed",
+      "canonical_locator": "/img/illustrations/openai-agents-sdk-handoff-vs-tool.png",
+      "transport_locator": "/img/illustrations/openai-agents-sdk-handoff-vs-tool.png",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "OpenAI Agents SDK handoff versus agent-as-tool control illustration — Agentic Architecture Atlas maintainers",
+      "author_or_org": "Agentic Architecture Atlas maintainers",
+      "published_at": null,
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "Original PNG generated and QA-checked on 2026-07-24",
+      "source_kind": "original-illustration",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "illustration"
+      ],
+      "license": "LicenseRef-Atlas-Original",
+      "license_scope": "The named conversational control transfer versus bounded delegated work that returns illustration only",
+      "license_evidence_url": "https://github.com/sealday/agentic-architecture-atlas/blob/main/static/img/illustrations/openai-agents-sdk-handoff-vs-tool.png",
+      "license_evidence_note": "The image was generated from a project-authored brief for this atlas; original-illustration coverage is limited to the named PNG.",
+      "license_family_id": "/img/illustrations/openai-agents-sdk-handoff-vs-tool.png",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "original-atlas",
+      "usage_boundary": "Explains the control-ownership difference between Handoff and Agents-as-Tools; it does not establish factual claims or imply either pattern is universally preferred.",
+      "link_policy": null,
+      "expected_final_transport_locator": "/img/illustrations/openai-agents-sdk-handoff-vs-tool.png",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Original atlas illustration approved after text, topology, originality, and responsive QA"
+    },
+    {
+      "id": "src-atlas-agents-run-control-0e1d1904e70c",
+      "canonical_locator": "/img/illustrations/openai-agents-sdk-run-control.png",
+      "transport_locator": "/img/illustrations/openai-agents-sdk-run-control.png",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "OpenAI Agents SDK run-control loop illustration — Agentic Architecture Atlas maintainers",
+      "author_or_org": "Agentic Architecture Atlas maintainers",
+      "published_at": null,
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "Original PNG generated and QA-checked on 2026-07-24",
+      "source_kind": "original-illustration",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "illustration"
+      ],
+      "license": "LicenseRef-Atlas-Original",
+      "license_scope": "The named one Runner invocation, tool action, result loop, termination, and turn limit illustration only",
+      "license_evidence_url": "https://github.com/sealday/agentic-architecture-atlas/blob/main/static/img/illustrations/openai-agents-sdk-run-control.png",
+      "license_evidence_note": "The image was generated from a project-authored brief for this atlas; original-illustration coverage is limited to the named PNG.",
+      "license_family_id": "/img/illustrations/openai-agents-sdk-run-control.png",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "original-atlas",
+      "usage_boundary": "Explains one Runner invocation and its turn limit; it does not establish factual claims or bound application retries, fan-out, or nested runs.",
+      "link_policy": null,
+      "expected_final_transport_locator": "/img/illustrations/openai-agents-sdk-run-control.png",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Original atlas illustration approved after text, topology, originality, and responsive QA"
+    },
+    {
       "id": "src-atlas-five-control-gates-a335f1f23d4a",
       "canonical_locator": "/img/illustrations/microsoft-multi-agent-reference-architecture-five-control-gates.png",
       "transport_locator": "/img/illustrations/microsoft-multi-agent-reference-architecture-five-control-gates.png",
@@ -722,6 +818,262 @@
       "usage_boundary": "Explains the five deterministic control gates that bound multi-agent autonomy; it does not establish factual claims, reproduce the Microsoft reference diagram, or claim a Microsoft product implementation.",
       "link_policy": null,
       "expected_final_transport_locator": "/img/illustrations/microsoft-multi-agent-reference-architecture-five-control-gates.png",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Original atlas illustration approved after text, topology, originality, and responsive QA"
+    },
+    {
+      "id": "src-atlas-kafka-partition-ownership-a43f4f08e4d3",
+      "canonical_locator": "/img/illustrations/apache-kafka-consumer-groups-partition-ownership.png",
+      "transport_locator": "/img/illustrations/apache-kafka-consumer-groups-partition-ownership.png",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "Kafka consumer-group partition ownership illustration — Agentic Architecture Atlas maintainers",
+      "author_or_org": "Agentic Architecture Atlas maintainers",
+      "published_at": null,
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "Original PNG generated and QA-checked on 2026-07-24",
+      "source_kind": "original-illustration",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "illustration"
+      ],
+      "license": "LicenseRef-Atlas-Original",
+      "license_scope": "The named current partition assignment across consumers in one group illustration only",
+      "license_evidence_url": "https://github.com/sealday/agentic-architecture-atlas/blob/main/static/img/illustrations/apache-kafka-consumer-groups-partition-ownership.png",
+      "license_evidence_note": "The image was generated from a project-authored brief for this atlas; original-illustration coverage is limited to the named PNG.",
+      "license_family_id": "/img/illustrations/apache-kafka-consumer-groups-partition-ownership.png",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "original-atlas",
+      "usage_boundary": "Explains current partition read ownership within one consumer group; it does not establish factual claims, create a business lock, or guarantee exactly-once effects.",
+      "link_policy": null,
+      "expected_final_transport_locator": "/img/illustrations/apache-kafka-consumer-groups-partition-ownership.png",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Original atlas illustration approved after text, topology, originality, and responsive QA"
+    },
+    {
+      "id": "src-atlas-kafka-rebalance-loop-773b5a565ab7",
+      "canonical_locator": "/img/illustrations/apache-kafka-consumer-groups-rebalance-loop.png",
+      "transport_locator": "/img/illustrations/apache-kafka-consumer-groups-rebalance-loop.png",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "Kafka consumer-group rebalance loop illustration — Agentic Architecture Atlas maintainers",
+      "author_or_org": "Agentic Architecture Atlas maintainers",
+      "published_at": null,
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "Original PNG generated and QA-checked on 2026-07-24",
+      "source_kind": "original-illustration",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "illustration"
+      ],
+      "license": "LicenseRef-Atlas-Original",
+      "license_scope": "The named partition revoke, reassignment, recovery, and the separate in-flight-work risk illustration only",
+      "license_evidence_url": "https://github.com/sealday/agentic-architecture-atlas/blob/main/static/img/illustrations/apache-kafka-consumer-groups-rebalance-loop.png",
+      "license_evidence_note": "The image was generated from a project-authored brief for this atlas; original-illustration coverage is limited to the named PNG.",
+      "license_family_id": "/img/illustrations/apache-kafka-consumer-groups-rebalance-loop.png",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "original-atlas",
+      "usage_boundary": "Explains partition ownership transfer during rebalance and the separate risk of in-flight work; it does not establish factual claims, imply seamless consumption, or cancel external side effects.",
+      "link_policy": null,
+      "expected_final_transport_locator": "/img/illustrations/apache-kafka-consumer-groups-rebalance-loop.png",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Original atlas illustration approved after text, topology, originality, and responsive QA"
+    },
+    {
+      "id": "src-atlas-kong-control-layers-6bff4004677a",
+      "canonical_locator": "/img/illustrations/kong-ai-gateway-routing-resilience-control-layers.png",
+      "transport_locator": "/img/illustrations/kong-ai-gateway-routing-resilience-control-layers.png",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "Kong AI gateway control layers illustration — Agentic Architecture Atlas maintainers",
+      "author_or_org": "Agentic Architecture Atlas maintainers",
+      "published_at": null,
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "Original PNG generated and QA-checked on 2026-07-24",
+      "source_kind": "original-illustration",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "illustration"
+      ],
+      "license": "LicenseRef-Atlas-Original",
+      "license_scope": "The named client, gateway policy and routing, provider execution, and separate business recovery responsibilities illustration only",
+      "license_evidence_url": "https://github.com/sealday/agentic-architecture-atlas/blob/main/static/img/illustrations/kong-ai-gateway-routing-resilience-control-layers.png",
+      "license_evidence_note": "The image was generated from a project-authored brief for this atlas; original-illustration coverage is limited to the named PNG.",
+      "license_family_id": "/img/illustrations/kong-ai-gateway-routing-resilience-control-layers.png",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "original-atlas",
+      "usage_boundary": "Explains the separation among client intent, gateway policy and routing, provider execution, and business recovery; it does not establish factual claims or imply the gateway owns business-side recovery.",
+      "link_policy": null,
+      "expected_final_transport_locator": "/img/illustrations/kong-ai-gateway-routing-resilience-control-layers.png",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Original atlas illustration approved after text, topology, originality, and responsive QA"
+    },
+    {
+      "id": "src-atlas-kong-failure-route-eabc5c905ae6",
+      "canonical_locator": "/img/illustrations/kong-ai-gateway-routing-resilience-failure-route.png",
+      "transport_locator": "/img/illustrations/kong-ai-gateway-routing-resilience-failure-route.png",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "Kong AI gateway bounded failure route illustration — Agentic Architecture Atlas maintainers",
+      "author_or_org": "Agentic Architecture Atlas maintainers",
+      "published_at": null,
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "Original PNG generated and QA-checked on 2026-07-24",
+      "source_kind": "original-illustration",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "illustration"
+      ],
+      "license": "LicenseRef-Atlas-Original",
+      "license_scope": "The named failure classification, bounded retry or fallback, success return, and exhausted failure return illustration only",
+      "license_evidence_url": "https://github.com/sealday/agentic-architecture-atlas/blob/main/static/img/illustrations/kong-ai-gateway-routing-resilience-failure-route.png",
+      "license_evidence_note": "The image was generated from a project-authored brief for this atlas; original-illustration coverage is limited to the named PNG.",
+      "license_family_id": "/img/illustrations/kong-ai-gateway-routing-resilience-failure-route.png",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "original-atlas",
+      "usage_boundary": "Explains failure classification and bounded retry or fallback; it does not establish factual claims, guarantee fallback success, or authorize unbounded retries.",
+      "link_policy": null,
+      "expected_final_transport_locator": "/img/illustrations/kong-ai-gateway-routing-resilience-failure-route.png",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Original atlas illustration approved after text, topology, originality, and responsive QA"
+    },
+    {
+      "id": "src-atlas-kong-policy-boundary-ad7926a7eab8",
+      "canonical_locator": "/img/illustrations/kong-ai-gateway-routing-resilience-policy-boundary.png",
+      "transport_locator": "/img/illustrations/kong-ai-gateway-routing-resilience-policy-boundary.png",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "Kong routing-resilience policy boundary illustration — Agentic Architecture Atlas maintainers",
+      "author_or_org": "Agentic Architecture Atlas maintainers",
+      "published_at": null,
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "Original PNG generated and QA-checked on 2026-07-24",
+      "source_kind": "original-illustration",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "illustration"
+      ],
+      "license": "LicenseRef-Atlas-Original",
+      "license_scope": "The named separate authorization, cost, and duplicate-side-effect controls around gateway routing illustration only",
+      "license_evidence_url": "https://github.com/sealday/agentic-architecture-atlas/blob/main/static/img/illustrations/kong-ai-gateway-routing-resilience-policy-boundary.png",
+      "license_evidence_note": "The image was generated from a project-authored brief for this atlas; original-illustration coverage is limited to the named PNG.",
+      "license_family_id": "/img/illustrations/kong-ai-gateway-routing-resilience-policy-boundary.png",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "original-atlas",
+      "usage_boundary": "Explains that routing resilience remains separate from authorization, cost, and duplicate-side-effect governance; it does not establish factual claims or guarantee exactly-once external effects.",
+      "link_policy": null,
+      "expected_final_transport_locator": "/img/illustrations/kong-ai-gateway-routing-resilience-policy-boundary.png",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Original atlas illustration approved after text, topology, originality, and responsive QA"
+    },
+    {
+      "id": "src-atlas-litellm-budget-gates-2134c02fb563",
+      "canonical_locator": "/img/illustrations/litellm-virtual-keys-governance-budget-gates.png",
+      "transport_locator": "/img/illustrations/litellm-virtual-keys-governance-budget-gates.png",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "LiteLLM budget and rate-limit gates illustration — Agentic Architecture Atlas maintainers",
+      "author_or_org": "Agentic Architecture Atlas maintainers",
+      "published_at": null,
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "Original PNG generated and QA-checked on 2026-07-24",
+      "source_kind": "original-illustration",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "illustration"
+      ],
+      "license": "LicenseRef-Atlas-Original",
+      "license_scope": "The named budget and rate-limit admission gates before model access illustration only",
+      "license_evidence_url": "https://github.com/sealday/agentic-architecture-atlas/blob/main/static/img/illustrations/litellm-virtual-keys-governance-budget-gates.png",
+      "license_evidence_note": "The image was generated from a project-authored brief for this atlas; original-illustration coverage is limited to the named PNG.",
+      "license_family_id": "/img/illustrations/litellm-virtual-keys-governance-budget-gates.png",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "original-atlas",
+      "usage_boundary": "Explains budget and rate-limit admission before model access; it does not establish factual claims, cross-instance atomic reservation, or zero overspend.",
+      "link_policy": null,
+      "expected_final_transport_locator": "/img/illustrations/litellm-virtual-keys-governance-budget-gates.png",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Original atlas illustration approved after text, topology, originality, and responsive QA"
+    },
+    {
+      "id": "src-atlas-litellm-control-path-28044852993d",
+      "canonical_locator": "/img/illustrations/litellm-virtual-keys-governance-control-path.png",
+      "transport_locator": "/img/illustrations/litellm-virtual-keys-governance-control-path.png",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "LiteLLM virtual-key governance control path illustration — Agentic Architecture Atlas maintainers",
+      "author_or_org": "Agentic Architecture Atlas maintainers",
+      "published_at": null,
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "Original PNG generated and QA-checked on 2026-07-24",
+      "source_kind": "original-illustration",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "illustration"
+      ],
+      "license": "LicenseRef-Atlas-Original",
+      "license_scope": "The named virtual-key identity, policy, budget, routing, and provider-credential custody illustration only",
+      "license_evidence_url": "https://github.com/sealday/agentic-architecture-atlas/blob/main/static/img/illustrations/litellm-virtual-keys-governance-control-path.png",
+      "license_evidence_note": "The image was generated from a project-authored brief for this atlas; original-illustration coverage is limited to the named PNG.",
+      "license_family_id": "/img/illustrations/litellm-virtual-keys-governance-control-path.png",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "original-atlas",
+      "usage_boundary": "Explains the ordering of virtual-key identity, model policy, budget checks, routing, and provider-credential custody; it does not establish factual claims, atomic budget reservation, or a product guarantee.",
+      "link_policy": null,
+      "expected_final_transport_locator": "/img/illustrations/litellm-virtual-keys-governance-control-path.png",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Original atlas illustration approved after text, topology, originality, and responsive QA"
+    },
+    {
+      "id": "src-atlas-litellm-governance-boundary-f7ff2c2b8f5d",
+      "canonical_locator": "/img/illustrations/litellm-virtual-keys-governance-governance-boundary.png",
+      "transport_locator": "/img/illustrations/litellm-virtual-keys-governance-governance-boundary.png",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "LiteLLM governed proxy and direct-credential boundary illustration — Agentic Architecture Atlas maintainers",
+      "author_or_org": "Agentic Architecture Atlas maintainers",
+      "published_at": null,
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "Original PNG generated and QA-checked on 2026-07-24",
+      "source_kind": "original-illustration",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "illustration"
+      ],
+      "license": "LicenseRef-Atlas-Original",
+      "license_scope": "The named governed proxy path and direct provider-credential bypass risk illustration only",
+      "license_evidence_url": "https://github.com/sealday/agentic-architecture-atlas/blob/main/static/img/illustrations/litellm-virtual-keys-governance-governance-boundary.png",
+      "license_evidence_note": "The image was generated from a project-authored brief for this atlas; original-illustration coverage is limited to the named PNG.",
+      "license_family_id": "/img/illustrations/litellm-virtual-keys-governance-governance-boundary.png",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "original-atlas",
+      "usage_boundary": "Explains the governed proxy path and direct provider-credential bypass risk; it does not establish factual claims or replace upstream provider authorization.",
+      "link_policy": null,
+      "expected_final_transport_locator": "/img/illustrations/litellm-virtual-keys-governance-governance-boundary.png",
       "expected_final_approved_at": "2026-07-24",
       "expected_final_approval_note": "Original atlas illustration approved after text, topology, originality, and responsive QA"
     },
@@ -836,6 +1188,40 @@
       "expected_final_approval_note": "Permanent migration to the current official AWS Builder Center page manually reviewed on 2026-07-24"
     },
     {
+      "id": "src-c4model-abstractions",
+      "canonical_locator": "https://c4model.com/abstractions",
+      "transport_locator": "https://c4model.com/abstractions",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "C4 Model — Abstractions",
+      "author_or_org": "Simon Brown",
+      "published_at": null,
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "Current abstractions page checked on 2026-07-24",
+      "source_kind": "official-docs",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "definition",
+        "learning",
+        "method"
+      ],
+      "license": "CC-BY-4.0",
+      "license_scope": "C4 Model site content covered by the CC BY 4.0 footer; trademarks, linked works, code, media, and third-party assets excluded",
+      "license_evidence_url": "https://c4model.com/",
+      "license_evidence_note": "The official C4 Model site footer identifies its content as CC BY 4.0; this record covers factual summary of the abstractions page with attribution.",
+      "license_family_id": "https://c4model.com/abstractions",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "adapt-with-attribution",
+      "usage_boundary": "Defines the C4 abstraction hierarchy and terminology; it is not a universal architecture ontology and does not establish architecture fitness.",
+      "link_policy": "stable",
+      "expected_final_transport_locator": "https://c4model.com/abstractions",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Initial reviewed transport baseline"
+    },
+    {
       "id": "src-c4model-f5342a5e8659",
       "canonical_locator": "https://c4model.com/",
       "transport_locator": "https://c4model.com/",
@@ -875,6 +1261,41 @@
       "expected_final_approval_note": "Initial reviewed migration transport baseline"
     },
     {
+      "id": "src-cheatsheetseries-ea079221bd09",
+      "canonical_locator": "https://cheatsheetseries.owasp.org/cheatsheets/Threat_Modeling_Cheat_Sheet.html",
+      "transport_locator": "https://cheatsheetseries.owasp.org/cheatsheets/Threat_Modeling_Cheat_Sheet.html",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "Threat Modeling Cheat Sheet",
+      "author_or_org": "OWASP Cheat Sheet Series",
+      "published_at": null,
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "Current OWASP Cheat Sheet Series page checked on 2026-07-24",
+      "source_kind": "official-docs",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "comparison",
+        "definition",
+        "learning",
+        "method"
+      ],
+      "license": "CC-BY-SA-4.0",
+      "license_scope": "OWASP Cheat Sheet Series content covered by CC BY-SA 4.0; linked works, code, marks, media, and third-party material under separate notices excluded",
+      "license_evidence_url": "https://github.com/OWASP/CheatSheetSeries/blob/master/LICENSE.md",
+      "license_evidence_note": "The OWASP Cheat Sheet Series repository LICENSE identifies Creative Commons Attribution-ShareAlike 4.0.",
+      "license_family_id": "https://cheatsheetseries.owasp.org/cheatsheets/Threat_Modeling_Cheat_Sheet.html",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "adapt-sharealike-review",
+      "usage_boundary": "Supports a practical threat-modeling workflow and its lifecycle use; it does not make threat modeling a substitute for broader architecture risk analysis or operational exercises.",
+      "link_policy": "floating",
+      "expected_final_transport_locator": "https://cheatsheetseries.owasp.org/cheatsheets/Threat_Modeling_Cheat_Sheet.html",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Reviewed current OWASP Cheat Sheet Series transport and CC BY-SA 4.0 baseline"
+    },
+    {
       "id": "src-cosmicpython-dfb7a7470477",
       "canonical_locator": "https://www.cosmicpython.com/book/preface.html",
       "transport_locator": "https://www.cosmicpython.com/book/preface.html",
@@ -912,6 +1333,40 @@
       "expected_final_transport_locator": "https://www.cosmicpython.com/book/preface",
       "expected_final_approved_at": "2026-07-24",
       "expected_final_approval_note": "Same-page .html suffix normalization manually reviewed on 2026-07-24"
+    },
+    {
+      "id": "src-cunningham-wycash-1992",
+      "canonical_locator": "https://dl.acm.org/doi/10.1145/157710.157715",
+      "transport_locator": "https://dl.acm.org/doi/10.1145/157710.157715",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "The WyCash Portfolio Management System",
+      "author_or_org": "Ward Cunningham / ACM",
+      "published_at": "1992-12-01",
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "OOPSLA 1992 experience report, DOI 10.1145/157710.157715",
+      "source_kind": "paper",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "definition",
+        "historical-context",
+        "learning"
+      ],
+      "license": "LicenseRef-All-Rights-Reserved",
+      "license_scope": "The cited ACM paper and factual bibliographic metadata only; full text, linked works, and third-party material excluded",
+      "license_evidence_url": "https://dl.acm.org/doi/10.1145/157710.157715",
+      "license_evidence_note": "No reusable license was established for the ACM paper; Atlas retains the canonical link and original factual summary only.",
+      "license_family_id": "doi:10.1145/157710.157715",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "facts-and-short-quotation",
+      "usage_boundary": "Supports the historical debt metaphor in the WyCash experience; it does not define every modern form of technical or architecture debt.",
+      "link_policy": "auth-required",
+      "expected_final_transport_locator": "https://dl.acm.org/doi/10.1145/157710.157715",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Initial reviewed DOI transport baseline"
     },
     {
       "id": "src-d1-722c6fdba330",
@@ -3607,6 +4062,42 @@
       "expected_final_transport_locator": "https://docs.newapi.pro/zh/docs/guide/feature-guide/admin/group",
       "expected_final_approved_at": "2026-07-24",
       "expected_final_approval_note": "Initial reviewed migration transport baseline"
+    },
+    {
+      "id": "src-docs-930fe7f32f90",
+      "canonical_locator": "https://docs.aws.amazon.com/wellarchitected/latest/framework/rel_testing_resiliency_game_days_resiliency.html",
+      "transport_locator": "https://docs.aws.amazon.com/wellarchitected/latest/framework/rel_testing_resiliency_game_days_resiliency.html",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "REL12-BP05 Conduct game days regularly",
+      "author_or_org": "Amazon Web Services",
+      "published_at": null,
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "Current AWS Well-Architected Framework best-practice page checked on 2026-07-24",
+      "source_kind": "official-docs",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "comparison",
+        "definition",
+        "implementation",
+        "learning",
+        "method"
+      ],
+      "license": "CC-BY-SA-4.0",
+      "license_scope": "The named AWS documentation page covered by the AWS documentation CC BY-SA 4.0 notice; linked works, code, images, marks, and third-party material excluded",
+      "license_evidence_url": "https://aws.amazon.com/documentation-overview/",
+      "license_evidence_note": "AWS Documentation states that documentation content is licensed under Creative Commons Attribution-ShareAlike 4.0 unless otherwise indicated.",
+      "license_family_id": "https://docs.aws.amazon.com/wellarchitected/latest/framework/rel_testing_resiliency_game_days_resiliency.html",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "adapt-sharealike-review",
+      "usage_boundary": "Supports regular game days as exercises of systems, processes, and team response with lessons fed back into resilience work; AWS-specific services and risk levels are not universal requirements.",
+      "link_policy": "floating",
+      "expected_final_transport_locator": "https://docs.aws.amazon.com/wellarchitected/latest/framework/rel_testing_resiliency_game_days_resiliency.html",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Reviewed current AWS Well-Architected best-practice transport baseline"
     },
     {
       "id": "src-docs-98190fb68ecb",
@@ -12201,6 +12692,41 @@
       "expected_final_approval_note": "Official Google ADK documentation migration to adk.dev manually reviewed on 2026-07-24"
     },
     {
+      "id": "src-hbr-081d06c5edff",
+      "canonical_locator": "https://hbr.org/2007/09/performing-a-project-premortem",
+      "transport_locator": "https://hbr.org/2007/09/performing-a-project-premortem",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "Performing a Project Premortem",
+      "author_or_org": "Gary Klein / Harvard Business Review",
+      "published_at": "2007-09-01",
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "Harvard Business Review Reprint F0709A, September 2007; page checked on 2026-07-24",
+      "source_kind": "independent-blog",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "definition",
+        "historical-context",
+        "learning",
+        "method"
+      ],
+      "license": "LicenseRef-All-Rights-Reserved",
+      "license_scope": "The named Harvard Business Review article only; full article text, linked works, images, marks, and third-party material excluded",
+      "license_evidence_url": "https://hbr.org/2007/09/performing-a-project-premortem",
+      "license_evidence_note": "No reusable license was established for the article; Atlas uses bibliographic facts and original factual summaries only.",
+      "license_family_id": "https://hbr.org/2007/09/performing-a-project-premortem",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "facts-and-short-quotation",
+      "usage_boundary": "Supports the premortem device of assuming project failure and eliciting plausible causes; it is not an incident postmortem procedure or proof that every identified cause is likely.",
+      "link_policy": "stable",
+      "expected_final_transport_locator": "https://hbr.org/2007/09/performing-a-project-premortem",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Reviewed HBR article transport baseline; bounded recheck returned a healthy article response"
+    },
+    {
       "id": "src-iso-11f3b103e932",
       "canonical_locator": "https://www.iso.org/standard/78176.html",
       "transport_locator": "https://www.iso.org/standard/78176.html",
@@ -12238,6 +12764,40 @@
       "expected_final_transport_locator": "https://www.iso.org/standard/78176.html",
       "expected_final_approved_at": "2026-07-24",
       "expected_final_approval_note": "Initial reviewed migration transport baseline"
+    },
+    {
+      "id": "src-iso-42010-2022",
+      "canonical_locator": "https://www.iso.org/standard/74393.html",
+      "transport_locator": "https://www.iso.org/standard/74393.html",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "ISO/IEC/IEEE 42010:2022 — Software, systems and enterprise — Architecture description",
+      "author_or_org": "International Organization for Standardization",
+      "published_at": "2022-11-07",
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "Edition 2, published 2022-11; public abstract checked on 2026-07-24",
+      "source_kind": "standard",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "comparison",
+        "definition",
+        "method"
+      ],
+      "license": "LicenseRef-Proprietary-Standard",
+      "license_scope": "The named ISO work page and its public abstract only; full standard text, linked works, marks, and third-party material excluded",
+      "license_evidence_url": "https://www.iso.org/standard/74393.html",
+      "license_evidence_note": "The ISO work page does not grant a reusable license for the standard; Atlas uses only factual bibliographic metadata and original summary of the public abstract.",
+      "license_family_id": "https://www.iso.org/standard/74393.html",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "facts-and-short-quotation",
+      "usage_boundary": "Supports public boundaries for architecture descriptions; it does not specify architecting methods, notations, tools, formats, or architecture fitness.",
+      "link_policy": "stable",
+      "expected_final_transport_locator": "https://www.iso.org/standard/74393.html",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Initial reviewed Edition 2 work-page transport baseline"
     },
     {
       "id": "src-kafka-1e24e93ac008",
@@ -13254,6 +13814,75 @@
       "expected_final_approval_note": "Repeated live checks on 2026-07-24 returned public HTTP 200 without a login wall"
     },
     {
+      "id": "src-martin-fowler-architecture-decision-record-2026",
+      "canonical_locator": "https://martinfowler.com/bliki/ArchitectureDecisionRecord.html",
+      "transport_locator": "https://martinfowler.com/bliki/ArchitectureDecisionRecord.html",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "Architecture Decision Record",
+      "author_or_org": "Martin Fowler",
+      "published_at": "2026-03-24",
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "Bliki entry dated 24 March 2026; checked on 2026-07-24",
+      "source_kind": "independent-blog",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "definition",
+        "method",
+        "learning"
+      ],
+      "license": "LicenseRef-All-Rights-Reserved",
+      "license_scope": "The named Martin Fowler bliki entry only; linked works, code, marks, and third-party material excluded",
+      "license_evidence_url": "https://martinfowler.com/bliki/ArchitectureDecisionRecord.html",
+      "license_evidence_note": "No reusable license was established for the bliki entry; Atlas retains the link and original factual summary only.",
+      "license_family_id": "https://martinfowler.com/bliki/ArchitectureDecisionRecord.html",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "facts-and-short-quotation",
+      "usage_boundary": "Supports current ADR purpose and supersession links; it does not validate the correctness of a particular architecture decision.",
+      "link_policy": "stable",
+      "expected_final_transport_locator": "https://martinfowler.com/bliki/ArchitectureDecisionRecord.html",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Initial reviewed bliki transport baseline"
+    },
+    {
+      "id": "src-martin-fowler-is-design-dead-2004",
+      "canonical_locator": "https://martinfowler.com/articles/designDead.html",
+      "transport_locator": "https://martinfowler.com/articles/designDead.html",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "Is Design Dead?",
+      "author_or_org": "Martin Fowler",
+      "published_at": "2004-05-01",
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "May 2004 article; page checked on 2026-07-24",
+      "source_kind": "independent-blog",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "definition",
+        "method",
+        "historical-context",
+        "learning"
+      ],
+      "license": "LicenseRef-All-Rights-Reserved",
+      "license_scope": "The named Martin Fowler article only; linked works, code, marks, and third-party material excluded",
+      "license_evidence_url": "https://martinfowler.com/articles/designDead.html",
+      "license_evidence_note": "No reusable license was established for the article; Atlas retains the link and original factual summary only.",
+      "license_family_id": "https://martinfowler.com/articles/designDead.html",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "facts-and-short-quotation",
+      "usage_boundary": "Supports the planned-versus-evolutionary design discussion in its stated context; it does not prove that architecture can emerge without deliberate design.",
+      "link_policy": "stable",
+      "expected_final_transport_locator": "https://martinfowler.com/articles/designDead.html",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Initial reviewed article transport baseline"
+    },
+    {
       "id": "src-martinfowler-0ec749cd01b8",
       "canonical_locator": "https://martinfowler.com/articles/micro-frontends.html",
       "transport_locator": "https://martinfowler.com/articles/micro-frontends.html",
@@ -13410,6 +14039,161 @@
       "expected_final_approval_note": "Initial reviewed migration transport baseline"
     },
     {
+      "id": "src-nasa-architecture-description-vd",
+      "canonical_locator": "https://nodis3.gsfc.nasa.gov/npg_img/N_PR_7150_002D_/N_PR_7150_002D__Chapter4.pdf",
+      "transport_locator": "https://nodis3.gsfc.nasa.gov/npg_img/N_PR_7150_002D_/N_PR_7150_002D__Chapter4.pdf",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "NPR 7150.2D Chapter 4 — Software Engineering Life Cycle",
+      "author_or_org": "National Aeronautics and Space Administration",
+      "published_at": null,
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "NPR 7150.2D, Chapter 4 PDF; checked on 2026-07-24",
+      "source_kind": "official-docs",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "comparison",
+        "definition",
+        "learning",
+        "method"
+      ],
+      "license": "LicenseRef-All-Rights-Reserved",
+      "license_scope": "The named NASA NPR 7150.2D Chapter 4 PDF only; embedded third-party quotations, linked works, marks, and media excluded",
+      "license_evidence_url": "https://nodis3.gsfc.nasa.gov/npg_img/N_PR_7150_002D_/N_PR_7150_002D__Chapter4.pdf",
+      "license_evidence_note": "No reusable license notice covering the complete checked page was established; Atlas retains only the link and original factual summaries, excluding embedded third-party material.",
+      "license_family_id": "https://nodis3.gsfc.nasa.gov/npg_img/N_PR_7150_002D_/N_PR_7150_002D__Chapter4.pdf",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "facts-and-short-quotation",
+      "usage_boundary": "Supports software architecture lifecycle requirements in NASA NPR 7150.2D; NASA governance and mission context are not universal requirements.",
+      "link_policy": "stable",
+      "expected_final_transport_locator": "https://nodis3.gsfc.nasa.gov/npg_img/N_PR_7150_002D_/N_PR_7150_002D__Chapter4.pdf",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Initial reviewed NPR 7150.2D Chapter 4 transport baseline"
+    },
+    {
+      "id": "src-nasa-swehb-7-07",
+      "canonical_locator": "https://swehb.nasa.gov/spaces/SWEHBVD/pages/102695632/7.07%2B-%2BSoftware%2BArchitecture%2BDescription",
+      "transport_locator": "https://swehb.nasa.gov/spaces/SWEHBVD/pages/102695632/7.07%2B-%2BSoftware%2BArchitecture%2BDescription",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "7.07 — Software Architecture Description",
+      "author_or_org": "National Aeronautics and Space Administration",
+      "published_at": null,
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "NASA Software Engineering Handbook Version D, Topic 7.07; checked on 2026-07-24",
+      "source_kind": "official-docs",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "definition",
+        "learning",
+        "method"
+      ],
+      "license": "LicenseRef-All-Rights-Reserved",
+      "license_scope": "The named NASA Software Engineering Handbook topic only; embedded quotations, linked works, marks, and media excluded",
+      "license_evidence_url": "https://swehb.nasa.gov/spaces/SWEHBVD/pages/102695632/7.07%2B-%2BSoftware%2BArchitecture%2BDescription",
+      "license_evidence_note": "No reusable license notice covering the complete checked page was established; Atlas retains only the link and original factual summaries, excluding embedded third-party material.",
+      "license_family_id": "https://swehb.nasa.gov/spaces/SWEHBVD/pages/102695632/7.07%2B-%2BSoftware%2BArchitecture%2BDescription",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "facts-and-short-quotation",
+      "usage_boundary": "Supports explicit treatment of architectural drivers, driving requirements, decisions, rationale, and verification evidence in NASA architecture descriptions; NASA governance and mission context are not universal requirements.",
+      "link_policy": "floating",
+      "expected_final_transport_locator": "https://swehb.nasa.gov/spaces/SWEHBVD/pages/102695632/7.07%2B-%2BSoftware%2BArchitecture%2BDescription",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Initial reviewed NASA SWEHB Version D Topic 7.07 transport baseline"
+    },
+    {
+      "id": "src-nist-ir-5517",
+      "canonical_locator": "https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir5517.pdf",
+      "transport_locator": "https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir5517.pdf?download=1",
+      "query_insensitive": true,
+      "locator_aliases": [
+        {
+          "locator": "https://www.nist.gov/publications/reference-architecture-machine-control-systems-integration-interim-report",
+          "transport_locator": "https://www.nist.gov/publications/reference-architecture-machine-control-systems-integration-interim-report",
+          "expected_final_transport_locator": "https://www.nist.gov/publications/reference-architecture-machine-control-systems-integration-interim-report",
+          "expected_final_approved_at": "2026-07-24",
+          "expected_final_approval_note": "Reviewed official NIST publication-page alias",
+          "superseded_at": "2026-07-24"
+        },
+        {
+          "locator": "https://doi.org/10.6028/NIST.IR.5517",
+          "transport_locator": "https://doi.org/10.6028/NIST.IR.5517",
+          "expected_final_transport_locator": "https://doi.org/10.6028/NIST.IR.5517",
+          "expected_final_approved_at": "2026-07-24",
+          "expected_final_approval_note": "Reviewed DOI alias for NISTIR 5517",
+          "superseded_at": "2026-07-24"
+        }
+      ],
+      "tombstone": null,
+      "title": "Reference Architecture for Machine Control Systems Integration: Interim Report",
+      "author_or_org": "National Institute of Standards and Technology",
+      "published_at": "1994-10-20",
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "NISTIR 5517 official report PDF; publication page and DOI metadata checked on 2026-07-24",
+      "source_kind": "paper",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "definition",
+        "historical-context",
+        "learning"
+      ],
+      "license": "LicenseRef-US-Gov-Public-Domain",
+      "license_scope": "NIST-authored technical-series material; third-party or separately marked copyrighted material, marks, and linked works excluded",
+      "license_evidence_url": "https://www.nist.gov/nist-research-library/library-faqs",
+      "license_evidence_note": "The NIST Research Library states that NIST publications are generally U.S. Government works in the public domain; Atlas credits NIST and excludes any separately copyrighted material.",
+      "license_family_id": "https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir5517.pdf",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "public-domain-with-provenance",
+      "usage_boundary": "Supports a generic reference-architecture definition in NISTIR 5517; its manufacturing control framework is domain-specific and is not generalized as a universal structure.",
+      "link_policy": "stable",
+      "expected_final_transport_locator": "https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir5517.pdf?download=1",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Reviewed official query transport for the same NISTIR 5517 PDF; bounded recheck returned HTTP 200"
+    },
+    {
+      "id": "src-nygard-documenting-architecture-decisions-2011",
+      "canonical_locator": "https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions",
+      "transport_locator": "https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "Documenting Architecture Decisions",
+      "author_or_org": "Michael Nygard / Cognitect",
+      "published_at": "2011-11-15",
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "Article published 2011-11-15; page checked on 2026-07-24",
+      "source_kind": "engineering-blog",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "definition",
+        "method",
+        "historical-context",
+        "learning"
+      ],
+      "license": "CC0-1.0",
+      "license_scope": "The named Cognitect article text covered by its explicit CC0 waiver; linked works, marks, and third-party material excluded",
+      "license_evidence_url": "https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions",
+      "license_evidence_note": "The article page explicitly states that Cognitect waived copyright and related rights to the extent possible under law under CC0.",
+      "license_family_id": "https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "adapt-with-attribution",
+      "usage_boundary": "Supports the ADR context-decision-consequences form and historical status practice; it does not make every local status vocabulary mandatory.",
+      "link_policy": "stable",
+      "expected_final_transport_locator": "https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Initial reviewed CC0 article transport baseline"
+    },
+    {
       "id": "src-openai-6c059f59453b",
       "canonical_locator": "https://openai.github.io/openai-agents-python/multi_agent/",
       "transport_locator": "https://openai.github.io/openai-agents-python/multi_agent/",
@@ -13447,6 +14231,41 @@
       "expected_final_transport_locator": "https://openai.github.io/openai-agents-python/multi_agent/",
       "expected_final_approved_at": "2026-07-24",
       "expected_final_approval_note": "Initial reviewed migration transport baseline"
+    },
+    {
+      "id": "src-oreilly-7eb3a574d599",
+      "canonical_locator": "https://www.oreilly.com/library/view/building-evolutionary-architectures/9781492097532/",
+      "transport_locator": "https://www.oreilly.com/library/view/building-evolutionary-architectures/9781492097532/",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "Building Evolutionary Architectures, 2nd Edition",
+      "author_or_org": "Neal Ford, Rebecca Parsons, Patrick Kua, and Pramod Sadalage / O'Reilly Media",
+      "published_at": "2022-11-01",
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "Second edition, November 2022, ISBN 9781492097532; catalog page checked on 2026-07-24",
+      "source_kind": "textbook",
+      "tier": "secondary",
+      "allowed_evidence_roles": [
+        "definition",
+        "historical-context",
+        "learning",
+        "method"
+      ],
+      "license": "LicenseRef-All-Rights-Reserved",
+      "license_scope": "The named O'Reilly catalog and book work only; book text, code examples, linked works, cover art, marks, and third-party material excluded",
+      "license_evidence_url": "https://www.oreilly.com/library/view/building-evolutionary-architectures/9781492097532/",
+      "license_evidence_note": "No reusable license was established for the book; Atlas retains bibliographic facts, the link, and original factual summaries only.",
+      "license_family_id": "https://www.oreilly.com/library/view/building-evolutionary-architectures/9781492097532/",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "facts-and-short-quotation",
+      "usage_boundary": "Supports the definition, categories, and governance context of architectural fitness functions; it does not make one implementation, threshold, or release policy universally correct.",
+      "link_policy": "auth-required",
+      "expected_final_transport_locator": "https://www.oreilly.com/library/view/building-evolutionary-architectures/9781492097532/",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Reviewed O'Reilly second-edition catalog baseline; automated transport may return access-control responses"
     },
     {
       "id": "src-release-1-20-1f4600ed7c4e",
@@ -13761,6 +14580,40 @@
       "expected_final_approval_note": "Initial reviewed migration transport baseline"
     },
     {
+      "id": "src-riskstorming-4c7868451f0e",
+      "canonical_locator": "https://riskstorming.com/",
+      "transport_locator": "https://riskstorming.com/",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "Risk-storming",
+      "author_or_org": "Simon Brown",
+      "published_at": null,
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "Current method site checked on 2026-07-24",
+      "source_kind": "independent-blog",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "definition",
+        "learning",
+        "method"
+      ],
+      "license": "CC-BY-4.0",
+      "license_scope": "Risk-storming site content covered by the CC BY 4.0 notice; linked works, marks, media, and third-party assets excluded",
+      "license_evidence_url": "https://riskstorming.com/",
+      "license_evidence_note": "The Risk-storming site footer identifies the work as licensed under Creative Commons Attribution 4.0.",
+      "license_family_id": "https://riskstorming.com/",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "adapt-with-attribution",
+      "usage_boundary": "Supports collaborative risk identification on architecture diagrams; it does not replace security threat modeling, quantitative risk analysis, or operational validation.",
+      "link_policy": "stable",
+      "expected_final_transport_locator": "https://riskstorming.com/",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Reviewed method site and CC BY 4.0 footer transport baseline"
+    },
+    {
       "id": "src-roadmap-0135fbda874b",
       "canonical_locator": "https://roadmap.sh/software-architect",
       "transport_locator": "https://roadmap.sh/software-architect",
@@ -13833,6 +14686,75 @@
       "expected_final_approval_note": "Initial reviewed migration transport baseline"
     },
     {
+      "id": "src-sei-abas-1999",
+      "canonical_locator": "https://www.sei.cmu.edu/library/attribute-based-architectural-styles/",
+      "transport_locator": "https://www.sei.cmu.edu/library/attribute-based-architectural-styles/",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "Attribute-Based Architectural Styles",
+      "author_or_org": "Carnegie Mellon Software Engineering Institute",
+      "published_at": "1999-10-01",
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "CMU/SEI-99-TR-022; work page checked on 2026-07-24",
+      "source_kind": "paper",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "definition",
+        "historical-context",
+        "learning",
+        "method"
+      ],
+      "license": "LicenseRef-All-Rights-Reserved",
+      "license_scope": "The named SEI report work page and factual bibliographic metadata only; report text, linked works, and third-party material excluded",
+      "license_evidence_url": "https://www.sei.cmu.edu/library/attribute-based-architectural-styles/",
+      "license_evidence_note": "The checked SEI work page provides a permission-request path but no reusable license for the report; Atlas uses original factual summary only.",
+      "license_family_id": "https://www.sei.cmu.edu/library/attribute-based-architectural-styles/",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "facts-and-short-quotation",
+      "usage_boundary": "Supports the historical ABAS treatment of styles and quality-attribute reasoning; it is not a current or exhaustive style catalog.",
+      "link_policy": "stable",
+      "expected_final_transport_locator": "https://www.sei.cmu.edu/library/attribute-based-architectural-styles/",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Initial reviewed report transport baseline"
+    },
+    {
+      "id": "src-sei-atam-1998",
+      "canonical_locator": "https://www.sei.cmu.edu/library/the-architecture-tradeoff-analysis-method/",
+      "transport_locator": "https://www.sei.cmu.edu/library/the-architecture-tradeoff-analysis-method/",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "The Architecture Tradeoff Analysis Method",
+      "author_or_org": "Carnegie Mellon Software Engineering Institute",
+      "published_at": "1998-07-01",
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "CMU/SEI-98-TR-008; work page checked on 2026-07-24",
+      "source_kind": "paper",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "definition",
+        "learning",
+        "method"
+      ],
+      "license": "LicenseRef-All-Rights-Reserved",
+      "license_scope": "The named SEI report work page and factual bibliographic metadata only; report text, linked works, and third-party material excluded",
+      "license_evidence_url": "https://www.sei.cmu.edu/library/the-architecture-tradeoff-analysis-method/",
+      "license_evidence_note": "The checked SEI work page provides a permission-request path but no reusable license for the report; Atlas uses original factual summary only.",
+      "license_family_id": "https://www.sei.cmu.edu/library/the-architecture-tradeoff-analysis-method/",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "facts-and-short-quotation",
+      "usage_boundary": "Supports ATAM as evaluation of an architecture against competing quality goals; it is downstream of driver discovery and does not prove universal method efficacy.",
+      "link_policy": "stable",
+      "expected_final_transport_locator": "https://www.sei.cmu.edu/library/the-architecture-tradeoff-analysis-method/",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Initial reviewed report transport baseline"
+    },
+    {
       "id": "src-sei-bfb2b903b4eb",
       "canonical_locator": "https://www.sei.cmu.edu/training/software-architecture-principles-practices/",
       "transport_locator": "https://www.sei.cmu.edu/training/software-architecture-principles-practices/",
@@ -13870,6 +14792,74 @@
       "expected_final_transport_locator": "https://www.sei.cmu.edu/training/software-architecture-principles-practices/",
       "expected_final_approved_at": "2026-07-24",
       "expected_final_approval_note": "Initial reviewed migration transport baseline"
+    },
+    {
+      "id": "src-sei-managing-technical-debt-complex-systems-2016",
+      "canonical_locator": "https://www.sei.cmu.edu/library/managing-technical-debt-in-complex-software-systems/",
+      "transport_locator": "https://www.sei.cmu.edu/library/managing-technical-debt-in-complex-software-systems/",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "Managing Technical Debt in Complex Software Systems",
+      "author_or_org": "Carnegie Mellon Software Engineering Institute",
+      "published_at": "2016-12-05",
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "Official SEI brochure page published 2016-12-05; checked on 2026-07-24",
+      "source_kind": "official-docs",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "definition",
+        "method",
+        "learning"
+      ],
+      "license": "LicenseRef-All-Rights-Reserved",
+      "license_scope": "The named official SEI brochure page only; downloadable or linked works, marks, and third-party material excluded",
+      "license_evidence_url": "https://www.sei.cmu.edu/library/managing-technical-debt-in-complex-software-systems/",
+      "license_evidence_note": "No reusable license was established for the official brochure page; Atlas retains the page link and original factual summary only.",
+      "license_family_id": "https://www.sei.cmu.edu/library/managing-technical-debt-in-complex-software-systems/",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "facts-and-short-quotation",
+      "usage_boundary": "Supports identifying and managing technical debt in complex systems; it does not supply a universal debt score or mandate immediate repayment.",
+      "link_policy": "stable",
+      "expected_final_transport_locator": "https://www.sei.cmu.edu/library/managing-technical-debt-in-complex-software-systems/",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Initial reviewed SEI work-page transport baseline"
+    },
+    {
+      "id": "src-sei-modifiability-tactics-2007",
+      "canonical_locator": "https://www.sei.cmu.edu/library/modifiability-tactics/",
+      "transport_locator": "https://www.sei.cmu.edu/library/modifiability-tactics/",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "Modifiability Tactics",
+      "author_or_org": "Carnegie Mellon Software Engineering Institute",
+      "published_at": "2007-09-01",
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "CMU/SEI-2007-TR-002; work page checked on 2026-07-24",
+      "source_kind": "paper",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "definition",
+        "learning",
+        "method"
+      ],
+      "license": "LicenseRef-All-Rights-Reserved",
+      "license_scope": "The named SEI report work page and factual bibliographic metadata only; report text, linked works, and third-party material excluded",
+      "license_evidence_url": "https://www.sei.cmu.edu/library/modifiability-tactics/",
+      "license_evidence_note": "The checked SEI work page provides a permission-request path but no reusable license for the report; Atlas uses original factual summary only.",
+      "license_family_id": "https://www.sei.cmu.edu/library/modifiability-tactics/",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "facts-and-short-quotation",
+      "usage_boundary": "Supports tactics as focused decisions affecting a quality attribute; it does not prove universal efficacy or supply a complete architecture.",
+      "link_policy": "stable",
+      "expected_final_transport_locator": "https://www.sei.cmu.edu/library/modifiability-tactics/",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Initial reviewed report transport baseline"
     },
     {
       "id": "src-single-spa-03f49f2c5ddb",
@@ -14145,1085 +15135,42 @@
       "expected_final_approval_note": "Initial reviewed migration transport baseline"
     },
     {
-      "id": "src-c4model-abstractions",
-      "canonical_locator": "https://c4model.com/abstractions",
-      "transport_locator": "https://c4model.com/abstractions",
+      "id": "src-thoughtworks-32a10834c10f",
+      "canonical_locator": "https://www.thoughtworks.com/en-us/insights/articles/fitness-function-driven-development",
+      "transport_locator": "https://www.thoughtworks.com/en-us/insights/articles/fitness-function-driven-development",
       "query_insensitive": false,
       "locator_aliases": [],
       "tombstone": null,
-      "title": "C4 Model — Abstractions",
-      "author_or_org": "Simon Brown",
-      "published_at": null,
+      "title": "Fitness function-driven development",
+      "author_or_org": "Paula Paul and Rosemary Wang / Thoughtworks",
+      "published_at": "2019-01-11",
       "registered_at": "2026-07-24",
       "checked_at": "2026-07-24",
-      "version": "Current abstractions page checked on 2026-07-24",
-      "source_kind": "official-docs",
-      "tier": "primary",
-      "allowed_evidence_roles": [
-        "definition",
-        "learning",
-        "method"
-      ],
-      "license": "CC-BY-4.0",
-      "license_scope": "C4 Model site content covered by the CC BY 4.0 footer; trademarks, linked works, code, media, and third-party assets excluded",
-      "license_evidence_url": "https://c4model.com/",
-      "license_evidence_note": "The official C4 Model site footer identifies its content as CC BY 4.0; this record covers factual summary of the abstractions page with attribution.",
-      "license_family_id": "https://c4model.com/abstractions",
-      "license_family_grouping": "identity",
-      "family_grouping_evidence_url": null,
-      "copyright_policy": "adapt-with-attribution",
-      "usage_boundary": "Defines the C4 abstraction hierarchy and terminology; it is not a universal architecture ontology and does not establish architecture fitness.",
-      "link_policy": "stable",
-      "expected_final_transport_locator": "https://c4model.com/abstractions",
-      "expected_final_approved_at": "2026-07-24",
-      "expected_final_approval_note": "Initial reviewed transport baseline"
-    },
-    {
-      "id": "src-nasa-architecture-description-vd",
-      "canonical_locator": "https://nodis3.gsfc.nasa.gov/npg_img/N_PR_7150_002D_/N_PR_7150_002D__Chapter4.pdf",
-      "transport_locator": "https://nodis3.gsfc.nasa.gov/npg_img/N_PR_7150_002D_/N_PR_7150_002D__Chapter4.pdf",
-      "query_insensitive": false,
-      "locator_aliases": [],
-      "tombstone": null,
-      "title": "NPR 7150.2D Chapter 4 — Software Engineering Life Cycle",
-      "author_or_org": "National Aeronautics and Space Administration",
-      "published_at": null,
-      "registered_at": "2026-07-24",
-      "checked_at": "2026-07-24",
-      "version": "NPR 7150.2D, Chapter 4 PDF; checked on 2026-07-24",
-      "source_kind": "official-docs",
-      "tier": "primary",
-      "allowed_evidence_roles": [
-        "comparison",
-        "definition",
-        "learning",
-        "method"
-      ],
-      "license": "LicenseRef-All-Rights-Reserved",
-      "license_scope": "The named NASA NPR 7150.2D Chapter 4 PDF only; embedded third-party quotations, linked works, marks, and media excluded",
-      "license_evidence_url": "https://nodis3.gsfc.nasa.gov/npg_img/N_PR_7150_002D_/N_PR_7150_002D__Chapter4.pdf",
-      "license_evidence_note": "No reusable license notice covering the complete checked page was established; Atlas retains only the link and original factual summaries, excluding embedded third-party material.",
-      "license_family_id": "https://nodis3.gsfc.nasa.gov/npg_img/N_PR_7150_002D_/N_PR_7150_002D__Chapter4.pdf",
-      "license_family_grouping": "identity",
-      "family_grouping_evidence_url": null,
-      "copyright_policy": "facts-and-short-quotation",
-      "usage_boundary": "Supports software architecture lifecycle requirements in NASA NPR 7150.2D; NASA governance and mission context are not universal requirements.",
-      "link_policy": "stable",
-      "expected_final_transport_locator": "https://nodis3.gsfc.nasa.gov/npg_img/N_PR_7150_002D_/N_PR_7150_002D__Chapter4.pdf",
-      "expected_final_approved_at": "2026-07-24",
-      "expected_final_approval_note": "Initial reviewed NPR 7150.2D Chapter 4 transport baseline"
-    },
-    {
-      "id": "src-cunningham-wycash-1992",
-      "canonical_locator": "https://dl.acm.org/doi/10.1145/157710.157715",
-      "transport_locator": "https://dl.acm.org/doi/10.1145/157710.157715",
-      "query_insensitive": false,
-      "locator_aliases": [],
-      "tombstone": null,
-      "title": "The WyCash Portfolio Management System",
-      "author_or_org": "Ward Cunningham / ACM",
-      "published_at": "1992-12-01",
-      "registered_at": "2026-07-24",
-      "checked_at": "2026-07-24",
-      "version": "OOPSLA 1992 experience report, DOI 10.1145/157710.157715",
-      "source_kind": "paper",
-      "tier": "primary",
-      "allowed_evidence_roles": [
-        "definition",
-        "historical-context",
-        "learning"
-      ],
-      "license": "LicenseRef-All-Rights-Reserved",
-      "license_scope": "The cited ACM paper and factual bibliographic metadata only; full text, linked works, and third-party material excluded",
-      "license_evidence_url": "https://dl.acm.org/doi/10.1145/157710.157715",
-      "license_evidence_note": "No reusable license was established for the ACM paper; Atlas retains the canonical link and original factual summary only.",
-      "license_family_id": "doi:10.1145/157710.157715",
-      "license_family_grouping": "identity",
-      "family_grouping_evidence_url": null,
-      "copyright_policy": "facts-and-short-quotation",
-      "usage_boundary": "Supports the historical debt metaphor in the WyCash experience; it does not define every modern form of technical or architecture debt.",
-      "link_policy": "auth-required",
-      "expected_final_transport_locator": "https://dl.acm.org/doi/10.1145/157710.157715",
-      "expected_final_approved_at": "2026-07-24",
-      "expected_final_approval_note": "Initial reviewed DOI transport baseline"
-    },
-    {
-      "id": "src-martin-fowler-is-design-dead-2004",
-      "canonical_locator": "https://martinfowler.com/articles/designDead.html",
-      "transport_locator": "https://martinfowler.com/articles/designDead.html",
-      "query_insensitive": false,
-      "locator_aliases": [],
-      "tombstone": null,
-      "title": "Is Design Dead?",
-      "author_or_org": "Martin Fowler",
-      "published_at": "2004-05-01",
-      "registered_at": "2026-07-24",
-      "checked_at": "2026-07-24",
-      "version": "May 2004 article; page checked on 2026-07-24",
-      "source_kind": "independent-blog",
-      "tier": "primary",
-      "allowed_evidence_roles": [
-        "definition",
-        "method",
-        "historical-context",
-        "learning"
-      ],
-      "license": "LicenseRef-All-Rights-Reserved",
-      "license_scope": "The named Martin Fowler article only; linked works, code, marks, and third-party material excluded",
-      "license_evidence_url": "https://martinfowler.com/articles/designDead.html",
-      "license_evidence_note": "No reusable license was established for the article; Atlas retains the link and original factual summary only.",
-      "license_family_id": "https://martinfowler.com/articles/designDead.html",
-      "license_family_grouping": "identity",
-      "family_grouping_evidence_url": null,
-      "copyright_policy": "facts-and-short-quotation",
-      "usage_boundary": "Supports the planned-versus-evolutionary design discussion in its stated context; it does not prove that architecture can emerge without deliberate design.",
-      "link_policy": "stable",
-      "expected_final_transport_locator": "https://martinfowler.com/articles/designDead.html",
-      "expected_final_approved_at": "2026-07-24",
-      "expected_final_approval_note": "Initial reviewed article transport baseline"
-    },
-    {
-      "id": "src-martin-fowler-architecture-decision-record-2026",
-      "canonical_locator": "https://martinfowler.com/bliki/ArchitectureDecisionRecord.html",
-      "transport_locator": "https://martinfowler.com/bliki/ArchitectureDecisionRecord.html",
-      "query_insensitive": false,
-      "locator_aliases": [],
-      "tombstone": null,
-      "title": "Architecture Decision Record",
-      "author_or_org": "Martin Fowler",
-      "published_at": "2026-03-24",
-      "registered_at": "2026-07-24",
-      "checked_at": "2026-07-24",
-      "version": "Bliki entry dated 24 March 2026; checked on 2026-07-24",
-      "source_kind": "independent-blog",
-      "tier": "primary",
-      "allowed_evidence_roles": [
-        "definition",
-        "method",
-        "learning"
-      ],
-      "license": "LicenseRef-All-Rights-Reserved",
-      "license_scope": "The named Martin Fowler bliki entry only; linked works, code, marks, and third-party material excluded",
-      "license_evidence_url": "https://martinfowler.com/bliki/ArchitectureDecisionRecord.html",
-      "license_evidence_note": "No reusable license was established for the bliki entry; Atlas retains the link and original factual summary only.",
-      "license_family_id": "https://martinfowler.com/bliki/ArchitectureDecisionRecord.html",
-      "license_family_grouping": "identity",
-      "family_grouping_evidence_url": null,
-      "copyright_policy": "facts-and-short-quotation",
-      "usage_boundary": "Supports current ADR purpose and supersession links; it does not validate the correctness of a particular architecture decision.",
-      "link_policy": "stable",
-      "expected_final_transport_locator": "https://martinfowler.com/bliki/ArchitectureDecisionRecord.html",
-      "expected_final_approved_at": "2026-07-24",
-      "expected_final_approval_note": "Initial reviewed bliki transport baseline"
-    },
-    {
-      "id": "src-nygard-documenting-architecture-decisions-2011",
-      "canonical_locator": "https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions",
-      "transport_locator": "https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions",
-      "query_insensitive": false,
-      "locator_aliases": [],
-      "tombstone": null,
-      "title": "Documenting Architecture Decisions",
-      "author_or_org": "Michael Nygard / Cognitect",
-      "published_at": "2011-11-15",
-      "registered_at": "2026-07-24",
-      "checked_at": "2026-07-24",
-      "version": "Article published 2011-11-15; page checked on 2026-07-24",
+      "version": "Article published 2019-01-11; canonical page checked on 2026-07-24",
       "source_kind": "engineering-blog",
-      "tier": "primary",
+      "tier": "first-party",
       "allowed_evidence_roles": [
         "definition",
-        "method",
-        "historical-context",
-        "learning"
-      ],
-      "license": "CC0-1.0",
-      "license_scope": "The named Cognitect article text covered by its explicit CC0 waiver; linked works, marks, and third-party material excluded",
-      "license_evidence_url": "https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions",
-      "license_evidence_note": "The article page explicitly states that Cognitect waived copyright and related rights to the extent possible under law under CC0.",
-      "license_family_id": "https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions",
-      "license_family_grouping": "identity",
-      "family_grouping_evidence_url": null,
-      "copyright_policy": "adapt-with-attribution",
-      "usage_boundary": "Supports the ADR context-decision-consequences form and historical status practice; it does not make every local status vocabulary mandatory.",
-      "link_policy": "stable",
-      "expected_final_transport_locator": "https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions",
-      "expected_final_approved_at": "2026-07-24",
-      "expected_final_approval_note": "Initial reviewed CC0 article transport baseline"
-    },
-    {
-      "id": "src-sei-managing-technical-debt-complex-systems-2016",
-      "canonical_locator": "https://www.sei.cmu.edu/library/managing-technical-debt-in-complex-software-systems/",
-      "transport_locator": "https://www.sei.cmu.edu/library/managing-technical-debt-in-complex-software-systems/",
-      "query_insensitive": false,
-      "locator_aliases": [],
-      "tombstone": null,
-      "title": "Managing Technical Debt in Complex Software Systems",
-      "author_or_org": "Carnegie Mellon Software Engineering Institute",
-      "published_at": "2016-12-05",
-      "registered_at": "2026-07-24",
-      "checked_at": "2026-07-24",
-      "version": "Official SEI brochure page published 2016-12-05; checked on 2026-07-24",
-      "source_kind": "official-docs",
-      "tier": "primary",
-      "allowed_evidence_roles": [
-        "definition",
-        "method",
-        "learning"
-      ],
-      "license": "LicenseRef-All-Rights-Reserved",
-      "license_scope": "The named official SEI brochure page only; downloadable or linked works, marks, and third-party material excluded",
-      "license_evidence_url": "https://www.sei.cmu.edu/library/managing-technical-debt-in-complex-software-systems/",
-      "license_evidence_note": "No reusable license was established for the official brochure page; Atlas retains the page link and original factual summary only.",
-      "license_family_id": "https://www.sei.cmu.edu/library/managing-technical-debt-in-complex-software-systems/",
-      "license_family_grouping": "identity",
-      "family_grouping_evidence_url": null,
-      "copyright_policy": "facts-and-short-quotation",
-      "usage_boundary": "Supports identifying and managing technical debt in complex systems; it does not supply a universal debt score or mandate immediate repayment.",
-      "link_policy": "stable",
-      "expected_final_transport_locator": "https://www.sei.cmu.edu/library/managing-technical-debt-in-complex-software-systems/",
-      "expected_final_approved_at": "2026-07-24",
-      "expected_final_approval_note": "Initial reviewed SEI work-page transport baseline"
-    },
-    {
-      "id": "src-sei-atam-1998",
-      "canonical_locator": "https://www.sei.cmu.edu/library/the-architecture-tradeoff-analysis-method/",
-      "transport_locator": "https://www.sei.cmu.edu/library/the-architecture-tradeoff-analysis-method/",
-      "query_insensitive": false,
-      "locator_aliases": [],
-      "tombstone": null,
-      "title": "The Architecture Tradeoff Analysis Method",
-      "author_or_org": "Carnegie Mellon Software Engineering Institute",
-      "published_at": "1998-07-01",
-      "registered_at": "2026-07-24",
-      "checked_at": "2026-07-24",
-      "version": "CMU/SEI-98-TR-008; work page checked on 2026-07-24",
-      "source_kind": "paper",
-      "tier": "primary",
-      "allowed_evidence_roles": [
-        "definition",
+        "implementation",
         "learning",
         "method"
       ],
       "license": "LicenseRef-All-Rights-Reserved",
-      "license_scope": "The named SEI report work page and factual bibliographic metadata only; report text, linked works, and third-party material excluded",
-      "license_evidence_url": "https://www.sei.cmu.edu/library/the-architecture-tradeoff-analysis-method/",
-      "license_evidence_note": "The checked SEI work page provides a permission-request path but no reusable license for the report; Atlas uses original factual summary only.",
-      "license_family_id": "https://www.sei.cmu.edu/library/the-architecture-tradeoff-analysis-method/",
+      "license_scope": "The named Thoughtworks article only; linked works, code, images, marks, and third-party material excluded",
+      "license_evidence_url": "https://www.thoughtworks.com/en-us/insights/articles/fitness-function-driven-development",
+      "license_evidence_note": "No reusable license was established for the article; Atlas retains the link and original factual summaries only.",
+      "license_family_id": "https://www.thoughtworks.com/en-us/insights/articles/fitness-function-driven-development",
       "license_family_grouping": "identity",
       "family_grouping_evidence_url": null,
       "copyright_policy": "facts-and-short-quotation",
-      "usage_boundary": "Supports ATAM as evaluation of an architecture against competing quality goals; it is downstream of driver discovery and does not prove universal method efficacy.",
-      "link_policy": "stable",
-      "expected_final_transport_locator": "https://www.sei.cmu.edu/library/the-architecture-tradeoff-analysis-method/",
-      "expected_final_approved_at": "2026-07-24",
-      "expected_final_approval_note": "Initial reviewed report transport baseline"
-    },
-    {
-      "id": "src-sei-abas-1999",
-      "canonical_locator": "https://www.sei.cmu.edu/library/attribute-based-architectural-styles/",
-      "transport_locator": "https://www.sei.cmu.edu/library/attribute-based-architectural-styles/",
-      "query_insensitive": false,
-      "locator_aliases": [],
-      "tombstone": null,
-      "title": "Attribute-Based Architectural Styles",
-      "author_or_org": "Carnegie Mellon Software Engineering Institute",
-      "published_at": "1999-10-01",
-      "registered_at": "2026-07-24",
-      "checked_at": "2026-07-24",
-      "version": "CMU/SEI-99-TR-022; work page checked on 2026-07-24",
-      "source_kind": "paper",
-      "tier": "primary",
-      "allowed_evidence_roles": [
-        "definition",
-        "historical-context",
-        "learning",
-        "method"
-      ],
-      "license": "LicenseRef-All-Rights-Reserved",
-      "license_scope": "The named SEI report work page and factual bibliographic metadata only; report text, linked works, and third-party material excluded",
-      "license_evidence_url": "https://www.sei.cmu.edu/library/attribute-based-architectural-styles/",
-      "license_evidence_note": "The checked SEI work page provides a permission-request path but no reusable license for the report; Atlas uses original factual summary only.",
-      "license_family_id": "https://www.sei.cmu.edu/library/attribute-based-architectural-styles/",
-      "license_family_grouping": "identity",
-      "family_grouping_evidence_url": null,
-      "copyright_policy": "facts-and-short-quotation",
-      "usage_boundary": "Supports the historical ABAS treatment of styles and quality-attribute reasoning; it is not a current or exhaustive style catalog.",
-      "link_policy": "stable",
-      "expected_final_transport_locator": "https://www.sei.cmu.edu/library/attribute-based-architectural-styles/",
-      "expected_final_approved_at": "2026-07-24",
-      "expected_final_approval_note": "Initial reviewed report transport baseline"
-    },
-    {
-      "id": "src-sei-modifiability-tactics-2007",
-      "canonical_locator": "https://www.sei.cmu.edu/library/modifiability-tactics/",
-      "transport_locator": "https://www.sei.cmu.edu/library/modifiability-tactics/",
-      "query_insensitive": false,
-      "locator_aliases": [],
-      "tombstone": null,
-      "title": "Modifiability Tactics",
-      "author_or_org": "Carnegie Mellon Software Engineering Institute",
-      "published_at": "2007-09-01",
-      "registered_at": "2026-07-24",
-      "checked_at": "2026-07-24",
-      "version": "CMU/SEI-2007-TR-002; work page checked on 2026-07-24",
-      "source_kind": "paper",
-      "tier": "primary",
-      "allowed_evidence_roles": [
-        "definition",
-        "learning",
-        "method"
-      ],
-      "license": "LicenseRef-All-Rights-Reserved",
-      "license_scope": "The named SEI report work page and factual bibliographic metadata only; report text, linked works, and third-party material excluded",
-      "license_evidence_url": "https://www.sei.cmu.edu/library/modifiability-tactics/",
-      "license_evidence_note": "The checked SEI work page provides a permission-request path but no reusable license for the report; Atlas uses original factual summary only.",
-      "license_family_id": "https://www.sei.cmu.edu/library/modifiability-tactics/",
-      "license_family_grouping": "identity",
-      "family_grouping_evidence_url": null,
-      "copyright_policy": "facts-and-short-quotation",
-      "usage_boundary": "Supports tactics as focused decisions affecting a quality attribute; it does not prove universal efficacy or supply a complete architecture.",
-      "link_policy": "stable",
-      "expected_final_transport_locator": "https://www.sei.cmu.edu/library/modifiability-tactics/",
-      "expected_final_approved_at": "2026-07-24",
-      "expected_final_approval_note": "Initial reviewed report transport baseline"
-    },
-    {
-      "id": "src-iso-42010-2022",
-      "canonical_locator": "https://www.iso.org/standard/74393.html",
-      "transport_locator": "https://www.iso.org/standard/74393.html",
-      "query_insensitive": false,
-      "locator_aliases": [],
-      "tombstone": null,
-      "title": "ISO/IEC/IEEE 42010:2022 — Software, systems and enterprise — Architecture description",
-      "author_or_org": "International Organization for Standardization",
-      "published_at": "2022-11-07",
-      "registered_at": "2026-07-24",
-      "checked_at": "2026-07-24",
-      "version": "Edition 2, published 2022-11; public abstract checked on 2026-07-24",
-      "source_kind": "standard",
-      "tier": "primary",
-      "allowed_evidence_roles": [
-        "comparison",
-        "definition",
-        "method"
-      ],
-      "license": "LicenseRef-Proprietary-Standard",
-      "license_scope": "The named ISO work page and its public abstract only; full standard text, linked works, marks, and third-party material excluded",
-      "license_evidence_url": "https://www.iso.org/standard/74393.html",
-      "license_evidence_note": "The ISO work page does not grant a reusable license for the standard; Atlas uses only factual bibliographic metadata and original summary of the public abstract.",
-      "license_family_id": "https://www.iso.org/standard/74393.html",
-      "license_family_grouping": "identity",
-      "family_grouping_evidence_url": null,
-      "copyright_policy": "facts-and-short-quotation",
-      "usage_boundary": "Supports public boundaries for architecture descriptions; it does not specify architecting methods, notations, tools, formats, or architecture fitness.",
-      "link_policy": "stable",
-      "expected_final_transport_locator": "https://www.iso.org/standard/74393.html",
-      "expected_final_approved_at": "2026-07-24",
-      "expected_final_approval_note": "Initial reviewed Edition 2 work-page transport baseline"
-    },
-    {
-      "id": "src-nist-ir-5517",
-      "canonical_locator": "https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir5517.pdf",
-      "transport_locator": "https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir5517.pdf?download=1",
-      "query_insensitive": true,
-      "locator_aliases": [
-        {
-          "locator": "https://www.nist.gov/publications/reference-architecture-machine-control-systems-integration-interim-report",
-          "transport_locator": "https://www.nist.gov/publications/reference-architecture-machine-control-systems-integration-interim-report",
-          "expected_final_transport_locator": "https://www.nist.gov/publications/reference-architecture-machine-control-systems-integration-interim-report",
-          "expected_final_approved_at": "2026-07-24",
-          "expected_final_approval_note": "Reviewed official NIST publication-page alias",
-          "superseded_at": "2026-07-24"
-        },
-        {
-          "locator": "https://doi.org/10.6028/NIST.IR.5517",
-          "transport_locator": "https://doi.org/10.6028/NIST.IR.5517",
-          "expected_final_transport_locator": "https://doi.org/10.6028/NIST.IR.5517",
-          "expected_final_approved_at": "2026-07-24",
-          "expected_final_approval_note": "Reviewed DOI alias for NISTIR 5517",
-          "superseded_at": "2026-07-24"
-        }
-      ],
-      "tombstone": null,
-      "title": "Reference Architecture for Machine Control Systems Integration: Interim Report",
-      "author_or_org": "National Institute of Standards and Technology",
-      "published_at": "1994-10-20",
-      "registered_at": "2026-07-24",
-      "checked_at": "2026-07-24",
-      "version": "NISTIR 5517 official report PDF; publication page and DOI metadata checked on 2026-07-24",
-      "source_kind": "paper",
-      "tier": "primary",
-      "allowed_evidence_roles": [
-        "definition",
-        "historical-context",
-        "learning"
-      ],
-      "license": "LicenseRef-US-Gov-Public-Domain",
-      "license_scope": "NIST-authored technical-series material; third-party or separately marked copyrighted material, marks, and linked works excluded",
-      "license_evidence_url": "https://www.nist.gov/nist-research-library/library-faqs",
-      "license_evidence_note": "The NIST Research Library states that NIST publications are generally U.S. Government works in the public domain; Atlas credits NIST and excludes any separately copyrighted material.",
-      "license_family_id": "https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir5517.pdf",
-      "license_family_grouping": "identity",
-      "family_grouping_evidence_url": null,
-      "copyright_policy": "public-domain-with-provenance",
-      "usage_boundary": "Supports a generic reference-architecture definition in NISTIR 5517; its manufacturing control framework is domain-specific and is not generalized as a universal structure.",
-      "link_policy": "stable",
-      "expected_final_transport_locator": "https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir5517.pdf?download=1",
-      "expected_final_approved_at": "2026-07-24",
-      "expected_final_approval_note": "Reviewed official query transport for the same NISTIR 5517 PDF; bounded recheck returned HTTP 200"
-    },
-    {
-      "id": "src-nasa-swehb-7-07",
-      "canonical_locator": "https://swehb.nasa.gov/spaces/SWEHBVD/pages/102695632/7.07%2B-%2BSoftware%2BArchitecture%2BDescription",
-      "transport_locator": "https://swehb.nasa.gov/spaces/SWEHBVD/pages/102695632/7.07%2B-%2BSoftware%2BArchitecture%2BDescription",
-      "query_insensitive": false,
-      "locator_aliases": [],
-      "tombstone": null,
-      "title": "7.07 — Software Architecture Description",
-      "author_or_org": "National Aeronautics and Space Administration",
-      "published_at": null,
-      "registered_at": "2026-07-24",
-      "checked_at": "2026-07-24",
-      "version": "NASA Software Engineering Handbook Version D, Topic 7.07; checked on 2026-07-24",
-      "source_kind": "official-docs",
-      "tier": "primary",
-      "allowed_evidence_roles": [
-        "definition",
-        "learning",
-        "method"
-      ],
-      "license": "LicenseRef-All-Rights-Reserved",
-      "license_scope": "The named NASA Software Engineering Handbook topic only; embedded quotations, linked works, marks, and media excluded",
-      "license_evidence_url": "https://swehb.nasa.gov/spaces/SWEHBVD/pages/102695632/7.07%2B-%2BSoftware%2BArchitecture%2BDescription",
-      "license_evidence_note": "No reusable license notice covering the complete checked page was established; Atlas retains only the link and original factual summaries, excluding embedded third-party material.",
-      "license_family_id": "https://swehb.nasa.gov/spaces/SWEHBVD/pages/102695632/7.07%2B-%2BSoftware%2BArchitecture%2BDescription",
-      "license_family_grouping": "identity",
-      "family_grouping_evidence_url": null,
-      "copyright_policy": "facts-and-short-quotation",
-      "usage_boundary": "Supports explicit treatment of architectural drivers, driving requirements, decisions, rationale, and verification evidence in NASA architecture descriptions; NASA governance and mission context are not universal requirements.",
+      "usage_boundary": "Supports continuous architectural feedback and pipeline practice; examples do not define universal thresholds or require every fitness function to block release.",
       "link_policy": "floating",
-      "expected_final_transport_locator": "https://swehb.nasa.gov/spaces/SWEHBVD/pages/102695632/7.07%2B-%2BSoftware%2BArchitecture%2BDescription",
+      "expected_final_transport_locator": "https://www.thoughtworks.com/en-us/insights/articles/fitness-function-driven-development",
       "expected_final_approved_at": "2026-07-24",
-      "expected_final_approval_note": "Initial reviewed NASA SWEHB Version D Topic 7.07 transport baseline"
-    },
-    {
-      "id": "src-atlas-agents-guardrail-boundary-de06a6a05869",
-      "canonical_locator": "/img/illustrations/openai-agents-sdk-guardrail-boundary.png",
-      "transport_locator": "/img/illustrations/openai-agents-sdk-guardrail-boundary.png",
-      "query_insensitive": false,
-      "locator_aliases": [],
-      "tombstone": null,
-      "title": "OpenAI Agents SDK guardrail and business-action boundary illustration — Agentic Architecture Atlas maintainers",
-      "author_or_org": "Agentic Architecture Atlas maintainers",
-      "published_at": null,
-      "registered_at": "2026-07-24",
-      "checked_at": "2026-07-24",
-      "version": "Original PNG generated and QA-checked on 2026-07-24",
-      "source_kind": "original-illustration",
-      "tier": "primary",
-      "allowed_evidence_roles": [
-        "illustration"
-      ],
-      "license": "LicenseRef-Atlas-Original",
-      "license_scope": "The named run guardrails and an independent pre-write business-action gate illustration only",
-      "license_evidence_url": "https://github.com/sealday/agentic-architecture-atlas/blob/main/static/img/illustrations/openai-agents-sdk-guardrail-boundary.png",
-      "license_evidence_note": "The image was generated from a project-authored brief for this atlas; original-illustration coverage is limited to the named PNG.",
-      "license_family_id": "/img/illustrations/openai-agents-sdk-guardrail-boundary.png",
-      "license_family_grouping": "identity",
-      "family_grouping_evidence_url": null,
-      "copyright_policy": "original-atlas",
-      "usage_boundary": "Explains the separation between SDK guardrails and business authorization, approval, idempotency, and external-state checks; it does not establish factual claims or guarantee side-effect safety.",
-      "link_policy": null,
-      "expected_final_transport_locator": "/img/illustrations/openai-agents-sdk-guardrail-boundary.png",
-      "expected_final_approved_at": "2026-07-24",
-      "expected_final_approval_note": "Original atlas illustration approved after text, topology, originality, and responsive QA"
-    },
-    {
-      "id": "src-atlas-agents-handoff-tool-fa2c6ce9ffed",
-      "canonical_locator": "/img/illustrations/openai-agents-sdk-handoff-vs-tool.png",
-      "transport_locator": "/img/illustrations/openai-agents-sdk-handoff-vs-tool.png",
-      "query_insensitive": false,
-      "locator_aliases": [],
-      "tombstone": null,
-      "title": "OpenAI Agents SDK handoff versus agent-as-tool control illustration — Agentic Architecture Atlas maintainers",
-      "author_or_org": "Agentic Architecture Atlas maintainers",
-      "published_at": null,
-      "registered_at": "2026-07-24",
-      "checked_at": "2026-07-24",
-      "version": "Original PNG generated and QA-checked on 2026-07-24",
-      "source_kind": "original-illustration",
-      "tier": "primary",
-      "allowed_evidence_roles": [
-        "illustration"
-      ],
-      "license": "LicenseRef-Atlas-Original",
-      "license_scope": "The named conversational control transfer versus bounded delegated work that returns illustration only",
-      "license_evidence_url": "https://github.com/sealday/agentic-architecture-atlas/blob/main/static/img/illustrations/openai-agents-sdk-handoff-vs-tool.png",
-      "license_evidence_note": "The image was generated from a project-authored brief for this atlas; original-illustration coverage is limited to the named PNG.",
-      "license_family_id": "/img/illustrations/openai-agents-sdk-handoff-vs-tool.png",
-      "license_family_grouping": "identity",
-      "family_grouping_evidence_url": null,
-      "copyright_policy": "original-atlas",
-      "usage_boundary": "Explains the control-ownership difference between Handoff and Agents-as-Tools; it does not establish factual claims or imply either pattern is universally preferred.",
-      "link_policy": null,
-      "expected_final_transport_locator": "/img/illustrations/openai-agents-sdk-handoff-vs-tool.png",
-      "expected_final_approved_at": "2026-07-24",
-      "expected_final_approval_note": "Original atlas illustration approved after text, topology, originality, and responsive QA"
-    },
-    {
-      "id": "src-atlas-agents-run-control-0e1d1904e70c",
-      "canonical_locator": "/img/illustrations/openai-agents-sdk-run-control.png",
-      "transport_locator": "/img/illustrations/openai-agents-sdk-run-control.png",
-      "query_insensitive": false,
-      "locator_aliases": [],
-      "tombstone": null,
-      "title": "OpenAI Agents SDK run-control loop illustration — Agentic Architecture Atlas maintainers",
-      "author_or_org": "Agentic Architecture Atlas maintainers",
-      "published_at": null,
-      "registered_at": "2026-07-24",
-      "checked_at": "2026-07-24",
-      "version": "Original PNG generated and QA-checked on 2026-07-24",
-      "source_kind": "original-illustration",
-      "tier": "primary",
-      "allowed_evidence_roles": [
-        "illustration"
-      ],
-      "license": "LicenseRef-Atlas-Original",
-      "license_scope": "The named one Runner invocation, tool action, result loop, termination, and turn limit illustration only",
-      "license_evidence_url": "https://github.com/sealday/agentic-architecture-atlas/blob/main/static/img/illustrations/openai-agents-sdk-run-control.png",
-      "license_evidence_note": "The image was generated from a project-authored brief for this atlas; original-illustration coverage is limited to the named PNG.",
-      "license_family_id": "/img/illustrations/openai-agents-sdk-run-control.png",
-      "license_family_grouping": "identity",
-      "family_grouping_evidence_url": null,
-      "copyright_policy": "original-atlas",
-      "usage_boundary": "Explains one Runner invocation and its turn limit; it does not establish factual claims or bound application retries, fan-out, or nested runs.",
-      "link_policy": null,
-      "expected_final_transport_locator": "/img/illustrations/openai-agents-sdk-run-control.png",
-      "expected_final_approved_at": "2026-07-24",
-      "expected_final_approval_note": "Original atlas illustration approved after text, topology, originality, and responsive QA"
-    },
-    {
-      "id": "src-atlas-kafka-partition-ownership-a43f4f08e4d3",
-      "canonical_locator": "/img/illustrations/apache-kafka-consumer-groups-partition-ownership.png",
-      "transport_locator": "/img/illustrations/apache-kafka-consumer-groups-partition-ownership.png",
-      "query_insensitive": false,
-      "locator_aliases": [],
-      "tombstone": null,
-      "title": "Kafka consumer-group partition ownership illustration — Agentic Architecture Atlas maintainers",
-      "author_or_org": "Agentic Architecture Atlas maintainers",
-      "published_at": null,
-      "registered_at": "2026-07-24",
-      "checked_at": "2026-07-24",
-      "version": "Original PNG generated and QA-checked on 2026-07-24",
-      "source_kind": "original-illustration",
-      "tier": "primary",
-      "allowed_evidence_roles": [
-        "illustration"
-      ],
-      "license": "LicenseRef-Atlas-Original",
-      "license_scope": "The named current partition assignment across consumers in one group illustration only",
-      "license_evidence_url": "https://github.com/sealday/agentic-architecture-atlas/blob/main/static/img/illustrations/apache-kafka-consumer-groups-partition-ownership.png",
-      "license_evidence_note": "The image was generated from a project-authored brief for this atlas; original-illustration coverage is limited to the named PNG.",
-      "license_family_id": "/img/illustrations/apache-kafka-consumer-groups-partition-ownership.png",
-      "license_family_grouping": "identity",
-      "family_grouping_evidence_url": null,
-      "copyright_policy": "original-atlas",
-      "usage_boundary": "Explains current partition read ownership within one consumer group; it does not establish factual claims, create a business lock, or guarantee exactly-once effects.",
-      "link_policy": null,
-      "expected_final_transport_locator": "/img/illustrations/apache-kafka-consumer-groups-partition-ownership.png",
-      "expected_final_approved_at": "2026-07-24",
-      "expected_final_approval_note": "Original atlas illustration approved after text, topology, originality, and responsive QA"
-    },
-    {
-      "id": "src-atlas-kafka-rebalance-loop-773b5a565ab7",
-      "canonical_locator": "/img/illustrations/apache-kafka-consumer-groups-rebalance-loop.png",
-      "transport_locator": "/img/illustrations/apache-kafka-consumer-groups-rebalance-loop.png",
-      "query_insensitive": false,
-      "locator_aliases": [],
-      "tombstone": null,
-      "title": "Kafka consumer-group rebalance loop illustration — Agentic Architecture Atlas maintainers",
-      "author_or_org": "Agentic Architecture Atlas maintainers",
-      "published_at": null,
-      "registered_at": "2026-07-24",
-      "checked_at": "2026-07-24",
-      "version": "Original PNG generated and QA-checked on 2026-07-24",
-      "source_kind": "original-illustration",
-      "tier": "primary",
-      "allowed_evidence_roles": [
-        "illustration"
-      ],
-      "license": "LicenseRef-Atlas-Original",
-      "license_scope": "The named partition revoke, reassignment, recovery, and the separate in-flight-work risk illustration only",
-      "license_evidence_url": "https://github.com/sealday/agentic-architecture-atlas/blob/main/static/img/illustrations/apache-kafka-consumer-groups-rebalance-loop.png",
-      "license_evidence_note": "The image was generated from a project-authored brief for this atlas; original-illustration coverage is limited to the named PNG.",
-      "license_family_id": "/img/illustrations/apache-kafka-consumer-groups-rebalance-loop.png",
-      "license_family_grouping": "identity",
-      "family_grouping_evidence_url": null,
-      "copyright_policy": "original-atlas",
-      "usage_boundary": "Explains partition ownership transfer during rebalance and the separate risk of in-flight work; it does not establish factual claims, imply seamless consumption, or cancel external side effects.",
-      "link_policy": null,
-      "expected_final_transport_locator": "/img/illustrations/apache-kafka-consumer-groups-rebalance-loop.png",
-      "expected_final_approved_at": "2026-07-24",
-      "expected_final_approval_note": "Original atlas illustration approved after text, topology, originality, and responsive QA"
-    },
-    {
-      "id": "src-atlas-kong-control-layers-6bff4004677a",
-      "canonical_locator": "/img/illustrations/kong-ai-gateway-routing-resilience-control-layers.png",
-      "transport_locator": "/img/illustrations/kong-ai-gateway-routing-resilience-control-layers.png",
-      "query_insensitive": false,
-      "locator_aliases": [],
-      "tombstone": null,
-      "title": "Kong AI gateway control layers illustration — Agentic Architecture Atlas maintainers",
-      "author_or_org": "Agentic Architecture Atlas maintainers",
-      "published_at": null,
-      "registered_at": "2026-07-24",
-      "checked_at": "2026-07-24",
-      "version": "Original PNG generated and QA-checked on 2026-07-24",
-      "source_kind": "original-illustration",
-      "tier": "primary",
-      "allowed_evidence_roles": [
-        "illustration"
-      ],
-      "license": "LicenseRef-Atlas-Original",
-      "license_scope": "The named client, gateway policy and routing, provider execution, and separate business recovery responsibilities illustration only",
-      "license_evidence_url": "https://github.com/sealday/agentic-architecture-atlas/blob/main/static/img/illustrations/kong-ai-gateway-routing-resilience-control-layers.png",
-      "license_evidence_note": "The image was generated from a project-authored brief for this atlas; original-illustration coverage is limited to the named PNG.",
-      "license_family_id": "/img/illustrations/kong-ai-gateway-routing-resilience-control-layers.png",
-      "license_family_grouping": "identity",
-      "family_grouping_evidence_url": null,
-      "copyright_policy": "original-atlas",
-      "usage_boundary": "Explains the separation among client intent, gateway policy and routing, provider execution, and business recovery; it does not establish factual claims or imply the gateway owns business-side recovery.",
-      "link_policy": null,
-      "expected_final_transport_locator": "/img/illustrations/kong-ai-gateway-routing-resilience-control-layers.png",
-      "expected_final_approved_at": "2026-07-24",
-      "expected_final_approval_note": "Original atlas illustration approved after text, topology, originality, and responsive QA"
-    },
-    {
-      "id": "src-atlas-kong-failure-route-eabc5c905ae6",
-      "canonical_locator": "/img/illustrations/kong-ai-gateway-routing-resilience-failure-route.png",
-      "transport_locator": "/img/illustrations/kong-ai-gateway-routing-resilience-failure-route.png",
-      "query_insensitive": false,
-      "locator_aliases": [],
-      "tombstone": null,
-      "title": "Kong AI gateway bounded failure route illustration — Agentic Architecture Atlas maintainers",
-      "author_or_org": "Agentic Architecture Atlas maintainers",
-      "published_at": null,
-      "registered_at": "2026-07-24",
-      "checked_at": "2026-07-24",
-      "version": "Original PNG generated and QA-checked on 2026-07-24",
-      "source_kind": "original-illustration",
-      "tier": "primary",
-      "allowed_evidence_roles": [
-        "illustration"
-      ],
-      "license": "LicenseRef-Atlas-Original",
-      "license_scope": "The named failure classification, bounded retry or fallback, success return, and exhausted failure return illustration only",
-      "license_evidence_url": "https://github.com/sealday/agentic-architecture-atlas/blob/main/static/img/illustrations/kong-ai-gateway-routing-resilience-failure-route.png",
-      "license_evidence_note": "The image was generated from a project-authored brief for this atlas; original-illustration coverage is limited to the named PNG.",
-      "license_family_id": "/img/illustrations/kong-ai-gateway-routing-resilience-failure-route.png",
-      "license_family_grouping": "identity",
-      "family_grouping_evidence_url": null,
-      "copyright_policy": "original-atlas",
-      "usage_boundary": "Explains failure classification and bounded retry or fallback; it does not establish factual claims, guarantee fallback success, or authorize unbounded retries.",
-      "link_policy": null,
-      "expected_final_transport_locator": "/img/illustrations/kong-ai-gateway-routing-resilience-failure-route.png",
-      "expected_final_approved_at": "2026-07-24",
-      "expected_final_approval_note": "Original atlas illustration approved after text, topology, originality, and responsive QA"
-    },
-    {
-      "id": "src-atlas-kong-policy-boundary-ad7926a7eab8",
-      "canonical_locator": "/img/illustrations/kong-ai-gateway-routing-resilience-policy-boundary.png",
-      "transport_locator": "/img/illustrations/kong-ai-gateway-routing-resilience-policy-boundary.png",
-      "query_insensitive": false,
-      "locator_aliases": [],
-      "tombstone": null,
-      "title": "Kong routing-resilience policy boundary illustration — Agentic Architecture Atlas maintainers",
-      "author_or_org": "Agentic Architecture Atlas maintainers",
-      "published_at": null,
-      "registered_at": "2026-07-24",
-      "checked_at": "2026-07-24",
-      "version": "Original PNG generated and QA-checked on 2026-07-24",
-      "source_kind": "original-illustration",
-      "tier": "primary",
-      "allowed_evidence_roles": [
-        "illustration"
-      ],
-      "license": "LicenseRef-Atlas-Original",
-      "license_scope": "The named separate authorization, cost, and duplicate-side-effect controls around gateway routing illustration only",
-      "license_evidence_url": "https://github.com/sealday/agentic-architecture-atlas/blob/main/static/img/illustrations/kong-ai-gateway-routing-resilience-policy-boundary.png",
-      "license_evidence_note": "The image was generated from a project-authored brief for this atlas; original-illustration coverage is limited to the named PNG.",
-      "license_family_id": "/img/illustrations/kong-ai-gateway-routing-resilience-policy-boundary.png",
-      "license_family_grouping": "identity",
-      "family_grouping_evidence_url": null,
-      "copyright_policy": "original-atlas",
-      "usage_boundary": "Explains that routing resilience remains separate from authorization, cost, and duplicate-side-effect governance; it does not establish factual claims or guarantee exactly-once external effects.",
-      "link_policy": null,
-      "expected_final_transport_locator": "/img/illustrations/kong-ai-gateway-routing-resilience-policy-boundary.png",
-      "expected_final_approved_at": "2026-07-24",
-      "expected_final_approval_note": "Original atlas illustration approved after text, topology, originality, and responsive QA"
-    },
-    {
-      "id": "src-atlas-litellm-budget-gates-2134c02fb563",
-      "canonical_locator": "/img/illustrations/litellm-virtual-keys-governance-budget-gates.png",
-      "transport_locator": "/img/illustrations/litellm-virtual-keys-governance-budget-gates.png",
-      "query_insensitive": false,
-      "locator_aliases": [],
-      "tombstone": null,
-      "title": "LiteLLM budget and rate-limit gates illustration — Agentic Architecture Atlas maintainers",
-      "author_or_org": "Agentic Architecture Atlas maintainers",
-      "published_at": null,
-      "registered_at": "2026-07-24",
-      "checked_at": "2026-07-24",
-      "version": "Original PNG generated and QA-checked on 2026-07-24",
-      "source_kind": "original-illustration",
-      "tier": "primary",
-      "allowed_evidence_roles": [
-        "illustration"
-      ],
-      "license": "LicenseRef-Atlas-Original",
-      "license_scope": "The named budget and rate-limit admission gates before model access illustration only",
-      "license_evidence_url": "https://github.com/sealday/agentic-architecture-atlas/blob/main/static/img/illustrations/litellm-virtual-keys-governance-budget-gates.png",
-      "license_evidence_note": "The image was generated from a project-authored brief for this atlas; original-illustration coverage is limited to the named PNG.",
-      "license_family_id": "/img/illustrations/litellm-virtual-keys-governance-budget-gates.png",
-      "license_family_grouping": "identity",
-      "family_grouping_evidence_url": null,
-      "copyright_policy": "original-atlas",
-      "usage_boundary": "Explains budget and rate-limit admission before model access; it does not establish factual claims, cross-instance atomic reservation, or zero overspend.",
-      "link_policy": null,
-      "expected_final_transport_locator": "/img/illustrations/litellm-virtual-keys-governance-budget-gates.png",
-      "expected_final_approved_at": "2026-07-24",
-      "expected_final_approval_note": "Original atlas illustration approved after text, topology, originality, and responsive QA"
-    },
-    {
-      "id": "src-atlas-litellm-control-path-28044852993d",
-      "canonical_locator": "/img/illustrations/litellm-virtual-keys-governance-control-path.png",
-      "transport_locator": "/img/illustrations/litellm-virtual-keys-governance-control-path.png",
-      "query_insensitive": false,
-      "locator_aliases": [],
-      "tombstone": null,
-      "title": "LiteLLM virtual-key governance control path illustration — Agentic Architecture Atlas maintainers",
-      "author_or_org": "Agentic Architecture Atlas maintainers",
-      "published_at": null,
-      "registered_at": "2026-07-24",
-      "checked_at": "2026-07-24",
-      "version": "Original PNG generated and QA-checked on 2026-07-24",
-      "source_kind": "original-illustration",
-      "tier": "primary",
-      "allowed_evidence_roles": [
-        "illustration"
-      ],
-      "license": "LicenseRef-Atlas-Original",
-      "license_scope": "The named virtual-key identity, policy, budget, routing, and provider-credential custody illustration only",
-      "license_evidence_url": "https://github.com/sealday/agentic-architecture-atlas/blob/main/static/img/illustrations/litellm-virtual-keys-governance-control-path.png",
-      "license_evidence_note": "The image was generated from a project-authored brief for this atlas; original-illustration coverage is limited to the named PNG.",
-      "license_family_id": "/img/illustrations/litellm-virtual-keys-governance-control-path.png",
-      "license_family_grouping": "identity",
-      "family_grouping_evidence_url": null,
-      "copyright_policy": "original-atlas",
-      "usage_boundary": "Explains the ordering of virtual-key identity, model policy, budget checks, routing, and provider-credential custody; it does not establish factual claims, atomic budget reservation, or a product guarantee.",
-      "link_policy": null,
-      "expected_final_transport_locator": "/img/illustrations/litellm-virtual-keys-governance-control-path.png",
-      "expected_final_approved_at": "2026-07-24",
-      "expected_final_approval_note": "Original atlas illustration approved after text, topology, originality, and responsive QA"
-    },
-    {
-      "id": "src-atlas-litellm-governance-boundary-f7ff2c2b8f5d",
-      "canonical_locator": "/img/illustrations/litellm-virtual-keys-governance-governance-boundary.png",
-      "transport_locator": "/img/illustrations/litellm-virtual-keys-governance-governance-boundary.png",
-      "query_insensitive": false,
-      "locator_aliases": [],
-      "tombstone": null,
-      "title": "LiteLLM governed proxy and direct-credential boundary illustration — Agentic Architecture Atlas maintainers",
-      "author_or_org": "Agentic Architecture Atlas maintainers",
-      "published_at": null,
-      "registered_at": "2026-07-24",
-      "checked_at": "2026-07-24",
-      "version": "Original PNG generated and QA-checked on 2026-07-24",
-      "source_kind": "original-illustration",
-      "tier": "primary",
-      "allowed_evidence_roles": [
-        "illustration"
-      ],
-      "license": "LicenseRef-Atlas-Original",
-      "license_scope": "The named governed proxy path and direct provider-credential bypass risk illustration only",
-      "license_evidence_url": "https://github.com/sealday/agentic-architecture-atlas/blob/main/static/img/illustrations/litellm-virtual-keys-governance-governance-boundary.png",
-      "license_evidence_note": "The image was generated from a project-authored brief for this atlas; original-illustration coverage is limited to the named PNG.",
-      "license_family_id": "/img/illustrations/litellm-virtual-keys-governance-governance-boundary.png",
-      "license_family_grouping": "identity",
-      "family_grouping_evidence_url": null,
-      "copyright_policy": "original-atlas",
-      "usage_boundary": "Explains the governed proxy path and direct provider-credential bypass risk; it does not establish factual claims or replace upstream provider authorization.",
-      "link_policy": null,
-      "expected_final_transport_locator": "/img/illustrations/litellm-virtual-keys-governance-governance-boundary.png",
-      "expected_final_approved_at": "2026-07-24",
-      "expected_final_approval_note": "Original atlas illustration approved after text, topology, originality, and responsive QA"
+      "expected_final_approval_note": "Reviewed canonical Thoughtworks article transport baseline"
     }
   ],
   "documents": {
-    "content/concepts/fnd-01-architecture-design-scale.mdx": {
-      "reviewed_at": "2026-07-24",
-      "copyright_checks": [
-        "original-structure",
-        "quotation-boundary",
-        "attribution-complete",
-        "illustration-rights"
-      ],
-      "citations": [
-        {
-          "source_id": "src-nasa-architecture-description-vd",
-          "citation_url": "https://nodis3.gsfc.nasa.gov/npg_img/N_PR_7150_002D_/N_PR_7150_002D__Chapter4.pdf",
-          "roles": [
-            "definition",
-            "method"
-          ],
-          "manifest_primary": true,
-          "usage_mode": "facts-summary",
-          "attribution_note": "NPR 7150.2D Chapter 4, National Aeronautics and Space Administration",
-          "modification_note": null,
-          "excerpt": null,
-          "quotation_reviewed": false
-        },
-        {
-          "source_id": "src-c4model-abstractions",
-          "citation_url": "https://c4model.com/abstractions",
-          "roles": [
-            "definition",
-            "method"
-          ],
-          "manifest_primary": true,
-          "usage_mode": "facts-summary",
-          "attribution_note": "C4 Model — Abstractions, Simon Brown",
-          "modification_note": null,
-          "excerpt": null,
-          "quotation_reviewed": false
-        },
-        {
-          "source_id": "src-iso-42010-2022",
-          "citation_url": "https://www.iso.org/standard/74393.html",
-          "roles": [
-            "definition",
-            "comparison"
-          ],
-          "manifest_primary": true,
-          "usage_mode": "facts-summary",
-          "attribution_note": "ISO/IEC/IEEE 42010:2022, International Organization for Standardization",
-          "modification_note": null,
-          "excerpt": null,
-          "quotation_reviewed": false
-        }
-      ]
-    },
-    "content/concepts/fnd-02-architecture-drivers-asr.mdx": {
-      "reviewed_at": "2026-07-24",
-      "copyright_checks": [
-        "original-structure",
-        "quotation-boundary",
-        "attribution-complete",
-        "illustration-rights"
-      ],
-      "citations": [
-        {
-          "source_id": "src-nasa-swehb-7-07",
-          "citation_url": "https://swehb.nasa.gov/spaces/SWEHBVD/pages/102695632/7.07%2B-%2BSoftware%2BArchitecture%2BDescription",
-          "roles": [
-            "definition",
-            "method"
-          ],
-          "manifest_primary": true,
-          "usage_mode": "facts-summary",
-          "attribution_note": "NASA Software Engineering Handbook Version D, Topic 7.07, National Aeronautics and Space Administration",
-          "modification_note": null,
-          "excerpt": null,
-          "quotation_reviewed": false
-        },
-        {
-          "source_id": "src-sei-0547756e19ba",
-          "citation_url": "https://www.sei.cmu.edu/library/quality-attribute-workshops-qaws-third-edition/",
-          "roles": [
-            "method"
-          ],
-          "manifest_primary": true,
-          "usage_mode": "facts-summary",
-          "attribution_note": "Quality Attribute Workshops (QAWs), Third Edition, Carnegie Mellon Software Engineering Institute",
-          "modification_note": null,
-          "excerpt": null,
-          "quotation_reviewed": false
-        },
-        {
-          "source_id": "src-sei-atam-1998",
-          "citation_url": "https://www.sei.cmu.edu/library/the-architecture-tradeoff-analysis-method/",
-          "roles": [
-            "method"
-          ],
-          "manifest_primary": true,
-          "usage_mode": "facts-summary",
-          "attribution_note": "The Architecture Tradeoff Analysis Method, Kazman, Klein, Barbacci, Longstaff, Lipson, and Carriere",
-          "modification_note": null,
-          "excerpt": null,
-          "quotation_reviewed": false
-        }
-      ]
-    },
-    "content/concepts/fnd-03-architecture-taxonomy.mdx": {
-      "reviewed_at": "2026-07-24",
-      "copyright_checks": [
-        "original-structure",
-        "quotation-boundary",
-        "attribution-complete",
-        "illustration-rights"
-      ],
-      "citations": [
-        {
-          "source_id": "src-sei-abas-1999",
-          "citation_url": "https://www.sei.cmu.edu/library/attribute-based-architectural-styles/",
-          "roles": [
-            "definition",
-            "historical-context"
-          ],
-          "manifest_primary": true,
-          "usage_mode": "facts-summary",
-          "attribution_note": "Attribute-Based Architectural Styles, Klein and Kazman, Carnegie Mellon Software Engineering Institute",
-          "modification_note": null,
-          "excerpt": null,
-          "quotation_reviewed": false
-        },
-        {
-          "source_id": "src-sei-modifiability-tactics-2007",
-          "citation_url": "https://www.sei.cmu.edu/library/modifiability-tactics/",
-          "roles": [
-            "definition",
-            "method"
-          ],
-          "manifest_primary": true,
-          "usage_mode": "facts-summary",
-          "attribution_note": "Modifiability Tactics, Bachmann, Bass, and Nord, Carnegie Mellon Software Engineering Institute",
-          "modification_note": null,
-          "excerpt": null,
-          "quotation_reviewed": false
-        },
-        {
-          "source_id": "src-nist-ir-5517",
-          "citation_url": "https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir5517.pdf",
-          "roles": [
-            "definition",
-            "historical-context"
-          ],
-          "manifest_primary": true,
-          "usage_mode": "facts-summary",
-          "attribution_note": "NISTIR 5517, National Institute of Standards and Technology",
-          "modification_note": null,
-          "excerpt": null,
-          "quotation_reviewed": false
-        },
-        {
-          "source_id": "src-github-432a30aa96cb",
-          "citation_url": "https://github.com/mehdihadeli/awesome-software-architecture",
-          "roles": [
-            "learning"
-          ],
-          "manifest_primary": false,
-          "usage_mode": "navigation-only",
-          "attribution_note": "Awesome Software Architecture, Mehdi Hadeli and contributors",
-          "modification_note": null,
-          "excerpt": null,
-          "quotation_reviewed": false
-        }
-      ]
-    },
-    "content/concepts/fnd-04-tradeoffs-sensitivity-risk.mdx": {
-      "reviewed_at": "2026-07-24",
-      "copyright_checks": [
-        "original-structure",
-        "quotation-boundary",
-        "attribution-complete",
-        "illustration-rights"
-      ],
-      "citations": [
-        {
-          "source_id": "src-sei-atam-1998",
-          "citation_url": "https://www.sei.cmu.edu/library/the-architecture-tradeoff-analysis-method/",
-          "roles": [
-            "definition",
-            "method"
-          ],
-          "manifest_primary": true,
-          "usage_mode": "facts-summary",
-          "attribution_note": "The Architecture Tradeoff Analysis Method, Carnegie Mellon Software Engineering Institute",
-          "modification_note": null,
-          "excerpt": null,
-          "quotation_reviewed": false
-        },
-        {
-          "source_id": "src-nasa-swehb-7-07",
-          "citation_url": "https://swehb.nasa.gov/spaces/SWEHBVD/pages/102695632/7.07%2B-%2BSoftware%2BArchitecture%2BDescription",
-          "roles": [
-            "definition",
-            "learning"
-          ],
-          "manifest_primary": true,
-          "usage_mode": "facts-summary",
-          "attribution_note": "NASA Software Engineering Handbook Version D, Topic 7.07, National Aeronautics and Space Administration",
-          "modification_note": null,
-          "excerpt": null,
-          "quotation_reviewed": false
-        }
-      ]
-    },
-    "content/concepts/fnd-05-architecture-debt-evolutionary-design.mdx": {
-      "reviewed_at": "2026-07-24",
-      "copyright_checks": [
-        "original-structure",
-        "quotation-boundary",
-        "attribution-complete",
-        "illustration-rights"
-      ],
-      "citations": [
-        {
-          "source_id": "src-cunningham-wycash-1992",
-          "citation_url": "https://dl.acm.org/doi/10.1145/157710.157715",
-          "roles": [
-            "definition",
-            "historical-context"
-          ],
-          "manifest_primary": true,
-          "usage_mode": "facts-summary",
-          "attribution_note": "The WyCash Portfolio Management System, Ward Cunningham / ACM",
-          "modification_note": null,
-          "excerpt": null,
-          "quotation_reviewed": false
-        },
-        {
-          "source_id": "src-sei-managing-technical-debt-complex-systems-2016",
-          "citation_url": "https://www.sei.cmu.edu/library/managing-technical-debt-in-complex-software-systems/",
-          "roles": [
-            "definition",
-            "method"
-          ],
-          "manifest_primary": true,
-          "usage_mode": "facts-summary",
-          "attribution_note": "Managing Technical Debt in Complex Software Systems, official brochure, Carnegie Mellon Software Engineering Institute",
-          "modification_note": null,
-          "excerpt": null,
-          "quotation_reviewed": false
-        },
-        {
-          "source_id": "src-martin-fowler-is-design-dead-2004",
-          "citation_url": "https://martinfowler.com/articles/designDead.html",
-          "roles": [
-            "definition",
-            "historical-context",
-            "learning"
-          ],
-          "manifest_primary": true,
-          "usage_mode": "facts-summary",
-          "attribution_note": "Is Design Dead?, Martin Fowler",
-          "modification_note": null,
-          "excerpt": null,
-          "quotation_reviewed": false
-        }
-      ]
-    },
     "content/cases/apache-kafka-consumer-groups.mdx": {
       "reviewed_at": "2026-07-24",
       "copyright_checks": [
@@ -15698,32 +15645,6 @@
           "usage_mode": "facts-summary",
           "attribution_note": "Kafka: a Distributed Messaging System for Log Processing, Microsoft",
           "modification_note": null,
-          "excerpt": null,
-          "quotation_reviewed": false
-        },
-        {
-          "source_id": "src-atlas-kafka-partition-ownership-a43f4f08e4d3",
-          "citation_url": "/img/illustrations/apache-kafka-consumer-groups-partition-ownership.png",
-          "roles": [
-            "illustration"
-          ],
-          "manifest_primary": false,
-          "usage_mode": "original-illustration",
-          "attribution_note": "Kafka consumer-group partition ownership illustration, Agentic Architecture Atlas maintainers",
-          "modification_note": "Generated with the built-in image tool from a project-authored brief and QA-reviewed in an original composition to explain current partition assignment across consumers in one group.",
-          "excerpt": null,
-          "quotation_reviewed": false
-        },
-        {
-          "source_id": "src-atlas-kafka-rebalance-loop-773b5a565ab7",
-          "citation_url": "/img/illustrations/apache-kafka-consumer-groups-rebalance-loop.png",
-          "roles": [
-            "illustration"
-          ],
-          "manifest_primary": false,
-          "usage_mode": "original-illustration",
-          "attribution_note": "Kafka consumer-group rebalance loop illustration, Agentic Architecture Atlas maintainers",
-          "modification_note": "Generated with the built-in image tool from a project-authored brief and QA-reviewed in an original composition to explain partition revoke, reassignment, recovery, and the separate in-flight-work risk.",
           "excerpt": null,
           "quotation_reviewed": false
         }
@@ -17492,45 +17413,6 @@
           "modification_note": null,
           "excerpt": null,
           "quotation_reviewed": false
-        },
-        {
-          "source_id": "src-atlas-kong-control-layers-6bff4004677a",
-          "citation_url": "/img/illustrations/kong-ai-gateway-routing-resilience-control-layers.png",
-          "roles": [
-            "illustration"
-          ],
-          "manifest_primary": false,
-          "usage_mode": "original-illustration",
-          "attribution_note": "Kong AI gateway control layers illustration, Agentic Architecture Atlas maintainers",
-          "modification_note": "Generated with the built-in image tool from a project-authored brief and QA-reviewed in an original composition to explain client, gateway policy and routing, provider execution, and separate business recovery responsibilities.",
-          "excerpt": null,
-          "quotation_reviewed": false
-        },
-        {
-          "source_id": "src-atlas-kong-failure-route-eabc5c905ae6",
-          "citation_url": "/img/illustrations/kong-ai-gateway-routing-resilience-failure-route.png",
-          "roles": [
-            "illustration"
-          ],
-          "manifest_primary": false,
-          "usage_mode": "original-illustration",
-          "attribution_note": "Kong AI gateway bounded failure route illustration, Agentic Architecture Atlas maintainers",
-          "modification_note": "Generated with the built-in image tool from a project-authored brief and QA-reviewed in an original composition to explain failure classification, bounded retry or fallback, success return, and exhausted failure return.",
-          "excerpt": null,
-          "quotation_reviewed": false
-        },
-        {
-          "source_id": "src-atlas-kong-policy-boundary-ad7926a7eab8",
-          "citation_url": "/img/illustrations/kong-ai-gateway-routing-resilience-policy-boundary.png",
-          "roles": [
-            "illustration"
-          ],
-          "manifest_primary": false,
-          "usage_mode": "original-illustration",
-          "attribution_note": "Kong routing-resilience policy boundary illustration, Agentic Architecture Atlas maintainers",
-          "modification_note": "Generated with the built-in image tool from a project-authored brief and QA-reviewed in an original composition to explain separate authorization, cost, and duplicate-side-effect controls around gateway routing.",
-          "excerpt": null,
-          "quotation_reviewed": false
         }
       ]
     },
@@ -18641,45 +18523,6 @@
           "modification_note": null,
           "excerpt": null,
           "quotation_reviewed": false
-        },
-        {
-          "source_id": "src-atlas-litellm-budget-gates-2134c02fb563",
-          "citation_url": "/img/illustrations/litellm-virtual-keys-governance-budget-gates.png",
-          "roles": [
-            "illustration"
-          ],
-          "manifest_primary": false,
-          "usage_mode": "original-illustration",
-          "attribution_note": "LiteLLM budget and rate-limit gates illustration, Agentic Architecture Atlas maintainers",
-          "modification_note": "Generated with the built-in image tool from a project-authored brief and QA-reviewed in an original composition to explain budget and rate-limit admission gates before model access.",
-          "excerpt": null,
-          "quotation_reviewed": false
-        },
-        {
-          "source_id": "src-atlas-litellm-control-path-28044852993d",
-          "citation_url": "/img/illustrations/litellm-virtual-keys-governance-control-path.png",
-          "roles": [
-            "illustration"
-          ],
-          "manifest_primary": false,
-          "usage_mode": "original-illustration",
-          "attribution_note": "LiteLLM virtual-key governance control path illustration, Agentic Architecture Atlas maintainers",
-          "modification_note": "Generated with the built-in image tool from a project-authored brief and QA-reviewed in an original composition to explain virtual-key identity, policy, budget, routing, and provider-credential custody.",
-          "excerpt": null,
-          "quotation_reviewed": false
-        },
-        {
-          "source_id": "src-atlas-litellm-governance-boundary-f7ff2c2b8f5d",
-          "citation_url": "/img/illustrations/litellm-virtual-keys-governance-governance-boundary.png",
-          "roles": [
-            "illustration"
-          ],
-          "manifest_primary": false,
-          "usage_mode": "original-illustration",
-          "attribution_note": "LiteLLM governed proxy and direct-credential boundary illustration, Agentic Architecture Atlas maintainers",
-          "modification_note": "Generated with the built-in image tool from a project-authored brief and QA-reviewed in an original composition to explain governed proxy path and direct provider-credential bypass risk.",
-          "excerpt": null,
-          "quotation_reviewed": false
         }
       ]
     },
@@ -19725,45 +19568,6 @@
           "modification_note": null,
           "excerpt": null,
           "quotation_reviewed": false
-        },
-        {
-          "source_id": "src-atlas-agents-guardrail-boundary-de06a6a05869",
-          "citation_url": "/img/illustrations/openai-agents-sdk-guardrail-boundary.png",
-          "roles": [
-            "illustration"
-          ],
-          "manifest_primary": false,
-          "usage_mode": "original-illustration",
-          "attribution_note": "OpenAI Agents SDK guardrail and business-action boundary illustration, Agentic Architecture Atlas maintainers",
-          "modification_note": "Generated with the built-in image tool from a project-authored brief and QA-reviewed in an original composition to explain run guardrails and an independent pre-write business-action gate.",
-          "excerpt": null,
-          "quotation_reviewed": false
-        },
-        {
-          "source_id": "src-atlas-agents-handoff-tool-fa2c6ce9ffed",
-          "citation_url": "/img/illustrations/openai-agents-sdk-handoff-vs-tool.png",
-          "roles": [
-            "illustration"
-          ],
-          "manifest_primary": false,
-          "usage_mode": "original-illustration",
-          "attribution_note": "OpenAI Agents SDK handoff versus agent-as-tool control illustration, Agentic Architecture Atlas maintainers",
-          "modification_note": "Generated with the built-in image tool from a project-authored brief and QA-reviewed in an original composition to explain conversational control transfer versus bounded delegated work that returns.",
-          "excerpt": null,
-          "quotation_reviewed": false
-        },
-        {
-          "source_id": "src-atlas-agents-run-control-0e1d1904e70c",
-          "citation_url": "/img/illustrations/openai-agents-sdk-run-control.png",
-          "roles": [
-            "illustration"
-          ],
-          "manifest_primary": false,
-          "usage_mode": "original-illustration",
-          "attribution_note": "OpenAI Agents SDK run-control loop illustration, Agentic Architecture Atlas maintainers",
-          "modification_note": "Generated with the built-in image tool from a project-authored brief and QA-reviewed in an original composition to explain one Runner invocation, tool action, result loop, termination, and turn limit.",
-          "excerpt": null,
-          "quotation_reviewed": false
         }
       ]
     },
@@ -20632,6 +20436,269 @@
         }
       ]
     },
+    "content/concepts/fnd-01-architecture-design-scale.mdx": {
+      "reviewed_at": "2026-07-24",
+      "copyright_checks": [
+        "original-structure",
+        "quotation-boundary",
+        "attribution-complete",
+        "illustration-rights"
+      ],
+      "citations": [
+        {
+          "source_id": "src-nasa-architecture-description-vd",
+          "citation_url": "https://nodis3.gsfc.nasa.gov/npg_img/N_PR_7150_002D_/N_PR_7150_002D__Chapter4.pdf",
+          "roles": [
+            "definition",
+            "method"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "NPR 7150.2D Chapter 4, National Aeronautics and Space Administration",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-c4model-abstractions",
+          "citation_url": "https://c4model.com/abstractions",
+          "roles": [
+            "definition",
+            "method"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "C4 Model — Abstractions, Simon Brown",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-iso-42010-2022",
+          "citation_url": "https://www.iso.org/standard/74393.html",
+          "roles": [
+            "definition",
+            "comparison"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "ISO/IEC/IEEE 42010:2022, International Organization for Standardization",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        }
+      ]
+    },
+    "content/concepts/fnd-02-architecture-drivers-asr.mdx": {
+      "reviewed_at": "2026-07-24",
+      "copyright_checks": [
+        "original-structure",
+        "quotation-boundary",
+        "attribution-complete",
+        "illustration-rights"
+      ],
+      "citations": [
+        {
+          "source_id": "src-nasa-swehb-7-07",
+          "citation_url": "https://swehb.nasa.gov/spaces/SWEHBVD/pages/102695632/7.07%2B-%2BSoftware%2BArchitecture%2BDescription",
+          "roles": [
+            "definition",
+            "method"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "NASA Software Engineering Handbook Version D, Topic 7.07, National Aeronautics and Space Administration",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-sei-0547756e19ba",
+          "citation_url": "https://www.sei.cmu.edu/library/quality-attribute-workshops-qaws-third-edition/",
+          "roles": [
+            "method"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "Quality Attribute Workshops (QAWs), Third Edition, Carnegie Mellon Software Engineering Institute",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-sei-atam-1998",
+          "citation_url": "https://www.sei.cmu.edu/library/the-architecture-tradeoff-analysis-method/",
+          "roles": [
+            "method"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "The Architecture Tradeoff Analysis Method, Kazman, Klein, Barbacci, Longstaff, Lipson, and Carriere",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        }
+      ]
+    },
+    "content/concepts/fnd-03-architecture-taxonomy.mdx": {
+      "reviewed_at": "2026-07-24",
+      "copyright_checks": [
+        "original-structure",
+        "quotation-boundary",
+        "attribution-complete",
+        "illustration-rights"
+      ],
+      "citations": [
+        {
+          "source_id": "src-sei-abas-1999",
+          "citation_url": "https://www.sei.cmu.edu/library/attribute-based-architectural-styles/",
+          "roles": [
+            "definition",
+            "historical-context"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "Attribute-Based Architectural Styles, Klein and Kazman, Carnegie Mellon Software Engineering Institute",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-sei-modifiability-tactics-2007",
+          "citation_url": "https://www.sei.cmu.edu/library/modifiability-tactics/",
+          "roles": [
+            "definition",
+            "method"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "Modifiability Tactics, Bachmann, Bass, and Nord, Carnegie Mellon Software Engineering Institute",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-nist-ir-5517",
+          "citation_url": "https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir5517.pdf",
+          "roles": [
+            "definition",
+            "historical-context"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "NISTIR 5517, National Institute of Standards and Technology",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-github-432a30aa96cb",
+          "citation_url": "https://github.com/mehdihadeli/awesome-software-architecture",
+          "roles": [
+            "learning"
+          ],
+          "manifest_primary": false,
+          "usage_mode": "navigation-only",
+          "attribution_note": "Awesome Software Architecture, Mehdi Hadeli and contributors",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        }
+      ]
+    },
+    "content/concepts/fnd-04-tradeoffs-sensitivity-risk.mdx": {
+      "reviewed_at": "2026-07-24",
+      "copyright_checks": [
+        "original-structure",
+        "quotation-boundary",
+        "attribution-complete",
+        "illustration-rights"
+      ],
+      "citations": [
+        {
+          "source_id": "src-sei-atam-1998",
+          "citation_url": "https://www.sei.cmu.edu/library/the-architecture-tradeoff-analysis-method/",
+          "roles": [
+            "definition",
+            "method"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "The Architecture Tradeoff Analysis Method, Carnegie Mellon Software Engineering Institute",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-nasa-swehb-7-07",
+          "citation_url": "https://swehb.nasa.gov/spaces/SWEHBVD/pages/102695632/7.07%2B-%2BSoftware%2BArchitecture%2BDescription",
+          "roles": [
+            "definition",
+            "learning"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "NASA Software Engineering Handbook Version D, Topic 7.07, National Aeronautics and Space Administration",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        }
+      ]
+    },
+    "content/concepts/fnd-05-architecture-debt-evolutionary-design.mdx": {
+      "reviewed_at": "2026-07-24",
+      "copyright_checks": [
+        "original-structure",
+        "quotation-boundary",
+        "attribution-complete",
+        "illustration-rights"
+      ],
+      "citations": [
+        {
+          "source_id": "src-cunningham-wycash-1992",
+          "citation_url": "https://dl.acm.org/doi/10.1145/157710.157715",
+          "roles": [
+            "definition",
+            "historical-context"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "The WyCash Portfolio Management System, Ward Cunningham / ACM",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-sei-managing-technical-debt-complex-systems-2016",
+          "citation_url": "https://www.sei.cmu.edu/library/managing-technical-debt-in-complex-software-systems/",
+          "roles": [
+            "definition",
+            "method"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "Managing Technical Debt in Complex Software Systems, official brochure, Carnegie Mellon Software Engineering Institute",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-martin-fowler-is-design-dead-2004",
+          "citation_url": "https://martinfowler.com/articles/designDead.html",
+          "roles": [
+            "definition",
+            "historical-context",
+            "learning"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "Is Design Dead?, Martin Fowler",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        }
+      ]
+    },
     "content/concepts/index.mdx": {
       "reviewed_at": "2026-07-24",
       "copyright_checks": [
@@ -20813,6 +20880,179 @@
           "manifest_primary": true,
           "usage_mode": "facts-summary",
           "attribution_note": "Architecture Decision Record, Martin Fowler",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        }
+      ]
+    },
+    "content/methods/mth-04-architecture-fitness-functions.mdx": {
+      "reviewed_at": "2026-07-24",
+      "copyright_checks": [
+        "original-structure",
+        "quotation-boundary",
+        "attribution-complete",
+        "illustration-rights"
+      ],
+      "citations": [
+        {
+          "source_id": "src-oreilly-7eb3a574d599",
+          "citation_url": "https://www.oreilly.com/library/view/building-evolutionary-architectures/9781492097532/",
+          "roles": [
+            "definition",
+            "method"
+          ],
+          "manifest_primary": false,
+          "usage_mode": "facts-summary",
+          "attribution_note": "Building Evolutionary Architectures, 2nd Edition, Neal Ford, Rebecca Parsons, Patrick Kua, and Pramod Sadalage / O'Reilly Media",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-thoughtworks-32a10834c10f",
+          "citation_url": "https://www.thoughtworks.com/en-us/insights/articles/fitness-function-driven-development",
+          "roles": [
+            "implementation",
+            "method"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "Fitness function-driven development, Paula Paul and Rosemary Wang / Thoughtworks",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        }
+      ]
+    },
+    "content/methods/mth-05-risk-storming-premortem.mdx": {
+      "reviewed_at": "2026-07-24",
+      "copyright_checks": [
+        "original-structure",
+        "quotation-boundary",
+        "attribution-complete",
+        "illustration-rights"
+      ],
+      "citations": [
+        {
+          "source_id": "src-riskstorming-4c7868451f0e",
+          "citation_url": "https://riskstorming.com/",
+          "roles": [
+            "definition",
+            "method"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "Risk-storming, Simon Brown",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-hbr-081d06c5edff",
+          "citation_url": "https://hbr.org/2007/09/performing-a-project-premortem",
+          "roles": [
+            "definition",
+            "method"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "Performing a Project Premortem, Gary Klein / Harvard Business Review",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-cheatsheetseries-ea079221bd09",
+          "citation_url": "https://cheatsheetseries.owasp.org/cheatsheets/Threat_Modeling_Cheat_Sheet.html",
+          "roles": [
+            "comparison",
+            "method"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "Threat Modeling Cheat Sheet, OWASP Cheat Sheet Series",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-docs-930fe7f32f90",
+          "citation_url": "https://docs.aws.amazon.com/wellarchitected/latest/framework/rel_testing_resiliency_game_days_resiliency.html",
+          "roles": [
+            "comparison",
+            "method"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "REL12-BP05 Conduct game days regularly, Amazon Web Services",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        }
+      ]
+    },
+    "content/methods/mth-06-requirements-to-evolution-loop.mdx": {
+      "reviewed_at": "2026-07-24",
+      "copyright_checks": [
+        "original-structure",
+        "quotation-boundary",
+        "attribution-complete",
+        "illustration-rights"
+      ],
+      "citations": [
+        {
+          "source_id": "src-sei-0547756e19ba",
+          "citation_url": "https://www.sei.cmu.edu/library/quality-attribute-workshops-qaws-third-edition/",
+          "roles": [
+            "definition",
+            "method"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "Quality Attribute Workshops (QAWs), Third Edition, Carnegie Mellon Software Engineering Institute",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-sei-atam-1998",
+          "citation_url": "https://www.sei.cmu.edu/library/the-architecture-tradeoff-analysis-method/",
+          "roles": [
+            "definition",
+            "method"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "The Architecture Tradeoff Analysis Method, Carnegie Mellon Software Engineering Institute",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-nygard-documenting-architecture-decisions-2011",
+          "citation_url": "https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions",
+          "roles": [
+            "definition",
+            "method"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "Documenting Architecture Decisions, Michael Nygard / Cognitect",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-thoughtworks-32a10834c10f",
+          "citation_url": "https://www.thoughtworks.com/en-us/insights/articles/fitness-function-driven-development",
+          "roles": [
+            "implementation",
+            "method"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "Fitness function-driven development, Paula Paul and Rosemary Wang / Thoughtworks",
           "modification_note": null,
           "excerpt": null,
           "quotation_reviewed": false

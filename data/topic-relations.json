@@ -5,12 +5,6 @@
     "related_cases": [],
     "related_questions": []
   },
-  "MTH-06": {
-    "dependencies": ["MTH-01", "MTH-02", "MTH-03", "MTH-04"],
-    "adjacent_topics": [],
-    "related_cases": [],
-    "related_questions": []
-  },
   "STY-14": {
     "dependencies": ["STY-04", "STY-05", "STY-06"],
     "adjacent_topics": [],

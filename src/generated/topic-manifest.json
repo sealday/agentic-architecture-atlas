@@ -1307,8 +1307,8 @@
       },
       "dependencies": [],
       "adjacent_topics": [
-        "MOD-02",
-        "PR-01"
+        "PR-01",
+        "MOD-02"
       ],
       "primary_sources": [
         "https://arc42.org/",
@@ -1684,6 +1684,7 @@
       ],
       "adjacent_topics": [
         "FND-05",
+        "MTH-04",
         "QA-01"
       ],
       "primary_sources": [
@@ -2940,48 +2941,6 @@
       "pattern_group": null
     },
     {
-      "id": "MTH-04",
-      "type": "method",
-      "title": "架构适应度函数",
-      "slug": "/methods/mth-04",
-      "priority": "P1",
-      "status": {
-        "scope": "backlog-projection",
-        "value": "pending",
-        "source": "docs/content-backlog.md"
-      },
-      "dependencies": [],
-      "adjacent_topics": [],
-      "primary_sources": [],
-      "related_cases": [],
-      "related_questions": [],
-      "reviewed_at": null,
-      "review_policy": null,
-      "published": false,
-      "pattern_group": null
-    },
-    {
-      "id": "MTH-05",
-      "type": "method",
-      "title": "风险风暴与预演",
-      "slug": "/methods/mth-05",
-      "priority": "P1",
-      "status": {
-        "scope": "backlog-projection",
-        "value": "pending",
-        "source": "docs/content-backlog.md"
-      },
-      "dependencies": [],
-      "adjacent_topics": [],
-      "primary_sources": [],
-      "related_cases": [],
-      "related_questions": [],
-      "reviewed_at": null,
-      "review_policy": null,
-      "published": false,
-      "pattern_group": null
-    },
-    {
       "id": "OPS-04",
       "type": "pattern",
       "title": "容量规划、饱和点与排队效应",
@@ -3945,7 +3904,8 @@
         "FND-04"
       ],
       "adjacent_topics": [
-        "MTH-03"
+        "MTH-03",
+        "MTH-06"
       ],
       "primary_sources": [
         "https://dl.acm.org/doi/10.1145/157710.157715",
@@ -3963,9 +3923,74 @@
       "presentation": {}
     },
     {
+      "id": "MTH-04",
+      "type": "method",
+      "title": "架构适应度函数",
+      "slug": "/methods/mth-04",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [
+        "FND-05",
+        "QA-01"
+      ],
+      "adjacent_topics": [
+        "MTH-03",
+        "MTH-06"
+      ],
+      "primary_sources": [
+        "https://www.thoughtworks.com/en-us/insights/articles/fitness-function-driven-development"
+      ],
+      "related_cases": [
+        "/cases/kubernetes-reconciliation-loop"
+      ],
+      "related_questions": [],
+      "reviewed_at": "2026-07-24",
+      "review_policy": "quarterly-version-sensitive",
+      "published": true,
+      "pattern_group": null,
+      "presentation": {}
+    },
+    {
+      "id": "MTH-05",
+      "type": "method",
+      "title": "风险风暴与事前验尸",
+      "slug": "/methods/mth-05",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [
+        "MTH-02"
+      ],
+      "adjacent_topics": [
+        "MTH-06"
+      ],
+      "primary_sources": [
+        "https://cheatsheetseries.owasp.org/cheatsheets/Threat_Modeling_Cheat_Sheet.html",
+        "https://docs.aws.amazon.com/wellarchitected/latest/framework/rel_testing_resiliency_game_days_resiliency.html",
+        "https://hbr.org/2007/09/performing-a-project-premortem",
+        "https://riskstorming.com/"
+      ],
+      "related_cases": [
+        "/cases/aws-cell-shuffle-sharding"
+      ],
+      "related_questions": [],
+      "reviewed_at": "2026-07-24",
+      "review_policy": "quarterly-version-sensitive",
+      "published": true,
+      "pattern_group": null,
+      "presentation": {}
+    },
+    {
       "id": "MTH-06",
       "type": "method",
-      "title": "从需求到演进的闭环",
+      "title": "从需求到演进的架构闭环",
       "slug": "/methods/mth-06",
       "priority": "P1",
       "status": {
@@ -3979,14 +4004,26 @@
         "MTH-03",
         "MTH-04"
       ],
-      "adjacent_topics": [],
-      "primary_sources": [],
-      "related_cases": [],
+      "adjacent_topics": [
+        "MTH-04",
+        "MTH-05",
+        "FND-05"
+      ],
+      "primary_sources": [
+        "https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions",
+        "https://www.sei.cmu.edu/library/quality-attribute-workshops-qaws-third-edition/",
+        "https://www.sei.cmu.edu/library/the-architecture-tradeoff-analysis-method/",
+        "https://www.thoughtworks.com/en-us/insights/articles/fitness-function-driven-development"
+      ],
+      "related_cases": [
+        "/cases/microsoft-multi-agent-reference-architecture"
+      ],
       "related_questions": [],
-      "reviewed_at": null,
-      "review_policy": null,
-      "published": false,
-      "pattern_group": null
+      "reviewed_at": "2026-07-24",
+      "review_policy": "quarterly-version-sensitive",
+      "published": true,
+      "pattern_group": null,
+      "presentation": {}
     },
     {
       "id": "ANTI-09",
