@@ -19,10 +19,45 @@
 - Generate artifacts only through `scripts/generate-content-platform.mjs`; do not hand-edit `src/generated/*.json`.
 - Keep default verification offline; only the scheduled/manual live-link workflow performs network probes.
 - `related_questions` is optional; a published knowledge page passes the terminal relation gate with at least one published `related_cases` target or one published `related_questions` target.
+- Published `adjacent_topics` are reciprocal: if A names B, B must name A. Adjacency remains outside dependency-cycle analysis.
+- All filesystem roots derived from `import.meta.url` must use `fileURLToPath(new URL(...))` before being passed to `fs`, `path`, scanners, validators, or builders.
+- Registry files are mandatory inputs to validator CLI, manifest/catalog builders, generation, runtime projections, and direct tests. Missing or unreadable registries fail closed; no caller may silently skip registry enforcement.
 - Implementation workers may create local commits only. They must not push, deploy, update Ultragoal state, checkpoint goals, or write deployment metadata.
 - Only the Ultragoal leader may push `main`, wait for GitHub Pages, perform online smoke checks, update E0 deployment metadata, and run the single final G004 `omx ultragoal checkpoint` after Unit E.
 - Every local implementation task follows RED → observed failure → minimal GREEN → targeted regression → local commit.
 - Each of the five release units must pass `npm run verify`, `git diff --check`, an independent review gate, Pages deployment, and online smoke before the next unit starts.
+
+### Leader-only bounded Actions helper
+
+Before any release gate, define this helper in the leader shell. Every implementation and metadata commit uses it;
+an immediate one-shot `gh run list` result is never trusted.
+
+```bash
+wait_for_pages_run() {
+  local expected_sha="$1"
+  local run_json=""
+  for attempt in $(seq 1 30); do
+    run_json=$(gh run list --workflow deploy.yml --branch main --limit 30 \
+      --json databaseId,headSha,status,conclusion,url \
+      --jq "map(select(.headSha == \"$expected_sha\"))[0] // empty")
+    if [ -n "$run_json" ]; then
+      break
+    fi
+    sleep 10
+  done
+  test -n "$run_json"
+  PAGES_RUN_ID=$(node -e 'const v=JSON.parse(process.argv[1]); process.stdout.write(String(v.databaseId))' "$run_json")
+  PAGES_RUN_SHA=$(node -e 'const v=JSON.parse(process.argv[1]); process.stdout.write(v.headSha)' "$run_json")
+  test "$PAGES_RUN_SHA" = "$expected_sha"
+  gh run watch "$PAGES_RUN_ID" --exit-status
+  gh run view "$PAGES_RUN_ID" \
+    --json databaseId,headSha,status,conclusion,url \
+    --jq 'select(.headSha == "'"$expected_sha"'" and .status == "completed" and .conclusion == "success")'
+}
+```
+
+The 30 × 10-second discovery loop is bounded. A missing run, mismatched `headSha`, non-success conclusion, or empty
+final JSON fails the release gate.
 
 ---
 
@@ -33,7 +68,8 @@
 - Create `data/pattern-groups.json`: pattern group IDs, labels, descriptions, order, and exhaustive topic assignments.
 - Create `data/case-series.json`: case series IDs, labels, order, homepage visibility, and descriptions.
 - Create `data/review-policies.json`: deterministic calendar-month review policies.
-- Modify `data/topic-relations.json`: planned-topic overrides for dependencies, adjacent topics, related cases, and related questions.
+- Modify `data/topic-relations.json`: planned-topic-only overrides for dependencies, adjacent topics, related cases, and related questions.
+- Modify `docs/content-backlog.md`: add formal planned migration topics `PAT-MIG-01` through `PAT-MIG-03`.
 - Modify `data/source-ledger.json`: six fixture document citations, two new primary sources, and later source `registered_at`.
 - Modify `data/source-link-health.json`: reviewed transport results for newly introduced source locators.
 
@@ -91,6 +127,7 @@
 - Modify `tests/topic-index.test.mjs`.
 - Modify `tests/content-platform-generation.test.mjs`.
 - Modify `tests/case-catalog-generation.test.mjs`.
+- Create `tests/fixtures/legacy-case-order.json`: regression-only snapshot of the existing 18 case slugs and orders.
 - Modify `tests/case-catalog-selectors.test.mjs`.
 - Modify `tests/sidebar-navigation.test.mjs`.
 - Modify `tests/learning-path.test.mjs`.
@@ -375,14 +412,14 @@ Expected: one local commit containing only the schema, validator, and validator 
 - Create: `tests/knowledge-fixtures.test.mjs`
 - Modify: `data/source-ledger.json`
 - Modify: `data/source-link-health.json`
-- Modify: `data/topic-relations.json`
 
 **Interfaces:**
 - Consumes: the seven knowledge contracts in `knowledgeTypeContracts`; `validateSourceGovernance(documents, ledger)`.
 - Produces: published topics `PR-01`, `REL-02`, `STY-00`, `MTH-03`, `MOD-02`, and `QA-01`.
-- Source IDs reused: `src-sei-bfb2b903b4eb`, `src-learn-1abc9c267864`, `src-c4model-f5342a5e8659`, `src-sei-0547756e19ba`, `src-iso-11f3b103e932`.
+- Source IDs reused: `src-sei-bfb2b903b4eb`, `src-learn-1abc9c267864`, `src-docs-9950c767c50f`, `src-arc42-8b346f00707f`, `src-c4model-f5342a5e8659`, `src-sei-0547756e19ba`, `src-iso-11f3b103e932`.
 - Source IDs added: `src-adr-d5366499f6a8`, `src-acm-96e876360753`.
 - Invariant: the six topic checkboxes in `docs/content-backlog.md` remain pending unless a separate editorial review proves each topic's own stop condition.
+- Invariant: every fixture has 3–5 learning questions, at least two independent sources, an original Mermaid diagram or decision table, a complete worked exercise, explicit counterexamples/non-use conditions, and page-specific editorial/fact/copyright/render review evidence.
 
 - [ ] **Step 1: Write the failing repository fixture inventory test**
 
@@ -392,13 +429,14 @@ Create `tests/knowledge-fixtures.test.mjs`:
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import test from 'node:test';
+import {fileURLToPath} from 'node:url';
 
 import {readContentDocuments} from '../scripts/content-metadata.mjs';
 import {parseBacklogTopics} from '../scripts/backlog-topics.mjs';
 import {knowledgeTypeContracts} from '../scripts/content-schema.mjs';
 import {validateContent} from '../scripts/validate-content.mjs';
 
-const root = new URL('../', import.meta.url);
+const root = fileURLToPath(new URL('../', import.meta.url));
 const fixtureById = new Map([
   ['PR-01', ['principle', 'principles/pr-01-information-hiding.mdx']],
   ['REL-02', ['pattern', 'patterns/rel-02-retry-backoff-jitter.mdx']],
@@ -409,7 +447,7 @@ const fixtureById = new Map([
 ]);
 
 test('publishes one production fixture for each independent knowledge contract', async () => {
-  const contentRoot = new URL('../content/', import.meta.url);
+  const contentRoot = fileURLToPath(new URL('../content/', import.meta.url));
   const documents = await readContentDocuments(contentRoot);
   const documentsById = new Map(
     documents
@@ -435,7 +473,7 @@ test('publishes one production fixture for each independent knowledge contract',
 
 test('does not infer backlog completion from fixture publication', async () => {
   const backlogSource = await readFile(
-    new URL('../docs/content-backlog.md', import.meta.url),
+    fileURLToPath(new URL('../docs/content-backlog.md', import.meta.url)),
     'utf8',
   );
   const parsed = parseBacklogTopics(backlogSource, 'docs/content-backlog.md');
@@ -458,7 +496,10 @@ Expected: FAIL on `PR-01 must be published`.
 
 - [ ] **Step 3: Add exact front matter and contract headings for all six pages**
 
-Use the following front matter values and section order. Every listed section must contain substantive original prose, at least one concrete mechanism or decision table, explicit failure/limit language, the visible internal links shown here, and visible links for every ledger citation.
+Use the following front matter values and section order. Every listed section must contain substantive original prose,
+3–5 bullet questions under `学习问题`, at least one original Mermaid diagram or original decision table, explicit
+failure/limit and non-use language, one complete input → decision → outcome exercise, the visible internal links shown
+here, and visible links for every ledger citation.
 
 `content/principles/pr-01-information-hiding.mdx`:
 
@@ -493,7 +534,9 @@ related_cases:
 # 信息隐藏与封装
 
 ## 学习问题
-信息隐藏保护的是哪类变化，为什么 `private` 不能自动形成架构边界？
+- 信息隐藏保护的是哪类变化？
+- 为什么 `private` 不能自动形成架构边界？
+- 如何识别泄漏的设计决策？
 
 ## 要保护的性质
 说明稳定接口如何隔离可能变化的设计决策，并链接[原则入口](/principles)。
@@ -555,7 +598,9 @@ related_cases:
 # Retry、Exponential Backoff 与 Jitter
 
 ## 学习问题
-什么失败值得重试，谁拥有重试预算，何时应停止？
+- 什么失败值得重试？
+- 谁拥有端到端重试预算？
+- 何时应停止并暴露失败？
 
 ## 问题与适用上下文
 区分瞬时故障、永久错误、不确定结果和副作用窗口，并链接[模式入口](/patterns)。
@@ -776,6 +821,22 @@ Its quality scenario contains exactly:
 ## 来源
 ```
 
+Use this page-specific quality matrix; do not treat one page's evidence as covering another:
+
+| Topic | Independent source pair | Original visual/decision aid | Complete exercise | Counterexample / do-not-use condition |
+| --- | --- | --- | --- | --- |
+| `PR-01` | Parnas/ACM + SEI | information-leak Mermaid boundary map | trace one change through two module decompositions | visibility modifiers without hidden decisions |
+| `REL-02` | Azure Architecture Center + Temporal | retry-eligibility/budget decision table | calculate attempts, delays, deadline, and stop result | non-idempotent or permanent failures |
+| `STY-00` | SEI + arc42 | style comparison decision table | score two candidate styles against one scenario set | choosing a style by technology fashion |
+| `MTH-03` | ADR organization + SEI | ADR state-transition Mermaid | propose, accept, supersede, and review one decision | logging trivial reversible choices as architecture decisions |
+| `MOD-02` | C4 Model + arc42 | original Context→Container Mermaid | derive two diagram levels from a stated system boundary | using C4 as runtime sequence or deployment proof |
+| `QA-01` | SEI QAW + ISO/IEC 25010 | six-field scenario decision table | turn one vague quality goal into a measurable scenario | targets with no source, environment, or response measure |
+
+For each row, record four separate review results keyed by topic ID: editorial (3–5 questions, prose density,
+exercise completeness), fact (claims closed by the two sources), copyright (original structure/visual and quotation
+boundaries), and render (Mermaid/table, headings, internal/external links, mobile width). Any missing page-level result
+blocks Unit A.
+
 - [ ] **Step 4: Add the two missing source records and six document entries**
 
 Add these exact source identities to `data/source-ledger.json`; use the existing conservative `facts-summary` policy and verify the title, organization, license evidence, and final transport during review:
@@ -832,7 +893,7 @@ Add these exact source identities to `data/source-ledger.json`; use the existing
   "license_scope": "The cited ACM paper; abstract, references, and linked works excluded from reuse",
   "license_evidence_url": null,
   "license_evidence_note": "ACM publication rights are reserved; only factual summary and a link are used.",
-  "license_family_id": "https://dl.acm.org/doi/10.1145/361598.361623",
+  "license_family_id": "doi:10.1145/361598.361623",
   "license_family_grouping": "identity",
   "family_grouping_evidence_url": null,
   "copyright_policy": "facts-and-short-quotation",
@@ -843,6 +904,12 @@ Add these exact source identities to `data/source-ledger.json`; use the existing
   "expected_final_approval_note": "Initial reviewed DOI transport baseline"
 }
 ```
+
+For `src-acm-96e876360753`, the shown `transport_locator`, `link_policy`, and expected-final values are valid only
+when the full audit observes a successful same-locator final response. If the audited final locator differs, use the
+repository's existing reviewed-redirect policy and write the observed final locator/approval fields; if the result is
+blocked, retired, or unsuccessful, do not commit the source as publishable. The DOI license family remains
+`doi:10.1145/361598.361623` in every branch.
 
 For every new fixture, add a document entry with:
 
@@ -881,9 +948,13 @@ Use this exact citation matrix:
 | `content/principles/pr-01-information-hiding.mdx` | `src-acm-96e876360753` | `https://dl.acm.org/doi/10.1145/361598.361623` | `definition`, `historical-context` | `true` |
 | `content/principles/pr-01-information-hiding.mdx` | `src-sei-bfb2b903b4eb` | `https://www.sei.cmu.edu/training/software-architecture-principles-practices/` | `learning` | `false` |
 | `content/patterns/rel-02-retry-backoff-jitter.mdx` | `src-learn-1abc9c267864` | `https://learn.microsoft.com/en-us/azure/architecture/patterns/retry` | `definition`, `method` | `true` |
+| `content/patterns/rel-02-retry-backoff-jitter.mdx` | `src-docs-9950c767c50f` | `https://docs.temporal.io/encyclopedia/retry-policies` | `method`, `runtime-fact` | `true` |
 | `content/styles/sty-00-comparison-framework.mdx` | `src-sei-bfb2b903b4eb` | `https://www.sei.cmu.edu/training/software-architecture-principles-practices/` | `definition`, `method` | `true` |
+| `content/styles/sty-00-comparison-framework.mdx` | `src-arc42-8b346f00707f` | `https://arc42.org/` | `method`, `learning` | `true` |
 | `content/methods/mth-03-adr-lifecycle.mdx` | `src-adr-d5366499f6a8` | `https://adr.github.io/` | `definition`, `method` | `true` |
+| `content/methods/mth-03-adr-lifecycle.mdx` | `src-sei-bfb2b903b4eb` | `https://www.sei.cmu.edu/training/software-architecture-principles-practices/` | `method`, `learning` | `false` |
 | `content/modeling/mod-02-c4-context-container.mdx` | `src-c4model-f5342a5e8659` | `https://c4model.com/` | `method` | `true` |
+| `content/modeling/mod-02-c4-context-container.mdx` | `src-arc42-8b346f00707f` | `https://arc42.org/` | `method`, `learning` | `true` |
 | `content/quality-attributes/qa-01-scenario-writing.mdx` | `src-sei-0547756e19ba` | `https://www.sei.cmu.edu/library/quality-attribute-workshops-qaws-third-edition/` | `method` | `true` |
 | `content/quality-attributes/qa-01-scenario-writing.mdx` | `src-iso-11f3b103e932` | `https://www.iso.org/standard/78176.html` | `definition` | `true` |
 
@@ -891,35 +962,23 @@ Every matrix row becomes one full citation object with the row's `source_id`, UR
 `manifest_primary`; all use `usage_mode: "facts-summary"`, a source-specific non-empty attribution note,
 `modification_note: null`, `excerpt: null`, and `quotation_reviewed: false`.
 
-Update the existing `QA-01` object in `data/topic-relations.json` during Unit A so published front matter and the
-override agree before generation:
+Do not write any of these published topics to `data/topic-relations.json`. When `QA-01` becomes published, remove
+its existing planned override in the same Unit A commit; its front matter is already the sole owner of dependencies
+and related cases.
 
-```json
-"QA-01": {
-  "dependencies": ["FND-02", "QA-00"],
-  "related_cases": ["/cases/aws-cell-shuffle-sharding"]
-}
-```
-
-- [ ] **Step 5: Refresh and review only the two new transport checks**
+- [ ] **Step 5: Run and review the complete atomic transport audit**
 
 Run:
 
 ```bash
-npm run check:links:live -- --output /tmp/g004-unit-a-live.json
-```
-
-Expected: exit 0 and `/tmp/g004-unit-a-live.json` contains results whose `source_ids` include
-`src-adr-d5366499f6a8` and `src-acm-96e876360753`.
-
-Merge the two reviewed results into `data/source-link-health.json`, preserving all existing results and sorting by
-`transport_locator`. Then run:
-
-```bash
+npm run refresh:links
 npm run check:links
 ```
 
-Expected: PASS with no missing transport coverage and no unapproved final redirect.
+Expected: the repository's existing atomic writer audits every canonical transport, preserves a complete sorted
+cache, and both commands exit 0. Inspect the full cache diff, including unchanged-source outcome changes; confirm the
+two new source IDs are covered, then set each new source's transport policy and expected-final fields from the
+observed result. Do not implement or manually perform a two-record filter/merge.
 
 - [ ] **Step 6: Run the fixture, source-governance, and build tests**
 
@@ -936,7 +995,16 @@ npm run build
 Expected: every command exits 0; Docusaurus reports a successful production build; generated manifest contains all
 six topic IDs with `published: true` and backlog-projection `status.value: "pending"`.
 
-- [ ] **Step 7: Commit the six-page content baseline**
+- [ ] **Step 7: Complete and record all 24 page-specific reviews**
+
+For each of the six topic IDs, record one editorial, fact, copyright, and render result against that page and the
+quality-matrix row above. Open the built route, inspect the original visual/table, exercise, counterexample, 3–5
+questions, two independent citations, and mobile-width rendering. The evidence report must name all 24 results;
+aggregate statements such as “all fixtures reviewed” are insufficient.
+
+Expected: 24 named results, all passing, with no missing topic/review-kind pair.
+
+- [ ] **Step 8: Commit the six-page content baseline**
 
 ```bash
 git add content/principles/pr-01-information-hiding.mdx \
@@ -1006,12 +1074,10 @@ Expected: the remote `main` advances to the Unit A head. No implementation worke
 
 ```bash
 UNIT_HEAD=$(git rev-parse HEAD)
-RUN_ID=$(gh run list --workflow deploy.yml --commit "$UNIT_HEAD" --limit 1 \
-  --json databaseId --jq '.[0].databaseId')
-gh run watch "$RUN_ID" --exit-status
+wait_for_pages_run "$UNIT_HEAD"
 ```
 
-Expected: `RUN_ID` is a numeric workflow ID and `gh run watch` exits 0 with conclusion `success`.
+Expected: the bounded helper proves the watched run's `headSha` equals `UNIT_HEAD` and conclusion is `success`.
 
 - [ ] Smoke the six production routes:
 
@@ -1033,9 +1099,18 @@ Expected: all six requests exit 0.
 git add docs/content-backlog.md
 git commit -m "docs: record e0-04 deployment"
 git push origin main
+METADATA_HEAD=$(git rev-parse HEAD)
+wait_for_pages_run "$METADATA_HEAD"
+for route in \
+  principles/pr-01 patterns/rel-02 styles/sty-00 methods/mth-03 \
+  modeling/mod-02 quality-attributes/qa-01; do
+  curl --fail --silent --show-error \
+    "https://sealday.github.io/agentic-architecture-atlas/$route" >/dev/null
+done
 ```
 
-Expected: the metadata commit changes only `docs/content-backlog.md`.
+Expected: the metadata commit changes only `docs/content-backlog.md`; its own matching Pages run completes and the
+post-metadata smoke passes before Unit A ends.
 
 - [ ] Record Unit A's commit, Pages run, smoke evidence, and E0-04 metadata commit in the leader's running G004
 evidence summary. Do not perform a Codex-goal transition or OMX checkpoint; G004 remains one active story until Unit
@@ -1049,7 +1124,12 @@ E and the final independent review are complete.
 - Create: `data/pattern-groups.json`
 - Create: `scripts/content-registries.mjs`
 - Create: `tests/content-registries.test.mjs`
+- Modify: `docs/content-backlog.md`
+- Modify: `scripts/backlog-topics.mjs`
+- Modify: `scripts/validate-content.mjs`
 - Modify: `tests/backlog-topics.test.mjs`
+- Modify: `tests/content-validation.test.mjs`
+- Modify: `tests/knowledge-fixtures.test.mjs`
 
 **Interfaces:**
 - Consumes: `parseBacklogTopics(source, file).topics`, each with `{id, type}`.
@@ -1057,6 +1137,8 @@ E and the final independent review are complete.
 - `registry.groups` is ordered by numeric `order`.
 - `groupByTopicId` is `Map<string, string>`.
 - Invariant: every backlog `type: pattern` topic appears in exactly one `topic_ids` array; non-Pattern topics and unknown IDs are rejected.
+- Invariant: the five public common groups are non-empty; `agent-control` may remain a hand-written empty-topic group.
+- Invariant: validator CLI loads `data/pattern-groups.json` from a `fileURLToPath` project root and exits 1 when it is missing, unreadable, or invalid.
 
 - [ ] **Step 1: Write RED tests for exact schema and exhaustive assignment**
 
@@ -1066,6 +1148,7 @@ Create `tests/content-registries.test.mjs`:
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import test from 'node:test';
+import {fileURLToPath} from 'node:url';
 
 import {parseBacklogTopics} from '../scripts/backlog-topics.mjs';
 import {parsePatternGroupRegistry} from '../scripts/content-registries.mjs';
@@ -1081,6 +1164,13 @@ const validRegistry = {
       topic_ids: ['DDD-01'],
     },
     {
+      id: 'migration',
+      label: '迁移模式',
+      description: '渐进替换模式。',
+      order: 50,
+      topic_ids: ['PAT-MIG-01'],
+    },
+    {
       id: 'agent-control',
       label: 'Agent 控制与协作模式',
       description: '现有 Agent 控制概览。',
@@ -1092,6 +1182,7 @@ const validRegistry = {
 
 const topics = [
   {id: 'DDD-01', type: 'pattern'},
+  {id: 'PAT-MIG-01', type: 'pattern'},
   {id: 'FND-01', type: 'concept'},
 ];
 
@@ -1101,8 +1192,35 @@ test('parses exact Pattern groups and assigns each Pattern topic once', () => {
   assert.equal(result.groupByTopicId.get('DDD-01'), 'general-design');
   assert.deepEqual(result.registry.groups.map(({id}) => id), [
     'general-design',
+    'migration',
     'agent-control',
   ]);
+});
+
+test('rejects an empty public common group but permits empty agent-control', () => {
+  const result = parsePatternGroupRegistry(
+    {
+      ...validRegistry,
+      groups: validRegistry.groups.map((group) =>
+        group.id === 'migration' ? {...group, topic_ids: []} : group
+      ),
+    },
+    topics,
+  );
+  assert.match(result.errors.join('\n'), /public group "migration" must contain a topic/);
+  assert.doesNotMatch(result.errors.join('\n'), /public group "agent-control"/);
+});
+
+test('canonical registry keeps every public common group non-empty', async () => {
+  const canonical = JSON.parse(
+    await readFile(
+      fileURLToPath(new URL('../data/pattern-groups.json', import.meta.url)),
+      'utf8',
+    ),
+  );
+  for (const id of ['general-design', 'integration', 'reliability', 'data', 'migration']) {
+    assert.ok(canonical.groups.find((group) => group.id === id)?.topic_ids.length > 0, id);
+  }
 });
 
 test('rejects missing, duplicate, unknown, and non-Pattern assignments', () => {
@@ -1149,7 +1267,21 @@ node --test tests/content-registries.test.mjs
 
 Expected: FAIL with `ERR_MODULE_NOT_FOUND` for `scripts/content-registries.mjs`.
 
-- [ ] **Step 3: Add the complete Pattern registry**
+- [ ] **Step 3: Register formal migration topics in the backlog parser**
+
+Add these pending topics to the migration section of `docs/content-backlog.md`:
+
+```md
+- [ ] `PAT-MIG-01` P0｜Strangler Fig 渐进迁移
+- [ ] `PAT-MIG-02` P1｜Branch by Abstraction
+- [ ] `PAT-MIG-03` P1｜Expand/Contract
+```
+
+Add `PAT-MIG` to `topicPrefixTypes` as `pattern` / `/patterns`, and extend
+`tests/backlog-topics.test.mjs` to assert the three IDs parse with slugs `/patterns/pat-mig-01`,
+`/patterns/pat-mig-02`, and `/patterns/pat-mig-03`.
+
+- [ ] **Step 4: Add the complete Pattern registry**
 
 Create `data/pattern-groups.json` with this complete assignment:
 
@@ -1211,7 +1343,7 @@ Create `data/pattern-groups.json` with this complete assignment:
       "label": "迁移模式",
       "description": "渐进替换、兼容窗口和风险受控的结构迁移。",
       "order": 50,
-      "topic_ids": []
+      "topic_ids": ["PAT-MIG-01", "PAT-MIG-02", "PAT-MIG-03"]
     },
     {
       "id": "agent-control",
@@ -1224,7 +1356,7 @@ Create `data/pattern-groups.json` with this complete assignment:
 }
 ```
 
-- [ ] **Step 4: Implement the exact registry parser**
+- [ ] **Step 5: Implement the exact registry parser and fail-closed loader**
 
 Create `scripts/content-registries.mjs` with these public contracts:
 
@@ -1321,19 +1453,35 @@ export function parsePatternGroupRegistry(
 }
 ```
 
-- [ ] **Step 5: Run registry and backlog parsing tests**
+After parsing, require non-empty `topic_ids` for
+`general-design`, `integration`, `reliability`, `data`, and `migration`. Keep `agent-control` exempt because its
+content remains the hand-written overview.
+
+Also export `loadPatternGroupRegistry(projectRoot, topics)`. It resolves
+`path.join(projectRoot, 'data/pattern-groups.json')`, parses JSON, and returns sorted diagnostics for missing file,
+invalid JSON, or schema errors. It never returns an empty “valid” registry after an I/O error.
+
+Wire the validator CLI to derive `projectRoot` with `fileURLToPath(new URL('..', import.meta.url))`, load the
+registry, and pass it into `validateContent`. Direct repository tests, including `knowledge-fixtures`, must call the
+same loader and pass the validated registry; omission is a test failure, not a skip. Add a spawned-CLI test proving a temporary project without
+`data/pattern-groups.json` exits 1 and names the missing path.
+
+- [ ] **Step 6: Run registry, backlog, and validator CLI tests**
 
 ```bash
-node --test tests/content-registries.test.mjs tests/backlog-topics.test.mjs
+node --test tests/content-registries.test.mjs tests/backlog-topics.test.mjs tests/content-validation.test.mjs
 ```
 
-Expected: PASS; every current backlog Pattern ID is assigned exactly once.
+Expected: PASS; every current backlog Pattern ID is assigned exactly once, all public common groups are non-empty,
+and the CLI missing-registry fixture fails for the expected reason.
 
-- [ ] **Step 6: Commit the canonical Pattern taxonomy**
+- [ ] **Step 7: Commit the canonical Pattern taxonomy**
 
 ```bash
-git add data/pattern-groups.json scripts/content-registries.mjs \
-  tests/content-registries.test.mjs tests/backlog-topics.test.mjs
+git add data/pattern-groups.json docs/content-backlog.md scripts/backlog-topics.mjs \
+  scripts/content-registries.mjs scripts/validate-content.mjs \
+  tests/content-registries.test.mjs tests/backlog-topics.test.mjs \
+  tests/content-validation.test.mjs tests/knowledge-fixtures.test.mjs
 git commit -m "feat: register Pattern navigation groups"
 ```
 
@@ -1380,6 +1528,10 @@ test('projects the canonical Pattern group without changing the Pattern slug', (
   assert.equal(result.manifest.topics[0].pattern_group, 'reliability');
 });
 ```
+
+An empty `primarySourcesByFile` is allowed only in a planned-only test with `documents: []`, as above. Every
+manifest test that passes a published document must include a non-empty map entry for that document file; add a
+shared `primarySourcesFor(documents)` fixture and an assertion that no published test document is absent.
 
 Add to `tests/topic-index.test.mjs`:
 
@@ -1578,9 +1730,7 @@ Expected: all commands pass and the worktree is clean.
 ```bash
 git push origin main
 UNIT_HEAD=$(git rev-parse HEAD)
-RUN_ID=$(gh run list --workflow deploy.yml --commit "$UNIT_HEAD" --limit 1 \
-  --json databaseId --jq '.[0].databaseId')
-gh run watch "$RUN_ID" --exit-status
+wait_for_pages_run "$UNIT_HEAD"
 curl --fail --silent --show-error \
   https://sealday.github.io/agentic-architecture-atlas/patterns >/dev/null
 curl --fail --silent --show-error \
@@ -1596,9 +1746,15 @@ and the preserved Agent sections.
 git add docs/content-backlog.md
 git commit -m "docs: record e0-06 deployment"
 git push origin main
+METADATA_HEAD=$(git rev-parse HEAD)
+wait_for_pages_run "$METADATA_HEAD"
+curl --fail --silent --show-error \
+  https://sealday.github.io/agentic-architecture-atlas/patterns >/dev/null
+curl --fail --silent --show-error \
+  https://sealday.github.io/agentic-architecture-atlas/patterns/rel-02 >/dev/null
 ```
 
-Expected: only `docs/content-backlog.md` changes.
+Expected: only `docs/content-backlog.md` changes; the metadata commit's Pages run and repeated smoke both pass.
 
 - [ ] Add Unit B's commit, Pages run, smoke evidence, and E0-06 metadata commit to the running G004 evidence summary.
 Do not perform an Ultragoal completion checkpoint.
@@ -1617,16 +1773,22 @@ Do not perform an Ultragoal completion checkpoint.
 - Modify: `package.json`
 - Modify: `tests/content-registries.test.mjs`
 - Modify: `tests/content-validation.test.mjs`
+- Modify: `tests/knowledge-fixtures.test.mjs`
 - Modify: `tests/case-catalog-generation.test.mjs`
 - Modify: `tests/content-platform-generation.test.mjs`
+- Create: `tests/fixtures/legacy-case-order.json`
 - Create generated: `src/generated/case-series.json`
 
 **Interfaces:**
 - Produces: `parseCaseSeriesRegistry(value, file): {registry, byId, errors}`.
 - `byId` is `Map<string, {id,label,description,order,show_on_homepage}>`.
 - `validateContent(root, {requiredCollection, caseSeriesById})` validates every case series against the map.
+- `buildCaseCatalog(root, {caseSeriesById})` requires the validated registry map; omission is an error, not a
+  signal to skip series validation.
 - `buildCaseCatalogFromManifest(manifest)` remains the case-discovery boundary.
 - Invariant: catalog completeness means every discovered, validated, published case appears exactly once; there is no frozen slug manifest.
+- Invariant: the old 18 slug/order pairs live only in `tests/fixtures/legacy-case-order.json`; production modules
+  never import that regression fixture.
 
 - [ ] **Step 1: Write RED registry and discovered-catalog tests**
 
@@ -1773,6 +1935,10 @@ if (metadata.featured === false) {
 }
 ```
 
+Move the existing 18 slug/`catalog_order` pairs verbatim into `tests/fixtures/legacy-case-order.json`. Update
+regression tests to compare the generated catalog's slug/order projection to that file, and add a source-boundary
+test proving no file under `scripts/` or `src/` imports it.
+
 Remove approved-order checks and collection coverage flags. Preserve positive/unique `catalog_order`, unique slug,
 case heading, source kind, migration target, and `featured` validation. Update `package.json`:
 
@@ -1781,6 +1947,10 @@ case heading, source kind, migration target, and `featured` validation. Update `
 ```
 
 - [ ] **Step 5: Add the generated series projection to the recoverable transaction**
+
+Extend the canonical registry loader to read and parse `data/case-series.json`. `validate-content.mjs`,
+`buildCaseCatalog(root, ...)`, `knowledge-fixtures`, direct catalog tests, and `buildContentArtifacts` must use that same validated map.
+Add tests for missing file, malformed JSON, and omitted `caseSeriesById`; all fail with a named diagnostic.
 
 Read and parse `data/case-series.json` once in `buildContentArtifacts`. Add:
 
@@ -1796,7 +1966,8 @@ replay.
 
 ```bash
 node --test tests/content-registries.test.mjs tests/content-validation.test.mjs \
-  tests/case-catalog-generation.test.mjs tests/content-platform-generation.test.mjs
+  tests/knowledge-fixtures.test.mjs tests/case-catalog-generation.test.mjs \
+  tests/content-platform-generation.test.mjs
 npm run generate:content
 npm run check:content
 ```
@@ -1811,8 +1982,9 @@ git add data/case-series.json scripts/content-registries.mjs \
   scripts/content-schema.mjs scripts/validate-content.mjs \
   scripts/generate-case-catalog.mjs scripts/generate-content-platform.mjs \
   package.json tests/content-registries.test.mjs tests/content-validation.test.mjs \
+  tests/knowledge-fixtures.test.mjs \
   tests/case-catalog-generation.test.mjs tests/content-platform-generation.test.mjs \
-  src/generated/case-series.json
+  tests/fixtures/legacy-case-order.json src/generated/case-series.json
 git commit -m "feat: generate case series from a canonical registry"
 ```
 
@@ -1914,6 +2086,16 @@ export type CaseSeriesEntry = {
   show_on_homepage: boolean;
 };
 
+export function assertCaseSeriesRegistry(value: unknown): asserts value is {
+  schema_version: 1;
+  series: CaseSeriesEntry[];
+} {
+  // Exact top-level and entry keys; reject prototype names, blank strings,
+  // duplicate IDs/orders, non-positive orders, and non-boolean flags.
+}
+
+assertCaseSeriesRegistry(generatedSeries);
+
 export const caseSeries = [...generatedSeries.series]
   .sort((left, right) => left.order - right.order) as CaseSeriesEntry[];
 
@@ -1927,7 +2109,9 @@ export const seriesLabels = Object.fromEntries(
 ```
 
 Make `assertCatalogEntry` use `caseSeriesById.has(String(entry.series))`. Keep difficulty, source-kind, slug, order,
-array, and uniqueness checks.
+array, and uniqueness checks. `assertCaseSeriesRegistry(generatedSeries)` must run at module initialization before
+any catalog entry is accepted. Add runtime tests for malformed shape, duplicate ID/order, blank label, prototype ID,
+and unknown catalog series.
 
 In `filterCases.ts`, import `caseSeries` and derive order:
 
@@ -1988,9 +2172,7 @@ case URLs and orders are unchanged, and the worktree is clean.
 ```bash
 git push origin main
 UNIT_HEAD=$(git rev-parse HEAD)
-RUN_ID=$(gh run list --workflow deploy.yml --commit "$UNIT_HEAD" --limit 1 \
-  --json databaseId --jq '.[0].databaseId')
-gh run watch "$RUN_ID" --exit-status
+wait_for_pages_run "$UNIT_HEAD"
 ```
 
 Expected: the matching Pages run concludes `success`.
@@ -2016,9 +2198,13 @@ Expected: all four routes return success; the catalog HTML includes `Agent 平�
 git add docs/content-backlog.md
 git commit -m "docs: record e0-07 deployment"
 git push origin main
+METADATA_HEAD=$(git rev-parse HEAD)
+wait_for_pages_run "$METADATA_HEAD"
+curl --fail --silent --show-error \
+  https://sealday.github.io/agentic-architecture-atlas/cases >/dev/null
 ```
 
-Expected: deployment metadata is durable. Add Unit C evidence to the running G004 summary and do not perform an
+Expected: deployment metadata is durable and its matching Pages run plus catalog smoke pass. Add Unit C evidence to the running G004 summary and do not perform an
 Ultragoal completion checkpoint.
 
 ## Release Unit D — E0-13: Executable Page Relationships
@@ -2042,7 +2228,9 @@ Ultragoal completion checkpoint.
   `dependencies`, `adjacent_topics`, `related_cases`, `related_questions`.
 - Planned relation override accepts exact keys:
   `dependencies`, `adjacent_topics`, `related_cases`, `related_questions`.
-- Invariant: adjacency is directed and does not participate in dependency depth/cycle checks.
+- Invariant: adjacency is reciprocal for published topics and does not participate in dependency depth/cycle checks.
+- Invariant: overrides are planned-topic-only. Published front matter is the sole writer for all four relation fields;
+  any published-topic override is an error even when byte-for-byte identical.
 
 - [ ] **Step 1: Write RED metadata and graph tests**
 
@@ -2091,6 +2279,9 @@ test('rejects a knowledge page without adjacency or a terminal relation', async 
 });
 ```
 
+`withTempRoot` must write minimal valid registry files or pass the canonical validated registry bundle; deleting any
+one required registry is a separate RED fixture and must fail rather than skip validation.
+
 Add to `tests/topic-manifest.test.mjs` fixtures for published `STY-00`, a published question topic, and:
 
 ```js
@@ -2115,6 +2306,12 @@ test('validates adjacent topics and related questions without adding dependency 
       publishedQuestion('QST-01', '/questions/qst-01'),
       {file: 'cases/openai.mdx', metadata: caseMetadata()},
     ],
+    primarySourcesByFile: new Map([
+      ['principles/pr-01.mdx', ['https://example.com/pr-primary']],
+      ['styles/sty-00.mdx', ['https://example.com/sty-primary']],
+      ['questions/qst-01.mdx', ['https://example.com/qst-primary']],
+      ['cases/openai.mdx', ['https://example.com/case-primary']],
+    ]),
   });
   assert.deepEqual(result.errors, []);
   assert.deepEqual(result.manifest.topics.find(({id}) => id === 'PR-01').adjacent_topics, ['STY-00']);
@@ -2122,6 +2319,23 @@ test('validates adjacent topics and related questions without adding dependency 
     result.manifest.topics.find(({id}) => id === 'PR-01').related_questions,
     ['/questions/qst-01'],
   );
+});
+
+test('rejects any override for a published topic even when values match', () => {
+  const result = buildTopicManifest({
+    backlogSource: backlog(topic('PR-01', 'P0'), topic('STY-00', 'P0')),
+    documents: reciprocalPublishedKnowledgeFixtures(),
+    primarySourcesByFile: primarySourcesFor(reciprocalPublishedKnowledgeFixtures()),
+    relationOverrides: {
+      'PR-01': {
+        dependencies: [],
+        adjacent_topics: ['STY-00'],
+        related_cases: ['/cases/openai-agents-sdk'],
+        related_questions: [],
+      },
+    },
+  });
+  assert.match(result.errors.join('\n'), /published topic "PR-01" must define relations only in front matter/);
 });
 ```
 
@@ -2189,6 +2403,20 @@ const allowedRelationKeys = new Set([
 ]);
 ```
 
+Parse and validate all four override fields for planned topics, then reject an override before merge whenever the
+topic is published:
+
+```js
+if (publishedTopicIds.has(topicId)) {
+  errors.push(
+    `data/topic-relations.json: published topic "${topicId}" must define relations only in front matter`,
+  );
+  continue;
+}
+```
+
+Do not compare values and do not accept an identical override.
+
 Project defaults for planned and legacy topics:
 
 ```js
@@ -2206,8 +2434,9 @@ related_questions: copyArray(metadata.related_questions ?? []),
 ```
 
 Validate every adjacent ID exists, is not self, and has a published knowledge target before it can satisfy a
-published page. Validate every question slug against published `type: question` topics. Do not add adjacent edges to
-`findDependencyCycles` or `dependencyDepth`.
+published page. For each published A → B adjacency, require B → A and report the missing reverse edge. Validate every
+question slug against published `type: question` topics. Do not add adjacent edges to `findDependencyCycles` or
+`dependencyDepth`.
 
 Extend `TopicIndexEntry` with:
 
@@ -2226,21 +2455,12 @@ adjacent_topics:
 related_questions: []
 ```
 
-to `PR-01`; use `QA-01` for `REL-02`, `PR-01` for `STY-00`, `QA-01` for `MTH-03`, `STY-00` for `MOD-02`,
-and `MTH-03` for `QA-01`.
+to `PR-01`; use `QA-01` for `REL-02`; `PR-01` and `MOD-02` for `STY-00`; `QA-01` for `MTH-03`;
+`STY-00` for `MOD-02`; and `MTH-03` plus `REL-02` for `QA-01`.
 
-Update the `QA-01` override in `data/topic-relations.json` to match its published front matter:
-
-```json
-"QA-01": {
-  "dependencies": ["FND-02", "QA-00"],
-  "adjacent_topics": ["MTH-03"],
-  "related_cases": ["/cases/aws-cell-shuffle-sharding"],
-  "related_questions": []
-}
-```
-
-Set the QA-01 front matter `depends_on` to `FND-02`, `QA-00` so front matter and override remain identical.
+Set the QA-01 front matter `depends_on` to `FND-02`, `QA-00`. Confirm `data/topic-relations.json` has no entry for
+any of the six published fixtures. Add a planned-topic test whose override supplies all four fields and verify the
+manifest projection preserves them.
 
 - [ ] **Step 6: Run relation metadata and manifest tests**
 
@@ -2436,8 +2656,12 @@ export function validateContentRelations({documents, manifest}) {
       .map((id) => topicById.get(id))
       .filter((target) => target?.published)
       .map(({slug}) => slug);
-    if (!adjacentSlugs.some((slug) => visible.has(slug))) {
-      errors.push(`content/${document.file}: missing visible adjacent topic link`);
+    for (const slug of adjacentSlugs) {
+      if (!visible.has(slug)) {
+        errors.push(
+          `content/${document.file}: missing visible adjacent topic link "${slug}"`,
+        );
+      }
     }
     const terminal = [...topic.related_cases, ...topic.related_questions];
     if (!terminal.some((slug) => visible.has(slug))) {
@@ -2476,7 +2700,7 @@ npm run check:content
 npm run build
 ```
 
-Expected: PASS; removing any fixture's visible parent, adjacent, or case link makes
+Expected: PASS; removing any fixture's visible parent, any declared adjacent, or case/question link makes
 `buildContentArtifacts` reject the snapshot with a file-scoped error.
 
 - [ ] **Step 7: Commit the visible relationship gate**
@@ -2507,9 +2731,7 @@ Expected: PASS and a clean worktree.
 ```bash
 git push origin main
 UNIT_HEAD=$(git rev-parse HEAD)
-RUN_ID=$(gh run list --workflow deploy.yml --commit "$UNIT_HEAD" --limit 1 \
-  --json databaseId --jq '.[0].databaseId')
-gh run watch "$RUN_ID" --exit-status
+wait_for_pages_run "$UNIT_HEAD"
 for route in \
   principles/pr-01 patterns/rel-02 styles/sty-00 methods/mth-03 \
   modeling/mod-02 quality-attributes/qa-01; do
@@ -2526,9 +2748,13 @@ Expected: Pages concludes `success` and all routes return success.
 git add docs/content-backlog.md
 git commit -m "docs: record e0-13 deployment"
 git push origin main
+METADATA_HEAD=$(git rev-parse HEAD)
+wait_for_pages_run "$METADATA_HEAD"
+curl --fail --silent --show-error \
+  https://sealday.github.io/agentic-architecture-atlas/principles/pr-01 >/dev/null
 ```
 
-Expected: only backlog metadata changes. Add Unit D evidence to the running G004 summary; do not perform an
+Expected: only backlog metadata changes; the metadata run and repeated smoke pass. Add Unit D evidence to the running G004 summary; do not perform an
 Ultragoal completion checkpoint.
 
 ## Release Unit E — E0-14: Monthly and Quarterly Review Health
@@ -2547,6 +2773,7 @@ Ultragoal completion checkpoint.
 - Modify: `tests/content-registries.test.mjs`
 - Modify: `tests/source-ledger.test.mjs`
 - Modify: `tests/content-validation.test.mjs`
+- Modify: `tests/knowledge-fixtures.test.mjs`
 - Modify: `tests/content-platform-generation.test.mjs`
 - Modify: `tests/learning-path.test.mjs`
 - Modify: `tests/source-license-inventory.test.mjs`
@@ -2587,8 +2814,8 @@ Ultragoal completion checkpoint.
 - Produces source field `registered_at: YYYY-MM-DD`.
 - Produces `parseReviewPolicyRegistry(value, file): {registry, byId, errors}`.
 - Policy `quarterly-version-sensitive` has `calendar_months: 3` and `warning_days: 30`.
-- Published articles with factual floating citations must declare
-  `review_policy: quarterly-version-sensitive`.
+- Review policy is an explicit editorial declaration. Neither `checked_at` nor `link_policy` may infer policy or a
+  source-version change; factual citations independently require a non-empty source `version`.
 
 - [ ] **Step 1: Write RED registry, date, and metadata tests**
 
@@ -2659,6 +2886,10 @@ Create `data/review-policies.json`:
 Implement exact keys, unique ID, positive integer months, non-negative integer warning days, kebab-case ID, and
 non-empty label/description in `parseReviewPolicyRegistry`.
 
+Extend the canonical registry loader, validator CLI, and `knowledge-fixtures` repository test to require
+`data/review-policies.json`. Add missing-file, invalid-JSON, and invalid-schema CLI tests; none may continue with an
+empty policy map.
+
 - [ ] **Step 4: Add and migrate `registered_at`**
 
 Insert `registered_at` immediately after `published_at` in `sourceKeys` and validate it with `isCalendarDate`.
@@ -2688,12 +2919,13 @@ Add:
 review_policy: quarterly-version-sensitive
 ```
 
-to every non-index case page and all ten numbered path pages. Do not add it to index pages or stable knowledge
-fixtures unless their factual citations are floating.
+to every non-index case page and all ten numbered path pages as an explicit editorial policy for those
+version-sensitive case/path families. Do not derive this choice from a source's transport policy, and do not add it
+to index pages or stable knowledge fixtures without a separate editorial decision.
 
 In `validateContent`, accept `reviewPolicyById` and reject unknown policy IDs. After source governance resolves
-citations, the review evaluator will enforce the factual-floating requirement; content validation only checks shape
-and registry membership.
+citations, require a non-empty `version` for every factual source as an independent validation error; do not
+auto-assign a policy and do not call a missing version a detected change.
 
 Read `data/review-policies.json` once in `buildContentArtifacts`, pass `reviewPolicyRegistry.byId` to content
 validation, and project `review_policy: metadata.review_policy ?? null` for published topics and `review_policy: null`
@@ -2703,7 +2935,8 @@ for planned topics. Extend `TopicIndexEntry` with `review_policy: string | null`
 
 ```bash
 node --test tests/content-registries.test.mjs tests/source-ledger.test.mjs \
-  tests/content-validation.test.mjs tests/source-ledger-rendering.test.mjs
+  tests/content-validation.test.mjs tests/knowledge-fixtures.test.mjs \
+  tests/source-ledger-rendering.test.mjs
 npm run generate:content
 npm run check:content
 ```
@@ -2720,7 +2953,8 @@ git add data/review-policies.json data/source-ledger.json \
   scripts/generate-content-platform.mjs src/components/TopicIndex/topicIndexModel.ts \
   content/cases content/paths \
   tests/content-registries.test.mjs tests/source-ledger.test.mjs \
-  tests/content-validation.test.mjs tests/content-platform-generation.test.mjs \
+  tests/content-validation.test.mjs tests/knowledge-fixtures.test.mjs \
+  tests/content-platform-generation.test.mjs \
   tests/learning-path.test.mjs tests/source-license-inventory.test.mjs \
   tests/source-link-health.test.mjs tests/source-ledger-rendering.test.mjs \
   src/generated/source-ledger.json src/generated/topic-manifest.json \
@@ -2747,9 +2981,9 @@ Expected: one local commit with policy/schema/metadata migration only; no report
   `node scripts/content-review-health.mjs --check [--as-of YYYY-MM-DD]`
   or
   `node scripts/content-review-health.mjs --report --as-of YYYY-MM-DD --json PATH --markdown PATH`.
-- Due reasons:
-  `interval-elapsed`, `floating-source-newer-than-cutoff`, `source-version-missing`,
-  `document-review-older-than-cutoff`.
+- Due reason: `interval-elapsed`.
+- Independent validation errors: `source-version-missing`, `document-review-older-than-cutoff`.
+- `checked_at` and `link_policy` are report/link-health inputs only and never due triggers.
 
 - [ ] **Step 1: Write RED evaluator tests with an injected clock**
 
@@ -2853,6 +3087,20 @@ test('separates newly registered and rechecked sources in the monthly report', (
   assert.deepEqual(result.report.new_source_ids, ['src-floating']);
   assert.deepEqual(result.report.rechecked_source_ids, ['src-floating']);
 });
+
+test('does not infer a version change or early due from checked_at or link_policy', () => {
+  const changedTransportFacts = structuredClone(ledger);
+  changedTransportFacts.sources[0].checked_at = '2026-08-15';
+  changedTransportFacts.sources[0].link_policy = 'floating';
+  const result = evaluateContentReviewHealth({
+    documents,
+    ledger: changedTransportFacts,
+    policyById,
+    asOf: '2026-09-01',
+  });
+  assert.deepEqual(result.report.due_documents, []);
+  assert.doesNotMatch(result.errors.join('\n'), /version change|floating-source-newer/);
+});
 ```
 
 - [ ] **Step 2: Run review-health tests and observe RED**
@@ -2891,13 +3139,15 @@ export function addCalendarMonths(dateText, months) {
 2. derive the previous complete calendar-month window;
 3. report sources by `registered_at` and `checked_at` separately;
 4. map ledger documents by `content/${document.file}`;
-5. require `quarterly-version-sensitive` when a factual citation targets a floating source;
-6. compute the four due reasons;
-7. compute warnings when the interval date is within `warning_days`;
-8. list each due document with slug, policy, analyzed date, cutoff, ledger review date, source IDs, versions, checked
+5. validate every factual source has a non-empty version without inferring change;
+6. compute only the explicit policy's `interval-elapsed` due reason;
+7. report `document-review-older-than-cutoff` as an independent consistency error;
+8. compute warnings when the interval date is within `warning_days`;
+9. list each due document with slug, policy, analyzed date, cutoff, ledger review date, source IDs, versions, checked
    dates, and reasons;
-9. sort every list by stable ID/slug/reason;
-10. return errors for invalid policy, missing version, or due documents without modifying content or ledger.
+10. sort every list by stable ID/slug/reason;
+11. return errors for invalid policy, missing version, review/cutoff inconsistency, or due documents without modifying
+    content or ledger.
 
 - [ ] **Step 4: Implement JSON/Markdown serialization and CLI**
 
@@ -2911,6 +3161,18 @@ The JSON report shape is:
     "start": "2026-07-01",
     "end_exclusive": "2026-08-01"
   },
+  "counts": {
+    "new_sources": 0,
+    "rechecked_sources": 0,
+    "orphan_sources": 0,
+    "due_documents": 0,
+    "approaching_due_documents": 0
+  },
+  "gates": {
+    "inputs_non_empty": "passed",
+    "policy_validation": "passed",
+    "review_health": "passed"
+  },
   "new_source_ids": [],
   "rechecked_source_ids": [],
   "orphan_source_ids": [],
@@ -2919,11 +3181,14 @@ The JSON report shape is:
 }
 ```
 
-Markdown must contain headings `# Content review health`, `## Monthly source review`, `## Quarterly due
+Markdown must contain headings `# Content review health`, `## Counts and gates`, `## Monthly source review`, `## Quarterly due
 documents`, and `## Approaching due`. Empty sections render `None.`.
 
-CLI `--check` prints errors to stderr and exits 1 for due/invalid state. CLI `--report` always writes both requested
-artifacts before setting exit code, so scheduled workflows can upload failure evidence.
+The CLI derives project/content roots with `fileURLToPath(new URL(...))`, then reads canonical documents, source
+ledger, and the validated review-policy registry. Tests spawn the real CLI against a temporary project. A zero-source
+or zero-document input is an `inputs_non_empty` gate failure; it may not emit a misleading healthy report.
+`--check` prints errors to stderr and exits 1 for due/invalid state. `--report` writes both requested artifacts before
+setting exit code whenever serialization remains possible, so scheduled workflows can upload failure evidence.
 
 - [ ] **Step 5: Add package commands and offline verify integration**
 
@@ -2947,10 +3212,11 @@ npm run report:reviews -- --as-of 2026-08-01 \
   --markdown /tmp/g004-review-health.md
 test -s /tmp/g004-review-health.json
 test -s /tmp/g004-review-health.md
+node -e 'const r=require("/tmp/g004-review-health.json"); for (const k of ["new_sources","rechecked_sources","orphan_sources","due_documents","approaching_due_documents"]) { if (!Number.isInteger(r.counts?.[k])) throw new Error(`missing count ${k}`) } if (r.gates?.inputs_non_empty !== "passed") throw new Error("empty canonical inputs")'
 ```
 
 Expected: tests and checks pass on the implementation date; both report files exist and are non-empty; no network
-request occurs.
+request occurs; the canonical report has non-zero source/document input cardinality and populated counts/gates.
 
 - [ ] **Step 7: Commit the deterministic review evaluator**
 
@@ -2986,6 +3252,10 @@ assert.match(
 );
 assert.match(
   linkHealth,
+  /- name: Build content review report\n[ ]+if: always\(\)\n[ ]+run: npm run report:reviews/,
+);
+assert.match(
+  linkHealth,
   /- name: Upload content review report\n[ ]+if: always\(\)\n[ ]+uses: actions\/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02/,
 );
 assert.match(linkHealth, /name: content-review-health/);
@@ -3009,6 +3279,7 @@ Append these steps after live-link checking:
 
 ```yaml
       - name: Build content review report
+        if: always()
         run: npm run report:reviews -- --as-of "$(date -u +%F)" --json /tmp/content-review-health.json --markdown /tmp/content-review-health.md
       - name: Upload content review report
         if: always()
@@ -3076,10 +3347,10 @@ worktree.
 ```bash
 node - <<'NODE'
 const catalog = require('./src/generated/case-catalog.json');
-const expectedOrders = Array.from({length: 18}, (_, index) => index + 1);
-if (catalog.length !== 18) throw new Error(`expected 18 cases, got ${catalog.length}`);
-if (JSON.stringify(catalog.map(({catalog_order}) => catalog_order)) !== JSON.stringify(expectedOrders)) {
-  throw new Error('case catalog order changed');
+const legacy = require('./tests/fixtures/legacy-case-order.json');
+const actual = catalog.map(({slug, catalog_order}) => ({slug, catalog_order}));
+if (JSON.stringify(actual) !== JSON.stringify(legacy)) {
+  throw new Error('case slug/order regression fixture changed');
 }
 const fixtureIds = new Set(['PR-01', 'REL-02', 'STY-00', 'MTH-03', 'MOD-02', 'QA-01']);
 const manifest = require('./src/generated/topic-manifest.json');
@@ -3125,13 +3396,17 @@ git status --short
 
 Expected: PASS and a clean worktree.
 
-- [ ] Run `ai-slop-cleaner` on G004-changed files only, record its passed/no-op report, and rerun:
+- [ ] Run `ai-slop-cleaner` on G004-changed files only and record its passed/no-op report. If it changes files,
+inspect the diff, run targeted tests, run the full verification below, create a dedicated
+`refactor: clean g004 changed files` commit, and keep that commit in the Unit E head:
 
 ```bash
 npm run verify
+git diff --check
+git status --short
 ```
 
-Expected: PASS after cleanup.
+Expected: PASS after cleanup. The worktree is clean; any cleaner changes are committed before independent review.
 
 - [ ] Run independent `code-reviewer` and `architect` reviews. Require:
 
@@ -3162,12 +3437,10 @@ checkpoint G004.
 ```bash
 git push origin main
 UNIT_HEAD=$(git rev-parse HEAD)
-RUN_ID=$(gh run list --workflow deploy.yml --commit "$UNIT_HEAD" --limit 1 \
-  --json databaseId --jq '.[0].databaseId')
-gh run watch "$RUN_ID" --exit-status
+wait_for_pages_run "$UNIT_HEAD"
 ```
 
-Expected: `RUN_ID` is numeric and Pages concludes `success`.
+Expected: the bounded helper matches `UNIT_HEAD` and Pages concludes `success`.
 
 - [ ] Smoke public routes and manually dispatch the monthly workflow:
 
@@ -3178,11 +3451,42 @@ for route in patterns cases references paths \
   curl --fail --silent --show-error \
     "https://sealday.github.io/agentic-architecture-atlas/$route" >/dev/null
 done
-gh workflow run link-health.yml
 ```
 
-Expected: all routes return success; the dispatched workflow uploads `source-link-health-live` and
-`content-review-health`.
+Expected: all routes return success.
+
+- [ ] Dispatch, identify, wait for, and inspect the monthly workflow:
+
+```bash
+DISPATCH_SHA=$(git rev-parse HEAD)
+DISPATCHED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+gh workflow run link-health.yml --ref main
+DISPATCH_RUN_JSON=""
+for attempt in $(seq 1 30); do
+  DISPATCH_RUN_JSON=$(gh run list --workflow link-health.yml --branch main \
+    --event workflow_dispatch --limit 30 \
+    --json databaseId,headSha,createdAt,status,conclusion,url \
+    --jq "map(select(.headSha == \"$DISPATCH_SHA\" and .createdAt >= \"$DISPATCHED_AT\"))[0] // empty")
+  if [ -n "$DISPATCH_RUN_JSON" ]; then
+    break
+  fi
+  sleep 10
+done
+test -n "$DISPATCH_RUN_JSON"
+AUDIT_RUN_ID=$(node -e 'const v=JSON.parse(process.argv[1]); process.stdout.write(String(v.databaseId))' "$DISPATCH_RUN_JSON")
+AUDIT_RUN_SHA=$(node -e 'const v=JSON.parse(process.argv[1]); process.stdout.write(v.headSha)' "$DISPATCH_RUN_JSON")
+test "$AUDIT_RUN_SHA" = "$DISPATCH_SHA"
+gh run watch "$AUDIT_RUN_ID" --exit-status
+gh run download "$AUDIT_RUN_ID" -n source-link-health-live -D /tmp/g004-source-link-health-live
+gh run download "$AUDIT_RUN_ID" -n content-review-health -D /tmp/g004-content-review-health
+test -n "$(find /tmp/g004-source-link-health-live -type f -size +0c -print -quit)"
+test -s /tmp/g004-content-review-health/content-review-health.json
+test -s /tmp/g004-content-review-health/content-review-health.md
+node -e 'const r=require("/tmp/g004-content-review-health/content-review-health.json"); if (r.gates?.inputs_non_empty !== "passed") throw new Error("empty report inputs"); for (const k of ["new_sources","rechecked_sources","orphan_sources","due_documents","approaching_due_documents"]) if (!Number.isInteger(r.counts?.[k])) throw new Error(`missing count ${k}`)'
+```
+
+Expected: the bounded lookup selects the manual run for `DISPATCH_SHA`; it completes successfully; both named
+artifacts exist and are non-empty; content-review counts/gates validate.
 
 - [ ] Update E0-14 deployment metadata and the G004 publication baseline:
 
@@ -3190,17 +3494,26 @@ Expected: all routes return success; the dispatched workflow uploads `source-lin
 git add docs/content-backlog.md
 git commit -m "docs: record e0-14 and g004 deployment"
 git push origin main
+METADATA_HEAD=$(git rev-parse HEAD)
+wait_for_pages_run "$METADATA_HEAD"
+for route in patterns cases references paths; do
+  curl --fail --silent --show-error \
+    "https://sealday.github.io/agentic-architecture-atlas/$route" >/dev/null
+done
 ```
 
 Expected: the backlog records E0-04, E0-06, E0-07, E0-13, and E0-14 implementation commit/Pages evidence. Fixture
-topic checkboxes change only where their individual completion criteria were independently approved.
+topic checkboxes change only where their individual completion criteria were independently approved. The metadata
+commit's own Pages run matches `METADATA_HEAD`, completes successfully, and passes smoke before checkpointing.
 
 - [ ] Call `get_goal({})` after review, verification, deployment, smoke, and backlog metadata are complete. Confirm the
-aggregate Codex goal is still `active` because G004 is story 4 of 20, then save that fresh active snapshot as
-`/tmp/g004-active-goal.json`.
+aggregate Codex goal is still `active` because G004 is story 4 of 20. Serialize the complete tool result verbatim to
+`/tmp/g004-active-goal.json`: preserve objective, status, budgets, usage, and every other returned field; do not
+construct a smaller JSON object by hand. Validate the persisted file with `JSON.parse`, compare it to the just-returned
+tool object, and assert its status is `active`.
 
 Expected: the snapshot identifies the aggregate objective and reports `active`; no Codex-goal completion transition
-occurs.
+occurs. Do not call `update_goal` for this intermediate aggregate story.
 
 - [ ] Perform the single G004 Ultragoal completion checkpoint:
 
