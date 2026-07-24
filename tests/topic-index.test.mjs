@@ -1,7 +1,11 @@
 import assert from 'node:assert/strict';
+import {createHash} from 'node:crypto';
 import {readFile} from 'node:fs/promises';
 import test from 'node:test';
 import {fileURLToPath} from 'node:url';
+
+import {parseBacklogTopics} from '../scripts/backlog-topics.mjs';
+import {parsePatternGroupRegistry} from '../scripts/content-registries.mjs';
 
 const root = new URL('../', import.meta.url);
 
@@ -83,6 +87,89 @@ test('Pattern page renders five common groups plus one Agent wrapper', async () 
   for (const heading of agentHeadings) {
     assert.equal(lines.includes(`### ${heading}`), true, heading);
     assert.equal(lines.includes(`## ${heading}`), false, heading);
+  }
+
+  const agentSection = source
+    .slice(source.indexOf('## Agent 控制与协作模式'))
+    .replace(/\r\n/g, '\n')
+    .replace(/[ \t]+$/gm, '')
+    .trimEnd()
+    .concat('\n');
+  assert.equal(
+    createHash('sha256').update(agentSection).digest('hex'),
+    'aa0fea7e7bff540a7fb6e9ee81a691fee2bde3d2bcd88b2ee959289003fe5ca2',
+    'the complete original Agent wrapper, nine headings, paragraphs, links, and comparison must remain intact',
+  );
+});
+
+test('canonical Pattern registry exactly matches every generated assignment and link target', async () => {
+  const [backlogSource, registryValue, manifest, indexes, generatedGroups] =
+    await Promise.all([
+      source('docs/content-backlog.md'),
+      source('data/pattern-groups.json').then(JSON.parse),
+      source('src/generated/topic-manifest.json').then(JSON.parse),
+      generatedIndexes(),
+      source('src/generated/pattern-groups.json').then(JSON.parse),
+    ]);
+  const parsedBacklog = parseBacklogTopics(
+    backlogSource,
+    'docs/content-backlog.md',
+  );
+  assert.deepEqual(parsedBacklog.errors, []);
+  const parsedRegistry = parsePatternGroupRegistry(
+    registryValue,
+    parsedBacklog.topics,
+  );
+  assert.deepEqual(parsedRegistry.errors, []);
+
+  const expectedAssignments = [...parsedRegistry.groupByTopicId]
+    .map(([id, patternGroup]) => [id, patternGroup])
+    .sort(([left], [right]) => left.localeCompare(right, 'en'));
+  const manifestPatternTopics = manifest.topics.filter(
+    ({type}) => type === 'pattern',
+  );
+  const actualManifestAssignments = manifestPatternTopics
+    .map(({id, pattern_group: patternGroup}) => [id, patternGroup])
+    .sort(([left], [right]) => left.localeCompare(right, 'en'));
+  const actualIndexAssignments = indexes.pattern
+    .map(({id, pattern_group: patternGroup}) => [id, patternGroup])
+    .sort(([left], [right]) => left.localeCompare(right, 'en'));
+
+  assert.equal(expectedAssignments.length, 72);
+  assert.deepEqual(actualManifestAssignments, expectedAssignments);
+  assert.deepEqual(actualIndexAssignments, expectedAssignments);
+  assert.ok(
+    manifest.topics
+      .filter(({type}) => type !== 'pattern')
+      .every(({pattern_group: patternGroup}) => patternGroup === null),
+  );
+  assert.ok(
+    Object.entries(indexes)
+      .filter(([type]) => type !== 'pattern')
+      .flatMap(([, topics]) => topics)
+      .every(({pattern_group: patternGroup}) => patternGroup === null),
+  );
+  assert.deepEqual(
+    generatedGroups.groups,
+    parsedRegistry.registry.groups.map(
+      ({id, label, description, order}) => ({id, label, description, order}),
+    ),
+  );
+
+  const internalLinkTargets = new Set(
+    indexes.pattern
+      .filter(({published}) => published)
+      .map(({slug}) => slug),
+  );
+  const plannedTopics = indexes.pattern.filter(({published}) => !published);
+  assert.ok(plannedTopics.length > 0);
+  assert.deepEqual([...internalLinkTargets], ['/patterns/rel-02']);
+  for (const topic of plannedTopics) {
+    assert.equal(
+      internalLinkTargets.has(topic.slug),
+      false,
+      `planned Pattern topic ${topic.id} must not produce an internal link`,
+    );
   }
 });
 
