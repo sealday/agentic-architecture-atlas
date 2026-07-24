@@ -5,8 +5,8 @@ slug: /cases/microsoft-multi-agent-reference-architecture
 content_type: case
 status: reviewed
 difficulty: advanced
-analyzed_at: 2026-07-20
-source_cutoff: 2026-07-20
+analyzed_at: 2026-07-24
+source_cutoff: 2026-07-24
 review_policy: quarterly-version-sensitive
 confidence: high
 summary: 从注册、编排、记忆到治理，分析企业级多智能体平台如何约束自治边界。
@@ -68,7 +68,7 @@ tags:
 
 决定是否引入多智能体框架前，先问两个问题：任务是否真的需要多个独立行动域，组织是否需要统一准入、路由、审计和回滚？
 
-**已证实事实**：仓库把自己定义为概念指南，关注多智能体编排、治理和扩展，而不是单个智能体实现。主参考图采用中央 Orchestrator，并配合 Classifier、Agent Registry、Supervisor、专业智能体、知识与持久化层及 MCP 集成层。专题章节再补充通信、可观测性、评估、安全和治理。
+**已证实事实**：仓库把自己定义为概念指南，关注多智能体编排、治理和扩展，而不是单个智能体实现。主参考图采用中央 Orchestrator。它同时配合 Classifier、Agent Registry、Supervisor、专业智能体、知识与持久化层及 MCP 集成层。通信、可观测性、评估、安全和治理则由专题章节补充。
 
 **基于证据的推断**：可以把这些职责重组为五个相互约束的平面。官方没有采用这套统一命名；它是把分散章节映射到企业平台职责后的分析模型。
 
@@ -92,7 +92,7 @@ tags:
 
 官方 README 明确说明仓库是概念指南，并以框架和技术栈无关为目标。仓库主要由架构文档、图、站点构建文件和文档脚本组成，不是端到端运行时产品。
 
-Building Blocks 把 Orchestrator、Specialized Agents 和 Agent Registry 列为核心构件，默认建议专业智能体经编排器通信。高度耦合的一组智能体可以封装为组合智能体；通信章节也允许请求式、消息驱动式及混合交互。
+Building Blocks 把 Orchestrator、Specialized Agents 和 Agent Registry 列为核心构件。它默认建议专业智能体经编排器通信。高度耦合的一组智能体可以封装为组合智能体。通信章节也允许请求式、消息驱动式及混合交互。
 
 Registry 可集中或分布部署，承担注册、存储、查询和健康监测，并在注册时加入有效性评估。Memory 区分短期与长期记忆，指出同步、所有权、隐私和一致性是多智能体特有问题。
 
@@ -113,7 +113,7 @@ Observability 要求采集智能体动作、工具调用、模型调用与响应
 <details className="evidence-card">
   <summary>证据：固定提交、来源截断与仓库形态</summary>
 
-  - **来源截断：** `2026-07-20`
+  - **来源截断：** `2026-07-24`
   - **分支：** 核对时为 `main`
   - **固定提交：** `microsoft/multi-agent-reference-architecture@ed3613b54b46b595dd223aaff8772def376a8c37`
   - **Commit：** `ed3613b54b46b595dd223aaff8772def376a8c37`
@@ -123,7 +123,15 @@ Observability 要求采集智能体动作、工具调用、模型调用与响应
 
 ## 架构图
 
-阅读下图时先找“框架内”和“框架外”的职责。Orchestrator 与 Supervisor 可以由框架实现，Registry、策略、工具网关、审计和发布门禁却必须形成跨运行的一致合同。下图是对官方构件的平面化重绘，不是逐像素复制。
+先看一次任务在哪五个位置可能被确定性代码拒绝。注册准入、路由、上下文传播、工具行动和结果发布必须各有控制点；少一道门，就多一段只能依赖模型“自觉遵守”的自治。
+
+![多智能体请求依次经过注册、路由、上下文、行动和发布五道控制门](/img/illustrations/microsoft-multi-agent-reference-architecture-five-control-gates.png)
+
+*图：沿蓝色主路径检查控制权如何移动，沿红色拒绝分支检查哪一层能够真正停止越权或不合格动作。*
+
+这张原创信息图负责建立控制顺序，不把 `ToolPolicyGateway` 描述成 Microsoft 产品，也不承担精确组件拓扑。它强调的判断是：受控自治来自可执行门禁，而不是在系统边缘附加一份治理报告。
+
+再看下面的确定性组件图，区分“框架内”和“框架外”的职责。Orchestrator 与 Supervisor 可以由框架实现；Registry、策略、工具网关、审计和发布门禁却必须形成跨运行的一致合同。该图是对官方构件的平面化重绘，不是逐像素复制。
 
 ```mermaid
 flowchart TB
@@ -279,9 +287,24 @@ sequenceDiagram
 
 这里的“源码导读”不是逐函数追踪。固定仓库的核心资产是 Markdown、架构图和站点辅助文件；阅读目的，是把参考职责转换成所选 SDK 或平台必须实现的接口合同。
 
-最短路径先看三处：Building Blocks 确认最小角色，Reference Architecture 跟踪端到端序列，Security/Governance 检查哪些控制不能交给模型。只有准备拆服务或开放直连时，再继续阅读设计选项、通信、Registry、Memory、Observability 和 Evaluation。
+最短路径先用 Building Blocks 确认最小角色，再用 Reference Architecture 跟踪端到端序列。最后用 Security/Governance 检查哪些控制不能交给模型。
 
-将文档映射到代码时，至少形成 `AgentDescriptor/Registry`、`TaskEnvelope/Orchestrator`、`StateStore`、`PolicyDecisionPoint`、`ToolGateway`、`TelemetryEmitter` 和 `EvaluationGate`。接口名可变，但任务信封必须携带 `tenant_id`、`correlation_id`、行为包版本、截止时间和授权上下文；否则审计与恢复会失去共同主键。
+只有准备拆服务或开放直连时，再继续阅读设计选项、通信、Registry、Memory、Observability 和 Evaluation。
+
+将文档映射到代码时，先形成注册、任务信封、状态、策略决策、工具网关、遥测和评估七类合同。接口名可变，但任务信封必须携带租户、关联 ID、行为包版本、截止时间和授权上下文；否则审计与恢复会失去共同主键。
+
+<details className="evidence-card">
+  <summary>证据：参考职责到接口合同的映射</summary>
+
+  - **注册与发现：** `AgentDescriptor/Registry`
+  - **任务与编排：** `TaskEnvelope/Orchestrator`
+  - **持久状态：** `StateStore`
+  - **策略决策：** `PolicyDecisionPoint`
+  - **工具控制：** `ToolGateway`
+  - **遥测与评估：** `TelemetryEmitter`、`EvaluationGate`
+  - **任务共同主键：** `tenant_id`、`correlation_id`、行为包版本、截止时间与授权上下文。
+  - **边界：** 这些名称是本文的实现映射，不是 Microsoft 仓库发布的 SDK 接口。
+</details>
 
 <details className="evidence-card">
   <summary>证据：架构文档的完整阅读路径</summary>
@@ -342,7 +365,13 @@ sequenceDiagram
 
 ### 审计与版本
 
-一次可追责运行至少记录：用户与工作负载身份、租户、关联/任务 ID、路由决策、候选智能体集合、智能体/提示词/模型/工具契约版本、输入输出哈希、策略判定、工具副作用、评估结果和人工批准。敏感正文不应默认复制到日志；哈希、加密引用和受控证据库可以降低泄露面。
+一次可追责运行至少记录三组字段：
+
+- **主体与范围：** 用户、工作负载身份、租户、关联 ID 和任务 ID。
+- **决策与版本：** 路由决策、候选智能体，以及智能体、提示词、模型和工具契约版本。
+- **结果与证据：** 输入输出哈希、策略判定、工具副作用、评估结果和人工批准。
+
+敏感正文不应默认复制到日志。哈希、加密引用和受控证据库可以降低泄露面。
 
 版本单位不能只有容器镜像。官方 Security 文档要求对逻辑、提示配置和通信契约版本化并支持共存与回滚。**个人分析**：Registry 记录应指向不可变版本；任务开始时固定依赖版本，长任务通过显式迁移而不是运行中漂移；灰度必须按租户/区域/风险分层，并由在线评估触发自动停流。
 
@@ -407,7 +436,7 @@ sequenceDiagram
 
 ## 来源
 
-以下均为官方或上游来源。访问日期与来源截断日期：**2026-07-20**。
+以下均为官方或上游来源。访问日期与来源截断日期：**2026-07-24**。核对时，官方仓库 HEAD 仍为本文固定提交。
 
 ### 主要架构
 

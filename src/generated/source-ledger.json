@@ -892,6 +892,40 @@
       ]
     },
     {
+      "id": "src-atlas-five-control-gates-a335f1f23d4a",
+      "canonical_locator": "/img/illustrations/microsoft-multi-agent-reference-architecture-five-control-gates.png",
+      "transport_locator": "/img/illustrations/microsoft-multi-agent-reference-architecture-five-control-gates.png",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "Multi-agent five control gates illustration — Agentic Architecture Atlas maintainers",
+      "author_or_org": "Agentic Architecture Atlas maintainers",
+      "published_at": null,
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "Original PNG generated and QA-checked on 2026-07-24",
+      "source_kind": "original-illustration",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "illustration"
+      ],
+      "license": "LicenseRef-Atlas-Original",
+      "license_scope": "The named multi-agent five control gates illustration only",
+      "license_evidence_url": "https://github.com/sealday/agentic-architecture-atlas/blob/main/static/img/illustrations/microsoft-multi-agent-reference-architecture-five-control-gates.png",
+      "license_evidence_note": "The image was generated from a project-authored brief for this atlas; original-illustration coverage is limited to the named PNG.",
+      "license_family_id": "/img/illustrations/microsoft-multi-agent-reference-architecture-five-control-gates.png",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "original-atlas",
+      "usage_boundary": "Explains the five deterministic control gates that bound multi-agent autonomy; it does not establish factual claims, reproduce the Microsoft reference diagram, or claim a Microsoft product implementation.",
+      "link_policy": null,
+      "expected_final_transport_locator": "/img/illustrations/microsoft-multi-agent-reference-architecture-five-control-gates.png",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Original atlas illustration approved after text, topology, originality, and responsive QA",
+      "health_summary": "healthy",
+      "health_checks": []
+    },
+    {
       "id": "src-atlas-roadmap-756462618489",
       "canonical_locator": "/img/paths/software-architecture-learning-roadmap.png",
       "transport_locator": "/img/paths/software-architecture-learning-roadmap.png",
@@ -22127,6 +22161,19 @@
         "illustration-rights"
       ],
       "citations": [
+        {
+          "source_id": "src-atlas-five-control-gates-a335f1f23d4a",
+          "citation_url": "/img/illustrations/microsoft-multi-agent-reference-architecture-five-control-gates.png",
+          "roles": [
+            "illustration"
+          ],
+          "manifest_primary": false,
+          "usage_mode": "original-illustration",
+          "attribution_note": "Multi-agent five control gates illustration, Agentic Architecture Atlas maintainers",
+          "modification_note": "Generated with the built-in image tool from a project-authored brief and QA-reviewed in an original composition to explain registration, routing, context, action, and publication controls.",
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
         {
           "source_id": "src-github-13ffe5e84c4f",
           "citation_url": "https://github.com/microsoft/multi-agent-reference-architecture/blob/ed3613b54b46b595dd223aaff8772def376a8c37/docs/agents-communication/Message-Driven.md",
