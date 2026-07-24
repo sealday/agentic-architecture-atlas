@@ -14606,6 +14606,358 @@
       "expected_final_transport_locator": "https://swehb.nasa.gov/spaces/SWEHBVD/pages/102695632/7.07%2B-%2BSoftware%2BArchitecture%2BDescription",
       "expected_final_approved_at": "2026-07-24",
       "expected_final_approval_note": "Initial reviewed NASA SWEHB Version D Topic 7.07 transport baseline"
+    },
+    {
+      "id": "src-atlas-agents-guardrail-boundary-de06a6a05869",
+      "canonical_locator": "/img/illustrations/openai-agents-sdk-guardrail-boundary.png",
+      "transport_locator": "/img/illustrations/openai-agents-sdk-guardrail-boundary.png",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "OpenAI Agents SDK guardrail and business-action boundary illustration — Agentic Architecture Atlas maintainers",
+      "author_or_org": "Agentic Architecture Atlas maintainers",
+      "published_at": null,
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "Original PNG generated and QA-checked on 2026-07-24",
+      "source_kind": "original-illustration",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "illustration"
+      ],
+      "license": "LicenseRef-Atlas-Original",
+      "license_scope": "The named run guardrails and an independent pre-write business-action gate illustration only",
+      "license_evidence_url": "https://github.com/sealday/agentic-architecture-atlas/blob/main/static/img/illustrations/openai-agents-sdk-guardrail-boundary.png",
+      "license_evidence_note": "The image was generated from a project-authored brief for this atlas; original-illustration coverage is limited to the named PNG.",
+      "license_family_id": "/img/illustrations/openai-agents-sdk-guardrail-boundary.png",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "original-atlas",
+      "usage_boundary": "Explains the separation between SDK guardrails and business authorization, approval, idempotency, and external-state checks; it does not establish factual claims or guarantee side-effect safety.",
+      "link_policy": null,
+      "expected_final_transport_locator": "/img/illustrations/openai-agents-sdk-guardrail-boundary.png",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Original atlas illustration approved after text, topology, originality, and responsive QA"
+    },
+    {
+      "id": "src-atlas-agents-handoff-tool-fa2c6ce9ffed",
+      "canonical_locator": "/img/illustrations/openai-agents-sdk-handoff-vs-tool.png",
+      "transport_locator": "/img/illustrations/openai-agents-sdk-handoff-vs-tool.png",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "OpenAI Agents SDK handoff versus agent-as-tool control illustration — Agentic Architecture Atlas maintainers",
+      "author_or_org": "Agentic Architecture Atlas maintainers",
+      "published_at": null,
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "Original PNG generated and QA-checked on 2026-07-24",
+      "source_kind": "original-illustration",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "illustration"
+      ],
+      "license": "LicenseRef-Atlas-Original",
+      "license_scope": "The named conversational control transfer versus bounded delegated work that returns illustration only",
+      "license_evidence_url": "https://github.com/sealday/agentic-architecture-atlas/blob/main/static/img/illustrations/openai-agents-sdk-handoff-vs-tool.png",
+      "license_evidence_note": "The image was generated from a project-authored brief for this atlas; original-illustration coverage is limited to the named PNG.",
+      "license_family_id": "/img/illustrations/openai-agents-sdk-handoff-vs-tool.png",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "original-atlas",
+      "usage_boundary": "Explains the control-ownership difference between Handoff and Agents-as-Tools; it does not establish factual claims or imply either pattern is universally preferred.",
+      "link_policy": null,
+      "expected_final_transport_locator": "/img/illustrations/openai-agents-sdk-handoff-vs-tool.png",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Original atlas illustration approved after text, topology, originality, and responsive QA"
+    },
+    {
+      "id": "src-atlas-agents-run-control-0e1d1904e70c",
+      "canonical_locator": "/img/illustrations/openai-agents-sdk-run-control.png",
+      "transport_locator": "/img/illustrations/openai-agents-sdk-run-control.png",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "OpenAI Agents SDK run-control loop illustration — Agentic Architecture Atlas maintainers",
+      "author_or_org": "Agentic Architecture Atlas maintainers",
+      "published_at": null,
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "Original PNG generated and QA-checked on 2026-07-24",
+      "source_kind": "original-illustration",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "illustration"
+      ],
+      "license": "LicenseRef-Atlas-Original",
+      "license_scope": "The named one Runner invocation, tool action, result loop, termination, and turn limit illustration only",
+      "license_evidence_url": "https://github.com/sealday/agentic-architecture-atlas/blob/main/static/img/illustrations/openai-agents-sdk-run-control.png",
+      "license_evidence_note": "The image was generated from a project-authored brief for this atlas; original-illustration coverage is limited to the named PNG.",
+      "license_family_id": "/img/illustrations/openai-agents-sdk-run-control.png",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "original-atlas",
+      "usage_boundary": "Explains one Runner invocation and its turn limit; it does not establish factual claims or bound application retries, fan-out, or nested runs.",
+      "link_policy": null,
+      "expected_final_transport_locator": "/img/illustrations/openai-agents-sdk-run-control.png",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Original atlas illustration approved after text, topology, originality, and responsive QA"
+    },
+    {
+      "id": "src-atlas-kafka-partition-ownership-a43f4f08e4d3",
+      "canonical_locator": "/img/illustrations/apache-kafka-consumer-groups-partition-ownership.png",
+      "transport_locator": "/img/illustrations/apache-kafka-consumer-groups-partition-ownership.png",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "Kafka consumer-group partition ownership illustration — Agentic Architecture Atlas maintainers",
+      "author_or_org": "Agentic Architecture Atlas maintainers",
+      "published_at": null,
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "Original PNG generated and QA-checked on 2026-07-24",
+      "source_kind": "original-illustration",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "illustration"
+      ],
+      "license": "LicenseRef-Atlas-Original",
+      "license_scope": "The named current partition assignment across consumers in one group illustration only",
+      "license_evidence_url": "https://github.com/sealday/agentic-architecture-atlas/blob/main/static/img/illustrations/apache-kafka-consumer-groups-partition-ownership.png",
+      "license_evidence_note": "The image was generated from a project-authored brief for this atlas; original-illustration coverage is limited to the named PNG.",
+      "license_family_id": "/img/illustrations/apache-kafka-consumer-groups-partition-ownership.png",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "original-atlas",
+      "usage_boundary": "Explains current partition read ownership within one consumer group; it does not establish factual claims, create a business lock, or guarantee exactly-once effects.",
+      "link_policy": null,
+      "expected_final_transport_locator": "/img/illustrations/apache-kafka-consumer-groups-partition-ownership.png",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Original atlas illustration approved after text, topology, originality, and responsive QA"
+    },
+    {
+      "id": "src-atlas-kafka-rebalance-loop-773b5a565ab7",
+      "canonical_locator": "/img/illustrations/apache-kafka-consumer-groups-rebalance-loop.png",
+      "transport_locator": "/img/illustrations/apache-kafka-consumer-groups-rebalance-loop.png",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "Kafka consumer-group rebalance loop illustration — Agentic Architecture Atlas maintainers",
+      "author_or_org": "Agentic Architecture Atlas maintainers",
+      "published_at": null,
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "Original PNG generated and QA-checked on 2026-07-24",
+      "source_kind": "original-illustration",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "illustration"
+      ],
+      "license": "LicenseRef-Atlas-Original",
+      "license_scope": "The named partition revoke, reassignment, recovery, and the separate in-flight-work risk illustration only",
+      "license_evidence_url": "https://github.com/sealday/agentic-architecture-atlas/blob/main/static/img/illustrations/apache-kafka-consumer-groups-rebalance-loop.png",
+      "license_evidence_note": "The image was generated from a project-authored brief for this atlas; original-illustration coverage is limited to the named PNG.",
+      "license_family_id": "/img/illustrations/apache-kafka-consumer-groups-rebalance-loop.png",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "original-atlas",
+      "usage_boundary": "Explains partition ownership transfer during rebalance and the separate risk of in-flight work; it does not establish factual claims, imply seamless consumption, or cancel external side effects.",
+      "link_policy": null,
+      "expected_final_transport_locator": "/img/illustrations/apache-kafka-consumer-groups-rebalance-loop.png",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Original atlas illustration approved after text, topology, originality, and responsive QA"
+    },
+    {
+      "id": "src-atlas-kong-control-layers-6bff4004677a",
+      "canonical_locator": "/img/illustrations/kong-ai-gateway-routing-resilience-control-layers.png",
+      "transport_locator": "/img/illustrations/kong-ai-gateway-routing-resilience-control-layers.png",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "Kong AI gateway control layers illustration — Agentic Architecture Atlas maintainers",
+      "author_or_org": "Agentic Architecture Atlas maintainers",
+      "published_at": null,
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "Original PNG generated and QA-checked on 2026-07-24",
+      "source_kind": "original-illustration",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "illustration"
+      ],
+      "license": "LicenseRef-Atlas-Original",
+      "license_scope": "The named client, gateway policy and routing, provider execution, and separate business recovery responsibilities illustration only",
+      "license_evidence_url": "https://github.com/sealday/agentic-architecture-atlas/blob/main/static/img/illustrations/kong-ai-gateway-routing-resilience-control-layers.png",
+      "license_evidence_note": "The image was generated from a project-authored brief for this atlas; original-illustration coverage is limited to the named PNG.",
+      "license_family_id": "/img/illustrations/kong-ai-gateway-routing-resilience-control-layers.png",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "original-atlas",
+      "usage_boundary": "Explains the separation among client intent, gateway policy and routing, provider execution, and business recovery; it does not establish factual claims or imply the gateway owns business-side recovery.",
+      "link_policy": null,
+      "expected_final_transport_locator": "/img/illustrations/kong-ai-gateway-routing-resilience-control-layers.png",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Original atlas illustration approved after text, topology, originality, and responsive QA"
+    },
+    {
+      "id": "src-atlas-kong-failure-route-eabc5c905ae6",
+      "canonical_locator": "/img/illustrations/kong-ai-gateway-routing-resilience-failure-route.png",
+      "transport_locator": "/img/illustrations/kong-ai-gateway-routing-resilience-failure-route.png",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "Kong AI gateway bounded failure route illustration — Agentic Architecture Atlas maintainers",
+      "author_or_org": "Agentic Architecture Atlas maintainers",
+      "published_at": null,
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "Original PNG generated and QA-checked on 2026-07-24",
+      "source_kind": "original-illustration",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "illustration"
+      ],
+      "license": "LicenseRef-Atlas-Original",
+      "license_scope": "The named failure classification, bounded retry or fallback, success return, and exhausted failure return illustration only",
+      "license_evidence_url": "https://github.com/sealday/agentic-architecture-atlas/blob/main/static/img/illustrations/kong-ai-gateway-routing-resilience-failure-route.png",
+      "license_evidence_note": "The image was generated from a project-authored brief for this atlas; original-illustration coverage is limited to the named PNG.",
+      "license_family_id": "/img/illustrations/kong-ai-gateway-routing-resilience-failure-route.png",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "original-atlas",
+      "usage_boundary": "Explains failure classification and bounded retry or fallback; it does not establish factual claims, guarantee fallback success, or authorize unbounded retries.",
+      "link_policy": null,
+      "expected_final_transport_locator": "/img/illustrations/kong-ai-gateway-routing-resilience-failure-route.png",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Original atlas illustration approved after text, topology, originality, and responsive QA"
+    },
+    {
+      "id": "src-atlas-kong-policy-boundary-ad7926a7eab8",
+      "canonical_locator": "/img/illustrations/kong-ai-gateway-routing-resilience-policy-boundary.png",
+      "transport_locator": "/img/illustrations/kong-ai-gateway-routing-resilience-policy-boundary.png",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "Kong routing-resilience policy boundary illustration — Agentic Architecture Atlas maintainers",
+      "author_or_org": "Agentic Architecture Atlas maintainers",
+      "published_at": null,
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "Original PNG generated and QA-checked on 2026-07-24",
+      "source_kind": "original-illustration",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "illustration"
+      ],
+      "license": "LicenseRef-Atlas-Original",
+      "license_scope": "The named separate authorization, cost, and duplicate-side-effect controls around gateway routing illustration only",
+      "license_evidence_url": "https://github.com/sealday/agentic-architecture-atlas/blob/main/static/img/illustrations/kong-ai-gateway-routing-resilience-policy-boundary.png",
+      "license_evidence_note": "The image was generated from a project-authored brief for this atlas; original-illustration coverage is limited to the named PNG.",
+      "license_family_id": "/img/illustrations/kong-ai-gateway-routing-resilience-policy-boundary.png",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "original-atlas",
+      "usage_boundary": "Explains that routing resilience remains separate from authorization, cost, and duplicate-side-effect governance; it does not establish factual claims or guarantee exactly-once external effects.",
+      "link_policy": null,
+      "expected_final_transport_locator": "/img/illustrations/kong-ai-gateway-routing-resilience-policy-boundary.png",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Original atlas illustration approved after text, topology, originality, and responsive QA"
+    },
+    {
+      "id": "src-atlas-litellm-budget-gates-2134c02fb563",
+      "canonical_locator": "/img/illustrations/litellm-virtual-keys-governance-budget-gates.png",
+      "transport_locator": "/img/illustrations/litellm-virtual-keys-governance-budget-gates.png",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "LiteLLM budget and rate-limit gates illustration — Agentic Architecture Atlas maintainers",
+      "author_or_org": "Agentic Architecture Atlas maintainers",
+      "published_at": null,
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "Original PNG generated and QA-checked on 2026-07-24",
+      "source_kind": "original-illustration",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "illustration"
+      ],
+      "license": "LicenseRef-Atlas-Original",
+      "license_scope": "The named budget and rate-limit admission gates before model access illustration only",
+      "license_evidence_url": "https://github.com/sealday/agentic-architecture-atlas/blob/main/static/img/illustrations/litellm-virtual-keys-governance-budget-gates.png",
+      "license_evidence_note": "The image was generated from a project-authored brief for this atlas; original-illustration coverage is limited to the named PNG.",
+      "license_family_id": "/img/illustrations/litellm-virtual-keys-governance-budget-gates.png",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "original-atlas",
+      "usage_boundary": "Explains budget and rate-limit admission before model access; it does not establish factual claims, cross-instance atomic reservation, or zero overspend.",
+      "link_policy": null,
+      "expected_final_transport_locator": "/img/illustrations/litellm-virtual-keys-governance-budget-gates.png",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Original atlas illustration approved after text, topology, originality, and responsive QA"
+    },
+    {
+      "id": "src-atlas-litellm-control-path-28044852993d",
+      "canonical_locator": "/img/illustrations/litellm-virtual-keys-governance-control-path.png",
+      "transport_locator": "/img/illustrations/litellm-virtual-keys-governance-control-path.png",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "LiteLLM virtual-key governance control path illustration — Agentic Architecture Atlas maintainers",
+      "author_or_org": "Agentic Architecture Atlas maintainers",
+      "published_at": null,
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "Original PNG generated and QA-checked on 2026-07-24",
+      "source_kind": "original-illustration",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "illustration"
+      ],
+      "license": "LicenseRef-Atlas-Original",
+      "license_scope": "The named virtual-key identity, policy, budget, routing, and provider-credential custody illustration only",
+      "license_evidence_url": "https://github.com/sealday/agentic-architecture-atlas/blob/main/static/img/illustrations/litellm-virtual-keys-governance-control-path.png",
+      "license_evidence_note": "The image was generated from a project-authored brief for this atlas; original-illustration coverage is limited to the named PNG.",
+      "license_family_id": "/img/illustrations/litellm-virtual-keys-governance-control-path.png",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "original-atlas",
+      "usage_boundary": "Explains the ordering of virtual-key identity, model policy, budget checks, routing, and provider-credential custody; it does not establish factual claims, atomic budget reservation, or a product guarantee.",
+      "link_policy": null,
+      "expected_final_transport_locator": "/img/illustrations/litellm-virtual-keys-governance-control-path.png",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Original atlas illustration approved after text, topology, originality, and responsive QA"
+    },
+    {
+      "id": "src-atlas-litellm-governance-boundary-f7ff2c2b8f5d",
+      "canonical_locator": "/img/illustrations/litellm-virtual-keys-governance-governance-boundary.png",
+      "transport_locator": "/img/illustrations/litellm-virtual-keys-governance-governance-boundary.png",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "LiteLLM governed proxy and direct-credential boundary illustration — Agentic Architecture Atlas maintainers",
+      "author_or_org": "Agentic Architecture Atlas maintainers",
+      "published_at": null,
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "Original PNG generated and QA-checked on 2026-07-24",
+      "source_kind": "original-illustration",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "illustration"
+      ],
+      "license": "LicenseRef-Atlas-Original",
+      "license_scope": "The named governed proxy path and direct provider-credential bypass risk illustration only",
+      "license_evidence_url": "https://github.com/sealday/agentic-architecture-atlas/blob/main/static/img/illustrations/litellm-virtual-keys-governance-governance-boundary.png",
+      "license_evidence_note": "The image was generated from a project-authored brief for this atlas; original-illustration coverage is limited to the named PNG.",
+      "license_family_id": "/img/illustrations/litellm-virtual-keys-governance-governance-boundary.png",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "original-atlas",
+      "usage_boundary": "Explains the governed proxy path and direct provider-credential bypass risk; it does not establish factual claims or replace upstream provider authorization.",
+      "link_policy": null,
+      "expected_final_transport_locator": "/img/illustrations/litellm-virtual-keys-governance-governance-boundary.png",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Original atlas illustration approved after text, topology, originality, and responsive QA"
     }
   ],
   "documents": {
@@ -15346,6 +15698,32 @@
           "usage_mode": "facts-summary",
           "attribution_note": "Kafka: a Distributed Messaging System for Log Processing, Microsoft",
           "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-atlas-kafka-partition-ownership-a43f4f08e4d3",
+          "citation_url": "/img/illustrations/apache-kafka-consumer-groups-partition-ownership.png",
+          "roles": [
+            "illustration"
+          ],
+          "manifest_primary": false,
+          "usage_mode": "original-illustration",
+          "attribution_note": "Kafka consumer-group partition ownership illustration, Agentic Architecture Atlas maintainers",
+          "modification_note": "Generated with the built-in image tool from a project-authored brief and QA-reviewed in an original composition to explain current partition assignment across consumers in one group.",
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-atlas-kafka-rebalance-loop-773b5a565ab7",
+          "citation_url": "/img/illustrations/apache-kafka-consumer-groups-rebalance-loop.png",
+          "roles": [
+            "illustration"
+          ],
+          "manifest_primary": false,
+          "usage_mode": "original-illustration",
+          "attribution_note": "Kafka consumer-group rebalance loop illustration, Agentic Architecture Atlas maintainers",
+          "modification_note": "Generated with the built-in image tool from a project-authored brief and QA-reviewed in an original composition to explain partition revoke, reassignment, recovery, and the separate in-flight-work risk.",
           "excerpt": null,
           "quotation_reviewed": false
         }
@@ -17114,6 +17492,45 @@
           "modification_note": null,
           "excerpt": null,
           "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-atlas-kong-control-layers-6bff4004677a",
+          "citation_url": "/img/illustrations/kong-ai-gateway-routing-resilience-control-layers.png",
+          "roles": [
+            "illustration"
+          ],
+          "manifest_primary": false,
+          "usage_mode": "original-illustration",
+          "attribution_note": "Kong AI gateway control layers illustration, Agentic Architecture Atlas maintainers",
+          "modification_note": "Generated with the built-in image tool from a project-authored brief and QA-reviewed in an original composition to explain client, gateway policy and routing, provider execution, and separate business recovery responsibilities.",
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-atlas-kong-failure-route-eabc5c905ae6",
+          "citation_url": "/img/illustrations/kong-ai-gateway-routing-resilience-failure-route.png",
+          "roles": [
+            "illustration"
+          ],
+          "manifest_primary": false,
+          "usage_mode": "original-illustration",
+          "attribution_note": "Kong AI gateway bounded failure route illustration, Agentic Architecture Atlas maintainers",
+          "modification_note": "Generated with the built-in image tool from a project-authored brief and QA-reviewed in an original composition to explain failure classification, bounded retry or fallback, success return, and exhausted failure return.",
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-atlas-kong-policy-boundary-ad7926a7eab8",
+          "citation_url": "/img/illustrations/kong-ai-gateway-routing-resilience-policy-boundary.png",
+          "roles": [
+            "illustration"
+          ],
+          "manifest_primary": false,
+          "usage_mode": "original-illustration",
+          "attribution_note": "Kong routing-resilience policy boundary illustration, Agentic Architecture Atlas maintainers",
+          "modification_note": "Generated with the built-in image tool from a project-authored brief and QA-reviewed in an original composition to explain separate authorization, cost, and duplicate-side-effect controls around gateway routing.",
+          "excerpt": null,
+          "quotation_reviewed": false
         }
       ]
     },
@@ -18224,6 +18641,45 @@
           "modification_note": null,
           "excerpt": null,
           "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-atlas-litellm-budget-gates-2134c02fb563",
+          "citation_url": "/img/illustrations/litellm-virtual-keys-governance-budget-gates.png",
+          "roles": [
+            "illustration"
+          ],
+          "manifest_primary": false,
+          "usage_mode": "original-illustration",
+          "attribution_note": "LiteLLM budget and rate-limit gates illustration, Agentic Architecture Atlas maintainers",
+          "modification_note": "Generated with the built-in image tool from a project-authored brief and QA-reviewed in an original composition to explain budget and rate-limit admission gates before model access.",
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-atlas-litellm-control-path-28044852993d",
+          "citation_url": "/img/illustrations/litellm-virtual-keys-governance-control-path.png",
+          "roles": [
+            "illustration"
+          ],
+          "manifest_primary": false,
+          "usage_mode": "original-illustration",
+          "attribution_note": "LiteLLM virtual-key governance control path illustration, Agentic Architecture Atlas maintainers",
+          "modification_note": "Generated with the built-in image tool from a project-authored brief and QA-reviewed in an original composition to explain virtual-key identity, policy, budget, routing, and provider-credential custody.",
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-atlas-litellm-governance-boundary-f7ff2c2b8f5d",
+          "citation_url": "/img/illustrations/litellm-virtual-keys-governance-governance-boundary.png",
+          "roles": [
+            "illustration"
+          ],
+          "manifest_primary": false,
+          "usage_mode": "original-illustration",
+          "attribution_note": "LiteLLM governed proxy and direct-credential boundary illustration, Agentic Architecture Atlas maintainers",
+          "modification_note": "Generated with the built-in image tool from a project-authored brief and QA-reviewed in an original composition to explain governed proxy path and direct provider-credential bypass risk.",
+          "excerpt": null,
+          "quotation_reviewed": false
         }
       ]
     },
@@ -19267,6 +19723,45 @@
           "usage_mode": "facts-summary",
           "attribution_note": "OpenAI Agents SDK：Multi-agent, OpenAI",
           "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-atlas-agents-guardrail-boundary-de06a6a05869",
+          "citation_url": "/img/illustrations/openai-agents-sdk-guardrail-boundary.png",
+          "roles": [
+            "illustration"
+          ],
+          "manifest_primary": false,
+          "usage_mode": "original-illustration",
+          "attribution_note": "OpenAI Agents SDK guardrail and business-action boundary illustration, Agentic Architecture Atlas maintainers",
+          "modification_note": "Generated with the built-in image tool from a project-authored brief and QA-reviewed in an original composition to explain run guardrails and an independent pre-write business-action gate.",
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-atlas-agents-handoff-tool-fa2c6ce9ffed",
+          "citation_url": "/img/illustrations/openai-agents-sdk-handoff-vs-tool.png",
+          "roles": [
+            "illustration"
+          ],
+          "manifest_primary": false,
+          "usage_mode": "original-illustration",
+          "attribution_note": "OpenAI Agents SDK handoff versus agent-as-tool control illustration, Agentic Architecture Atlas maintainers",
+          "modification_note": "Generated with the built-in image tool from a project-authored brief and QA-reviewed in an original composition to explain conversational control transfer versus bounded delegated work that returns.",
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-atlas-agents-run-control-0e1d1904e70c",
+          "citation_url": "/img/illustrations/openai-agents-sdk-run-control.png",
+          "roles": [
+            "illustration"
+          ],
+          "manifest_primary": false,
+          "usage_mode": "original-illustration",
+          "attribution_note": "OpenAI Agents SDK run-control loop illustration, Agentic Architecture Atlas maintainers",
+          "modification_note": "Generated with the built-in image tool from a project-authored brief and QA-reviewed in an original composition to explain one Runner invocation, tool action, result loop, termination, and turn limit.",
           "excerpt": null,
           "quotation_reviewed": false
         }
