@@ -497,30 +497,40 @@ test('retries bounded gateway failures and recovers after 502 and 504', async ()
   assert.deepEqual(waits, [250, 250]);
 });
 
-test('does not retry a permanent HTTP 500 response', async () => {
-  const waits = [];
-  let calls = 0;
-  const checked = await checkSourceLink(
-    buildLinkTargets(
-      ledger([source('server', 'https://example.com/server')]),
-    )[0],
-    {
-      now,
-      sleep: async (ms) => waits.push(ms),
-      fetchImpl: async () => {
-        calls += 1;
-        return new Response(null, {status: 500});
+test('falls back from failed HEAD to one bounded ranged GET for active sources', async () => {
+  for (const headStatus of [404, 500]) {
+    const calls = [];
+    const checked = await checkSourceLink(
+      buildLinkTargets(
+        ledger([source(`active-${headStatus}`, `https://example.com/${headStatus}`)]),
+      )[0],
+      {
+        now,
+        fetchImpl: async (_url, options) => {
+          calls.push(options);
+          return options.method === 'HEAD'
+            ? new Response(null, {status: headStatus})
+            : new Response('ok', {
+                status: 200,
+                headers: {'content-type': 'text/plain'},
+              });
+        },
       },
-    },
-  );
-  assert.equal(checked.last_attempt.outcome, 'error');
-  assert.equal(checked.last_attempt.error, 'unexpected HTTP 500');
-  assert.equal(calls, 1);
-  assert.deepEqual(waits, []);
+    );
+
+    assert.equal(checked.last_attempt.outcome, 'healthy', `HEAD ${headStatus}`);
+    assert.equal(checked.last_attempt.http_status, 200, `HEAD ${headStatus}`);
+    assert.deepEqual(
+      calls.map(({method}) => method),
+      ['HEAD', 'GET'],
+      `HEAD ${headStatus}`,
+    );
+    assert.equal(calls[1].headers.Range, 'bytes=0-65535');
+  }
 });
 
 test('does not retry ordinary client error responses', async () => {
-  for (const status of [400, 404, 418]) {
+  for (const status of [400, 418]) {
     const waits = [];
     let calls = 0;
     const checked = await checkSourceLink(
@@ -541,6 +551,31 @@ test('does not retry ordinary client error responses', async () => {
     assert.equal(calls, 1);
     assert.deepEqual(waits, []);
   }
+});
+
+test('keeps retired tombstone HEAD 404 terminal without GET fallback', async () => {
+  const calls = [];
+  const checked = await checkSourceLink(
+    buildLinkTargets(
+      ledger([
+        source('retired', 'https://example.com/retired', 'retired'),
+      ]),
+    )[0],
+    {
+      now,
+      fetchImpl: async (_url, options) => {
+        calls.push(options);
+        return new Response(null, {status: 404});
+      },
+    },
+  );
+
+  assert.equal(checked.last_attempt.outcome, 'retired');
+  assert.equal(checked.last_attempt.http_status, 404);
+  assert.deepEqual(
+    calls.map(({method}) => method),
+    ['HEAD'],
+  );
 });
 
 test('stops retrying transient timeouts after the bounded attempt limit', async () => {
