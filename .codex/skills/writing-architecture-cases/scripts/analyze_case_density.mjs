@@ -261,6 +261,7 @@ function visualFormCounts(lines, excluded, evidenceLines) {
       }
     }
 
+    if (evidenceLines.has(index)) continue;
     if (frontMatter.has(index)) continue;
     if (
       isTableDelimiter(lines[index]) &&

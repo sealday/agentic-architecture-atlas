@@ -451,6 +451,41 @@ hero: "![front matter](front.png)"
   assert.equal(analyzeCaseText(source).visualBalance.rasterCount, 0);
 });
 
+test('does not credit tables or fenced blocks inside evidence cards', () => {
+  const source = `${'文'.repeat(800)}
+
+<details className="evidence-card">
+  <summary>证据：隐藏的技术材料</summary>
+
+  \`\`\`mermaid
+  flowchart LR
+    A --> B
+  \`\`\`
+
+  \`\`\`ts
+  const hidden = true;
+  \`\`\`
+
+  | 维度 | 结论 |
+  | --- | --- |
+  | 控制 | 隐藏 |
+</details>
+`;
+
+  const result = analyzeCaseText(source);
+  assert.equal(result.visualBalance.mermaidCount, 0);
+  assert.equal(result.visualBalance.codeCount, 0);
+  assert.equal(result.visualBalance.tableCount, 0);
+  assert.deepEqual(
+    result.warnings
+      .filter(({kind}) =>
+        ['missing-visual-content', 'low-visual-balance'].includes(kind),
+      )
+      .map(({kind}) => kind),
+    ['missing-visual-content', 'low-visual-balance'],
+  );
+});
+
 test('documents identifier density and functional reporter boundaries', async () => {
   const skillRoot = new URL(
     '../.codex/skills/writing-architecture-cases/',
