@@ -26,7 +26,7 @@ const expectedFoundations = new Map([
   [
     'FND-02',
     {
-      adjacent: ['FND-01'],
+      adjacent: ['FND-01', 'FND-04', 'MTH-01'],
       file: 'concepts/fnd-02-architecture-drivers-asr.mdx',
       relatedCases: ['/cases/aws-cell-shuffle-sharding'],
       slug: '/concepts/fnd-02',
@@ -320,7 +320,7 @@ test('renders parent path adjacent and terminal links on every Batch 1 page', ()
       '/concepts',
       '/paths/architecture-thinking',
       ...expected.adjacent.map(
-        (adjacentId) => expectedFoundations.get(adjacentId).slug,
+        (adjacentId) => topicsById.get(adjacentId).slug,
       ),
       ...expected.relatedCases,
     ];
