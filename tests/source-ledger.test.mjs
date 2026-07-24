@@ -138,6 +138,55 @@ test('validates canonical source records and document citations', () => {
   assert.deepEqual(cc0Parsed.errors, []);
 });
 
+test('rejects an uncited primary or non-discovery source', () => {
+  const uncited = sourceFixture('src-uncited-primary');
+  const parsed = parseSourceLedger(
+    ledger({sources: [validSource, uncited]}),
+  );
+  assert.deepEqual(parsed.errors, []);
+
+  const governed = validateSourceGovernance([document()], parsed.ledger);
+
+  assert.match(
+    governed.errors.join('\n'),
+    /source "src-uncited-primary".*not cited by any ledger document/,
+  );
+});
+
+test('permits uncited discovery inventory only under the strict community-index boundary', () => {
+  const discoveryInventory = sourceFixture('src-discovery-inventory', {
+    source_kind: 'community-index',
+    tier: 'discovery',
+    allowed_evidence_roles: ['discovery', 'learning'],
+  });
+  const parsed = parseSourceLedger(
+    ledger({sources: [validSource, discoveryInventory]}),
+  );
+  assert.deepEqual(parsed.errors, []);
+  assert.deepEqual(
+    validateSourceGovernance([document()], parsed.ledger).errors,
+    [],
+  );
+
+  for (const invalid of [
+    {...discoveryInventory, source_kind: 'official-docs'},
+    {...discoveryInventory, tier: 'secondary'},
+    {
+      ...discoveryInventory,
+      allowed_evidence_roles: ['discovery', 'definition'],
+    },
+  ]) {
+    const governed = validateSourceGovernance(
+      [document()],
+      ledger({sources: [validSource, invalid]}),
+    );
+    assert.match(
+      governed.errors.join('\n'),
+      /source "src-discovery-inventory".*not cited by any ledger document/,
+    );
+  }
+});
+
 test('projects only citations that satisfy every manifest primary gate', async (t) => {
   const cases = [
     {

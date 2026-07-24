@@ -18504,6 +18504,19 @@
           "quotation_reviewed": false
         },
         {
+          "source_id": "src-github-259baaed148f",
+          "citation_url": "https://github.com/awslabs/cli-agent-orchestrator",
+          "roles": [
+            "learning"
+          ],
+          "manifest_primary": false,
+          "usage_mode": "navigation-only",
+          "attribution_note": "AWS CLI Agent Orchestrator repository, Amazon Web Services",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
           "source_id": "src-github-263406d0c7ca",
           "citation_url": "https://github.com/awslabs/cli-agent-orchestrator/blob/bae80071a17e001380367c461b32d64bc6b54433/CODEBASE.md",
           "roles": [

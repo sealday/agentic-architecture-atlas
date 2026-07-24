@@ -300,6 +300,25 @@ export function validateLinkHealthCacheStructure(ledger, cache) {
       prefix('last_success cannot be newer than last_attempt');
     }
     if (
+      target &&
+      validAttempt(entry.last_success, {success: true}) &&
+      !acceptedForPolicy(target.link_policy, entry.last_success)
+    ) {
+      prefix(
+        `last_success outcome ${JSON.stringify(
+          entry.last_success.outcome,
+        )} is incompatible with ${target.link_policy} policy`,
+      );
+    }
+    if (
+      target &&
+      validAttempt(entry.last_attempt, {full: true}) &&
+      acceptedForPolicy(target.link_policy, entry.last_attempt) &&
+      !sameObservation(entry.last_attempt, entry.last_success)
+    ) {
+      prefix('policy-accepted last_attempt must equal last_success');
+    }
+    if (
       !Array.isArray(entry.attempt_history) ||
       entry.attempt_history.length === 0 ||
       !entry.attempt_history.every((item) => validAttempt(item))
@@ -577,7 +596,6 @@ function clearlyNonHtmlAsset(url, contentType) {
 
 function compactAttempt(attempt) {
   const copy = {...attempt};
-  delete copy.login_wall_detected;
   delete copy.redirects;
   delete copy.error;
   return copy;

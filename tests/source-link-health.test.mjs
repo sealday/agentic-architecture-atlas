@@ -118,7 +118,32 @@ test('validates complete transport-deduplicated link-health cache coverage', () 
     ],
   );
   assert.deepEqual(
-    validateLinkHealthCacheStructure(governed, cacheFor(governed)).errors,
+    validateLinkHealthCacheStructure(
+      governed,
+      cacheFor(governed, (entry, target) => {
+        if (target.link_policy === 'auth-required') {
+          return result(
+            target,
+            attempt({
+              outcome: 'auth-required',
+              status: 401,
+              final: target.transport_locator,
+            }),
+          );
+        }
+        if (target.link_policy === 'retired') {
+          return result(
+            target,
+            attempt({
+              outcome: 'retired',
+              status: 404,
+              final: target.transport_locator,
+            }),
+          );
+        }
+        return entry;
+      }),
+    ).errors,
     [],
   );
 });
@@ -222,6 +247,68 @@ test('rejects missing duplicate stale and policy-incompatible cache results', ()
   assert.match(
     evaluateLinkHealthVerdict(governed, incompatible, {now}).failures.join('\n'),
     /auth-required/,
+  );
+});
+
+test('rejects last success observations that are incompatible with auth-required and retired policies', () => {
+  const governed = ledger([
+    source('auth', 'https://example.com/auth', 'auth-required'),
+    source('retired', 'https://example.com/retired', 'retired'),
+  ]);
+  const cached = cacheFor(governed, (entry, target) => {
+    const policyAttempt =
+      target.link_policy === 'auth-required'
+        ? attempt({
+            outcome: 'auth-required',
+            status: 401,
+            final: target.transport_locator,
+          })
+        : attempt({
+            outcome: 'retired',
+            status: 404,
+            final: target.transport_locator,
+          });
+    const forgedSuccess = attempt({
+      outcome: 'healthy',
+      status: 200,
+      final: target.transport_locator,
+      when: '2026-07-23T00:00:00.000Z',
+    });
+    return {
+      ...entry,
+      last_attempt: policyAttempt,
+      last_success: forgedSuccess,
+      attempt_history: [forgedSuccess, policyAttempt],
+      review_status: policyAttempt.outcome,
+    };
+  });
+
+  const errors = validateLinkHealthCacheStructure(governed, cached).errors.join(
+    '\n',
+  );
+  assert.match(errors, /auth-required policy/);
+  assert.match(errors, /retired policy/);
+});
+
+test('requires a policy-accepted current attempt to also be the last success observation', () => {
+  const governed = ledger([source('a', 'https://example.com/a')]);
+  const cached = cacheFor(governed, (entry, target) => {
+    const previousSuccess = attempt({
+      final: target.transport_locator,
+      when: '2026-07-23T00:00:00.000Z',
+    });
+    const currentSuccess = attempt({final: target.transport_locator});
+    return {
+      ...entry,
+      last_attempt: currentSuccess,
+      last_success: previousSuccess,
+      attempt_history: [previousSuccess, currentSuccess],
+    };
+  });
+
+  assert.match(
+    validateLinkHealthCacheStructure(governed, cached).errors.join('\n'),
+    /policy-accepted last_attempt must equal last_success/,
   );
 });
 
@@ -366,6 +453,10 @@ test('probes missing HEAD content type and detects a 206 login wall', async () =
     generated_at: at,
     results: [checked],
   };
+  assert.deepEqual(
+    validateLinkHealthCacheStructure(governed, cache).errors,
+    [],
+  );
   assert.deepEqual(
     evaluateLinkHealthVerdict(governed, cache, {now}).failures,
     [],

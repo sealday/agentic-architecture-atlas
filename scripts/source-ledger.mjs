@@ -1021,6 +1021,18 @@ function isEligiblePrimary(source, citation) {
   );
 }
 
+function isUncitedDiscoveryInventorySource(source) {
+  return (
+    source.source_kind === 'community-index' &&
+    source.tier === 'discovery' &&
+    Array.isArray(source.allowed_evidence_roles) &&
+    source.allowed_evidence_roles.length > 0 &&
+    source.allowed_evidence_roles.every((role) =>
+      ['discovery', 'learning'].includes(role),
+    )
+  );
+}
+
 export function validateSourceGovernance(documents, ledger) {
   const errors = [];
   const sourceById = new Map(ledger.sources.map((source) => [source.id, source]));
@@ -1163,6 +1175,22 @@ export function validateSourceGovernance(documents, ledger) {
   for (const documentPath of Object.keys(ledger.documents)) {
     if (!documentByPath.has(documentPath)) {
       errors.push(`${documentPath}: ledger document does not exist in content`);
+    }
+  }
+
+  const citedSourceIds = new Set(
+    Object.values(ledger.documents).flatMap(({citations}) =>
+      citations.map(({source_id: sourceId}) => sourceId),
+    ),
+  );
+  for (const source of ledger.sources) {
+    if (
+      !citedSourceIds.has(source.id) &&
+      !isUncitedDiscoveryInventorySource(source)
+    ) {
+      errors.push(
+        `source "${source.id}": source is not cited by any ledger document`,
+      );
     }
   }
 
