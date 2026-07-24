@@ -14,6 +14,29 @@ async function generatedLedger() {
   return JSON.parse(await source('src/generated/source-ledger.json'));
 }
 
+let productionReferenceArtifactPromise;
+
+function productionReferenceArtifact() {
+  productionReferenceArtifactPromise ??= (async () => {
+    const build = spawnSync('npm', ['run', 'build'], {
+      cwd: fileURLToPath(root),
+      encoding: 'utf8',
+    });
+    assert.equal(
+      build.status,
+      0,
+      `production build failed:\n${build.stdout}\n${build.stderr}`,
+    );
+    const [html, ledger] = await Promise.all([
+      source('build/references.html'),
+      generatedLedger(),
+    ]);
+    return {html, ledger};
+  })();
+
+  return productionReferenceArtifactPromise;
+}
+
 function attributeValue(tag, name) {
   const match = tag.match(
     new RegExp(`${name}=(?:"([^"]+)"|'([^']+)'|([^\\s>]+))`),
@@ -302,21 +325,11 @@ test('labels discovery indexes as navigation rather than factual evidence', asyn
   );
 });
 
-test('renders the complete sorted ledger in production HTML', async () => {
-  const build = spawnSync('npm', ['run', 'build'], {
-    cwd: fileURLToPath(root),
-    encoding: 'utf8',
-  });
-  assert.equal(
-    build.status,
-    0,
-    `production build failed:\n${build.stdout}\n${build.stderr}`,
+test('keeps every source and evidence field in the complete sorted model', async () => {
+  const {buildSourceLedgerSections} = await import(
+    '../src/components/SourceLedger/sourceLedgerModel.ts'
   );
-
-  const [html, ledger] = await Promise.all([
-    source('build/references.html'),
-    generatedLedger(),
-  ]);
+  const ledger = await generatedLedger();
   const tierOrder = ['primary', 'first-party', 'secondary', 'discovery'];
   const kindOrder = [
     'standard',
@@ -332,26 +345,6 @@ test('renders the complete sorted ledger in production HTML', async () => {
     'community-index',
     'original-illustration',
   ];
-  const kindLabels = {
-    standard: '标准',
-    paper: '论文',
-    'official-docs': '官方文档',
-    'official-repository': '官方仓库',
-    'source-code': '源码',
-    'engineering-blog': '工程团队博客',
-    'incident-report': '事故报告',
-    'vendor-reference-architecture': '厂商参考架构',
-    textbook: '教材',
-    'independent-blog': '独立博客',
-    'community-index': '社区索引',
-    'original-illustration': '本站原创插图',
-  };
-  const tierLabels = {
-    primary: '一手来源',
-    'first-party': '第一方工程资料',
-    secondary: '可信二手来源',
-    discovery: '发现与导航',
-  };
   const expectedSources = [...ledger.sources].sort(
     (left, right) =>
       tierOrder.indexOf(left.tier) - tierOrder.indexOf(right.tier) ||
@@ -359,81 +352,172 @@ test('renders the complete sorted ledger in production HTML', async () => {
         kindOrder.indexOf(right.source_kind) ||
       left.title.localeCompare(right.title, 'en'),
   );
-  const sections = parseLedgerSections(html);
-  const articles = sections.flatMap(({articles: tierArticles}) => tierArticles);
+  const cards = buildSourceLedgerSections(ledger).flatMap(
+    ({sources}) => sources,
+  );
 
-  assert.doesNotMatch(html, /data-source-/);
-  assert.ok(
-    Buffer.byteLength(html) < 500_000,
-    `references HTML exceeds 500 KB: ${Buffer.byteLength(html)} bytes`,
-  );
-  assert.equal(articles.length, 370);
+  assert.equal(cards.length, 370);
   assert.deepEqual(
-    articles.map(({title}) => title),
-    expectedSources.map(({title}) => title),
+    cards.map(({id}) => id),
+    expectedSources.map(({id}) => id),
   );
+  for (const card of cards) {
+    for (const field of [
+      'id',
+      'canonicalLocator',
+      'externalHref',
+      'title',
+      'authorOrOrg',
+      'checkedAt',
+      'version',
+      'sourceKind',
+      'kindLabel',
+      'tier',
+      'tierLabel',
+      'evidenceRoleLabels',
+      'license',
+      'copyrightPolicyLabel',
+      'usageBoundary',
+      'attributionNotes',
+      'usedBy',
+      'healthSummary',
+      'healthChecks',
+    ]) {
+      assert.ok(Object.hasOwn(card, field), `${card.id} lost ${field}`);
+    }
+    assert.ok(
+      card.evidenceRoleLabels.length > 0,
+      `${card.id} lost evidence roles`,
+    );
+    assert.ok(card.license, `${card.id} lost license evidence`);
+    assert.ok(card.usageBoundary, `${card.id} lost its usage boundary`);
+  }
+});
+
+test('progressively exposes all sources in exact 24-card increments', async () => {
+  const model = await import(
+    '../src/components/SourceLedger/sourceLedgerModel.ts'
+  );
+  assert.equal(
+    typeof model.nextSourceLedgerVisibleCount,
+    'function',
+    'sourceLedgerModel must export nextSourceLedgerVisibleCount',
+  );
+  assert.equal(
+    model.sourceLedgerPageSize,
+    24,
+    'sourceLedgerModel must export a 24-card page size',
+  );
+  const ledger = await generatedLedger();
+  const sections = model.buildSourceLedgerSections(ledger);
+  const reachedIds = [];
+
+  for (const section of sections) {
+    let visibleCount = Math.min(
+      model.sourceLedgerPageSize,
+      section.sources.length,
+    );
+    let previousCount = 0;
+
+    while (true) {
+      const visible = section.sources.slice(0, visibleCount);
+      assert.equal(
+        visible.length - previousCount,
+        Math.min(
+          model.sourceLedgerPageSize,
+          section.sources.length - previousCount,
+        ),
+        `${section.tier} did not advance by one page`,
+      );
+      reachedIds.push(...visible.slice(previousCount).map(({id}) => id));
+      if (visibleCount === section.sources.length) {
+        break;
+      }
+      previousCount = visibleCount;
+      visibleCount = model.nextSourceLedgerVisibleCount(
+        visibleCount,
+        section.sources.length,
+      );
+    }
+  }
+
+  assert.equal(reachedIds.length, 370);
+  assert.equal(new Set(reachedIds).size, 370);
   assert.deepEqual(
-    articles.map(({fields}) => fields.get('来源类型').text),
-    expectedSources.map(({source_kind: kind}) => kindLabels[kind]),
+    reachedIds,
+    sections.flatMap(({sources}) => sources.map(({id}) => id)),
   );
-  assert.deepEqual(
-    articles.map(({fields}) => fields.get('来源层级').text),
-    expectedSources.map(({tier}) => tierLabels[tier]),
+});
+
+test('SSR renders at most the first 24 complete cards per tier', async () => {
+  const {buildSourceLedgerSections} = await import(
+    '../src/components/SourceLedger/sourceLedgerModel.ts'
   );
-  assert.deepEqual(
-    tierOrder.map((tier) => [
-      tier,
-      sections.find((section) => section.tier === tier).articles.length,
-    ]),
-    [
-      ['primary', 338],
-      ['first-party', 22],
-      ['secondary', 3],
-      ['discovery', 7],
-    ],
-  );
+  const {html, ledger} = await productionReferenceArtifact();
+  const expectedSections = buildSourceLedgerSections(ledger);
+  const sections = parseLedgerSections(html);
+
   assert.deepEqual(
     sections.map(({tier}) => tier),
-    tierOrder,
+    expectedSections.map(({tier}) => tier),
   );
-  assert.deepEqual(
-    sections.map(({heading}) => heading),
-    tierOrder.map((tier) => tierLabels[tier]),
-  );
-  assert.ok(articles.every(({fields}) => fields.size === 12));
+  for (const [index, section] of sections.entries()) {
+    const expected = expectedSections[index];
+    assert.equal(
+      section.articles.length,
+      Math.min(24, expected.sources.length),
+      `${section.tier} SSR card count`,
+    );
+    assert.deepEqual(
+      section.articles.map(({title}) => title),
+      expected.sources.slice(0, 24).map(({title}) => title),
+      `${section.tier} SSR order`,
+    );
+    assert.ok(
+      section.articles.every(({fields}) => fields.size === 12),
+      `${section.tier} SSR cards must retain all 12 fields and 24 dt/dd nodes`,
+    );
+  }
+});
 
-  const c4 = articles.find(({title}) => title === 'C4 Model');
-  assert.ok(c4);
-  assert.equal(c4.headingHref, 'https://c4model.com/');
-  assert.equal(c4.fields.get('作者或机构').text, 'Simon Brown');
-  assert.equal(c4.fields.get('来源层级').text, '一手来源');
-  assert.equal(c4.fields.get('来源类型').text, '官方文档');
-  assert.match(c4.fields.get('版本').text, /2026-07-24/);
-  assert.equal(c4.fields.get('核查日期').text, '2026-07-24');
-  assert.equal(c4.fields.get('许可证').text, 'CC-BY-4.0');
-  assert.equal(c4.fields.get('版权处理').text, '允许改编，必须署名');
-  assert.match(c4.fields.get('可支持的证据角色').text, /定义/);
-  assert.match(c4.fields.get('署名说明').text, /C4 Model, Simon Brown/);
-  assert.match(
-    c4.fields.get('使用边界').text,
-    /Supports documented semantics/,
+test('keeps the initial source-ledger SSR payload below 250 KB', async () => {
+  const {html} = await productionReferenceArtifact();
+  assert.ok(
+    Buffer.byteLength(html) < 250_000,
+    `references HTML exceeds 250 KB: ${Buffer.byteLength(html)} bytes`,
   );
-  assert.match(c4.fields.get('使用位置').html, /href=.*\/references/);
-  assert.match(c4.fields.get('使用位置').text, /文档复核：.*2026-07-24/);
-  assert.match(
-    c4.fields.get('链接状态').text,
-    /健康|需要登录|已退役|待复核/,
-  );
-  assert.match(c4.fields.get('链接状态').text, /最近尝试/);
+});
 
-  const illustration = articles.find(
-    ({fields}) => fields.get('来源类型').text === '本站原创插图',
+test('associates continuation controls with truncated tier sections', async () => {
+  const {buildSourceLedgerSections} = await import(
+    '../src/components/SourceLedger/sourceLedgerModel.ts'
   );
-  assert.ok(illustration);
-  assert.equal(illustration.headingHref, null);
+  const {html, ledger} = await productionReferenceArtifact();
+  const expectedSections = buildSourceLedgerSections(ledger);
+  const sections = parseLedgerSections(html);
 
-  const discoverySection = sections.find(
-    ({tier}) => tier === 'discovery',
-  );
-  assert.match(discoverySection.html, /选题\/学习导航，不是事实证据/);
+  for (const [index, section] of sections.entries()) {
+    const total = expectedSections[index].sources.length;
+    const control = section.html.match(
+      /<button\b[^>]*>[\s\S]*?继续加载[\s\S]*?<\/button>/,
+    );
+    if (total <= 24) {
+      assert.equal(control, null, `${section.tier} must not show a load control`);
+      continue;
+    }
+
+    assert.ok(control, `${section.tier} needs a continuation control`);
+    const controlledId = attributeValue(control[0], 'aria-controls');
+    assert.ok(controlledId, `${section.tier} control needs aria-controls`);
+    assert.match(
+      section.html,
+      new RegExp(`<ul\\b[^>]*\\bid=(?:"${controlledId}"|'${controlledId}')`),
+      `${section.tier} control must identify its source list`,
+    );
+    assert.match(
+      textContent(section.html),
+      new RegExp(`已显示\\s*24\\s*[/／]\\s*${total}`),
+      `${section.tier} must expose shown and total counts`,
+    );
+  }
 });
