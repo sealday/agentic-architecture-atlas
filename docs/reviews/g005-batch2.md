@@ -1,8 +1,9 @@
 # G005 Batch 2 最终审阅证据
 
 - 审核日期：2026-07-24
-- Final implementation HEAD：`313cb3a`
-- Batch 2 publication implementation HEAD：`0129a4d`
+- Final implementation HEAD：`15afc9d`
+- Batch 2 publication implementation HEAD：`15afc9d`
+- Rebase provenance：`15afc9d` 是 rebase 后的等价集成 hash，远端 `b9029aa` 保持。
 - 独立 critic：APPROVE
 - 定向验证：94/94 PASS
 - 内容验证：53 documents / 376 sources PASS
