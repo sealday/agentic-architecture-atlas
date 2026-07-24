@@ -6,7 +6,8 @@
 - Rebase provenance：`15afc9d` 是 rebase 后的等价集成 hash，远端 `b9029aa` 保持。
 - 独立 critic：APPROVE
 - 定向验证：94/94 PASS
-- 内容验证：53 documents / 376 sources PASS
+- 内容验证：53 documents / 377 sources PASS
+- 集成来源分布：`b9029aa` 新增 1 个 primary source；integrated tiers 为 primary 345、first-party 22、secondary 3、discovery 7，总计 377。
 - `check:content`：PASS
 - `check:links`：PASS
 - diff-check：PASS
