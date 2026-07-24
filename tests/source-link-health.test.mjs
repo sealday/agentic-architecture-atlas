@@ -395,6 +395,107 @@ test('retries bounded Retry-After responses and recovers from 429', async () => 
   assert.deepEqual(waits, [5000, 3000]);
 });
 
+test('retries transient timeout and fetch failures with bounded backoff', async () => {
+  const waits = [];
+  let calls = 0;
+  const checked = await checkSourceLink(
+    buildLinkTargets(
+      ledger([source('asset', 'https://example.com/asset.pdf')]),
+    )[0],
+    {
+      now,
+      sleep: async (ms) => waits.push(ms),
+      fetchImpl: async () => {
+        calls += 1;
+        if (calls === 1) {
+          throw new DOMException('timed out', 'TimeoutError');
+        }
+        if (calls === 2) {
+          throw new TypeError('fetch failed');
+        }
+        return new Response(null, {
+          status: 200,
+          headers: {'content-type': 'application/pdf'},
+        });
+      },
+    },
+  );
+  assert.equal(checked.last_attempt.outcome, 'healthy');
+  assert.equal(calls, 3);
+  assert.deepEqual(waits, [250, 250]);
+});
+
+test('retries bounded gateway failures and recovers after 502 and 504', async () => {
+  const waits = [];
+  let calls = 0;
+  const checked = await checkSourceLink(
+    buildLinkTargets(
+      ledger([source('asset', 'https://example.com/asset.pdf')]),
+    )[0],
+    {
+      now,
+      sleep: async (ms) => waits.push(ms),
+      fetchImpl: async () => {
+        calls += 1;
+        if (calls < 3) {
+          return new Response(null, {status: calls === 1 ? 502 : 504});
+        }
+        return new Response(null, {
+          status: 200,
+          headers: {'content-type': 'application/pdf'},
+        });
+      },
+    },
+  );
+  assert.equal(checked.last_attempt.outcome, 'healthy');
+  assert.equal(calls, 3);
+  assert.deepEqual(waits, [250, 250]);
+});
+
+test('does not retry a permanent HTTP 500 response', async () => {
+  const waits = [];
+  let calls = 0;
+  const checked = await checkSourceLink(
+    buildLinkTargets(
+      ledger([source('server', 'https://example.com/server')]),
+    )[0],
+    {
+      now,
+      sleep: async (ms) => waits.push(ms),
+      fetchImpl: async () => {
+        calls += 1;
+        return new Response(null, {status: 500});
+      },
+    },
+  );
+  assert.equal(checked.last_attempt.outcome, 'error');
+  assert.equal(checked.last_attempt.error, 'unexpected HTTP 500');
+  assert.equal(calls, 1);
+  assert.deepEqual(waits, []);
+});
+
+test('stops retrying transient timeouts after the bounded attempt limit', async () => {
+  const waits = [];
+  let calls = 0;
+  const checked = await checkSourceLink(
+    buildLinkTargets(
+      ledger([source('timeout', 'https://example.com/timeout')]),
+    )[0],
+    {
+      now,
+      sleep: async (ms) => waits.push(ms),
+      fetchImpl: async () => {
+        calls += 1;
+        throw new DOMException('timed out', 'TimeoutError');
+      },
+    },
+  );
+  assert.equal(checked.last_attempt.outcome, 'error');
+  assert.match(checked.last_attempt.error, /timed out/);
+  assert.equal(calls, 3);
+  assert.deepEqual(waits, [250, 250]);
+});
+
 test('detects a 200 HTML login wall instead of reporting healthy', async () => {
   const checked = await checkSourceLink(
     buildLinkTargets(

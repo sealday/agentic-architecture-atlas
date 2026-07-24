@@ -18,6 +18,8 @@ const reviewStatuses = new Set([
   'stale',
 ]);
 const redirectStatuses = new Set([301, 302, 303, 307, 308]);
+const transientResponseStatuses = new Set([429, 502, 503, 504]);
+const transientRetryDelayMs = 250;
 const userAgent = 'agentic-architecture-atlas-link-check/1';
 
 function transportLocator(locator) {
@@ -459,7 +461,7 @@ export function evaluateLinkHealthVerdict(
 
 function retryDelay(response, now) {
   const value = response.headers.get('retry-after');
-  if (!value) return 0;
+  if (!value) return transientRetryDelayMs;
   const seconds = Number(value);
   const milliseconds = Number.isFinite(seconds)
     ? seconds * 1000
@@ -467,25 +469,50 @@ function retryDelay(response, now) {
   return Math.min(5000, Math.max(0, milliseconds));
 }
 
+function isTransientRequestError(error) {
+  if (!(error instanceof Error)) return false;
+  if (error.name === 'TimeoutError' || error.name === 'AbortError') return true;
+  const cause =
+    error.cause instanceof Error ||
+    (typeof error.cause === 'object' && error.cause !== null)
+      ? error.cause
+      : null;
+  const detail = [
+    error.message,
+    cause?.message,
+    cause?.code,
+  ].filter(Boolean).join(' ');
+  return /fetch failed|network|timed? ?out|socket|econnreset|econnrefused|etimedout|eai_again/i.test(
+    detail,
+  );
+}
+
 async function requestWithRetries(url, method, options) {
   let response;
   for (let retry = 0; retry <= 2; retry += 1) {
-    response = await options.fetchImpl(url, {
-      method,
-      redirect: 'manual',
-      headers:
-        method === 'GET'
-          ? {'Range': 'bytes=0-65535', 'User-Agent': userAgent}
-          : {'User-Agent': userAgent},
-      signal: AbortSignal.timeout(options.timeoutMs),
-    });
-    if (
-      retry === 2 ||
-      (response.status !== 429 && response.status !== 503)
-    ) {
-      return response;
+    try {
+      response = await options.fetchImpl(url, {
+        method,
+        redirect: 'manual',
+        headers:
+          method === 'GET'
+            ? {'Range': 'bytes=0-65535', 'User-Agent': userAgent}
+            : {'User-Agent': userAgent},
+        signal: AbortSignal.timeout(options.timeoutMs),
+      });
+      if (
+        retry === 2 ||
+        !transientResponseStatuses.has(response.status)
+      ) {
+        return response;
+      }
+      await options.sleep(retryDelay(response, options.now));
+    } catch (error) {
+      if (retry === 2 || !isTransientRequestError(error)) {
+        throw error;
+      }
+      await options.sleep(transientRetryDelayMs);
     }
-    await options.sleep(retryDelay(response, options.now));
   }
   return response;
 }
