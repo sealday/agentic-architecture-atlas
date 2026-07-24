@@ -7,7 +7,11 @@ export type PatternGroup = {
   order: number;
 };
 
-export type PatternGroupView = PatternGroup & {topics: TopicIndexEntry[]};
+export type PatternTopicView = TopicIndexEntry & {
+  internalHref: string | null;
+};
+
+export type PatternGroupView = PatternGroup & {topics: PatternTopicView[]};
 
 export function selectPatternGroups(
   groups: PatternGroup[],
@@ -18,6 +22,11 @@ export function selectPatternGroups(
     .sort((left, right) => left.order - right.order)
     .map((group) => ({
       ...group,
-      topics: topics.filter((topic) => topic.pattern_group === group.id),
+      topics: topics
+        .filter((topic) => topic.pattern_group === group.id)
+        .map((topic) => ({
+          ...topic,
+          internalHref: topic.published ? topic.slug : null,
+        })),
     }));
 }

@@ -28,8 +28,8 @@ export default function PatternTopicIndex() {
               {group.topics.map((topic) => (
                 <li className={styles.topic} key={topic.id}>
                   <div className={styles.heading}>
-                    {topic.published ? (
-                      <Link to={topic.slug}>{topic.title}</Link>
+                    {topic.internalHref ? (
+                      <Link to={topic.internalHref}>{topic.title}</Link>
                     ) : (
                       <span>{topic.title}</span>
                     )}

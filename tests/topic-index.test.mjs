@@ -51,16 +51,38 @@ test('groups Pattern topics from generated registry order', async () => {
     {id: 'agent-control', label: 'Agent 控制与协作模式', description: 'Agent 模式', order: 60},
   ];
   const topics = [
-    {...topicFixture({id: 'REL-02', priority: 'P0'}), type: 'pattern', pattern_group: 'reliability'},
+    {
+      ...topicFixture({id: 'REL-01', priority: 'P0'}),
+      type: 'pattern',
+      slug: '/patterns/rel-01',
+      pattern_group: 'reliability',
+    },
+    {
+      ...topicFixture({id: 'REL-02', priority: 'P0', published: true}),
+      type: 'pattern',
+      slug: '/patterns/rel-02',
+      pattern_group: 'reliability',
+    },
   ];
+  const selected = selectPatternGroups(groups, topics);
   assert.deepEqual(
-    selectPatternGroups(groups, topics).map(({label, topics}) => [label, topics.length]),
+    selected.map(({label, topics}) => [label, topics.length]),
     [
       ['通用设计模式', 0],
       ['集成模式', 0],
-      ['可靠性与生产治理模式', 1],
+      ['可靠性与生产治理模式', 2],
       ['数据与一致性模式', 0],
       ['迁移模式', 0],
+    ],
+  );
+  const reliabilityTopics = selected.find(
+    ({id}) => id === 'reliability',
+  ).topics;
+  assert.deepEqual(
+    reliabilityTopics.map(({id, internalHref}) => [id, internalHref]),
+    [
+      ['REL-01', null],
+      ['REL-02', '/patterns/rel-02'],
     ],
   );
 });
@@ -156,21 +178,26 @@ test('canonical Pattern registry exactly matches every generated assignment and 
     ),
   );
 
-  const internalLinkTargets = new Set(
-    indexes.pattern
-      .filter(({published}) => published)
-      .map(({slug}) => slug),
+  const {selectPatternGroups} = await import(
+    '../src/components/PatternTopicIndex/patternTopicIndexModel.ts'
   );
-  const plannedTopics = indexes.pattern.filter(({published}) => !published);
-  assert.ok(plannedTopics.length > 0);
-  assert.deepEqual([...internalLinkTargets], ['/patterns/rel-02']);
-  for (const topic of plannedTopics) {
-    assert.equal(
-      internalLinkTargets.has(topic.slug),
-      false,
-      `planned Pattern topic ${topic.id} must not produce an internal link`,
-    );
-  }
+  const canonicalViews = selectPatternGroups(
+    generatedGroups.groups,
+    indexes.pattern,
+  ).flatMap(({topics}) => topics);
+  assert.equal(canonicalViews.length, 72);
+  assert.ok(canonicalViews.some(({published}) => !published));
+  assert.ok(
+    canonicalViews
+      .filter(({published}) => !published)
+      .every(({internalHref}) => internalHref === null),
+  );
+  assert.deepEqual(
+    canonicalViews
+      .filter(({published}) => published)
+      .map(({id, internalHref}) => [id, internalHref]),
+    [['REL-02', '/patterns/rel-02']],
+  );
 });
 
 test('connects all ten content type indexes', async () => {
@@ -267,19 +294,6 @@ test('renders published and planned topics without broken links', async () => {
   assert.match(component, /topic\.status\.scope === 'backlog-projection'/);
   assert.match(component, /内容状态：\$\{topic\.status\.value\}/);
 
-  const patternComponent = await source(
-    'src/components/PatternTopicIndex/index.tsx',
-  );
-  assert.match(patternComponent, /topic\.published \? \(/);
-  assert.match(
-    patternComponent,
-    /<Link to=\{topic\.slug\}>\{topic\.title\}<\/Link>/,
-  );
-  assert.match(patternComponent, /<span>\{topic\.title\}<\/span>/);
-  assert.doesNotMatch(
-    patternComponent,
-    /!topic\.published[\s\S]{0,160}<Link[^>]+topic\.slug/,
-  );
 });
 
 test('renders review dates and nullable priorities honestly', async () => {
