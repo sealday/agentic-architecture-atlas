@@ -30,7 +30,7 @@ const expectedTopics = new Map([
   [
     'FND-05',
     {
-      adjacent: ['MTH-03'],
+      adjacent: ['MTH-03', 'MTH-06'],
       contentType: 'concept',
       dependsOn: ['FND-04'],
       file: 'concepts/fnd-05-architecture-debt-evolutionary-design.mdx',
@@ -69,7 +69,7 @@ const expectedTopics = new Map([
   [
     'MTH-03',
     {
-      adjacent: ['FND-05', 'QA-01'],
+      adjacent: ['FND-05', 'MTH-04', 'QA-01'],
       contentType: 'method',
       dependsOn: ['QA-01'],
       file: 'methods/mth-03-adr-lifecycle.mdx',
