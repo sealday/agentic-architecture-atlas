@@ -358,6 +358,30 @@ test('rejects invalid published adjacency and related-question targets', () => {
   );
 });
 
+test('rejects a planned adjacency target that is not a knowledge topic', () => {
+  const result = buildTopicManifest({
+    backlogSource: backlog(topic('PR-01', 'P0'), topic('QST-01', 'P1')),
+    documents: [publishedQuestion('QST-01', '/questions/qst-01')],
+    primarySourcesByFile: primarySources([
+      'questions/qst-01.mdx',
+      ['https://example.com/qst-primary'],
+    ]),
+    relations: {
+      'PR-01': {
+        dependencies: [],
+        adjacent_topics: ['QST-01'],
+        related_cases: [],
+        related_questions: ['/questions/qst-01'],
+      },
+    },
+  });
+
+  assert.match(
+    result.errors.join('\n'),
+    /adjacent topic "QST-01" for "PR-01" is not a knowledge topic/,
+  );
+});
+
 test('projects only validated ledger sources into the manifest', () => {
   const result = buildTopicManifest({
     backlogSource: topic('FND-01', 'P0', '计划标题'),

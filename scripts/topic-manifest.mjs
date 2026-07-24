@@ -532,10 +532,13 @@ export function buildTopicManifest({
         errors.push(`${source}: topic "${topic.id}" cannot be adjacent to itself`);
         continue;
       }
-      if (
-        topic.published &&
-        (!adjacentTopic.published || !knowledgeTopicTypes.has(adjacentTopic.type))
-      ) {
+      if (!knowledgeTopicTypes.has(adjacentTopic.type)) {
+        errors.push(
+          `${source}: adjacent topic "${adjacentTopicId}" for "${topic.id}" is not a knowledge topic`,
+        );
+        continue;
+      }
+      if (topic.published && !adjacentTopic.published) {
         errors.push(
           `${source}: adjacent topic "${adjacentTopicId}" for "${topic.id}" is not a published knowledge topic`,
         );
