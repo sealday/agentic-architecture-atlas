@@ -33,6 +33,8 @@ Before any release gate, define this helper in the leader shell. Every implement
 an immediate one-shot `gh run list` result is never trusted.
 
 ```bash
+set -euo pipefail
+
 wait_for_pages_run() {
   local expected_sha="$1"
   local run_json=""
@@ -66,6 +68,24 @@ fetch_and_assert_text() {
     --output "$SMOKE_FILE"
   test -s "$SMOKE_FILE"
   rg -F -- "$expected_text" "$SMOKE_FILE" >/dev/null
+}
+
+assert_six_fixture_pages() {
+  fetch_and_assert_text principles/pr-01 "信息隐藏与封装"
+  fetch_and_assert_text patterns/rel-02 "Retry、Exponential Backoff 与 Jitter"
+  fetch_and_assert_text styles/sty-00 "架构风格比较框架"
+  fetch_and_assert_text methods/mth-03 "ADR 生命周期"
+  fetch_and_assert_text modeling/mod-02 "C4 Context 与 Container"
+  fetch_and_assert_text quality-attributes/qa-01 "质量属性场景写法"
+  for file in \
+    /tmp/g004-smoke-principles-pr-01.html \
+    /tmp/g004-smoke-patterns-rel-02.html \
+    /tmp/g004-smoke-styles-sty-00.html \
+    /tmp/g004-smoke-methods-mth-03.html \
+    /tmp/g004-smoke-modeling-mod-02.html \
+    /tmp/g004-smoke-quality-attributes-qa-01.html; do
+    rg -F -- "学习问题" "$file" >/dev/null
+  done
 }
 ```
 
@@ -1079,6 +1099,7 @@ Expected: no new commit and no push.
 - [ ] Push the verified Unit A commits:
 
 ```bash
+set -euo pipefail
 git push origin main
 ```
 
@@ -1087,6 +1108,7 @@ Expected: the remote `main` advances to the Unit A head. No implementation worke
 - [ ] Find and watch the Pages workflow:
 
 ```bash
+set -euo pipefail
 UNIT_HEAD=$(git rev-parse HEAD)
 wait_for_pages_run "$UNIT_HEAD"
 ```
@@ -1096,31 +1118,23 @@ Expected: the bounded helper proves the watched run's `headSha` equals `UNIT_HEA
 - [ ] Smoke the six production routes:
 
 ```bash
-for route in \
-  principles/pr-01 patterns/rel-02 styles/sty-00 methods/mth-03 \
-  modeling/mod-02 quality-attributes/qa-01; do
-  curl --fail --silent --show-error \
-    "https://sealday.github.io/agentic-architecture-atlas/$route" >/dev/null
-done
+set -euo pipefail
+assert_six_fixture_pages
 ```
 
-Expected: all six requests exit 0.
+Expected: all six responses are saved; each contains its page title and `学习问题`.
 
 - [ ] Update only the E0-04 backlog line with the deployed implementation commit and Pages run URL. Do not check
 `PR-01`, `REL-02`, `STY-00`, `MTH-03`, `MOD-02`, or `QA-01` merely because they are fixtures.
 
 ```bash
+set -euo pipefail
 git add docs/content-backlog.md
 git commit -m "docs: record e0-04 deployment"
 git push origin main
 METADATA_HEAD=$(git rev-parse HEAD)
 wait_for_pages_run "$METADATA_HEAD"
-for route in \
-  principles/pr-01 patterns/rel-02 styles/sty-00 methods/mth-03 \
-  modeling/mod-02 quality-attributes/qa-01; do
-  curl --fail --silent --show-error \
-    "https://sealday.github.io/agentic-architecture-atlas/$route" >/dev/null
-done
+assert_six_fixture_pages
 ```
 
 Expected: the metadata commit changes only `docs/content-backlog.md`; its own matching Pages run completes and the
@@ -1178,6 +1192,27 @@ const validRegistry = {
       topic_ids: ['DDD-01'],
     },
     {
+      id: 'integration',
+      label: '集成模式',
+      description: '跨边界协作模式。',
+      order: 20,
+      topic_ids: ['PAT-IN-01'],
+    },
+    {
+      id: 'reliability',
+      label: '可靠性与生产治理模式',
+      description: '恢复与隔离模式。',
+      order: 30,
+      topic_ids: ['REL-01'],
+    },
+    {
+      id: 'data',
+      label: '数据与一致性模式',
+      description: '一致性协作模式。',
+      order: 40,
+      topic_ids: ['PAT-DC-01'],
+    },
+    {
       id: 'migration',
       label: '迁移模式',
       description: '渐进替换模式。',
@@ -1196,6 +1231,9 @@ const validRegistry = {
 
 const topics = [
   {id: 'DDD-01', type: 'pattern'},
+  {id: 'PAT-IN-01', type: 'pattern'},
+  {id: 'REL-01', type: 'pattern'},
+  {id: 'PAT-DC-01', type: 'pattern'},
   {id: 'PAT-MIG-01', type: 'pattern'},
   {id: 'FND-01', type: 'concept'},
 ];
@@ -1206,6 +1244,9 @@ test('parses exact Pattern groups and assigns each Pattern topic once', () => {
   assert.equal(result.groupByTopicId.get('DDD-01'), 'general-design');
   assert.deepEqual(result.registry.groups.map(({id}) => id), [
     'general-design',
+    'integration',
+    'reliability',
+    'data',
     'migration',
     'agent-control',
   ]);
@@ -1587,8 +1628,24 @@ test('Pattern page renders five common groups plus one Agent wrapper', async () 
     fileURLToPath(new URL('../content/patterns/index.mdx', import.meta.url)),
     'utf8',
   );
-  assert.match(source, /<PatternTopicIndex \\/>/);
-  assert.match(source, /## Agent 控制与协作模式/);
+  const lines = source.split('\n');
+  assert.equal(source.includes('<PatternTopicIndex />'), true);
+  assert.equal(lines.includes('## Agent 控制与协作模式'), true);
+  const agentHeadings = [
+    'Router',
+    'Supervisor',
+    'Agents as Tools',
+    'Handoff',
+    'Fan-out / Fan-in',
+    'Evaluator-Optimizer',
+    'Hierarchical Teams',
+    'A2A',
+    'MCP',
+  ];
+  for (const heading of agentHeadings) {
+    assert.equal(lines.includes(`### ${heading}`), true, heading);
+    assert.equal(lines.includes(`## ${heading}`), false, heading);
+  }
 });
 ```
 
@@ -1724,9 +1781,11 @@ Immediately after `<PatternTopicIndex />`, add the explicit wrapper heading:
 ## Agent 控制与协作模式
 ```
 
-Keep every existing Agent control heading and paragraph under that wrapper. The Agent material must not be emitted
+Change the nine existing Agent headings from H2 to H3—`Router`, `Supervisor`, `Agents as Tools`, `Handoff`,
+`Fan-out / Fan-in`, `Evaluator-Optimizer`, `Hierarchical Teams`, `A2A`, and `MCP`—and keep every paragraph under
+that wrapper. The Agent material must not be emitted
 by `selectPatternGroups`, but the built `/patterns` page and tests must contain all five common registry labels plus
-this sixth wrapper title.
+this sixth wrapper title, with exactly those nine subsections beneath it.
 
 - [ ] **Step 5: Generate and run navigation regressions**
 
@@ -1774,6 +1833,7 @@ Expected: all commands pass and the worktree is clean.
 - [ ] Push, watch Pages, and smoke the stable routes:
 
 ```bash
+set -euo pipefail
 git push origin main
 UNIT_HEAD=$(git rev-parse HEAD)
 wait_for_pages_run "$UNIT_HEAD"
@@ -1790,6 +1850,7 @@ Expected: Pages concludes `success`; saved HTML proves all six group headings an
 - [ ] Update only E0-06 deployment metadata and push that leader-owned commit:
 
 ```bash
+set -euo pipefail
 git add docs/content-backlog.md
 git commit -m "docs: record e0-06 deployment"
 git push origin main
@@ -2229,6 +2290,7 @@ Expected: the matching Pages run concludes `success`.
 - [ ] Smoke the catalog and three gateway cases:
 
 ```bash
+set -euo pipefail
 fetch_and_assert_text cases "Agent 平台与模型网关"
 fetch_and_assert_text cases/new-api-channel-pool-routing "New API"
 fetch_and_assert_text cases/litellm-virtual-keys-governance "LiteLLM"
@@ -2240,6 +2302,7 @@ Expected: all four saved responses are non-empty and contain the catalog/group o
 - [ ] Update E0-07 deployment metadata in a leader-only commit and push it:
 
 ```bash
+set -euo pipefail
 git add docs/content-backlog.md
 git commit -m "docs: record e0-07 deployment"
 git push origin main
@@ -2776,29 +2839,25 @@ Expected: PASS and a clean worktree.
 - [ ] Push, wait for Pages, and smoke one page from each knowledge contract:
 
 ```bash
+set -euo pipefail
 git push origin main
 UNIT_HEAD=$(git rev-parse HEAD)
 wait_for_pages_run "$UNIT_HEAD"
-for route in \
-  principles/pr-01 patterns/rel-02 styles/sty-00 methods/mth-03 \
-  modeling/mod-02 quality-attributes/qa-01; do
-  curl --fail --silent --show-error \
-    "https://sealday.github.io/agentic-architecture-atlas/$route" >/dev/null
-done
+assert_six_fixture_pages
 ```
 
-Expected: Pages concludes `success` and all routes return success.
+Expected: Pages concludes `success`; all six saved responses contain their title and `学习问题`.
 
 - [ ] Update E0-13 deployment metadata and push:
 
 ```bash
+set -euo pipefail
 git add docs/content-backlog.md
 git commit -m "docs: record e0-13 deployment"
 git push origin main
 METADATA_HEAD=$(git rev-parse HEAD)
 wait_for_pages_run "$METADATA_HEAD"
-curl --fail --silent --show-error \
-  https://sealday.github.io/agentic-architecture-atlas/principles/pr-01 >/dev/null
+assert_six_fixture_pages
 ```
 
 Expected: only backlog metadata changes; the metadata run and repeated smoke pass. Add Unit D evidence to the running G004 summary; do not perform an
@@ -3492,6 +3551,7 @@ Expected: the bounded helper matches `UNIT_HEAD` and Pages concludes `success`.
 - [ ] Smoke public routes and manually dispatch the monthly workflow:
 
 ```bash
+set -euo pipefail
 fetch_and_assert_text patterns "Agent 控制与协作模式"
 fetch_and_assert_text cases "Agent 平台与模型网关"
 fetch_and_assert_text references "资料库"
@@ -3509,6 +3569,7 @@ Expected: every response is saved and contains its index, group, or fixture titl
 - [ ] Dispatch, identify, wait for, and inspect the monthly workflow:
 
 ```bash
+set -euo pipefail
 DISPATCH_SHA=$(git rev-parse HEAD)
 DISPATCHED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 gh workflow run link-health.yml --ref main
@@ -3544,6 +3605,7 @@ artifacts exist and are non-empty; content-review counts/gates validate.
 - [ ] Update E0-14 deployment metadata and the G004 publication baseline:
 
 ```bash
+set -euo pipefail
 git add docs/content-backlog.md
 git commit -m "docs: record e0-14 and g004 deployment"
 git push origin main
