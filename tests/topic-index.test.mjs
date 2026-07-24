@@ -200,6 +200,39 @@ test('canonical Pattern registry exactly matches every generated assignment and 
   );
 });
 
+test('Pattern component consumes only internalHref for its title link boundary', async () => {
+  const component = await source(
+    'src/components/PatternTopicIndex/index.tsx',
+  );
+  const decisionStart = component.indexOf('{topic.internalHref ? (');
+  const decisionEnd = component.indexOf(
+    '{topic.priority && (',
+    decisionStart,
+  );
+  assert.notEqual(decisionStart, -1);
+  assert.notEqual(decisionEnd, -1);
+
+  const normalizedDecision = component
+    .slice(decisionStart, decisionEnd)
+    .replace(/\s+/g, ' ')
+    .trim();
+  assert.equal(
+    normalizedDecision,
+    '{topic.internalHref ? ( <Link to={topic.internalHref}>{topic.title}</Link> ) : ( <span>{topic.title}</span> )}',
+  );
+  assert.equal(
+    component.match(/topic\.internalHref/g)?.length,
+    2,
+    'the title condition and Link target must consume the same view-model field',
+  );
+  assert.equal(component.includes('topic.slug'), false);
+  assert.equal(
+    component.includes('{topic.published ? ('),
+    false,
+    'published status must not decide whether the title is linked',
+  );
+});
+
 test('connects all ten content type indexes', async () => {
   const indexPages = new Map([
     ['content/concepts/index.mdx', {slug: '/concepts', type: 'concept'}],
