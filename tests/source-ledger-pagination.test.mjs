@@ -75,6 +75,9 @@ async function readBuiltRoute(route) {
 function sourceArticles(html) {
   return [...html.matchAll(/<article\b[^>]*>[\s\S]*?<\/article>/g)].map(
     ([article]) => article,
+  ).filter((article) =>
+    attributeValue(article.match(/^<article\b[^>]*>/)[0], 'id')
+      ?.startsWith('src-'),
   );
 }
 
@@ -87,10 +90,17 @@ function assertCompleteSourceCards(articles, route) {
   }
 }
 
-function hrefs(html) {
-  return [...html.matchAll(/<a\b[^>]*\bhref="([^"]+)"/g)].map(
-    ([, href]) => href,
+function attributeValue(tag, name) {
+  const match = tag.match(
+    new RegExp(`${name}=(?:"([^"]+)"|'([^']+)'|([^\\s>]+))`),
   );
+  return match?.[1] ?? match?.[2] ?? match?.[3] ?? null;
+}
+
+function hrefs(html) {
+  return [...html.matchAll(/<a\b[^>]*>/g)]
+    .map(([anchor]) => attributeValue(anchor, 'href'))
+    .filter((href) => href !== null);
 }
 
 function routeFromBaseHref(href) {
