@@ -12,6 +12,8 @@ const pluginUrl = new URL(
   '../plugins/source-ledger-pages/index.mjs',
   import.meta.url,
 );
+const sourceLedgerCardsModule =
+  'src/components/SourceLedger/SourceLedgerCards.tsx';
 const tierCounts = new Map([
   ['primary', 339],
   ['first-party', 22],
@@ -31,6 +33,17 @@ async function source(relativePath) {
 
 async function generatedLedger() {
   return JSON.parse(await source('src/generated/source-ledger.json'));
+}
+
+async function requiredSource(relativePath, label) {
+  try {
+    return await source(relativePath);
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      assert.fail(`Missing ${label}: ${relativePath}`);
+    }
+    throw error;
+  }
 }
 
 async function importPaginationPlugin() {
@@ -132,6 +145,40 @@ function ensureProductionBuild() {
     );
   });
   return productionBuildPromise;
+}
+
+async function builtRouteComponentChunk(route) {
+  await ensureProductionBuild();
+  const routeChunks = JSON.parse(
+    await source('.docusaurus/routesChunkNames.json'),
+  );
+  const basePath = baseUrl.replace(/\/+$/, '');
+  const routePrefixes = [`${basePath}${route}-`, `${route}-`];
+  const routeEntry = Object.entries(routeChunks).find(([key]) =>
+    routePrefixes.some((prefix) => key.startsWith(prefix)),
+  );
+  assert.ok(routeEntry, `Missing route chunk metadata for ${route}`);
+
+  const componentChunkId = routeEntry[1].__comp;
+  assert.equal(
+    typeof componentChunkId,
+    'string',
+    `${route} has no component chunk`,
+  );
+  const assetDirectory = path.join(rootPath, 'build/assets/js');
+  const matches = (await readdir(assetDirectory)).filter((file) =>
+    file.startsWith(`${componentChunkId}.`) && file.endsWith('.js'),
+  );
+  assert.equal(
+    matches.length,
+    1,
+    `${route} component chunk must resolve to exactly one JS asset`,
+  );
+  const file = path.join(assetDirectory, matches[0]);
+  return {
+    content: await readFile(file, 'utf8'),
+    file,
+  };
 }
 
 async function listSourceFiles(directory) {
@@ -280,6 +327,84 @@ test('mounts static pages under baseUrl without prefixing serialized Link routes
 
   const config = await source('docusaurus.config.ts');
   assert.match(config, /plugins\/source-ledger-pages/u);
+});
+
+test('keeps SourceLedgerCards presentation-only without ledger data imports', async () => {
+  const cards = await requiredSource(
+    sourceLedgerCardsModule,
+    'presentation-only SourceLedgerCards module',
+  );
+  const imports = [...cards.matchAll(
+    /(?:\bfrom\s+|^\s*import\s+)['"]([^'"]+)['"]/gmu,
+  )].map(([, specifier]) => specifier);
+
+  assert.doesNotMatch(
+    imports.join('\n'),
+    /generated\/source-ledger|source-ledger-pages|useGlobalData|usePluginData/u,
+  );
+});
+
+test('imports paginated cards from the presentation-only module', async () => {
+  const page = await source('plugins/source-ledger-pages/SourceLedgerPage.tsx');
+  assert.match(
+    page,
+    /import\s*\{\s*SourceLedgerCards\s*,?\s*\}\s*from\s*['"][^'"]*\/SourceLedgerCards['"]/su,
+  );
+  assert.doesNotMatch(
+    page,
+    /import\s*\{\s*SourceLedgerCards\s*,?\s*\}\s*from\s*['"][^'"]*\/SourceLedger['"]/su,
+  );
+});
+
+test('renders the overview only from plugin tier index data', async () => {
+  const overview = await source('src/components/SourceLedger/index.tsx');
+  assert.match(
+    overview,
+    /usePluginData\s*\(\s*['"]source-ledger-pages['"]\s*,?\s*\)/su,
+  );
+  assert.doesNotMatch(
+    overview,
+    /generated\/source-ledger|buildSourceLedgerSections|canonicalSections|pluginData\??\.tiers\s*\?\?/u,
+  );
+});
+
+test('keeps the paginated route component chunk isolated from the full ledger', async () => {
+  const route = '/references/primary';
+  const outsidePageId = 'src-adk-0d337be13a90';
+  const [chunk, ledger, pluginModule] = await Promise.all([
+    builtRouteComponentChunk(route),
+    generatedLedger(),
+    importPaginationPlugin(),
+  ]);
+  const page = pluginModule
+    .buildSourceLedgerPages(ledger)
+    .find(({route: pageRoute}) => pageRoute === route);
+  assert.ok(page, `Missing canonical page data for ${route}`);
+  assert.ok(
+    ledger.sources.some(({id}) => id === outsidePageId),
+    `${outsidePageId} must remain a known canonical source`,
+  );
+  assert.ok(
+    page.sources.every(({id}) => id !== outsidePageId),
+    `${outsidePageId} must remain outside ${route}`,
+  );
+
+  assert.equal(
+    chunk.content.includes(outsidePageId),
+    false,
+    `${route} component chunk includes a source from another page`,
+  );
+  const embeddedIds = ledger.sources.filter(({id}) =>
+    chunk.content.includes(id),
+  );
+  assert.ok(
+    embeddedIds.length < ledger.sources.length,
+    `${route} component chunk embeds the complete ${ledger.sources.length}-source ledger`,
+  );
+  assert.ok(
+    Buffer.byteLength(chunk.content) <= 250_000,
+    `${route} component chunk exceeds 250 KB: ${chunk.file}`,
+  );
 });
 
 test('renders a card-free overview linked to every tier with baseUrl', async () => {
