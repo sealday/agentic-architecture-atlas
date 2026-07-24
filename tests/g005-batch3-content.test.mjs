@@ -273,17 +273,28 @@ test('distinguishes fitness tests metrics and monitors from SLOs and release gat
   );
 });
 
-test('compares five risk methods across all six decision dimensions', () => {
+test('compares five risk methods by execution mode and evidence level', () => {
   const body = requiredDocument('MTH-05').body;
   const lines = body.split(/\r?\n/);
   const headerIndex = lines.findIndex(
     (line) =>
       /^\s*\|.*\|\s*$/.test(line) &&
-      ['对象', '时机', '参与者', '产物', '故障', '非使用'].every((term) =>
-        line.includes(term),
-      ),
+      [
+        '对象',
+        '时机',
+        '参与者',
+        '产物',
+        '故障',
+        '非使用',
+        '执行方式',
+        '证据等级',
+      ].every((term) => line.includes(term)),
   );
-  assert.notEqual(headerIndex, -1, 'MTH-05 must provide the six-column matrix');
+  assert.notEqual(
+    headerIndex,
+    -1,
+    'MTH-05 must add execution mode and evidence level to the matrix',
+  );
   const tableEnd = lines.findIndex(
     (line, index) =>
       index > headerIndex && !/^\s*\|.*\|\s*$/.test(line),
@@ -293,6 +304,54 @@ test('compares five risk methods across all six decision dimensions', () => {
     tableEnd === -1 ? lines.length : tableEnd,
   );
   assert.equal(tableLines.length - 2, 5, 'MTH-05 matrix must compare five methods');
+  const rows = tableLines.slice(2).map((line) =>
+    line
+      .replace(/^\s*\||\|\s*$/gu, '')
+      .split('|')
+      .map((cell) => cell.trim()),
+  );
+  const rowByMethod = new Map(rows.map((row) => [row[0], row]));
+
+  for (const method of ['风险风暴', '事前验尸']) {
+    assert.match(rowByMethod.get(method)?.join(' ') ?? '', /想象故障/u, method);
+  }
+  for (const method of ['威胁建模', 'ATAM']) {
+    assert.match(rowByMethod.get(method)?.join(' ') ?? '', /模型分析/u, method);
+  }
+  assert.match(
+    rowByMethod.get('GameDay')?.join(' ') ?? '',
+    /实际演练观测/u,
+    'GameDay',
+  );
+  assert.match(
+    body,
+    /GameDay.{0,100}(?:观测|演练证据).{0,80}(?:不等于|不能证明|不是).{0,40}生产保证/isu,
+    'GameDay observations must not be described as a production guarantee',
+  );
+});
+
+test('states the OWASP process boundary and visibly governs SEI ATAM in MTH-05', () => {
+  const document = requiredDocument('MTH-05');
+  const body = extractMarkdownBody(document.source);
+  assert.match(
+    body,
+    /OWASP.{0,160}(?:没有|不存在|不提供).{0,40}(?:统一|普遍).{0,40}行业标准.{0,30}流程/isu,
+    'MTH-05 must state that OWASP does not define one universal industry-standard process',
+  );
+
+  const seiAtamUrl =
+    'https://www.sei.cmu.edu/library/the-architecture-tradeoff-analysis-method/';
+  assert.ok(
+    extractExternalLinks(document).includes(seiAtamUrl),
+    'MTH-05 must visibly cite SEI ATAM',
+  );
+  assert.ok(
+    requiredLedgerDocument('MTH-05').citations.some(
+      ({citation_url: url, source_id: sourceId}) =>
+        url === seiAtamUrl && sourceId === 'src-sei-atam-1998',
+    ),
+    'MTH-05 must govern the visible SEI ATAM citation',
+  );
 });
 
 test('marks exactly three Atlas synthesis points and preserves feedback ordering', () => {
@@ -304,6 +363,66 @@ test('marks exactly three Atlas synthesis points and preserves feedback ordering
   );
   assert.match(body, /反馈/u);
   assert.match(body, /可变序|顺序.{0,20}(?:可变|调整)|(?:可变|调整).{0,20}顺序/su);
+});
+
+test('bounds C4 and arc42 as representation tools with governed citations in MTH-06', () => {
+  const document = requiredDocument('MTH-06');
+  const body = extractMarkdownBody(document.source);
+  assert.match(
+    body,
+    /C4.{0,100}(?:表示|视图).{0,180}arc42.{0,100}(?:文档组织|组织文档)|arc42.{0,100}(?:文档组织|组织文档).{0,180}C4.{0,100}(?:表示|视图)/isu,
+    'MTH-06 must describe C4 as representation and arc42 as document organization',
+  );
+  assert.match(
+    body,
+    /(?:C4|arc42).{0,220}(?:不替代|不能替代|不是).{0,180}QAW.{0,80}ATAM.{0,80}ADR.{0,80}(?:fitness|适应度函数)/isu,
+    'MTH-06 must not let C4 or arc42 replace architecture methods',
+  );
+
+  const requiredSources = new Map([
+    ['src-c4model-f5342a5e8659', 'https://c4model.com/'],
+    ['src-arc42-8b346f00707f', 'https://arc42.org/'],
+  ]);
+  const governed = requiredLedgerDocument('MTH-06');
+  const visible = new Set(extractExternalLinks(document));
+  for (const [sourceId, url] of requiredSources) {
+    assert.ok(visible.has(url), `MTH-06 must visibly cite ${url}`);
+    assert.ok(
+      governed.citations.some(
+        ({citation_url: citationUrl, source_id: citationSourceId}) =>
+          citationSourceId === sourceId && citationUrl === url,
+      ),
+      `MTH-06 must govern ${sourceId}`,
+    );
+  }
+});
+
+test('selects exactly one manifest-primary citation for MTH-05 and MTH-06', () => {
+  for (const id of ['MTH-05', 'MTH-06']) {
+    assert.equal(
+      requiredLedgerDocument(id).citations.filter(
+        ({manifest_primary: manifestPrimary}) => manifestPrimary === true,
+      ).length,
+      1,
+      `${id} must select exactly one manifest primary`,
+    );
+  }
+});
+
+test('uses the official AWS Site Terms as GameDay license evidence', () => {
+  const awsGameDay = sourcesById.get('src-docs-930fe7f32f90');
+  assert.ok(awsGameDay, 'Missing governed AWS GameDay source');
+  assert.equal(awsGameDay.license_evidence_url, 'https://aws.amazon.com/terms/');
+  assert.match(
+    awsGameDay.license_evidence_note,
+    /AWS Site Terms/iu,
+    'AWS license note must identify the Site Terms',
+  );
+  assert.match(
+    awsGameDay.license_evidence_note,
+    /(?:no reusable license|does not grant|未授予|未发现可复用许可).{0,120}(?:facts|事实摘要)/isu,
+    'AWS license note must retain the conservative facts-summary boundary',
+  );
 });
 
 test('links the learning path to MTH-06 while retaining the QA-00 gap', async () => {
