@@ -22,30 +22,30 @@
   list-style: none;
 }
 
-.card {
+.grid > li > article {
   border: 1px solid var(--atlas-line);
   border-radius: 3px;
   background: var(--atlas-paper-muted);
   padding: 1rem;
 }
 
-.card h4 {
+.grid > li > article h4 {
   margin-bottom: 1rem;
 }
 
-.metadata {
+.grid > li > article dl {
   display: grid;
   grid-template-columns: minmax(7.5rem, auto) minmax(0, 1fr);
   gap: 0.5rem 0.75rem;
   margin: 0;
 }
 
-.metadata dt {
+.grid > li > article dt {
   color: var(--atlas-ink-soft);
   font-weight: 650;
 }
 
-.metadata dd {
+.grid > li > article dd {
   min-width: 0;
   margin: 0;
   overflow-wrap: anywhere;

@@ -1,0 +1,99 @@
+---
+title: 架构驱动力与 ASR
+slug: /concepts/fnd-02
+content_type: concept
+status: reviewed
+difficulty: beginner
+analyzed_at: 2026-07-24
+source_cutoff: 2026-07-24
+review_policy: quarterly-version-sensitive
+confidence: high
+domains:
+  - software-architecture
+agent_patterns: []
+protocols: []
+quality_attributes:
+  - reliability
+  - performance
+  - security
+tags:
+  - 架构驱动力
+  - ASR
+  - 质量属性场景
+summary: 从业务目标、质量属性、约束和关键功能中筛出真正塑造架构的需求。
+topic_id: FND-02
+priority: P0
+depends_on:
+  - FND-01
+adjacent_topics:
+  - FND-01
+related_cases:
+  - /cases/aws-cell-shuffle-sharding
+related_questions: []
+---
+
+# 架构驱动力与 ASR
+
+需求很多，不等于架构驱动力很多。只有会改变关键结构、接口、数据、部署或运行策略的目标与约束，才值得在早期架构讨论中获得优先位置。
+
+本文把 ASR 作为“architecturally significant requirement”的工作术语，而不是由某个质量模型给出的唯一正式定义。[概念目录](/concepts)提供术语入口，[架构思维与表达路径](/paths/architecture-thinking)给出学习位置。
+
+## 学习问题
+
+- 业务目标、硬约束、质量属性和关键功能如何成为架构驱动力？
+- 什么证据足以把一条需求标记为 ASR？
+- QAW 的发现工作与 ATAM 的下游评估为何不能互换？
+- 何时不应把普通需求升级为 ASR？
+
+## 定义与尺度边界
+
+架构驱动力是会显著影响架构选择的目标、需求、约束或风险。ASR 是其中以需求形式表达、若处理错误会迫使架构重做或使关键目标失败的一部分；它可以是可测质量属性场景、不可违反的技术/法规约束，也可以是迫使系统采用特定交互或状态模型的关键功能。
+
+[NASA NPR 7150.2D 第 4 章](https://nodis3.gsfc.nasa.gov/npg_img/N_PR_7150_002D_/N_PR_7150_002D__Chapter4.pdf)把软件需求、架构设计和架构评审联系起来。NASA 的治理语境支持“驱动力需要进入可评审架构”这一关系，但不提供适用于所有团队的 ASR 排名公式。
+
+尺度边界在“是否改变架构”而非“措辞是否带非功能性”。颜色、报表字段或局部校验通常不是 ASR；跨区域恢复时间、法定数据驻留、不可重复扣款或必须兼容既有主机协议，往往会改变结构。反之，“高性能”“安全可靠”没有刺激、环境与度量，只是候选关注点，尚不能直接驱动选择。
+
+## 核心机制
+
+先从业务或任务目标追问失败损失，再收集关键功能、质量属性、硬约束和已知风险。对每个候选项提出三个筛选问题：它会排除哪些架构方案？若推迟处理，返工或失败代价是什么？用什么场景或约束可以验证？回答不具体的条目退回需求澄清，而不是贴上 ASR 标签。
+
+[SEI QAW 第三版](https://www.sei.cmu.edu/library/quality-attribute-workshops-qaws-third-edition/)把 QAW 定位为架构形成前的发现方法。多类利益相关者共同提出并排序关键质量属性场景。QAW 的产出是更清楚的驱动力，不是已经通过评估的架构。
+
+当候选架构已经存在，[SEI ATAM](https://www.sei.cmu.edu/library/the-architecture-tradeoff-analysis-method/)才用于相对质量属性目标评估架构。它识别风险、敏感点和权衡点。ATAM 是下游评估，不应倒置成“先选架构，再用评估会议发明需求”。
+
+本站原创筛选表用于把发现、决定和验证分开：
+
+| 候选输入 | 追问 | 可接受证据 | 处理结果 |
+| --- | --- | --- | --- |
+| 业务/任务目标 | 失败造成什么损失 | 责任人、损失或承诺边界 | 派生场景与优先级 |
+| 质量属性 | 谁在何种环境触发什么 | 刺激、响应与度量 | 候选 ASR |
+| 硬约束 | 哪些方案被直接排除 | 法规、合同、平台或时间边界 | 记录为不可违反约束 |
+| 关键功能 | 是否迫使特殊状态或协作 | 端到端流程和状态所有权 | 仅在塑造结构时列为 ASR |
+
+## 常见混淆
+
+ASR 不等于“所有非功能需求”。有些功能需求会塑造架构，有些质量目标并未具体到可行动；分类标签不能替代显著性判断。本文也不使用 ISO/IEC 25010 作为 ASR 定义：质量模型可以帮助发现词汇，却不告诉团队哪一条要求在当前业务中具有架构显著性。
+
+QAW 与 ATAM 也不等价。前者偏向架构形成前的利益相关者发现与场景精炼，后者面向已有架构的质量目标评估。把两者混用会产生失败模式：团队把未经验证的方案写进“需求”，评估时只能证明自己的预设。
+
+非使用条件是：局部、低成本、可独立回退且不改变共享契约的需求，不应进入 ASR 清单。若监管或合同已经规定正式的需求分级，团队应保留其分类，不可用 ASR 标签覆盖法定追踪关系。
+
+## 说明性场景
+
+一个订单平台收到“支持促销峰值”的要求。工作坊追问后得到：营销活动开始后五分钟内可能出现平时十倍请求；已确认订单不可丢失；下游支付限流时允许排队，但十五分钟内必须恢复正常积压。场景和阈值来自业务承诺后，吞吐、持久化和恢复要求才成为候选 ASR。
+
+团队据此比较共享队列与分区队列，并记录支付副作用核对边界。若已有架构，再用 ATAM 式问题检查分区数、积压监控和故障隔离如何影响性能与可靠性。失败时不能把“用了队列”当作需求已满足；没有演练数据，结论仍是待验证。该场景为原创推演。
+
+## 相邻主题
+
+本文依赖[架构与设计的尺度](/concepts/fnd-01)：只有先明确影响范围，才能判断显著性。完成后可返回[架构思维与表达路径](/paths/architecture-thinking)继续学习分类与表达。
+
+[AWS Cell 与 Shuffle Sharding 案例](/cases/aws-cell-shuffle-sharding)展示隔离策略如何响应明确的可靠性驱动力；它不是所有 ASR 的默认答案。
+
+## 来源
+
+- [NASA NPR 7150.2D — Chapter 4](https://nodis3.gsfc.nasa.gov/npg_img/N_PR_7150_002D_/N_PR_7150_002D__Chapter4.pdf)：用于需求、架构设计与架构评审的关系。
+- [SEI Quality Attribute Workshops, Third Edition](https://www.sei.cmu.edu/library/quality-attribute-workshops-qaws-third-edition/)：用于架构形成前发现和精炼关键质量属性场景。
+- [SEI — The Architecture Tradeoff Analysis Method](https://www.sei.cmu.edu/library/the-architecture-tradeoff-analysis-method/)：用于已有架构相对质量目标的下游评估边界。
+
+筛选表、ASR 工作定义和场景是本站原创归纳。来源支持方法边界，不提供一套跨组织通用的 ASR 判定公式。

@@ -34,7 +34,7 @@ export default function SourceLedger({tier}: SourceLedgerProps) {
             <ul className={styles.grid}>
               {section.sources.map((source) => (
                 <li key={source.id}>
-                  <article className={styles.card}>
+                  <article>
                     <h4>
                       {source.externalHref ? (
                         <a href={source.externalHref}>{source.title}</a>
@@ -42,7 +42,7 @@ export default function SourceLedger({tier}: SourceLedgerProps) {
                         source.title
                       )}
                     </h4>
-                    <dl className={styles.metadata}>
+                    <dl>
                       <dt>作者或机构</dt>
                       <dd>{source.authorOrOrg}</dd>
                       <dt>来源层级</dt>

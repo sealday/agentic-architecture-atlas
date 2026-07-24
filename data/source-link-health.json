@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-07-24T04:56:29.958Z",
+  "generated_at": "2026-07-24T09:42:39.424Z",
   "results": [
     {
       "transport_locator": "https://a2a-protocol.org/latest/",
@@ -1276,6 +1276,65 @@
           "at": "2026-07-24T04:38:11.714Z",
           "outcome": "healthy",
           "final_transport_locator": "https://c4model.com/",
+          "http_status": 200,
+          "login_wall_detected": false
+        }
+      ],
+      "review_status": "healthy"
+    },
+    {
+      "transport_locator": "https://c4model.com/abstractions",
+      "source_ids": [
+        "src-c4model-abstractions"
+      ],
+      "last_attempt": {
+        "at": "2026-07-24T09:40:31.542Z",
+        "outcome": "healthy",
+        "final_transport_locator": "https://c4model.com/abstractions",
+        "http_status": 200,
+        "login_wall_detected": false,
+        "redirects": []
+      },
+      "last_success": {
+        "at": "2026-07-24T09:40:31.542Z",
+        "outcome": "healthy",
+        "final_transport_locator": "https://c4model.com/abstractions",
+        "http_status": 200,
+        "login_wall_detected": false
+      },
+      "attempt_history": [
+        {
+          "at": "2026-07-24T09:31:26.515Z",
+          "outcome": "healthy",
+          "final_transport_locator": "https://c4model.com/abstractions",
+          "http_status": 200,
+          "login_wall_detected": false
+        },
+        {
+          "at": "2026-07-24T09:33:11.885Z",
+          "outcome": "healthy",
+          "final_transport_locator": "https://c4model.com/abstractions",
+          "http_status": 200,
+          "login_wall_detected": false
+        },
+        {
+          "at": "2026-07-24T09:34:44.976Z",
+          "outcome": "healthy",
+          "final_transport_locator": "https://c4model.com/abstractions",
+          "http_status": 200,
+          "login_wall_detected": false
+        },
+        {
+          "at": "2026-07-24T09:38:23.088Z",
+          "outcome": "healthy",
+          "final_transport_locator": "https://c4model.com/abstractions",
+          "http_status": 200,
+          "login_wall_detected": false
+        },
+        {
+          "at": "2026-07-24T09:40:31.542Z",
+          "outcome": "healthy",
+          "final_transport_locator": "https://c4model.com/abstractions",
           "http_status": 200,
           "login_wall_detected": false
         }
@@ -21619,6 +21678,51 @@
       "review_status": "healthy"
     },
     {
+      "transport_locator": "https://nodis3.gsfc.nasa.gov/npg_img/N_PR_7150_002D_/N_PR_7150_002D__Chapter4.pdf",
+      "source_ids": [
+        "src-nasa-architecture-description-vd"
+      ],
+      "last_attempt": {
+        "at": "2026-07-24T09:40:31.542Z",
+        "outcome": "healthy",
+        "final_transport_locator": "https://nodis3.gsfc.nasa.gov/npg_img/N_PR_7150_002D_/N_PR_7150_002D__Chapter4.pdf",
+        "http_status": 200,
+        "login_wall_detected": false,
+        "redirects": []
+      },
+      "last_success": {
+        "at": "2026-07-24T09:40:31.542Z",
+        "outcome": "healthy",
+        "final_transport_locator": "https://nodis3.gsfc.nasa.gov/npg_img/N_PR_7150_002D_/N_PR_7150_002D__Chapter4.pdf",
+        "http_status": 200,
+        "login_wall_detected": false
+      },
+      "attempt_history": [
+        {
+          "at": "2026-07-24T09:34:44.976Z",
+          "outcome": "healthy",
+          "final_transport_locator": "https://nodis3.gsfc.nasa.gov/npg_img/N_PR_7150_002D_/N_PR_7150_002D__Chapter4.pdf",
+          "http_status": 200,
+          "login_wall_detected": false
+        },
+        {
+          "at": "2026-07-24T09:38:23.088Z",
+          "outcome": "healthy",
+          "final_transport_locator": "https://nodis3.gsfc.nasa.gov/npg_img/N_PR_7150_002D_/N_PR_7150_002D__Chapter4.pdf",
+          "http_status": 200,
+          "login_wall_detected": false
+        },
+        {
+          "at": "2026-07-24T09:40:31.542Z",
+          "outcome": "healthy",
+          "final_transport_locator": "https://nodis3.gsfc.nasa.gov/npg_img/N_PR_7150_002D_/N_PR_7150_002D__Chapter4.pdf",
+          "http_status": 200,
+          "login_wall_detected": false
+        }
+      ],
+      "review_status": "healthy"
+    },
+    {
       "transport_locator": "https://openai.github.io/openai-agents-python/multi_agent/",
       "source_ids": [
         "src-openai-6c059f59453b"
@@ -22917,6 +23021,65 @@
       "review_status": "healthy"
     },
     {
+      "transport_locator": "https://www.iso.org/standard/74393.html",
+      "source_ids": [
+        "src-iso-42010-2022"
+      ],
+      "last_attempt": {
+        "at": "2026-07-24T09:40:31.542Z",
+        "outcome": "healthy",
+        "final_transport_locator": "https://www.iso.org/standard/74393.html",
+        "http_status": 200,
+        "login_wall_detected": false,
+        "redirects": []
+      },
+      "last_success": {
+        "at": "2026-07-24T09:40:31.542Z",
+        "outcome": "healthy",
+        "final_transport_locator": "https://www.iso.org/standard/74393.html",
+        "http_status": 200,
+        "login_wall_detected": false
+      },
+      "attempt_history": [
+        {
+          "at": "2026-07-24T09:31:26.515Z",
+          "outcome": "healthy",
+          "final_transport_locator": "https://www.iso.org/standard/74393.html",
+          "http_status": 200,
+          "login_wall_detected": false
+        },
+        {
+          "at": "2026-07-24T09:33:11.885Z",
+          "outcome": "healthy",
+          "final_transport_locator": "https://www.iso.org/standard/74393.html",
+          "http_status": 200,
+          "login_wall_detected": false
+        },
+        {
+          "at": "2026-07-24T09:34:44.976Z",
+          "outcome": "healthy",
+          "final_transport_locator": "https://www.iso.org/standard/74393.html",
+          "http_status": 200,
+          "login_wall_detected": false
+        },
+        {
+          "at": "2026-07-24T09:38:23.088Z",
+          "outcome": "healthy",
+          "final_transport_locator": "https://www.iso.org/standard/74393.html",
+          "http_status": 200,
+          "login_wall_detected": false
+        },
+        {
+          "at": "2026-07-24T09:40:31.542Z",
+          "outcome": "healthy",
+          "final_transport_locator": "https://www.iso.org/standard/74393.html",
+          "http_status": 200,
+          "login_wall_detected": false
+        }
+      ],
+      "review_status": "healthy"
+    },
+    {
       "transport_locator": "https://www.iso.org/standard/78176.html",
       "source_ids": [
         "src-iso-11f3b103e932"
@@ -23249,6 +23412,183 @@
       "review_status": "healthy"
     },
     {
+      "transport_locator": "https://www.nist.gov/publications/reference-architecture-machine-control-systems-integration-interim-report",
+      "source_ids": [
+        "src-nist-ir-5517"
+      ],
+      "last_attempt": {
+        "at": "2026-07-24T09:42:39.424Z",
+        "outcome": "healthy",
+        "final_transport_locator": "https://www.nist.gov/publications/reference-architecture-machine-control-systems-integration-interim-report",
+        "http_status": 206,
+        "login_wall_detected": false,
+        "redirects": []
+      },
+      "last_success": {
+        "at": "2026-07-24T09:42:39.424Z",
+        "outcome": "healthy",
+        "final_transport_locator": "https://www.nist.gov/publications/reference-architecture-machine-control-systems-integration-interim-report",
+        "http_status": 206,
+        "login_wall_detected": false
+      },
+      "attempt_history": [
+        {
+          "at": "2026-07-24T09:33:11.885Z",
+          "outcome": "healthy",
+          "final_transport_locator": "https://www.nist.gov/publications/reference-architecture-machine-control-systems-integration-interim-report",
+          "http_status": 206,
+          "login_wall_detected": false
+        },
+        {
+          "at": "2026-07-24T09:34:44.976Z",
+          "outcome": "healthy",
+          "final_transport_locator": "https://www.nist.gov/publications/reference-architecture-machine-control-systems-integration-interim-report",
+          "http_status": 206,
+          "login_wall_detected": false
+        },
+        {
+          "at": "2026-07-24T09:38:23.088Z",
+          "outcome": "healthy",
+          "final_transport_locator": "https://www.nist.gov/publications/reference-architecture-machine-control-systems-integration-interim-report",
+          "http_status": 206,
+          "login_wall_detected": false
+        },
+        {
+          "at": "2026-07-24T09:40:31.542Z",
+          "outcome": "error",
+          "final_transport_locator": null,
+          "http_status": null,
+          "login_wall_detected": false
+        },
+        {
+          "at": "2026-07-24T09:42:39.424Z",
+          "outcome": "healthy",
+          "final_transport_locator": "https://www.nist.gov/publications/reference-architecture-machine-control-systems-integration-interim-report",
+          "http_status": 206,
+          "login_wall_detected": false
+        }
+      ],
+      "review_status": "healthy"
+    },
+    {
+      "transport_locator": "https://www.sei.cmu.edu/library/attribute-based-architectural-styles/",
+      "source_ids": [
+        "src-sei-abas-1999"
+      ],
+      "last_attempt": {
+        "at": "2026-07-24T09:40:31.542Z",
+        "outcome": "healthy",
+        "final_transport_locator": "https://www.sei.cmu.edu/library/attribute-based-architectural-styles/",
+        "http_status": 200,
+        "login_wall_detected": false,
+        "redirects": []
+      },
+      "last_success": {
+        "at": "2026-07-24T09:40:31.542Z",
+        "outcome": "healthy",
+        "final_transport_locator": "https://www.sei.cmu.edu/library/attribute-based-architectural-styles/",
+        "http_status": 200,
+        "login_wall_detected": false
+      },
+      "attempt_history": [
+        {
+          "at": "2026-07-24T09:31:26.515Z",
+          "outcome": "healthy",
+          "final_transport_locator": "https://www.sei.cmu.edu/library/attribute-based-architectural-styles/",
+          "http_status": 200,
+          "login_wall_detected": false
+        },
+        {
+          "at": "2026-07-24T09:33:11.885Z",
+          "outcome": "healthy",
+          "final_transport_locator": "https://www.sei.cmu.edu/library/attribute-based-architectural-styles/",
+          "http_status": 200,
+          "login_wall_detected": false
+        },
+        {
+          "at": "2026-07-24T09:34:44.976Z",
+          "outcome": "healthy",
+          "final_transport_locator": "https://www.sei.cmu.edu/library/attribute-based-architectural-styles/",
+          "http_status": 200,
+          "login_wall_detected": false
+        },
+        {
+          "at": "2026-07-24T09:38:23.088Z",
+          "outcome": "healthy",
+          "final_transport_locator": "https://www.sei.cmu.edu/library/attribute-based-architectural-styles/",
+          "http_status": 200,
+          "login_wall_detected": false
+        },
+        {
+          "at": "2026-07-24T09:40:31.542Z",
+          "outcome": "healthy",
+          "final_transport_locator": "https://www.sei.cmu.edu/library/attribute-based-architectural-styles/",
+          "http_status": 200,
+          "login_wall_detected": false
+        }
+      ],
+      "review_status": "healthy"
+    },
+    {
+      "transport_locator": "https://www.sei.cmu.edu/library/modifiability-tactics/",
+      "source_ids": [
+        "src-sei-modifiability-tactics-2007"
+      ],
+      "last_attempt": {
+        "at": "2026-07-24T09:40:31.542Z",
+        "outcome": "healthy",
+        "final_transport_locator": "https://www.sei.cmu.edu/library/modifiability-tactics/",
+        "http_status": 200,
+        "login_wall_detected": false,
+        "redirects": []
+      },
+      "last_success": {
+        "at": "2026-07-24T09:40:31.542Z",
+        "outcome": "healthy",
+        "final_transport_locator": "https://www.sei.cmu.edu/library/modifiability-tactics/",
+        "http_status": 200,
+        "login_wall_detected": false
+      },
+      "attempt_history": [
+        {
+          "at": "2026-07-24T09:31:26.515Z",
+          "outcome": "healthy",
+          "final_transport_locator": "https://www.sei.cmu.edu/library/modifiability-tactics/",
+          "http_status": 200,
+          "login_wall_detected": false
+        },
+        {
+          "at": "2026-07-24T09:33:11.885Z",
+          "outcome": "healthy",
+          "final_transport_locator": "https://www.sei.cmu.edu/library/modifiability-tactics/",
+          "http_status": 200,
+          "login_wall_detected": false
+        },
+        {
+          "at": "2026-07-24T09:34:44.976Z",
+          "outcome": "healthy",
+          "final_transport_locator": "https://www.sei.cmu.edu/library/modifiability-tactics/",
+          "http_status": 200,
+          "login_wall_detected": false
+        },
+        {
+          "at": "2026-07-24T09:38:23.088Z",
+          "outcome": "healthy",
+          "final_transport_locator": "https://www.sei.cmu.edu/library/modifiability-tactics/",
+          "http_status": 200,
+          "login_wall_detected": false
+        },
+        {
+          "at": "2026-07-24T09:40:31.542Z",
+          "outcome": "healthy",
+          "final_transport_locator": "https://www.sei.cmu.edu/library/modifiability-tactics/",
+          "http_status": 200,
+          "login_wall_detected": false
+        }
+      ],
+      "review_status": "healthy"
+    },
+    {
       "transport_locator": "https://www.sei.cmu.edu/library/quality-attribute-workshops-qaws-third-edition/",
       "source_ids": [
         "src-sei-0547756e19ba"
@@ -23306,6 +23646,65 @@
           "at": "2026-07-24T04:38:11.714Z",
           "outcome": "healthy",
           "final_transport_locator": "https://www.sei.cmu.edu/library/quality-attribute-workshops-qaws-third-edition/",
+          "http_status": 200,
+          "login_wall_detected": false
+        }
+      ],
+      "review_status": "healthy"
+    },
+    {
+      "transport_locator": "https://www.sei.cmu.edu/library/the-architecture-tradeoff-analysis-method/",
+      "source_ids": [
+        "src-sei-atam-1998"
+      ],
+      "last_attempt": {
+        "at": "2026-07-24T09:40:31.542Z",
+        "outcome": "healthy",
+        "final_transport_locator": "https://www.sei.cmu.edu/library/the-architecture-tradeoff-analysis-method/",
+        "http_status": 200,
+        "login_wall_detected": false,
+        "redirects": []
+      },
+      "last_success": {
+        "at": "2026-07-24T09:40:31.542Z",
+        "outcome": "healthy",
+        "final_transport_locator": "https://www.sei.cmu.edu/library/the-architecture-tradeoff-analysis-method/",
+        "http_status": 200,
+        "login_wall_detected": false
+      },
+      "attempt_history": [
+        {
+          "at": "2026-07-24T09:31:26.515Z",
+          "outcome": "healthy",
+          "final_transport_locator": "https://www.sei.cmu.edu/library/the-architecture-tradeoff-analysis-method/",
+          "http_status": 200,
+          "login_wall_detected": false
+        },
+        {
+          "at": "2026-07-24T09:33:11.885Z",
+          "outcome": "healthy",
+          "final_transport_locator": "https://www.sei.cmu.edu/library/the-architecture-tradeoff-analysis-method/",
+          "http_status": 200,
+          "login_wall_detected": false
+        },
+        {
+          "at": "2026-07-24T09:34:44.976Z",
+          "outcome": "healthy",
+          "final_transport_locator": "https://www.sei.cmu.edu/library/the-architecture-tradeoff-analysis-method/",
+          "http_status": 200,
+          "login_wall_detected": false
+        },
+        {
+          "at": "2026-07-24T09:38:23.088Z",
+          "outcome": "healthy",
+          "final_transport_locator": "https://www.sei.cmu.edu/library/the-architecture-tradeoff-analysis-method/",
+          "http_status": 200,
+          "login_wall_detected": false
+        },
+        {
+          "at": "2026-07-24T09:40:31.542Z",
+          "outcome": "healthy",
+          "final_transport_locator": "https://www.sei.cmu.edu/library/the-architecture-tradeoff-analysis-method/",
           "http_status": 200,
           "login_wall_detected": false
         }

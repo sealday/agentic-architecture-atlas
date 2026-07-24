@@ -1,0 +1,101 @@
+---
+title: 架构分类法
+slug: /concepts/fnd-03
+content_type: concept
+status: reviewed
+difficulty: beginner
+analyzed_at: 2026-07-24
+source_cutoff: 2026-07-24
+review_policy: quarterly-version-sensitive
+confidence: high
+domains:
+  - software-architecture
+agent_patterns: []
+protocols: []
+quality_attributes:
+  - maintainability
+  - reliability
+tags:
+  - 架构风格
+  - 架构模式
+  - 架构战术
+  - 参考架构
+summary: 用 Atlas 操作性分类区分风格、模式、战术、参考架构和最佳实践。
+topic_id: FND-03
+priority: P0
+depends_on:
+  - FND-01
+adjacent_topics:
+  - FND-01
+related_cases:
+  - /cases/microsoft-multi-agent-reference-architecture
+related_questions: []
+---
+
+# 架构分类法
+
+“事件驱动”“重试”“参考架构”和“最佳实践”经常被放在同一张模式清单里，结果是比较对象失去尺度。分类的价值不是争夺唯一术语，而是明确一个条目在决策中承担什么工作、需要什么证据、不能推出什么结论。
+
+本文给出 Atlas 操作性分类，服务本站导航与评审，不宣称取代学术或标准组织的分类。[概念目录](/concepts)展示分类入口，[架构思维与表达路径](/paths/architecture-thinking)说明它在基础阶段的位置。
+
+## 学习问题
+
+- 风格、模式、战术、参考架构和最佳实践分别回答什么问题？
+- 为什么同一个设计可以同时被多个分类观察？
+- 参考架构为何不是可直接部署的蓝图？
+- 何时不应根据标签直接选择方案？
+
+## 定义与尺度边界
+
+Atlas 把“风格”用于描述一类系统的元素、连接器和约束组合；把“模式”用于描述特定上下文中反复出现的问题、结构化解法与后果；把“战术”用于描述影响某项质量属性响应的聚焦设计决定；把“参考架构”用于描述某领域的共同角色、职责、关系和词汇；把“最佳实践”仅作为带上下文的经验建议。
+
+[SEI Attribute-Based Architectural Styles](https://www.sei.cmu.edu/library/attribute-based-architectural-styles/)把架构风格与质量属性分析联系起来，支持“风格关注整体组织约束”的边界；它是 1999 年的 ABAS 方法资料，不是当前、穷尽的风格目录。[SEI Modifiability Tactics](https://www.sei.cmu.edu/library/modifiability-tactics/)把战术描述为影响架构满足特定质量属性程度的设计决定，支持“战术比完整结构更聚焦”的边界。
+
+这些类别不是互斥集合。事件驱动可以作为整体风格讨论，也可在特定上下文中形成模式；引入中介、限制依赖或复制状态可能是战术，并被多个模式共同采用。分类取决于当前问题和证据尺度，不由名称大小写决定。
+
+## 核心机制
+
+遇到一个架构名词时，先问它承诺的输出：是规定整体组织约束、提供可复用问题解法、改变单项质量响应、给出领域共同骨架，还是仅提供经验建议。再检查输入条件、失败模式与验证方式；缺少这些边界时，标签只能用于检索，不能用于选型。
+
+[NISTIR 5517 官方出版页](https://www.nist.gov/publications/reference-architecture-machine-control-systems-integration-interim-report)介绍参考架构及其在计算机集成制造语境中的使用。这支持参考架构作为共同语汇和关系框架的用法，但文档中的制造控制框架不能推广成其他领域的通用结构，也不证明某个实现自动安全、可靠或适合生产。
+
+下面的本站原创 Atlas 操作性分类表用于评审条目角色：
+
+| 类别 | 主要回答 | 最少应说明 | 不可直接推出 |
+| --- | --- | --- | --- |
+| 风格 | 系统整体如何组织 | 元素、连接器、约束、控制与数据关系 | 某产品实现正确 |
+| 模式 | 特定上下文的重复问题如何解决 | 上下文、冲突、结构、后果与禁用条件 | 所有场景都应采用 |
+| 战术 | 如何影响某项质量属性响应 | 目标属性、受控参数、收益与副作用 | 完整系统结构 |
+| 参考架构 | 领域参与者和职责如何形成共同框架 | 范围、角色、关系、变体与扩展点 | 可直接部署的蓝图 |
+| 最佳实践 | 在哪些条件下值得优先尝试 | 来源、适用条件、反例与验证信号 | 跨组织普遍规律 |
+
+分类后的下一步仍是把条目映射到驱动力。若一个“最佳实践”说不清所保护的质量属性和失败代价，它应降级为待验证假设；若参考架构缺少本地威胁模型、容量与恢复目标，它只能帮助对齐词汇。
+
+## 常见混淆
+
+第一种混淆是把模式当成实现产品。例如“重试”作为战术或模式需要副作用安全、终止条件和退避策略，不能因框架提供重试开关就宣告可靠。第二种是把参考架构当模板复制，忽略它的领域范围和可变点。
+
+第三种混淆是把“最佳实践”当无条件规范。实践可能来自成熟团队的特定规模、法规和运维能力；丢失上下文后会在较小系统中制造成本，或在高风险系统中隐藏不足。失败模式是团队按标签购物，直到上线后才发现数据所有权、故障恢复和责任边界互相冲突。
+
+何时不用这套分类？当某个标准、采购规范或组织方法已经赋予术语强制含义时，应使用其原定义，不可用 Atlas 分类覆盖。Atlas 分类也不适合证明方案效果；效果必须由场景、实现证据和运行验证支持。
+
+## 说明性场景
+
+团队设计一个多智能体服务，把“分层”“协调器”“超时”和“参考架构”并列为四个候选方案。重新分类后，分层描述整体依赖约束，协调器模式处理任务分派，超时是限制等待的战术，参考架构则用于核对身份、观测和外部服务角色。
+
+分类暴露出原清单不能直接比较：团队应先根据驱动力选择整体结构，再为具体故障场景选战术，并用参考架构检查遗漏角色。若超时后仍可能发生外部副作用，必须加入结果核对，不能把“请求已取消”当作工作已停止。该场景为原创推演。
+
+## 相邻主题
+
+本文依赖[架构与设计的尺度](/concepts/fnd-01)，因为类别只有放在正确决策尺度才有意义。完整基础顺序见[架构思维与表达路径](/paths/architecture-thinking)。
+
+[Microsoft 多智能体参考架构案例](/cases/microsoft-multi-agent-reference-architecture)可用于练习区分参考架构中的领域骨架、具体模式与质量属性战术；案例结论仍受其版本和证据边界限制。
+
+## 来源
+
+- [SEI — Attribute-Based Architectural Styles](https://www.sei.cmu.edu/library/attribute-based-architectural-styles/)：用于风格与质量属性分析的历史边界；不作为当前风格全集。
+- [SEI — Modifiability Tactics](https://www.sei.cmu.edu/library/modifiability-tactics/)：用于战术影响特定质量属性响应的定义边界。
+- [NISTIR 5517 官方出版页](https://www.nist.gov/publications/reference-architecture-machine-control-systems-integration-interim-report)：用于参考架构定义的权威来源；不推广其制造控制框架。
+- [Awesome Software Architecture](https://github.com/mehdihadeli/awesome-software-architecture)：仅作后续材料发现入口；社区索引不是事实、实现或运行证据。
+
+分类表、类别边界和说明性场景为本站原创操作性归纳。不同来源的术语传统可能重叠，本文不主张存在唯一、普遍、互斥的架构分类法。

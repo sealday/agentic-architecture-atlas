@@ -1,16 +1,4 @@
 {
-  "FND-02": {
-    "dependencies": ["FND-01"],
-    "adjacent_topics": [],
-    "related_cases": [],
-    "related_questions": []
-  },
-  "FND-03": {
-    "dependencies": ["FND-01"],
-    "adjacent_topics": [],
-    "related_cases": [],
-    "related_questions": []
-  },
   "QA-00": {
     "dependencies": ["FND-02"],
     "adjacent_topics": [],

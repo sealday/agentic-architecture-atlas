@@ -14111,9 +14111,419 @@
       "expected_final_transport_locator": "https://sre.google/workbook/table-of-contents/",
       "expected_final_approved_at": "2026-07-24",
       "expected_final_approval_note": "Initial reviewed migration transport baseline"
+    },
+    {
+      "id": "src-c4model-abstractions",
+      "canonical_locator": "https://c4model.com/abstractions",
+      "transport_locator": "https://c4model.com/abstractions",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "C4 Model — Abstractions",
+      "author_or_org": "Simon Brown",
+      "published_at": null,
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "Current abstractions page checked on 2026-07-24",
+      "source_kind": "official-docs",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "definition",
+        "learning",
+        "method"
+      ],
+      "license": "CC-BY-4.0",
+      "license_scope": "C4 Model site content covered by the CC BY 4.0 footer; trademarks, linked works, code, media, and third-party assets excluded",
+      "license_evidence_url": "https://c4model.com/",
+      "license_evidence_note": "The official C4 Model site footer identifies its content as CC BY 4.0; this record covers factual summary of the abstractions page with attribution.",
+      "license_family_id": "https://c4model.com/abstractions",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "adapt-with-attribution",
+      "usage_boundary": "Defines the C4 abstraction hierarchy and terminology; it is not a universal architecture ontology and does not establish architecture fitness.",
+      "link_policy": "stable",
+      "expected_final_transport_locator": "https://c4model.com/abstractions",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Initial reviewed transport baseline"
+    },
+    {
+      "id": "src-nasa-architecture-description-vd",
+      "canonical_locator": "https://nodis3.gsfc.nasa.gov/npg_img/N_PR_7150_002D_/N_PR_7150_002D__Chapter4.pdf",
+      "transport_locator": "https://nodis3.gsfc.nasa.gov/npg_img/N_PR_7150_002D_/N_PR_7150_002D__Chapter4.pdf",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "NPR 7150.2D Chapter 4 — Software Engineering Life Cycle",
+      "author_or_org": "National Aeronautics and Space Administration",
+      "published_at": null,
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "NPR 7150.2D, Chapter 4 PDF; checked on 2026-07-24",
+      "source_kind": "official-docs",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "comparison",
+        "definition",
+        "learning",
+        "method"
+      ],
+      "license": "LicenseRef-All-Rights-Reserved",
+      "license_scope": "The named NASA NPR 7150.2D Chapter 4 PDF only; embedded third-party quotations, linked works, marks, and media excluded",
+      "license_evidence_url": "https://nodis3.gsfc.nasa.gov/npg_img/N_PR_7150_002D_/N_PR_7150_002D__Chapter4.pdf",
+      "license_evidence_note": "No reusable license notice covering the complete checked page was established; Atlas retains only the link and original factual summaries, excluding embedded third-party material.",
+      "license_family_id": "https://nodis3.gsfc.nasa.gov/npg_img/N_PR_7150_002D_/N_PR_7150_002D__Chapter4.pdf",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "facts-and-short-quotation",
+      "usage_boundary": "Supports software architecture lifecycle requirements in NASA NPR 7150.2D; NASA governance and mission context are not universal requirements.",
+      "link_policy": "stable",
+      "expected_final_transport_locator": "https://nodis3.gsfc.nasa.gov/npg_img/N_PR_7150_002D_/N_PR_7150_002D__Chapter4.pdf",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Initial reviewed NPR 7150.2D Chapter 4 transport baseline"
+    },
+    {
+      "id": "src-sei-atam-1998",
+      "canonical_locator": "https://www.sei.cmu.edu/library/the-architecture-tradeoff-analysis-method/",
+      "transport_locator": "https://www.sei.cmu.edu/library/the-architecture-tradeoff-analysis-method/",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "The Architecture Tradeoff Analysis Method",
+      "author_or_org": "Carnegie Mellon Software Engineering Institute",
+      "published_at": "1998-07-01",
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "CMU/SEI-98-TR-008; work page checked on 2026-07-24",
+      "source_kind": "paper",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "definition",
+        "learning",
+        "method"
+      ],
+      "license": "LicenseRef-All-Rights-Reserved",
+      "license_scope": "The named SEI report work page and factual bibliographic metadata only; report text, linked works, and third-party material excluded",
+      "license_evidence_url": "https://www.sei.cmu.edu/library/the-architecture-tradeoff-analysis-method/",
+      "license_evidence_note": "The checked SEI work page provides a permission-request path but no reusable license for the report; Atlas uses original factual summary only.",
+      "license_family_id": "https://www.sei.cmu.edu/library/the-architecture-tradeoff-analysis-method/",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "facts-and-short-quotation",
+      "usage_boundary": "Supports ATAM as evaluation of an architecture against competing quality goals; it is downstream of driver discovery and does not prove universal method efficacy.",
+      "link_policy": "stable",
+      "expected_final_transport_locator": "https://www.sei.cmu.edu/library/the-architecture-tradeoff-analysis-method/",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Initial reviewed report transport baseline"
+    },
+    {
+      "id": "src-sei-abas-1999",
+      "canonical_locator": "https://www.sei.cmu.edu/library/attribute-based-architectural-styles/",
+      "transport_locator": "https://www.sei.cmu.edu/library/attribute-based-architectural-styles/",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "Attribute-Based Architectural Styles",
+      "author_or_org": "Carnegie Mellon Software Engineering Institute",
+      "published_at": "1999-10-01",
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "CMU/SEI-99-TR-022; work page checked on 2026-07-24",
+      "source_kind": "paper",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "definition",
+        "historical-context",
+        "learning",
+        "method"
+      ],
+      "license": "LicenseRef-All-Rights-Reserved",
+      "license_scope": "The named SEI report work page and factual bibliographic metadata only; report text, linked works, and third-party material excluded",
+      "license_evidence_url": "https://www.sei.cmu.edu/library/attribute-based-architectural-styles/",
+      "license_evidence_note": "The checked SEI work page provides a permission-request path but no reusable license for the report; Atlas uses original factual summary only.",
+      "license_family_id": "https://www.sei.cmu.edu/library/attribute-based-architectural-styles/",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "facts-and-short-quotation",
+      "usage_boundary": "Supports the historical ABAS treatment of styles and quality-attribute reasoning; it is not a current or exhaustive style catalog.",
+      "link_policy": "stable",
+      "expected_final_transport_locator": "https://www.sei.cmu.edu/library/attribute-based-architectural-styles/",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Initial reviewed report transport baseline"
+    },
+    {
+      "id": "src-sei-modifiability-tactics-2007",
+      "canonical_locator": "https://www.sei.cmu.edu/library/modifiability-tactics/",
+      "transport_locator": "https://www.sei.cmu.edu/library/modifiability-tactics/",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "Modifiability Tactics",
+      "author_or_org": "Carnegie Mellon Software Engineering Institute",
+      "published_at": "2007-09-01",
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "CMU/SEI-2007-TR-002; work page checked on 2026-07-24",
+      "source_kind": "paper",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "definition",
+        "learning",
+        "method"
+      ],
+      "license": "LicenseRef-All-Rights-Reserved",
+      "license_scope": "The named SEI report work page and factual bibliographic metadata only; report text, linked works, and third-party material excluded",
+      "license_evidence_url": "https://www.sei.cmu.edu/library/modifiability-tactics/",
+      "license_evidence_note": "The checked SEI work page provides a permission-request path but no reusable license for the report; Atlas uses original factual summary only.",
+      "license_family_id": "https://www.sei.cmu.edu/library/modifiability-tactics/",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "facts-and-short-quotation",
+      "usage_boundary": "Supports tactics as focused decisions affecting a quality attribute; it does not prove universal efficacy or supply a complete architecture.",
+      "link_policy": "stable",
+      "expected_final_transport_locator": "https://www.sei.cmu.edu/library/modifiability-tactics/",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Initial reviewed report transport baseline"
+    },
+    {
+      "id": "src-iso-42010-2022",
+      "canonical_locator": "https://www.iso.org/standard/74393.html",
+      "transport_locator": "https://www.iso.org/standard/74393.html",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "ISO/IEC/IEEE 42010:2022 — Software, systems and enterprise — Architecture description",
+      "author_or_org": "International Organization for Standardization",
+      "published_at": null,
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "Edition 2, published 2022-11; public abstract checked on 2026-07-24",
+      "source_kind": "standard",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "comparison",
+        "definition",
+        "method"
+      ],
+      "license": "LicenseRef-Proprietary-Standard",
+      "license_scope": "The named ISO work page and its public abstract only; full standard text, linked works, marks, and third-party material excluded",
+      "license_evidence_url": "https://www.iso.org/standard/74393.html",
+      "license_evidence_note": "The ISO work page does not grant a reusable license for the standard; Atlas uses only factual bibliographic metadata and original summary of the public abstract.",
+      "license_family_id": "https://www.iso.org/standard/74393.html",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "facts-and-short-quotation",
+      "usage_boundary": "Supports public boundaries for architecture descriptions; it does not specify architecting methods, notations, tools, formats, or architecture fitness.",
+      "link_policy": "stable",
+      "expected_final_transport_locator": "https://www.iso.org/standard/74393.html",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Initial reviewed Edition 2 work-page transport baseline"
+    },
+    {
+      "id": "src-nist-ir-5517",
+      "canonical_locator": "https://www.nist.gov/publications/reference-architecture-machine-control-systems-integration-interim-report",
+      "transport_locator": "https://www.nist.gov/publications/reference-architecture-machine-control-systems-integration-interim-report",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "Reference Architecture for Machine Control Systems Integration: Interim Report",
+      "author_or_org": "National Institute of Standards and Technology",
+      "published_at": "1994-01-01",
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "NISTIR 5517; official publication page checked on 2026-07-24",
+      "source_kind": "paper",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "definition",
+        "historical-context",
+        "learning"
+      ],
+      "license": "LicenseRef-US-Gov-Public-Domain",
+      "license_scope": "NIST-authored technical-series material; third-party or separately marked copyrighted material, marks, and linked works excluded",
+      "license_evidence_url": "https://www.nist.gov/nist-research-library/library-faqs",
+      "license_evidence_note": "The NIST Research Library states that NIST publications are generally U.S. Government works in the public domain; Atlas credits NIST and excludes any separately copyrighted material.",
+      "license_family_id": "https://www.nist.gov/publications/reference-architecture-machine-control-systems-integration-interim-report",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "public-domain-with-provenance",
+      "usage_boundary": "Supports a generic reference-architecture definition in NISTIR 5517; its manufacturing control framework is domain-specific and is not generalized as a universal structure.",
+      "link_policy": "stable",
+      "expected_final_transport_locator": "https://www.nist.gov/publications/reference-architecture-machine-control-systems-integration-interim-report",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Initial reviewed official NIST publication-page transport baseline"
     }
   ],
   "documents": {
+    "content/concepts/fnd-01-architecture-design-scale.mdx": {
+      "reviewed_at": "2026-07-24",
+      "copyright_checks": [
+        "original-structure",
+        "quotation-boundary",
+        "attribution-complete",
+        "illustration-rights"
+      ],
+      "citations": [
+        {
+          "source_id": "src-nasa-architecture-description-vd",
+          "citation_url": "https://nodis3.gsfc.nasa.gov/npg_img/N_PR_7150_002D_/N_PR_7150_002D__Chapter4.pdf",
+          "roles": [
+            "definition",
+            "method"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "NPR 7150.2D Chapter 4, National Aeronautics and Space Administration",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-c4model-abstractions",
+          "citation_url": "https://c4model.com/abstractions",
+          "roles": [
+            "definition",
+            "method"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "C4 Model — Abstractions, Simon Brown",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-iso-42010-2022",
+          "citation_url": "https://www.iso.org/standard/74393.html",
+          "roles": [
+            "definition",
+            "comparison"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "ISO/IEC/IEEE 42010:2022, International Organization for Standardization",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        }
+      ]
+    },
+    "content/concepts/fnd-02-architecture-drivers-asr.mdx": {
+      "reviewed_at": "2026-07-24",
+      "copyright_checks": [
+        "original-structure",
+        "quotation-boundary",
+        "attribution-complete",
+        "illustration-rights"
+      ],
+      "citations": [
+        {
+          "source_id": "src-nasa-architecture-description-vd",
+          "citation_url": "https://nodis3.gsfc.nasa.gov/npg_img/N_PR_7150_002D_/N_PR_7150_002D__Chapter4.pdf",
+          "roles": [
+            "definition",
+            "method"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "NPR 7150.2D Chapter 4, National Aeronautics and Space Administration",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-sei-0547756e19ba",
+          "citation_url": "https://www.sei.cmu.edu/library/quality-attribute-workshops-qaws-third-edition/",
+          "roles": [
+            "method"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "Quality Attribute Workshops (QAWs), Third Edition, Carnegie Mellon Software Engineering Institute",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-sei-atam-1998",
+          "citation_url": "https://www.sei.cmu.edu/library/the-architecture-tradeoff-analysis-method/",
+          "roles": [
+            "method"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "The Architecture Tradeoff Analysis Method, Kazman, Klein, Barbacci, Longstaff, Lipson, and Carriere",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        }
+      ]
+    },
+    "content/concepts/fnd-03-architecture-taxonomy.mdx": {
+      "reviewed_at": "2026-07-24",
+      "copyright_checks": [
+        "original-structure",
+        "quotation-boundary",
+        "attribution-complete",
+        "illustration-rights"
+      ],
+      "citations": [
+        {
+          "source_id": "src-sei-abas-1999",
+          "citation_url": "https://www.sei.cmu.edu/library/attribute-based-architectural-styles/",
+          "roles": [
+            "definition",
+            "historical-context"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "Attribute-Based Architectural Styles, Klein and Kazman, Carnegie Mellon Software Engineering Institute",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-sei-modifiability-tactics-2007",
+          "citation_url": "https://www.sei.cmu.edu/library/modifiability-tactics/",
+          "roles": [
+            "definition",
+            "method"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "Modifiability Tactics, Bachmann, Bass, and Nord, Carnegie Mellon Software Engineering Institute",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-nist-ir-5517",
+          "citation_url": "https://www.nist.gov/publications/reference-architecture-machine-control-systems-integration-interim-report",
+          "roles": [
+            "definition",
+            "historical-context"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "NISTIR 5517, National Institute of Standards and Technology",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-github-432a30aa96cb",
+          "citation_url": "https://github.com/mehdihadeli/awesome-software-architecture",
+          "roles": [
+            "learning"
+          ],
+          "manifest_primary": false,
+          "usage_mode": "navigation-only",
+          "attribution_note": "Awesome Software Architecture, Mehdi Hadeli and contributors",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        }
+      ]
+    },
     "content/cases/apache-kafka-consumer-groups.mdx": {
       "reviewed_at": "2026-07-24",
       "copyright_checks": [

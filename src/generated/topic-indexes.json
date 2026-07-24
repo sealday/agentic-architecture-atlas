@@ -129,7 +129,7 @@
     {
       "id": "FND-01",
       "type": "concept",
-      "title": "软件架构、应用设计与代码设计的尺度边界",
+      "title": "架构与设计的尺度",
       "slug": "/concepts/fnd-01",
       "priority": "P0",
       "status": {
@@ -138,14 +138,24 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
-      "adjacent_topics": [],
-      "primary_sources": [],
-      "related_cases": [],
+      "adjacent_topics": [
+        "FND-02",
+        "FND-03"
+      ],
+      "primary_sources": [
+        "https://c4model.com/abstractions",
+        "https://nodis3.gsfc.nasa.gov/npg_img/N_PR_7150_002D_/N_PR_7150_002D__Chapter4.pdf",
+        "https://www.iso.org/standard/74393.html"
+      ],
+      "related_cases": [
+        "/cases/micro-frontends-single-spa"
+      ],
       "related_questions": [],
-      "reviewed_at": null,
-      "review_policy": null,
-      "published": false,
-      "pattern_group": null
+      "reviewed_at": "2026-07-24",
+      "review_policy": "quarterly-version-sensitive",
+      "published": true,
+      "pattern_group": null,
+      "presentation": {}
     },
     {
       "id": "FND-04",
@@ -171,7 +181,7 @@
     {
       "id": "FND-02",
       "type": "concept",
-      "title": "架构驱动因素",
+      "title": "架构驱动力与 ASR",
       "slug": "/concepts/fnd-02",
       "priority": "P0",
       "status": {
@@ -182,19 +192,28 @@
       "dependencies": [
         "FND-01"
       ],
-      "adjacent_topics": [],
-      "primary_sources": [],
-      "related_cases": [],
+      "adjacent_topics": [
+        "FND-01"
+      ],
+      "primary_sources": [
+        "https://nodis3.gsfc.nasa.gov/npg_img/N_PR_7150_002D_/N_PR_7150_002D__Chapter4.pdf",
+        "https://www.sei.cmu.edu/library/quality-attribute-workshops-qaws-third-edition/",
+        "https://www.sei.cmu.edu/library/the-architecture-tradeoff-analysis-method/"
+      ],
+      "related_cases": [
+        "/cases/aws-cell-shuffle-sharding"
+      ],
       "related_questions": [],
-      "reviewed_at": null,
-      "review_policy": null,
-      "published": false,
-      "pattern_group": null
+      "reviewed_at": "2026-07-24",
+      "review_policy": "quarterly-version-sensitive",
+      "published": true,
+      "pattern_group": null,
+      "presentation": {}
     },
     {
       "id": "FND-03",
       "type": "concept",
-      "title": "原则、战术、模式、风格、参考架构和最佳实践的分类边界",
+      "title": "架构分类法",
       "slug": "/concepts/fnd-03",
       "priority": "P0",
       "status": {
@@ -205,14 +224,23 @@
       "dependencies": [
         "FND-01"
       ],
-      "adjacent_topics": [],
-      "primary_sources": [],
-      "related_cases": [],
+      "adjacent_topics": [
+        "FND-01"
+      ],
+      "primary_sources": [
+        "https://www.nist.gov/publications/reference-architecture-machine-control-systems-integration-interim-report",
+        "https://www.sei.cmu.edu/library/attribute-based-architectural-styles/",
+        "https://www.sei.cmu.edu/library/modifiability-tactics/"
+      ],
+      "related_cases": [
+        "/cases/microsoft-multi-agent-reference-architecture"
+      ],
       "related_questions": [],
-      "reviewed_at": null,
-      "review_policy": null,
-      "published": false,
-      "pattern_group": null
+      "reviewed_at": "2026-07-24",
+      "review_policy": "quarterly-version-sensitive",
+      "published": true,
+      "pattern_group": null,
+      "presentation": {}
     },
     {
       "id": "DST-07",
