@@ -25,6 +25,26 @@ function topLevelKeys(source) {
   );
 }
 
+function assertExactReadOnlyPermissions(source) {
+  const match = source.match(
+    /^permissions:\n(?<entries>(?:[ ]{2}[^\n]+\n)+)\njobs:/m,
+  );
+  assert.ok(match, 'workflow must define a permissions block before jobs');
+  assert.equal(
+    match.groups.entries,
+    '  contents: read\n',
+    'workflow permissions must be exactly contents: read',
+  );
+}
+
+function assertContentReviewUpload(source) {
+  assert.match(
+    source,
+    /      - name: Upload content review report\n        if: always\(\)\n        uses: actions\/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4\n        with:\n          name: content-review-health\n          path: \|\n            \/tmp\/content-review-health\.json\n            \/tmp\/content-review-health\.md\n          if-no-files-found: error/,
+    'workflow must include the complete content review upload block',
+  );
+}
+
 test('keeps deploy verification offline and live links in a read-only scheduled workflow', async () => {
   const [deploy, linkHealth] = await Promise.all([
     readWorkflow(deployUrl),
@@ -39,7 +59,18 @@ test('keeps deploy verification offline and live links in a read-only scheduled 
 
   assert.match(linkHealth, /^on:\n[ ]{2}schedule:\n/m);
   assert.match(linkHealth, /^[ ]{2}workflow_dispatch:\s*$/m);
-  assert.match(linkHealth, /^permissions:\n[ ]{2}contents: read$/m);
+  assertExactReadOnlyPermissions(linkHealth);
+  for (const unsafePermission of ['actions: write', 'id-token: write']) {
+    assert.throws(
+      () => assertExactReadOnlyPermissions(
+        linkHealth.replace(
+          '  contents: read',
+          `  contents: read\n  ${unsafePermission}`,
+        ),
+      ),
+      /exactly contents: read/,
+    );
+  }
   assert.match(linkHealth, /^[ ]{4}timeout-minutes: 30$/m);
   assert.match(
     linkHealth,
@@ -84,14 +115,15 @@ test('always builds and uploads the monthly content review reports', async () =>
     linkHealth,
     /- name: Build content review report\n[ ]+if: always\(\)\n[ ]+run: npm run report:reviews/,
   );
-  assert.match(
-    linkHealth,
-    /- name: Upload content review report\n[ ]+if: always\(\)\n[ ]+uses: actions\/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02/,
-  );
-  assert.match(linkHealth, /name: content-review-health/);
-  assert.match(
-    linkHealth,
-    /path: \|\n[ ]+\/tmp\/content-review-health\.json\n[ ]+\/tmp\/content-review-health\.md/,
+  assertContentReviewUpload(linkHealth);
+  assert.throws(
+    () => assertContentReviewUpload(
+      linkHealth.replace(
+        '            /tmp/content-review-health.md\n          if-no-files-found: error',
+        '            /tmp/content-review-health.md',
+      ),
+    ),
+    /complete content review upload block/,
   );
 });
 
