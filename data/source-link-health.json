@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-07-24T04:38:11.714Z",
+  "generated_at": "2026-07-24T04:56:29.958Z",
   "results": [
     {
       "transport_locator": "https://a2a-protocol.org/latest/",
@@ -8142,16 +8142,15 @@
         "src-github-02f0eb192fbc"
       ],
       "last_attempt": {
-        "at": "2026-07-24T04:38:11.714Z",
-        "outcome": "error",
-        "final_transport_locator": null,
-        "http_status": null,
+        "at": "2026-07-24T04:56:10.524Z",
+        "outcome": "healthy",
+        "final_transport_locator": "https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/group-coordinator/src/main/java/org/apache/kafka/coordinator/group/GroupMetadataManager.java",
+        "http_status": 206,
         "login_wall_detected": false,
-        "redirects": [],
-        "error": "The operation was aborted due to timeout"
+        "redirects": []
       },
       "last_success": {
-        "at": "2026-07-24T04:34:21.202Z",
+        "at": "2026-07-24T04:56:10.524Z",
         "outcome": "healthy",
         "final_transport_locator": "https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/group-coordinator/src/main/java/org/apache/kafka/coordinator/group/GroupMetadataManager.java",
         "http_status": 206,
@@ -8197,9 +8196,16 @@
           "final_transport_locator": null,
           "http_status": null,
           "login_wall_detected": false
+        },
+        {
+          "at": "2026-07-24T04:56:10.524Z",
+          "outcome": "healthy",
+          "final_transport_locator": "https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/group-coordinator/src/main/java/org/apache/kafka/coordinator/group/GroupMetadataManager.java",
+          "http_status": 206,
+          "login_wall_detected": false
         }
       ],
-      "review_status": "stale"
+      "review_status": "healthy"
     },
     {
       "transport_locator": "https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/group-coordinator/src/main/java/org/apache/kafka/coordinator/group/OffsetMetadataManager.java",
@@ -11955,16 +11961,15 @@
         "src-github-6d9baca68974"
       ],
       "last_attempt": {
-        "at": "2026-07-24T04:38:11.714Z",
-        "outcome": "error",
-        "final_transport_locator": null,
-        "http_status": null,
+        "at": "2026-07-24T04:56:13.608Z",
+        "outcome": "healthy",
+        "final_transport_locator": "https://github.com/Kong/developer.konghq.com/blob/f144a33379d5b599efaacf92642a2f9b41018fd6/app/_kong_plugins/ai-a2a-proxy/index.md",
+        "http_status": 206,
         "login_wall_detected": false,
-        "redirects": [],
-        "error": "fetch failed"
+        "redirects": []
       },
       "last_success": {
-        "at": "2026-07-24T04:34:21.202Z",
+        "at": "2026-07-24T04:56:13.608Z",
         "outcome": "healthy",
         "final_transport_locator": "https://github.com/Kong/developer.konghq.com/blob/f144a33379d5b599efaacf92642a2f9b41018fd6/app/_kong_plugins/ai-a2a-proxy/index.md",
         "http_status": 206,
@@ -12010,9 +12015,16 @@
           "final_transport_locator": null,
           "http_status": null,
           "login_wall_detected": false
+        },
+        {
+          "at": "2026-07-24T04:56:13.608Z",
+          "outcome": "healthy",
+          "final_transport_locator": "https://github.com/Kong/developer.konghq.com/blob/f144a33379d5b599efaacf92642a2f9b41018fd6/app/_kong_plugins/ai-a2a-proxy/index.md",
+          "http_status": 206,
+          "login_wall_detected": false
         }
       ],
-      "review_status": "stale"
+      "review_status": "healthy"
     },
     {
       "transport_locator": "https://github.com/Kong/developer.konghq.com/blob/f144a33379d5b599efaacf92642a2f9b41018fd6/app/_kong_plugins/ai-mcp-proxy/index.md",
@@ -12340,16 +12352,15 @@
         "src-github-5854846b87bb"
       ],
       "last_attempt": {
-        "at": "2026-07-24T04:38:11.714Z",
-        "outcome": "error",
-        "final_transport_locator": null,
-        "http_status": null,
+        "at": "2026-07-24T04:56:15.823Z",
+        "outcome": "healthy",
+        "final_transport_locator": "https://github.com/kubeedge/kubeedge/blob/bae61505d4919c404665f70347ad0646aaa98958/cloud/pkg/devicecontroller/controller/downstream.go",
+        "http_status": 206,
         "login_wall_detected": false,
-        "redirects": [],
-        "error": "The operation was aborted due to timeout"
+        "redirects": []
       },
       "last_success": {
-        "at": "2026-07-24T04:34:21.202Z",
+        "at": "2026-07-24T04:56:15.823Z",
         "outcome": "healthy",
         "final_transport_locator": "https://github.com/kubeedge/kubeedge/blob/bae61505d4919c404665f70347ad0646aaa98958/cloud/pkg/devicecontroller/controller/downstream.go",
         "http_status": 206,
@@ -12395,9 +12406,16 @@
           "final_transport_locator": null,
           "http_status": null,
           "login_wall_detected": false
+        },
+        {
+          "at": "2026-07-24T04:56:15.823Z",
+          "outcome": "healthy",
+          "final_transport_locator": "https://github.com/kubeedge/kubeedge/blob/bae61505d4919c404665f70347ad0646aaa98958/cloud/pkg/devicecontroller/controller/downstream.go",
+          "http_status": 206,
+          "login_wall_detected": false
         }
       ],
-      "review_status": "stale"
+      "review_status": "healthy"
     },
     {
       "transport_locator": "https://github.com/kubeedge/kubeedge/blob/bae61505d4919c404665f70347ad0646aaa98958/cloud/pkg/devicecontroller/controller/upstream.go",
@@ -12731,16 +12749,15 @@
         "src-github-a02838503e9e"
       ],
       "last_attempt": {
-        "at": "2026-07-24T04:38:11.714Z",
-        "outcome": "error",
-        "final_transport_locator": null,
-        "http_status": null,
+        "at": "2026-07-24T04:56:18.099Z",
+        "outcome": "healthy",
+        "final_transport_locator": "https://github.com/kubeedge/kubeedge/blob/bae61505d4919c404665f70347ad0646aaa98958/edge/pkg/edged/edged.go",
+        "http_status": 206,
         "login_wall_detected": false,
-        "redirects": [],
-        "error": "The operation was aborted due to timeout"
+        "redirects": []
       },
       "last_success": {
-        "at": "2026-07-24T04:34:21.202Z",
+        "at": "2026-07-24T04:56:18.099Z",
         "outcome": "healthy",
         "final_transport_locator": "https://github.com/kubeedge/kubeedge/blob/bae61505d4919c404665f70347ad0646aaa98958/edge/pkg/edged/edged.go",
         "http_status": 206,
@@ -12792,9 +12809,16 @@
           "final_transport_locator": null,
           "http_status": null,
           "login_wall_detected": false
+        },
+        {
+          "at": "2026-07-24T04:56:18.099Z",
+          "outcome": "healthy",
+          "final_transport_locator": "https://github.com/kubeedge/kubeedge/blob/bae61505d4919c404665f70347ad0646aaa98958/edge/pkg/edged/edged.go",
+          "http_status": 206,
+          "login_wall_detected": false
         }
       ],
-      "review_status": "stale"
+      "review_status": "healthy"
     },
     {
       "transport_locator": "https://github.com/kubeedge/kubeedge/blob/bae61505d4919c404665f70347ad0646aaa98958/edge/pkg/edgehub/certificate/certmanager.go",
@@ -16148,16 +16172,15 @@
         "src-github-422ff6a7f3d9"
       ],
       "last_attempt": {
-        "at": "2026-07-24T04:38:11.714Z",
-        "outcome": "error",
-        "final_transport_locator": null,
-        "http_status": null,
+        "at": "2026-07-24T04:56:20.300Z",
+        "outcome": "healthy",
+        "final_transport_locator": "https://github.com/openai/openai-agents-python/blob/2fa463571e76dae8ff267622f1018eaf06ffeb9f/src/agents/run.py",
+        "http_status": 206,
         "login_wall_detected": false,
-        "redirects": [],
-        "error": "The operation was aborted due to timeout"
+        "redirects": []
       },
       "last_success": {
-        "at": "2026-07-24T04:34:21.202Z",
+        "at": "2026-07-24T04:56:20.300Z",
         "outcome": "healthy",
         "final_transport_locator": "https://github.com/openai/openai-agents-python/blob/2fa463571e76dae8ff267622f1018eaf06ffeb9f/src/agents/run.py",
         "http_status": 206,
@@ -16203,9 +16226,16 @@
           "final_transport_locator": null,
           "http_status": null,
           "login_wall_detected": false
+        },
+        {
+          "at": "2026-07-24T04:56:20.300Z",
+          "outcome": "healthy",
+          "final_transport_locator": "https://github.com/openai/openai-agents-python/blob/2fa463571e76dae8ff267622f1018eaf06ffeb9f/src/agents/run.py",
+          "http_status": 206,
+          "login_wall_detected": false
         }
       ],
-      "review_status": "stale"
+      "review_status": "healthy"
     },
     {
       "transport_locator": "https://github.com/openai/openai-agents-python/tree/2fa463571e76dae8ff267622f1018eaf06ffeb9f",
@@ -18221,16 +18251,15 @@
         "src-github-ed7a160365b6"
       ],
       "last_attempt": {
-        "at": "2026-07-24T04:38:11.714Z",
-        "outcome": "error",
-        "final_transport_locator": null,
-        "http_status": null,
+        "at": "2026-07-24T04:56:22.880Z",
+        "outcome": "healthy",
+        "final_transport_locator": "https://github.com/single-spa/single-spa/blob/297483c11265050542d7ef107d14c44936c51883/src/lifecycles/unmount.js",
+        "http_status": 206,
         "login_wall_detected": false,
-        "redirects": [],
-        "error": "The operation was aborted due to timeout"
+        "redirects": []
       },
       "last_success": {
-        "at": "2026-07-24T04:34:21.202Z",
+        "at": "2026-07-24T04:56:22.880Z",
         "outcome": "healthy",
         "final_transport_locator": "https://github.com/single-spa/single-spa/blob/297483c11265050542d7ef107d14c44936c51883/src/lifecycles/unmount.js",
         "http_status": 206,
@@ -18276,9 +18305,16 @@
           "final_transport_locator": null,
           "http_status": null,
           "login_wall_detected": false
+        },
+        {
+          "at": "2026-07-24T04:56:22.880Z",
+          "outcome": "healthy",
+          "final_transport_locator": "https://github.com/single-spa/single-spa/blob/297483c11265050542d7ef107d14c44936c51883/src/lifecycles/unmount.js",
+          "http_status": 206,
+          "login_wall_detected": false
         }
       ],
-      "review_status": "stale"
+      "review_status": "healthy"
     },
     {
       "transport_locator": "https://github.com/single-spa/single-spa/blob/297483c11265050542d7ef107d14c44936c51883/src/navigation/reroute.js",
@@ -18542,16 +18578,15 @@
         "src-github-35d38ee0c89d"
       ],
       "last_attempt": {
-        "at": "2026-07-24T04:38:11.714Z",
-        "outcome": "error",
-        "final_transport_locator": null,
-        "http_status": null,
+        "at": "2026-07-24T04:56:25.218Z",
+        "outcome": "healthy",
+        "final_transport_locator": "https://github.com/temporalio/sdk-go/tree/3cebc26908119368df3911df6146f756bad3882b",
+        "http_status": 206,
         "login_wall_detected": false,
-        "redirects": [],
-        "error": "The operation was aborted due to timeout"
+        "redirects": []
       },
       "last_success": {
-        "at": "2026-07-24T04:34:21.202Z",
+        "at": "2026-07-24T04:56:25.218Z",
         "outcome": "healthy",
         "final_transport_locator": "https://github.com/temporalio/sdk-go/tree/3cebc26908119368df3911df6146f756bad3882b",
         "http_status": 206,
@@ -18597,9 +18632,16 @@
           "final_transport_locator": null,
           "http_status": null,
           "login_wall_detected": false
+        },
+        {
+          "at": "2026-07-24T04:56:25.218Z",
+          "outcome": "healthy",
+          "final_transport_locator": "https://github.com/temporalio/sdk-go/tree/3cebc26908119368df3911df6146f756bad3882b",
+          "http_status": 206,
+          "login_wall_detected": false
         }
       ],
-      "review_status": "stale"
+      "review_status": "healthy"
     },
     {
       "transport_locator": "https://github.com/temporalio/sdk-java/blob/6d09a341c14daeddf9b3795cd43721de770fec2c/temporal-sdk/src/main/java/io/temporal/internal/activity/ActivityExecutionContextFactoryImpl.java",
@@ -18997,16 +19039,15 @@
         "src-github-3018ec20158d"
       ],
       "last_attempt": {
-        "at": "2026-07-24T04:38:11.714Z",
-        "outcome": "error",
-        "final_transport_locator": null,
-        "http_status": null,
+        "at": "2026-07-24T04:56:27.530Z",
+        "outcome": "healthy",
+        "final_transport_locator": "https://github.com/temporalio/temporal/blob/955948007cc6d9d94fa8ef484225954bd9328451/service/history/timer_queue_active_task_executor.go",
+        "http_status": 206,
         "login_wall_detected": false,
-        "redirects": [],
-        "error": "The operation was aborted due to timeout"
+        "redirects": []
       },
       "last_success": {
-        "at": "2026-07-24T04:34:21.202Z",
+        "at": "2026-07-24T04:56:27.530Z",
         "outcome": "healthy",
         "final_transport_locator": "https://github.com/temporalio/temporal/blob/955948007cc6d9d94fa8ef484225954bd9328451/service/history/timer_queue_active_task_executor.go",
         "http_status": 206,
@@ -19052,9 +19093,16 @@
           "final_transport_locator": null,
           "http_status": null,
           "login_wall_detected": false
+        },
+        {
+          "at": "2026-07-24T04:56:27.530Z",
+          "outcome": "healthy",
+          "final_transport_locator": "https://github.com/temporalio/temporal/blob/955948007cc6d9d94fa8ef484225954bd9328451/service/history/timer_queue_active_task_executor.go",
+          "http_status": 206,
+          "login_wall_detected": false
         }
       ],
-      "review_status": "stale"
+      "review_status": "healthy"
     },
     {
       "transport_locator": "https://github.com/temporalio/temporal/blob/955948007cc6d9d94fa8ef484225954bd9328451/service/history/workflow/mutable_state_impl.go",

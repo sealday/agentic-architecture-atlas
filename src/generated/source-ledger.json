@@ -5905,15 +5905,15 @@
       "expected_final_transport_locator": "https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/group-coordinator/src/main/java/org/apache/kafka/coordinator/group/GroupMetadataManager.java",
       "expected_final_approved_at": "2026-07-24",
       "expected_final_approval_note": "Initial reviewed migration transport baseline",
-      "health_summary": "stale",
+      "health_summary": "healthy",
       "health_checks": [
         {
           "transport_locator": "https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/group-coordinator/src/main/java/org/apache/kafka/coordinator/group/GroupMetadataManager.java",
-          "status": "stale",
-          "last_attempt_at": "2026-07-24T04:38:11.714Z",
-          "last_success_at": "2026-07-24T04:34:21.202Z",
-          "http_status": null,
-          "final_transport_locator": null
+          "status": "healthy",
+          "last_attempt_at": "2026-07-24T04:56:10.524Z",
+          "last_success_at": "2026-07-24T04:56:10.524Z",
+          "http_status": 206,
+          "final_transport_locator": "https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/group-coordinator/src/main/java/org/apache/kafka/coordinator/group/GroupMetadataManager.java"
         }
       ]
     },
@@ -7179,15 +7179,15 @@
       "expected_final_transport_locator": "https://github.com/temporalio/temporal/blob/955948007cc6d9d94fa8ef484225954bd9328451/service/history/timer_queue_active_task_executor.go",
       "expected_final_approved_at": "2026-07-24",
       "expected_final_approval_note": "Initial reviewed migration transport baseline",
-      "health_summary": "stale",
+      "health_summary": "healthy",
       "health_checks": [
         {
           "transport_locator": "https://github.com/temporalio/temporal/blob/955948007cc6d9d94fa8ef484225954bd9328451/service/history/timer_queue_active_task_executor.go",
-          "status": "stale",
-          "last_attempt_at": "2026-07-24T04:38:11.714Z",
-          "last_success_at": "2026-07-24T04:34:21.202Z",
-          "http_status": null,
-          "final_transport_locator": null
+          "status": "healthy",
+          "last_attempt_at": "2026-07-24T04:56:27.530Z",
+          "last_success_at": "2026-07-24T04:56:27.530Z",
+          "http_status": 206,
+          "final_transport_locator": "https://github.com/temporalio/temporal/blob/955948007cc6d9d94fa8ef484225954bd9328451/service/history/timer_queue_active_task_executor.go"
         }
       ]
     },
@@ -7424,15 +7424,15 @@
       "expected_final_transport_locator": "https://github.com/temporalio/sdk-go/tree/3cebc26908119368df3911df6146f756bad3882b",
       "expected_final_approved_at": "2026-07-24",
       "expected_final_approval_note": "Initial reviewed migration transport baseline",
-      "health_summary": "stale",
+      "health_summary": "healthy",
       "health_checks": [
         {
           "transport_locator": "https://github.com/temporalio/sdk-go/tree/3cebc26908119368df3911df6146f756bad3882b",
-          "status": "stale",
-          "last_attempt_at": "2026-07-24T04:38:11.714Z",
-          "last_success_at": "2026-07-24T04:34:21.202Z",
-          "http_status": null,
-          "final_transport_locator": null
+          "status": "healthy",
+          "last_attempt_at": "2026-07-24T04:56:25.218Z",
+          "last_success_at": "2026-07-24T04:56:25.218Z",
+          "http_status": 206,
+          "final_transport_locator": "https://github.com/temporalio/sdk-go/tree/3cebc26908119368df3911df6146f756bad3882b"
         }
       ]
     },
@@ -7963,15 +7963,15 @@
       "expected_final_transport_locator": "https://github.com/openai/openai-agents-python/blob/2fa463571e76dae8ff267622f1018eaf06ffeb9f/src/agents/run.py",
       "expected_final_approved_at": "2026-07-24",
       "expected_final_approval_note": "Initial reviewed migration transport baseline",
-      "health_summary": "stale",
+      "health_summary": "healthy",
       "health_checks": [
         {
           "transport_locator": "https://github.com/openai/openai-agents-python/blob/2fa463571e76dae8ff267622f1018eaf06ffeb9f/src/agents/run.py",
-          "status": "stale",
-          "last_attempt_at": "2026-07-24T04:38:11.714Z",
-          "last_success_at": "2026-07-24T04:34:21.202Z",
-          "http_status": null,
-          "final_transport_locator": null
+          "status": "healthy",
+          "last_attempt_at": "2026-07-24T04:56:20.300Z",
+          "last_success_at": "2026-07-24T04:56:20.300Z",
+          "http_status": 206,
+          "final_transport_locator": "https://github.com/openai/openai-agents-python/blob/2fa463571e76dae8ff267622f1018eaf06ffeb9f/src/agents/run.py"
         }
       ]
     },
@@ -9182,15 +9182,15 @@
       "expected_final_transport_locator": "https://github.com/kubeedge/kubeedge/blob/bae61505d4919c404665f70347ad0646aaa98958/cloud/pkg/devicecontroller/controller/downstream.go",
       "expected_final_approved_at": "2026-07-24",
       "expected_final_approval_note": "Initial reviewed migration transport baseline",
-      "health_summary": "stale",
+      "health_summary": "healthy",
       "health_checks": [
         {
           "transport_locator": "https://github.com/kubeedge/kubeedge/blob/bae61505d4919c404665f70347ad0646aaa98958/cloud/pkg/devicecontroller/controller/downstream.go",
-          "status": "stale",
-          "last_attempt_at": "2026-07-24T04:38:11.714Z",
-          "last_success_at": "2026-07-24T04:34:21.202Z",
-          "http_status": null,
-          "final_transport_locator": null
+          "status": "healthy",
+          "last_attempt_at": "2026-07-24T04:56:15.823Z",
+          "last_success_at": "2026-07-24T04:56:15.823Z",
+          "http_status": 206,
+          "final_transport_locator": "https://github.com/kubeedge/kubeedge/blob/bae61505d4919c404665f70347ad0646aaa98958/cloud/pkg/devicecontroller/controller/downstream.go"
         }
       ]
     },
@@ -10211,15 +10211,15 @@
       "expected_final_transport_locator": "https://github.com/Kong/developer.konghq.com/blob/f144a33379d5b599efaacf92642a2f9b41018fd6/app/_kong_plugins/ai-a2a-proxy/index.md",
       "expected_final_approved_at": "2026-07-24",
       "expected_final_approval_note": "Initial reviewed migration transport baseline",
-      "health_summary": "stale",
+      "health_summary": "healthy",
       "health_checks": [
         {
           "transport_locator": "https://github.com/Kong/developer.konghq.com/blob/f144a33379d5b599efaacf92642a2f9b41018fd6/app/_kong_plugins/ai-a2a-proxy/index.md",
-          "status": "stale",
-          "last_attempt_at": "2026-07-24T04:38:11.714Z",
-          "last_success_at": "2026-07-24T04:34:21.202Z",
-          "http_status": null,
-          "final_transport_locator": null
+          "status": "healthy",
+          "last_attempt_at": "2026-07-24T04:56:13.608Z",
+          "last_success_at": "2026-07-24T04:56:13.608Z",
+          "http_status": 206,
+          "final_transport_locator": "https://github.com/Kong/developer.konghq.com/blob/f144a33379d5b599efaacf92642a2f9b41018fd6/app/_kong_plugins/ai-a2a-proxy/index.md"
         }
       ]
     },
@@ -11865,15 +11865,15 @@
       "expected_final_transport_locator": "https://github.com/kubeedge/kubeedge/blob/bae61505d4919c404665f70347ad0646aaa98958/edge/pkg/edged/edged.go",
       "expected_final_approved_at": "2026-07-24",
       "expected_final_approval_note": "Initial reviewed migration transport baseline",
-      "health_summary": "stale",
+      "health_summary": "healthy",
       "health_checks": [
         {
           "transport_locator": "https://github.com/kubeedge/kubeedge/blob/bae61505d4919c404665f70347ad0646aaa98958/edge/pkg/edged/edged.go",
-          "status": "stale",
-          "last_attempt_at": "2026-07-24T04:38:11.714Z",
-          "last_success_at": "2026-07-24T04:34:21.202Z",
-          "http_status": null,
-          "final_transport_locator": null
+          "status": "healthy",
+          "last_attempt_at": "2026-07-24T04:56:18.099Z",
+          "last_success_at": "2026-07-24T04:56:18.099Z",
+          "http_status": 206,
+          "final_transport_locator": "https://github.com/kubeedge/kubeedge/blob/bae61505d4919c404665f70347ad0646aaa98958/edge/pkg/edged/edged.go"
         }
       ]
     },
@@ -14591,15 +14591,15 @@
       "expected_final_transport_locator": "https://github.com/single-spa/single-spa/blob/297483c11265050542d7ef107d14c44936c51883/src/lifecycles/unmount.js",
       "expected_final_approved_at": "2026-07-24",
       "expected_final_approval_note": "Initial reviewed migration transport baseline",
-      "health_summary": "stale",
+      "health_summary": "healthy",
       "health_checks": [
         {
           "transport_locator": "https://github.com/single-spa/single-spa/blob/297483c11265050542d7ef107d14c44936c51883/src/lifecycles/unmount.js",
-          "status": "stale",
-          "last_attempt_at": "2026-07-24T04:38:11.714Z",
-          "last_success_at": "2026-07-24T04:34:21.202Z",
-          "http_status": null,
-          "final_transport_locator": null
+          "status": "healthy",
+          "last_attempt_at": "2026-07-24T04:56:22.880Z",
+          "last_success_at": "2026-07-24T04:56:22.880Z",
+          "http_status": 206,
+          "final_transport_locator": "https://github.com/single-spa/single-spa/blob/297483c11265050542d7ef107d14c44936c51883/src/lifecycles/unmount.js"
         }
       ]
     },
