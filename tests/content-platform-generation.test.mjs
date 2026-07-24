@@ -58,9 +58,9 @@ const caseBody = [
 
 const conceptBody = [
   '# Example concept',
-  '[概念入口](/concepts)',
+  '<Link to="/concepts">概念入口</Link>',
   '[Example concept](/concepts/example)',
-  '[Adjacent concept](/concepts/adjacent)',
+  "<Link to='/concepts/adjacent'>Adjacent concept</Link>",
   '[Example case](/cases/example)',
   '## 学习问题',
   '## 定义与尺度边界',
@@ -459,13 +459,14 @@ test('rejects snapshots with hidden or missing visible knowledge relationships',
     const original = await readFile(documentPath, 'utf8');
     const scenarios = [
       {
-        visible: '[概念入口](/concepts)',
-        hidden: '<!-- [概念入口](/concepts) -->',
+        visible: '<Link to="/concepts">概念入口</Link>',
+        hidden: '<!-- <Link to="/concepts">概念入口</Link> -->',
         error: /content\/concepts\/example\.mdx: missing visible parent link "\/concepts"/,
       },
       {
-        visible: '[Adjacent concept](/concepts/adjacent)',
-        hidden: '```\n[Adjacent concept](/concepts/adjacent)\n```',
+        visible: "<Link to='/concepts/adjacent'>Adjacent concept</Link>",
+        hidden:
+          "```\n<Link to='/concepts/adjacent'>Adjacent concept</Link>\n```",
         error:
           /content\/concepts\/example\.mdx: missing visible adjacent topic link "\/concepts\/adjacent"/,
       },
@@ -479,6 +480,37 @@ test('rejects snapshots with hidden or missing visible knowledge relationships',
 
     for (const {visible, hidden, error} of scenarios) {
       await writeFile(documentPath, original.replace(visible, hidden));
+      await assert.rejects(buildContentArtifacts(root), error);
+    }
+  });
+});
+
+test('rejects Markdown images used in place of every visible relationship kind', async () => {
+  await withRepositoryFixture(async (root) => {
+    const documentPath = path.join(root, 'content/concepts/example.mdx');
+    const original = await readFile(documentPath, 'utf8');
+    const scenarios = [
+      {
+        visible: '<Link to="/concepts">概念入口</Link>',
+        image: '![概念入口](/concepts)',
+        error: /content\/concepts\/example\.mdx: missing visible parent link "\/concepts"/,
+      },
+      {
+        visible: "<Link to='/concepts/adjacent'>Adjacent concept</Link>",
+        image: '![Adjacent concept](/concepts/adjacent)',
+        error:
+          /content\/concepts\/example\.mdx: missing visible adjacent topic link "\/concepts\/adjacent"/,
+      },
+      {
+        visible: '[Example case](/cases/example)',
+        image: '![Example case](/cases/example)',
+        error:
+          /content\/concepts\/example\.mdx: missing visible related case or question link \(expected one of: "\/cases\/example"\)/,
+      },
+    ];
+
+    for (const {visible, image, error} of scenarios) {
+      await writeFile(documentPath, original.replace(visible, image));
       await assert.rejects(buildContentArtifacts(root), error);
     }
   });

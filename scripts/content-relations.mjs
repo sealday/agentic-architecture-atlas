@@ -28,8 +28,9 @@ export function extractInternalLinks(document) {
       '',
     );
     for (const pattern of [
-      /\]\((\/[^)\s]+)(?:\s+["'][^"']*["'])?\)/g,
+      /(?<!!)\[(?:\\.|[^\]\\])*\]\((\/[^)\s]+)(?:\s+["'][^"']*["'])?\)/g,
       /\bhref=(?:["'])(\/[^"']+)(?:["'])/g,
+      /\bto=(?:["'])(\/[^"']+)(?:["'])/g,
     ]) {
       for (const match of withoutInlineCode.matchAll(pattern)) {
         links.add(normalizeInternalPath(match[1]));
@@ -81,7 +82,8 @@ export function validateContentRelations({documents, manifest}) {
     ];
     if (!terminal.some((slug) => visible.has(slug))) {
       errors.push(
-        `${contentPath(document.file)}: missing visible related case or question link`,
+        `${contentPath(document.file)}: missing visible related case or question link ` +
+          `(expected one of: ${terminal.map((slug) => JSON.stringify(slug)).join(', ')})`,
       );
     }
   }
