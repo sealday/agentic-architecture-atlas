@@ -191,6 +191,14 @@ function validateMigrationHeadingContract(file, headings, errors) {
   }
 }
 
+function isKnowledgeArticle(file, metadata) {
+  return (
+    knowledgeContentTypes.includes(metadata.content_type) &&
+    file !== 'index.mdx' &&
+    !file.endsWith('/index.mdx')
+  );
+}
+
 export async function validateContent(root, {requiredCollection} = {}) {
   if (
     requiredCollection !== undefined &&
@@ -301,7 +309,7 @@ export async function validateContent(root, {requiredCollection} = {}) {
       }
     }
 
-    if (knowledgeContentTypes.includes(metadata.content_type)) {
+    if (isKnowledgeArticle(file, metadata)) {
       const type = metadata.content_type;
 
       for (const field of knowledgeRequiredFields) {

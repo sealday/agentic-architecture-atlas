@@ -21,6 +21,7 @@ export const knowledgeContentTypes = [
   'method',
   'modeling',
   'style',
+  'pattern',
 ];
 
 export const knowledgeRequiredFields = [
@@ -100,6 +101,19 @@ export const knowledgeTypeContracts = {
     '## 对比案例',
     '## 来源',
   ],
+  pattern: [
+    '## 学习问题',
+    '## 问题与适用上下文',
+    '## 约束与驱动力',
+    '## 结构与协作关系',
+    '## 运行机制',
+    '## 失败模式与误用',
+    '## 质量属性权衡',
+    '## 实现与迁移提示',
+    '## 相邻模式与反模式',
+    '## 说明性场景',
+    '## 来源',
+  ],
 };
 
 export const qualityAttributeScenarioHeadings = [
@@ -114,7 +128,6 @@ export const qualityAttributeScenarioHeadings = [
 export const allowedValues = {
   content_type: [
     'case',
-    'pattern',
     'question',
     'path',
     'reference',

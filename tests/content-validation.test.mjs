@@ -959,6 +959,79 @@ function validKnowledgeFrontMatter(type, overrides = {}) {
   });
 }
 
+const patternHeadings = [
+  '## 学习问题',
+  '## 问题与适用上下文',
+  '## 约束与驱动力',
+  '## 结构与协作关系',
+  '## 运行机制',
+  '## 失败模式与误用',
+  '## 质量属性权衡',
+  '## 实现与迁移提示',
+  '## 相邻模式与反模式',
+  '## 说明性场景',
+  '## 来源',
+];
+
+test('accepts the Pattern knowledge contract and excludes the Pattern index', async () => {
+  await withTempRoot(async (root) => {
+    await writeMdx(
+      root,
+      'patterns/rel-02.mdx',
+      validKnowledgeFrontMatter('pattern', {
+        topic_id: 'REL-02',
+        slug: '/patterns/rel-02',
+      }),
+      patternHeadings.join('\n\n'),
+    );
+    await writeMdx(
+      root,
+      'patterns/index.mdx',
+      frontMatter({
+        title: '架构模式',
+        slug: '/patterns',
+        content_type: 'pattern',
+        status: 'reviewed',
+        difficulty: 'intermediate',
+        analyzed_at: '2026-07-24',
+        source_cutoff: '2026-07-24',
+        confidence: 'high',
+        domains: ['software-architecture'],
+        agent_patterns: [],
+        protocols: [],
+        quality_attributes: ['maintainability'],
+        tags: ['模式'],
+      }),
+      '# 架构模式',
+    );
+
+    const result = await validateContent(root);
+    assert.deepEqual(result.errors, []);
+  });
+});
+
+test('rejects a Pattern article with a reordered mechanism section', async () => {
+  await withTempRoot(async (root) => {
+    const reordered = [...patternHeadings];
+    [reordered[4], reordered[5]] = [reordered[5], reordered[4]];
+    await writeMdx(
+      root,
+      'patterns/rel-02.mdx',
+      validKnowledgeFrontMatter('pattern', {
+        topic_id: 'REL-02',
+        slug: '/patterns/rel-02',
+      }),
+      reordered.join('\n\n'),
+    );
+
+    const result = await validateContent(root);
+    assert.match(
+      result.errors.join('\n'),
+      /invalid ## 学习问题-contract H2 sequence at position 5/,
+    );
+  });
+});
+
 test('accepts all six knowledge content contracts', async () => {
   await withTempRoot(async (root) => {
     await Promise.all(
