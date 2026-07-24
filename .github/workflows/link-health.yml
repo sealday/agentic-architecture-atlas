@@ -28,3 +28,15 @@ jobs:
           name: source-link-health-live
           path: /tmp/source-link-health-live.json
           if-no-files-found: error
+      - name: Build content review report
+        if: always()
+        run: npm run report:reviews -- --as-of "$(date -u +%F)" --json /tmp/content-review-health.json --markdown /tmp/content-review-health.md
+      - name: Upload content review report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: content-review-health
+          path: |
+            /tmp/content-review-health.json
+            /tmp/content-review-health.md
+          if-no-files-found: error

@@ -73,6 +73,28 @@ test('pins every GitHub action and uploads the live report even on failure', asy
   assert.match(linkHealth, /if-no-files-found: error/);
 });
 
+test('always builds and uploads the monthly content review reports', async () => {
+  const linkHealth = await readWorkflow(linkHealthUrl);
+
+  assert.match(
+    linkHealth,
+    /run: npm run report:reviews -- --as-of "\$\(date -u \+%F\)" --json \/tmp\/content-review-health\.json --markdown \/tmp\/content-review-health\.md/,
+  );
+  assert.match(
+    linkHealth,
+    /- name: Build content review report\n[ ]+if: always\(\)\n[ ]+run: npm run report:reviews/,
+  );
+  assert.match(
+    linkHealth,
+    /- name: Upload content review report\n[ ]+if: always\(\)\n[ ]+uses: actions\/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02/,
+  );
+  assert.match(linkHealth, /name: content-review-health/);
+  assert.match(
+    linkHealth,
+    /path: \|\n[ ]+\/tmp\/content-review-health\.json\n[ ]+\/tmp\/content-review-health\.md/,
+  );
+});
+
 test('keeps workflow YAML indentation and top-level keys unambiguous', async () => {
   for (const [name, source] of [
     ['deploy.yml', await readWorkflow(deployUrl)],
