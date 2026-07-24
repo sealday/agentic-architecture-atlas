@@ -409,19 +409,31 @@ test('selects exactly one manifest-primary citation for MTH-05 and MTH-06', () =
   }
 });
 
-test('uses the official AWS Site Terms as GameDay license evidence', () => {
+test('governs AWS GameDay documentation as CC BY-SA 4.0 while separating code', () => {
   const awsGameDay = sourcesById.get('src-docs-930fe7f32f90');
   assert.ok(awsGameDay, 'Missing governed AWS GameDay source');
+  assert.equal(awsGameDay.license, 'CC-BY-SA-4.0');
+  assert.equal(awsGameDay.copyright_policy, 'adapt-sharealike-review');
   assert.equal(awsGameDay.license_evidence_url, 'https://aws.amazon.com/terms/');
   assert.match(
     awsGameDay.license_evidence_note,
-    /AWS Site Terms/iu,
-    'AWS license note must identify the Site Terms',
+    /docs\.aws\.amazon\.com.{0,120}(?:CC BY-SA 4\.0|CC-BY-SA-4\.0)/iu,
+    'AWS license note must identify the documentation license',
   );
   assert.match(
     awsGameDay.license_evidence_note,
-    /(?:no reusable license|does not grant|未授予|未发现可复用许可).{0,120}(?:facts|事实摘要)/isu,
-    'AWS license note must retain the conservative facts-summary boundary',
+    /(?:code|代码).{0,80}MIT-0/iu,
+    'AWS license note must distinguish the code license',
+  );
+  assert.match(
+    awsGameDay.license_evidence_note,
+    /(?:current|当前).{0,80}(?:documentation|文档).{0,40}(?:page|页面)/iu,
+    'AWS license note must limit the evidence to the current documentation page',
+  );
+  assert.doesNotMatch(
+    awsGameDay.license_evidence_note,
+    /no reusable license|does not grant|未授予|未发现可复用许可/iu,
+    'AWS license note must not deny the reusable documentation license',
   );
 });
 
