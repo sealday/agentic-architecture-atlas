@@ -31,6 +31,18 @@ const caseSeriesById = new Map([
     },
   ],
 ]);
+const reviewPolicyById = new Map([
+  [
+    'quarterly-version-sensitive',
+    {
+      id: 'quarterly-version-sensitive',
+      label: '季度版本敏感复核',
+      calendar_months: 3,
+      warning_days: 30,
+      description: '按来源版本边界复核。',
+    },
+  ],
+]);
 
 function caseTopic(slug, catalogOrder) {
   return {
@@ -182,6 +194,7 @@ test('builds a deterministic catalog containing only ordered case fields', async
     const entries = await buildCaseCatalog(contentRoot, {
       patternGroupRegistry,
       caseSeriesById,
+      reviewPolicyById,
     });
     const expectedKeys = [
       'title',
@@ -238,6 +251,7 @@ test('builds the catalog from the validated document snapshot without rereading 
       await buildCaseCatalog(contentRoot, {
         patternGroupRegistry,
         caseSeriesById,
+        reviewPolicyById,
       });
     } finally {
       fs.promises.readFile = originalReadFile;
@@ -256,12 +270,14 @@ test('writes current catalog bytes and detects a stale output file', async () =>
       outputPath,
       patternGroupRegistry,
       caseSeriesById,
+      reviewPolicyById,
     });
 
     const expected = serializeCaseCatalog(
       await buildCaseCatalog(contentRoot, {
         patternGroupRegistry,
         caseSeriesById,
+        reviewPolicyById,
       }),
     );
     assert.equal(await readFile(outputPath, 'utf8'), expected);
@@ -271,6 +287,7 @@ test('writes current catalog bytes and detects a stale output file', async () =>
         outputPath,
         patternGroupRegistry,
         caseSeriesById,
+        reviewPolicyById,
       }),
       {matches: true},
     );
@@ -282,6 +299,7 @@ test('writes current catalog bytes and detects a stale output file', async () =>
         outputPath,
         patternGroupRegistry,
         caseSeriesById,
+        reviewPolicyById,
       }),
       {matches: false},
     );

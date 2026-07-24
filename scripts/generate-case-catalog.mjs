@@ -6,6 +6,7 @@ import {parseBacklogTopics} from './backlog-topics.mjs';
 import {
   loadCaseSeriesRegistry,
   loadPatternGroupRegistry,
+  loadReviewPolicyRegistry,
 } from './content-registries.mjs';
 import {validateContent} from './validate-content.mjs';
 import {projectPublishedDocuments} from './topic-manifest.mjs';
@@ -43,7 +44,7 @@ export const catalogFields = [
  */
 export async function buildCaseCatalog(
   root,
-  {patternGroupRegistry, caseSeriesById} = {},
+  {patternGroupRegistry, caseSeriesById, reviewPolicyById} = {},
 ) {
   if (!(caseSeriesById instanceof Map)) {
     throw new TypeError('buildCaseCatalog requires caseSeriesById');
@@ -51,6 +52,7 @@ export async function buildCaseCatalog(
   const validation = await validateContent(root, {
     patternGroupRegistry,
     caseSeriesById,
+    reviewPolicyById,
   });
   if (validation.errors.length > 0) {
     throw new Error(`Content validation failed:\n${validation.errors.join('\n')}`);
@@ -86,11 +88,13 @@ export async function writeCaseCatalog({
   outputPath,
   patternGroupRegistry,
   caseSeriesById,
+  reviewPolicyById,
 }) {
   const serialized = serializeCaseCatalog(
     await buildCaseCatalog(contentRoot, {
       patternGroupRegistry,
       caseSeriesById,
+      reviewPolicyById,
     }),
   );
   await mkdir(path.dirname(outputPath), {recursive: true});
@@ -106,12 +110,14 @@ export async function checkCaseCatalog({
   outputPath,
   patternGroupRegistry,
   caseSeriesById,
+  reviewPolicyById,
 }) {
   const expected = Buffer.from(
     serializeCaseCatalog(
       await buildCaseCatalog(contentRoot, {
         patternGroupRegistry,
         caseSeriesById,
+        reviewPolicyById,
       }),
     ),
   );
@@ -154,10 +160,13 @@ async function runCli() {
       parsedBacklog.topics,
     );
     const caseSeriesRegistry = await loadCaseSeriesRegistry(projectRoot);
+    const reviewPolicyRegistry =
+      await loadReviewPolicyRegistry(projectRoot);
     const inputErrors = [
       ...parsedBacklog.errors,
       ...patternGroupRegistry.errors,
       ...caseSeriesRegistry.errors,
+      ...reviewPolicyRegistry.errors,
     ];
     if (inputErrors.length) {
       throw new Error(`Registry input failed:\n${inputErrors.join('\n')}`);
@@ -169,6 +178,7 @@ async function runCli() {
         outputPath,
         patternGroupRegistry,
         caseSeriesById: caseSeriesRegistry.byId,
+        reviewPolicyById: reviewPolicyRegistry.byId,
       });
       if (!matches) {
         console.error('Catalog is stale. Run npm run generate:catalog.');
@@ -182,6 +192,7 @@ async function runCli() {
       outputPath,
       patternGroupRegistry,
       caseSeriesById: caseSeriesRegistry.byId,
+      reviewPolicyById: reviewPolicyRegistry.byId,
     });
   } catch (error) {
     console.error(error instanceof Error ? error.message : String(error));

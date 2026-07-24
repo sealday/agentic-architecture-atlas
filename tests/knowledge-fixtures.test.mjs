@@ -9,6 +9,7 @@ import {knowledgeTypeContracts} from '../scripts/content-schema.mjs';
 import {
   loadCaseSeriesRegistry,
   loadPatternGroupRegistry,
+  loadReviewPolicyRegistry,
 } from '../scripts/content-registries.mjs';
 import {validateContent} from '../scripts/validate-content.mjs';
 
@@ -59,10 +60,13 @@ test('publishes one production fixture for each independent knowledge contract',
   assert.deepEqual(patternGroupRegistry.errors, []);
   const caseSeriesRegistry = await loadCaseSeriesRegistry(root);
   assert.deepEqual(caseSeriesRegistry.errors, []);
+  const reviewPolicyRegistry = await loadReviewPolicyRegistry(root);
+  assert.deepEqual(reviewPolicyRegistry.errors, []);
 
   const validation = await validateContent(contentRoot, {
     patternGroupRegistry,
     caseSeriesById: caseSeriesRegistry.byId,
+    reviewPolicyById: reviewPolicyRegistry.byId,
   });
   assert.deepEqual(validation.errors, []);
 });

@@ -15,6 +15,7 @@ import {parseBacklogTopics} from './backlog-topics.mjs';
 import {
   loadCaseSeriesRegistry,
   loadPatternGroupRegistry,
+  loadReviewPolicyRegistry,
 } from './content-registries.mjs';
 import {validateContentRelations} from './content-relations.mjs';
 import {
@@ -250,10 +251,12 @@ export async function buildContentArtifacts(root) {
     parsedBacklog.topics,
   );
   const caseSeriesRegistry = await loadCaseSeriesRegistry(root);
+  const reviewPolicyRegistry = await loadReviewPolicyRegistry(root);
   const inputErrors = [
     ...parsedBacklog.errors,
     ...patternGroupRegistry.errors,
     ...caseSeriesRegistry.errors,
+    ...reviewPolicyRegistry.errors,
   ];
   if (inputErrors.length) {
     throw new Error(`Registry input failed:\n${inputErrors.join('\n')}`);
@@ -288,6 +291,7 @@ export async function buildContentArtifacts(root) {
   const validation = await validateContent(contentRoot, {
     patternGroupRegistry,
     caseSeriesById: caseSeriesRegistry.byId,
+    reviewPolicyById: reviewPolicyRegistry.byId,
   });
   if (validation.errors.length) {
     throw new Error(

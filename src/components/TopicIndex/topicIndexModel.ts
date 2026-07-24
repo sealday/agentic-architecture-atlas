@@ -31,6 +31,7 @@ export type TopicIndexEntry = {
   related_cases: string[];
   related_questions: string[];
   reviewed_at: string | null;
+  review_policy: string | null;
   published: boolean;
   pattern_group: string | null;
 };
@@ -88,6 +89,8 @@ function isTopicIndexEntry(
     isStringArray(value.related_cases) &&
     isStringArray(value.related_questions) &&
     (value.reviewed_at === null || typeof value.reviewed_at === 'string') &&
+    (value.review_policy === null ||
+      typeof value.review_policy === 'string') &&
     typeof value.published === 'boolean' &&
     (value.pattern_group === null || typeof value.pattern_group === 'string')
   );

@@ -7,6 +7,7 @@ import {parseBacklogTopics} from './backlog-topics.mjs';
 import {
   loadCaseSeriesRegistry,
   loadPatternGroupRegistry,
+  loadReviewPolicyRegistry,
 } from './content-registries.mjs';
 import {
   parseSourceLedger,
@@ -188,7 +189,7 @@ function isKnowledgeArticle(file, metadata) {
 
 export async function validateContent(
   root,
-  {patternGroupRegistry, caseSeriesById} = {},
+  {patternGroupRegistry, caseSeriesById, reviewPolicyById} = {},
 ) {
   if (
     !patternGroupRegistry ||
@@ -203,6 +204,11 @@ export async function validateContent(
   if (!(caseSeriesById instanceof Map)) {
     throw new TypeError(
       'Case series registry is required; call loadCaseSeriesRegistry(projectRoot)',
+    );
+  }
+  if (!(reviewPolicyById instanceof Map) || reviewPolicyById.size === 0) {
+    throw new TypeError(
+      'Review policy registry is required; call loadReviewPolicyRegistry(projectRoot)',
     );
   }
 
@@ -222,6 +228,21 @@ export async function validateContent(
       const value = metadata[field];
       if (value !== undefined && !values.includes(value)) {
         errors.push(`${file}: invalid ${field} value "${value}"`);
+      }
+    }
+
+    if ('review_policy' in metadata) {
+      if (
+        typeof metadata.review_policy !== 'string' ||
+        metadata.review_policy.trim() === ''
+      ) {
+        errors.push(
+          `${file}: field "review_policy" must be a registered policy ID`,
+        );
+      } else if (!reviewPolicyById.has(metadata.review_policy)) {
+        errors.push(
+          `${file}: unregistered review policy "${metadata.review_policy}"`,
+        );
       }
     }
 
@@ -471,16 +492,20 @@ async function runCli() {
       topics,
     );
     const caseSeriesRegistry = await loadCaseSeriesRegistry(projectRoot);
-    const {documents, errors: contentErrors} = await validateContent(
-      contentRoot,
-      {
-        patternGroupRegistry,
-        caseSeriesById: caseSeriesRegistry.byId,
-      },
-    );
+    const reviewPolicyRegistry =
+      await loadReviewPolicyRegistry(projectRoot);
+    const {documents, errors: contentErrors} =
+      reviewPolicyRegistry.errors.length > 0
+        ? {documents: [], errors: []}
+        : await validateContent(contentRoot, {
+            patternGroupRegistry,
+            caseSeriesById: caseSeriesRegistry.byId,
+            reviewPolicyById: reviewPolicyRegistry.byId,
+          });
     const errors = [
       ...inputErrors,
       ...caseSeriesRegistry.errors,
+      ...reviewPolicyRegistry.errors,
       ...contentErrors,
     ];
     let ledger;

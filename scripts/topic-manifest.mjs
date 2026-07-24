@@ -131,6 +131,7 @@ function projectBacklogTopic(topic, patternGroupByTopicId) {
     related_cases: [],
     related_questions: [],
     reviewed_at: null,
+    review_policy: null,
     published: false,
     pattern_group: patternGroupByTopicId.get(topic.id) ?? null,
   };
@@ -165,6 +166,7 @@ function projectDocument(
     related_cases: copyArray(metadata.related_cases ?? []),
     related_questions: copyArray(metadata.related_questions ?? []),
     reviewed_at: metadata.analyzed_at,
+    review_policy: metadata.review_policy ?? null,
     published: true,
     pattern_group: patternGroupByTopicId.get(id) ?? null,
     presentation,

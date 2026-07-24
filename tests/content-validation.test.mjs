@@ -14,6 +14,7 @@ import {parseBacklogTopics} from '../scripts/backlog-topics.mjs';
 import {
   loadCaseSeriesRegistry,
   loadPatternGroupRegistry,
+  loadReviewPolicyRegistry,
 } from '../scripts/content-registries.mjs';
 import {validateContent as validateContentWithoutRegistry} from '../scripts/validate-content.mjs';
 
@@ -34,12 +35,16 @@ const canonicalPatternGroupRegistry = await loadPatternGroupRegistry(
 assert.deepEqual(canonicalPatternGroupRegistry.errors, []);
 const canonicalCaseSeriesRegistry = await loadCaseSeriesRegistry(repositoryRoot);
 assert.deepEqual(canonicalCaseSeriesRegistry.errors, []);
+const canonicalReviewPolicyRegistry =
+  await loadReviewPolicyRegistry(repositoryRoot);
+assert.deepEqual(canonicalReviewPolicyRegistry.errors, []);
 
 function validateContent(root, options = {}) {
   return validateContentWithoutRegistry(root, {
     ...options,
     patternGroupRegistry: canonicalPatternGroupRegistry,
     caseSeriesById: canonicalCaseSeriesRegistry.byId,
+    reviewPolicyById: canonicalReviewPolicyRegistry.byId,
   });
 }
 
@@ -99,6 +104,7 @@ function sourceLedgerFixture(overrides = {}) {
         title: 'C4 model',
         author_or_org: 'Simon Brown',
         published_at: null,
+        registered_at: '2026-07-24',
         checked_at: '2026-07-23',
         version: 'current page checked on 2026-07-23',
         source_kind: 'official-docs',
@@ -209,7 +215,12 @@ function minimalPatternRegistry() {
 
 async function writePatternRegistryInputs(
   projectRoot,
-  {writePatternRegistry = true, writeCaseSeriesRegistry = true} = {},
+  {
+    writePatternRegistry = true,
+    writeCaseSeriesRegistry = true,
+    writeReviewPolicyRegistry = true,
+    reviewPolicySource,
+  } = {},
 ) {
   await mkdir(path.join(projectRoot, 'data'), {recursive: true});
   await mkdir(path.join(projectRoot, 'docs'), {recursive: true});
@@ -232,6 +243,16 @@ async function writePatternRegistryInputs(
       ),
     );
   }
+  if (writeReviewPolicyRegistry) {
+    await writeFile(
+      path.join(projectRoot, 'data/review-policies.json'),
+      reviewPolicySource ??
+        (await readFile(
+          fileURLToPath(new URL('../data/review-policies.json', import.meta.url)),
+          'utf8',
+        )),
+    );
+  }
 }
 
 async function writeSourceGovernanceProject(
@@ -241,6 +262,8 @@ async function writeSourceGovernanceProject(
     ledger,
     writePatternRegistry = true,
     writeCaseSeriesRegistry = true,
+    writeReviewPolicyRegistry = true,
+    reviewPolicySource,
   } = {},
 ) {
   const contentRoot = path.join(projectRoot, 'content');
@@ -258,6 +281,8 @@ async function writeSourceGovernanceProject(
   await writePatternRegistryInputs(projectRoot, {
     writePatternRegistry,
     writeCaseSeriesRegistry,
+    writeReviewPolicyRegistry,
+    reviewPolicySource,
   });
   return contentRoot;
 }
@@ -329,6 +354,37 @@ test('rejects an invalid enum with field and value context', async () => {
       ),
     );
   });
+});
+
+test('accepts a registered review_policy and rejects scalar or unknown values', async () => {
+  await withTempRoot(async (root) => {
+    await writeMdx(
+      root,
+      'cases/registered-policy.mdx',
+      validCaseFrontMatter('/cases/registered-policy', {
+        review_policy: 'quarterly-version-sensitive',
+      }),
+    );
+    const accepted = await validateContent(root);
+    assert.deepEqual(accepted.errors, []);
+  });
+
+  for (const [name, reviewPolicy, expected] of [
+    ['scalar', 3, /field "review_policy" must be a registered policy ID/],
+    ['unknown', 'monthly', /unregistered review policy "monthly"/],
+  ]) {
+    await withTempRoot(async (root) => {
+      await writeMdx(
+        root,
+        `cases/${name}.mdx`,
+        validCaseFrontMatter(`/cases/${name}`, {
+          review_policy: reviewPolicy,
+        }),
+      );
+      const result = await validateContent(root);
+      assert.match(result.errors.join('\n'), expected);
+    });
+  }
 });
 
 test('accepts a discovered set of structurally valid cases', async () => {
@@ -1219,6 +1275,18 @@ test('direct validation requires a loaded case series registry', async () => {
   });
 });
 
+test('direct validation requires a non-empty review policy registry', async () => {
+  await withTempRoot(async (root) => {
+    await assert.rejects(
+      validateContentWithoutRegistry(root, {
+        patternGroupRegistry: canonicalPatternGroupRegistry,
+        caseSeriesById: canonicalCaseSeriesRegistry.byId,
+      }),
+      /Review policy registry is required/,
+    );
+  });
+});
+
 test('the repository validator fails closed when the Pattern registry is missing', async () => {
   await withTempRoot(async (projectRoot) => {
     const contentRoot = await writeSourceGovernanceProject(projectRoot, {
@@ -1251,6 +1319,45 @@ test('the repository validator fails closed when the case series registry is mis
     assert.match(output, /data[\\/]case-series\.json/);
     assert.match(output, /ENOENT|no such file or directory/i);
   });
+});
+
+test('the repository validator fails closed for missing, malformed, and invalid review policy registries', async () => {
+  const cases = [
+    {
+      name: 'missing',
+      options: {writeReviewPolicyRegistry: false},
+      expected: /review-policies\.json.*(?:ENOENT|no such file or directory)/is,
+    },
+    {
+      name: 'malformed',
+      options: {reviewPolicySource: '{not json'},
+      expected: /review-policies\.json: invalid JSON/i,
+    },
+    {
+      name: 'invalid',
+      options: {
+        reviewPolicySource: JSON.stringify({
+          schema_version: 1,
+          policies: [],
+        }),
+      },
+      expected: /required policy "quarterly-version-sensitive" is missing/,
+    },
+  ];
+
+  for (const {name, options, expected} of cases) {
+    await withTempRoot(async (projectRoot) => {
+      const contentRoot = await writeSourceGovernanceProject(
+        projectRoot,
+        options,
+      );
+      const cli = spawnSync(process.execPath, [validatorScript, contentRoot], {
+        encoding: 'utf8',
+      });
+      assert.equal(cli.status, 1, name);
+      assert.match(`${cli.stdout}${cli.stderr}`, expected, name);
+    });
+  }
 });
 
 test('the repository validator fails on unregistered article sources', async () => {

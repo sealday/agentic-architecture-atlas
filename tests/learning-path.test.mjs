@@ -365,6 +365,7 @@ function parseGeneratedSourceRegistry(ledger) {
       'author_or_org',
       'source_kind',
       'tier',
+      'registered_at',
       'checked_at',
       'license',
       'copyright_policy',
@@ -377,6 +378,10 @@ function parseGeneratedSourceRegistry(ledger) {
       );
       assert.ok(source[field], `${source.id ?? 'unknown source'} has empty ${field}`);
     }
+    assert.ok(
+      isValidIsoDate(source.registered_at),
+      `${source.id} has invalid registered_at: ${source.registered_at}`,
+    );
     assert.ok(
       isValidIsoDate(source.checked_at),
       `${source.id} has invalid checked_at: ${source.checked_at}`,
@@ -689,6 +694,7 @@ test('rejects incomplete invalid-date and misclassified generated entries', () =
     author_or_org: 'Author',
     source_kind: 'official-docs',
     tier: 'primary',
+    registered_at: '2026-07-24',
     checked_at: '2026-07-23',
     license: 'MIT',
     copyright_policy: 'facts-and-short-quotation',

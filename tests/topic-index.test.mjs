@@ -35,6 +35,7 @@ function topicFixture({id, priority, published = false}) {
     related_cases: [],
     related_questions: [],
     reviewed_at: published ? '2026-07-23' : null,
+    review_policy: null,
     published,
     pattern_group: null,
   };

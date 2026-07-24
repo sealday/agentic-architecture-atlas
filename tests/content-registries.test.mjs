@@ -11,6 +11,8 @@ import {
   parseCaseSeriesRegistry,
   loadPatternGroupRegistry,
   parsePatternGroupRegistry,
+  loadReviewPolicyRegistry,
+  parseReviewPolicyRegistry,
 } from '../scripts/content-registries.mjs';
 
 const validRegistry = {
@@ -69,6 +71,87 @@ const topics = [
   {id: 'PAT-MIG-01', type: 'pattern'},
   {id: 'FND-01', type: 'concept'},
 ];
+
+const quarterlyReviewPolicy = {
+  id: 'quarterly-version-sensitive',
+  label: '季度版本敏感复核',
+  calendar_months: 3,
+  warning_days: 30,
+  description: '按来源版本边界复核。',
+};
+
+test('parses the quarterly review policy exactly', () => {
+  const result = parseReviewPolicyRegistry({
+    schema_version: 1,
+    policies: [quarterlyReviewPolicy],
+  });
+  assert.deepEqual(result.errors, []);
+  assert.equal(
+    result.byId.get('quarterly-version-sensitive').calendar_months,
+    3,
+  );
+});
+
+test('review policy parser rejects schema drift and invalid policies', () => {
+  const parse = (policies) =>
+    parseReviewPolicyRegistry({schema_version: 1, policies}).errors.join('\n');
+
+  assert.match(
+    parseReviewPolicyRegistry({
+      schema_version: 1,
+      policies: [quarterlyReviewPolicy],
+      unexpected: true,
+    }).errors.join('\n'),
+    /expected exactly schema_version and policies/,
+  );
+  assert.match(
+    parse([{...quarterlyReviewPolicy, id: 'constructor'}]),
+    /non-prototype kebab-case/,
+  );
+  assert.match(
+    parse([quarterlyReviewPolicy, {...quarterlyReviewPolicy}]),
+    /duplicate id "quarterly-version-sensitive"/,
+  );
+  assert.match(
+    parse([{...quarterlyReviewPolicy, calendar_months: 0}]),
+    /invalid label, description, calendar_months, or warning_days/,
+  );
+  assert.match(
+    parse([{...quarterlyReviewPolicy, warning_days: -1}]),
+    /invalid label, description, calendar_months, or warning_days/,
+  );
+});
+
+test('review policy loader fails closed for missing, malformed, and invalid registries', async () => {
+  const root = await mkdtemp(path.join(tmpdir(), 'review-policy-registry-'));
+  try {
+    const missing = await loadReviewPolicyRegistry(root);
+    assert.equal(missing.byId.size, 0);
+    assert.match(missing.errors.join('\n'), /review-policies\.json.*ENOENT/i);
+
+    await mkdir(path.join(root, 'data'), {recursive: true});
+    await writeFile(path.join(root, 'data/review-policies.json'), '{not json');
+    const malformed = await loadReviewPolicyRegistry(root);
+    assert.equal(malformed.byId.size, 0);
+    assert.match(
+      malformed.errors.join('\n'),
+      /review-policies\.json: invalid JSON/,
+    );
+
+    await writeFile(
+      path.join(root, 'data/review-policies.json'),
+      JSON.stringify({schema_version: 1, policies: []}),
+    );
+    const invalid = await loadReviewPolicyRegistry(root);
+    assert.equal(invalid.byId.size, 0);
+    assert.match(
+      invalid.errors.join('\n'),
+      /required policy "quarterly-version-sensitive" is missing/,
+    );
+  } finally {
+    await rm(root, {recursive: true, force: true});
+  }
+});
 
 test('parses ordered case series and rejects duplicate order', () => {
   const valid = {

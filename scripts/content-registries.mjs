@@ -40,6 +40,90 @@ function emptyCaseSeriesResult(errors) {
   };
 }
 
+function emptyReviewPolicyResult(errors) {
+  return {
+    registry: {schema_version: 1, policies: []},
+    byId: new Map(),
+    errors: [...errors].sort((left, right) => left.localeCompare(right, 'en')),
+  };
+}
+
+export function parseReviewPolicyRegistry(
+  value,
+  file = 'data/review-policies.json',
+) {
+  if (!exactKeys(value, ['schema_version', 'policies'])) {
+    return emptyReviewPolicyResult([
+      `${file}: expected exactly schema_version and policies`,
+    ]);
+  }
+  if (value.schema_version !== 1 || !Array.isArray(value.policies)) {
+    return emptyReviewPolicyResult([
+      `${file}: schema_version must equal 1 and policies must be an array`,
+    ]);
+  }
+
+  const errors = [];
+  const policies = [];
+  const byId = new Map();
+  const prototypeNames = new Set(['__proto__', 'constructor', 'prototype']);
+
+  for (const [index, policy] of value.policies.entries()) {
+    const label = `${file}: policy ${index + 1}`;
+    if (
+      !exactKeys(policy, [
+        'id',
+        'label',
+        'calendar_months',
+        'warning_days',
+        'description',
+      ])
+    ) {
+      errors.push(`${label} has unknown or missing fields`);
+      continue;
+    }
+
+    const validId =
+      typeof policy.id === 'string' &&
+      /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(policy.id) &&
+      !prototypeNames.has(policy.id);
+    if (!validId) {
+      errors.push(`${label} id must be non-prototype kebab-case`);
+    } else if (byId.has(policy.id)) {
+      errors.push(`${label} has duplicate id "${policy.id}"`);
+    }
+    if (
+      typeof policy.label !== 'string' ||
+      policy.label.trim() === '' ||
+      typeof policy.description !== 'string' ||
+      policy.description.trim() === '' ||
+      !Number.isInteger(policy.calendar_months) ||
+      policy.calendar_months <= 0 ||
+      !Number.isInteger(policy.warning_days) ||
+      policy.warning_days < 0
+    ) {
+      errors.push(
+        `${label} has an invalid label, description, calendar_months, or warning_days`,
+      );
+    }
+
+    const normalized = {...policy};
+    policies.push(normalized);
+    if (validId && !byId.has(policy.id)) {
+      byId.set(policy.id, normalized);
+    }
+  }
+
+  if (!byId.has('quarterly-version-sensitive')) {
+    errors.push(
+      `${file}: required policy "quarterly-version-sensitive" is missing`,
+    );
+  }
+
+  errors.sort((left, right) => left.localeCompare(right, 'en'));
+  return {registry: {schema_version: 1, policies}, byId, errors};
+}
+
 export function parseCaseSeriesRegistry(
   value,
   file = 'data/case-series.json',
@@ -238,6 +322,21 @@ export async function loadCaseSeriesRegistry(projectRoot) {
     return parseCaseSeriesRegistry(value, file);
   } catch (error) {
     return emptyCaseSeriesResult([
+      error instanceof SyntaxError
+        ? `${file}: invalid JSON: ${error.message}`
+        : `${file}: ${error instanceof Error ? error.message : String(error)}`,
+    ]);
+  }
+}
+
+export async function loadReviewPolicyRegistry(projectRoot) {
+  const file = path.join(projectRoot, 'data/review-policies.json');
+
+  try {
+    const value = JSON.parse(await readFile(file, 'utf8'));
+    return parseReviewPolicyRegistry(value, file);
+  } catch (error) {
+    return emptyReviewPolicyResult([
       error instanceof SyntaxError
         ? `${file}: invalid JSON: ${error.message}`
         : `${file}: ${error instanceof Error ? error.message : String(error)}`,

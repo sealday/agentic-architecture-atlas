@@ -22,6 +22,7 @@ const validSource = {
   title: 'C4 model',
   author_or_org: 'Simon Brown',
   published_at: null,
+  registered_at: '2026-07-24',
   checked_at: '2026-07-23',
   version: 'current page checked on 2026-07-23',
   source_kind: 'official-docs',
@@ -136,6 +137,35 @@ test('validates canonical source records and document citations', () => {
   };
   const cc0Parsed = parseSourceLedger(ledger({sources: [cc0Source], documents: {}}));
   assert.deepEqual(cc0Parsed.errors, []);
+});
+
+test('requires a valid source registration date', () => {
+  const fixture = ledger();
+  fixture.sources[0] = {
+    ...fixture.sources[0],
+    registered_at: '2026-02-30',
+  };
+  const parsed = parseSourceLedger(fixture);
+  assert.match(
+    parsed.errors.join('\n'),
+    /registered_at must be a valid calendar date/,
+  );
+});
+
+test('factual citations independently require a non-empty source version', () => {
+  const fixture = ledger();
+  fixture.sources[0] = {...fixture.sources[0], version: ''};
+
+  const governed = validateSourceGovernance([document()], fixture);
+
+  assert.match(
+    governed.errors.join('\n'),
+    /content\/cases\/example\.mdx: factual source "src-c4-model" is missing version/,
+  );
+  assert.doesNotMatch(
+    governed.errors.join('\n'),
+    /version change|floating-source-newer/,
+  );
 });
 
 test('rejects an uncited primary or non-discovery source', () => {

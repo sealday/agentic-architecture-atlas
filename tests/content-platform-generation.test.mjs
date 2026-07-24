@@ -22,6 +22,7 @@ import {
 import {
   loadCaseSeriesRegistry,
   loadPatternGroupRegistry,
+  loadReviewPolicyRegistry,
 } from '../scripts/content-registries.mjs';
 import {parseBacklogTopics} from '../scripts/backlog-topics.mjs';
 import {
@@ -82,6 +83,7 @@ const governedSource = {
   title: 'C4 model',
   author_or_org: 'Simon Brown',
   published_at: null,
+  registered_at: '2026-07-24',
   checked_at: '2026-07-23',
   version: 'current page checked on 2026-07-23',
   source_kind: 'official-docs',
@@ -270,6 +272,21 @@ async function withRepositoryFixture(run) {
               description: 'Agent 框架与编排。',
               order: 10,
               show_on_homepage: false,
+            },
+          ],
+        }, null, 2)}\n`,
+      ),
+      writeFile(
+        path.join(root, 'data/review-policies.json'),
+        `${JSON.stringify({
+          schema_version: 1,
+          policies: [
+            {
+              id: 'quarterly-version-sensitive',
+              label: '季度版本敏感复核',
+              calendar_months: 3,
+              warning_days: 30,
+              description: '按来源版本边界复核。',
             },
           ],
         }, null, 2)}\n`,
@@ -802,12 +819,14 @@ test('derives the compatibility case catalog from the manifest', async () => {
     ).topics;
     const patternGroupRegistry = await loadPatternGroupRegistry(root, topics);
     const caseSeriesRegistry = await loadCaseSeriesRegistry(root);
+    const reviewPolicyRegistry = await loadReviewPolicyRegistry(root);
     assert.equal(
       artifacts[generatedPaths.caseCatalog],
       serializeCaseCatalog(
         await buildCaseCatalog(path.join(root, 'content'), {
           patternGroupRegistry,
           caseSeriesById: caseSeriesRegistry.byId,
+          reviewPolicyById: reviewPolicyRegistry.byId,
         }),
       ),
     );

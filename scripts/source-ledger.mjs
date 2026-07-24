@@ -131,6 +131,7 @@ const sourceKeys = [
   'title',
   'author_or_org',
   'published_at',
+  'registered_at',
   'checked_at',
   'version',
   'source_kind',
@@ -470,6 +471,9 @@ function validateSource(source, index, errors) {
   }
   if (source.published_at !== null && !isCalendarDate(source.published_at)) {
     errors.push(`${label}: published_at must be null or a valid calendar date`);
+  }
+  if (!isCalendarDate(source.registered_at)) {
+    errors.push(`${label}: registered_at must be a valid calendar date`);
   }
   if (!isCalendarDate(source.checked_at)) {
     errors.push(`${label}: checked_at must be a valid calendar date`);
@@ -1129,6 +1133,22 @@ export function validateSourceGovernance(documents, ledger) {
             `${documentPath}: citation "${citation.source_id}" excerpt is not present in the visible document body`,
           );
         }
+      }
+    }
+
+    const factualSourceIds = new Set(
+      ledgerDocument.citations
+        .filter((citation) =>
+          citation.roles.some((role) => factualRoles.has(role)),
+        )
+        .map((citation) => citation.source_id),
+    );
+    for (const sourceId of factualSourceIds) {
+      const source = sourceById.get(sourceId);
+      if (source && !nonEmpty(source.version)) {
+        errors.push(
+          `${documentPath}: factual source "${sourceId}" is missing version`,
+        );
       }
     }
 

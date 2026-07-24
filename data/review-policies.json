@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "policies": [
+    {
+      "id": "quarterly-version-sensitive",
+      "label": "季度版本敏感复核",
+      "calendar_months": 3,
+      "warning_days": 30,
+      "description": "从 source_cutoff 起按三个日历月复核版本敏感事实，并在到期前 30 天提示。"
+    }
+  ]
+}

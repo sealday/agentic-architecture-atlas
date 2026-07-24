@@ -156,7 +156,11 @@ test('projects the canonical Pattern group without changing the Pattern slug', (
 test('merges published knowledge content by topic id', () => {
   const result = buildTopicManifest({
     backlogSource: topic('FND-01', 'P0', '计划标题'),
-    documents: [publishedConcept()],
+    documents: [
+      publishedConcept({
+        review_policy: 'quarterly-version-sensitive',
+      }),
+    ],
   });
 
   assert.deepEqual(result.errors, []);
@@ -178,6 +182,7 @@ test('merges published knowledge content by topic id', () => {
       related_cases: [],
       related_questions: [],
       reviewed_at: '2026-07-23',
+      review_policy: 'quarterly-version-sensitive',
       published: true,
       pattern_group: null,
       presentation: {},
@@ -470,6 +475,7 @@ test('projects legacy documents with explicit compatibility defaults', () => {
     related_cases: [],
     related_questions: [],
     reviewed_at: '2026-07-20',
+    review_policy: null,
     published: true,
     pattern_group: null,
     presentation: {
