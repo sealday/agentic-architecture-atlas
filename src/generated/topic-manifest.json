@@ -13,8 +13,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "general-design"
@@ -31,8 +33,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "general-design"
@@ -49,8 +53,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -67,8 +73,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -85,8 +93,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -103,8 +113,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -121,8 +133,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -139,8 +153,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "general-design"
@@ -157,8 +173,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "general-design"
@@ -175,8 +193,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "general-design"
@@ -193,8 +213,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "general-design"
@@ -211,8 +233,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -229,8 +253,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -247,8 +273,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -265,8 +293,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -283,8 +313,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -301,8 +333,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -319,8 +353,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -337,8 +373,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -355,8 +393,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -373,6 +413,9 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [
+        "STY-00"
+      ],
       "primary_sources": [
         "https://arc42.org/",
         "https://c4model.com/"
@@ -380,6 +423,7 @@
       "related_cases": [
         "/cases/microsoft-multi-agent-reference-architecture"
       ],
+      "related_questions": [],
       "reviewed_at": "2026-07-24",
       "published": true,
       "pattern_group": null,
@@ -397,8 +441,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -415,8 +461,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -433,8 +481,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -451,8 +501,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -469,8 +521,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -487,8 +541,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "reliability"
@@ -505,8 +561,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "reliability"
@@ -523,8 +581,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "reliability"
@@ -541,8 +601,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "data"
@@ -559,8 +621,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "data"
@@ -577,8 +641,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "data"
@@ -595,8 +661,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "data"
@@ -613,8 +681,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "data"
@@ -631,8 +701,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "integration"
@@ -649,8 +721,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "integration"
@@ -667,8 +741,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "integration"
@@ -685,8 +761,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "migration"
@@ -703,12 +781,16 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [
+        "STY-00"
+      ],
       "primary_sources": [
         "https://dl.acm.org/doi/10.1145/361598.361623"
       ],
       "related_cases": [
         "/cases/micro-frontends-single-spa"
       ],
+      "related_questions": [],
       "reviewed_at": "2026-07-24",
       "published": true,
       "pattern_group": null,
@@ -726,8 +808,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -744,8 +828,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -762,8 +848,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -780,8 +868,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -798,8 +888,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -816,8 +908,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -834,8 +928,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -852,8 +948,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -870,8 +968,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -888,8 +988,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -906,8 +1008,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -924,8 +1028,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -942,8 +1048,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -960,8 +1068,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -978,8 +1088,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "reliability"
@@ -996,6 +1108,9 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [
+        "QA-01"
+      ],
       "primary_sources": [
         "https://docs.temporal.io/encyclopedia/retry-policies",
         "https://learn.microsoft.com/en-us/azure/architecture/patterns/retry"
@@ -1003,6 +1118,7 @@
       "related_cases": [
         "/cases/temporal-saga-durable-execution"
       ],
+      "related_questions": [],
       "reviewed_at": "2026-07-24",
       "published": true,
       "pattern_group": "reliability",
@@ -1020,8 +1136,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "reliability"
@@ -1038,8 +1156,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "reliability"
@@ -1056,8 +1176,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "reliability"
@@ -1074,8 +1196,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "reliability"
@@ -1092,8 +1216,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "reliability"
@@ -1110,8 +1236,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "reliability"
@@ -1128,6 +1256,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [
+        "MOD-02",
+        "PR-01"
+      ],
       "primary_sources": [
         "https://arc42.org/",
         "https://www.sei.cmu.edu/training/software-architecture-principles-practices/"
@@ -1135,6 +1267,7 @@
       "related_cases": [
         "/cases/micro-frontends-single-spa"
       ],
+      "related_questions": [],
       "reviewed_at": "2026-07-24",
       "published": true,
       "pattern_group": null,
@@ -1152,8 +1285,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -1170,8 +1305,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -1188,8 +1325,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -1206,8 +1345,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -1224,8 +1365,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -1242,8 +1385,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -1262,8 +1407,10 @@
       "dependencies": [
         "FND-01"
       ],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -1282,8 +1429,10 @@
       "dependencies": [
         "FND-01"
       ],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -1302,8 +1451,10 @@
       "dependencies": [
         "FND-02"
       ],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -1323,6 +1474,10 @@
         "FND-02",
         "QA-00"
       ],
+      "adjacent_topics": [
+        "MTH-03",
+        "REL-02"
+      ],
       "primary_sources": [
         "https://www.iso.org/standard/78176.html",
         "https://www.sei.cmu.edu/library/quality-attribute-workshops-qaws-third-edition/"
@@ -1330,6 +1485,7 @@
       "related_cases": [
         "/cases/aws-cell-shuffle-sharding"
       ],
+      "related_questions": [],
       "reviewed_at": "2026-07-24",
       "published": true,
       "pattern_group": null,
@@ -1349,8 +1505,10 @@
       "dependencies": [
         "QA-01"
       ],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -1369,8 +1527,10 @@
       "dependencies": [
         "QA-01"
       ],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -1389,12 +1549,16 @@
       "dependencies": [
         "QA-01"
       ],
+      "adjacent_topics": [
+        "QA-01"
+      ],
       "primary_sources": [
         "https://adr.github.io/"
       ],
       "related_cases": [
         "/cases/kubernetes-reconciliation-loop"
       ],
+      "related_questions": [],
       "reviewed_at": "2026-07-24",
       "published": true,
       "pattern_group": null,
@@ -1412,8 +1576,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -1430,8 +1596,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -1448,8 +1616,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -1466,8 +1636,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -1484,8 +1656,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -1502,8 +1676,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -1520,8 +1696,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "general-design"
@@ -1538,8 +1716,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "general-design"
@@ -1556,8 +1736,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "data"
@@ -1574,8 +1756,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "reliability"
@@ -1592,8 +1776,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "integration"
@@ -1610,8 +1796,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "general-design"
@@ -1628,8 +1816,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "general-design"
@@ -1646,8 +1836,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "general-design"
@@ -1664,8 +1856,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "general-design"
@@ -1682,8 +1876,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "general-design"
@@ -1700,8 +1896,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -1718,8 +1916,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -1736,8 +1936,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -1754,8 +1956,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -1772,8 +1976,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -1790,8 +1996,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -1808,8 +2016,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -1826,8 +2036,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -1844,8 +2056,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -1862,8 +2076,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -1880,8 +2096,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -1898,8 +2116,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -1916,8 +2136,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -1934,8 +2156,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -1952,8 +2176,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -1970,8 +2196,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "general-design"
@@ -1988,8 +2216,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "general-design"
@@ -2006,8 +2236,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "general-design"
@@ -2024,8 +2256,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "general-design"
@@ -2042,8 +2276,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "general-design"
@@ -2060,8 +2296,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "general-design"
@@ -2078,8 +2316,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "general-design"
@@ -2096,8 +2336,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "general-design"
@@ -2114,8 +2356,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "general-design"
@@ -2132,8 +2376,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "general-design"
@@ -2150,8 +2396,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "general-design"
@@ -2168,8 +2416,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -2186,8 +2436,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -2204,8 +2456,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -2222,8 +2476,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -2240,8 +2496,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -2258,8 +2516,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -2276,8 +2536,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -2294,8 +2556,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -2312,8 +2576,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -2330,8 +2596,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -2348,8 +2616,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -2366,8 +2636,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -2384,8 +2656,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -2402,8 +2676,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -2420,8 +2696,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -2438,8 +2716,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -2456,8 +2736,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -2474,8 +2756,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -2492,8 +2776,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -2510,8 +2796,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -2528,8 +2816,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "reliability"
@@ -2546,8 +2836,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "reliability"
@@ -2564,8 +2856,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "reliability"
@@ -2582,8 +2876,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "data"
@@ -2600,8 +2896,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "data"
@@ -2618,8 +2916,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "data"
@@ -2636,8 +2936,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "data"
@@ -2654,8 +2956,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "integration"
@@ -2672,8 +2976,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "integration"
@@ -2690,8 +2996,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "integration"
@@ -2708,8 +3016,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "integration"
@@ -2726,8 +3036,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "migration"
@@ -2744,8 +3056,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "migration"
@@ -2762,8 +3076,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -2780,8 +3096,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -2798,8 +3116,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -2816,8 +3136,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -2834,8 +3156,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -2852,8 +3176,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -2870,8 +3196,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -2888,8 +3216,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -2906,8 +3236,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -2924,8 +3256,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -2942,8 +3276,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -2960,8 +3296,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -2978,8 +3316,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -2996,8 +3336,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -3014,8 +3356,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -3032,8 +3376,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -3050,8 +3396,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -3068,8 +3416,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "reliability"
@@ -3086,8 +3436,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "reliability"
@@ -3104,8 +3456,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "reliability"
@@ -3122,8 +3476,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "reliability"
@@ -3140,8 +3496,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "reliability"
@@ -3158,8 +3516,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "reliability"
@@ -3176,8 +3536,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "reliability"
@@ -3194,8 +3556,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "reliability"
@@ -3212,8 +3576,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -3230,8 +3596,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -3248,8 +3616,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -3266,8 +3636,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -3284,8 +3656,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -3302,8 +3676,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -3324,8 +3700,10 @@
         "STY-05",
         "STY-06"
       ],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -3347,8 +3725,10 @@
         "MTH-03",
         "MTH-04"
       ],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -3365,8 +3745,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "general-design"
@@ -3383,8 +3765,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "general-design"
@@ -3401,8 +3785,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -3419,8 +3805,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -3437,8 +3825,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -3455,8 +3845,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -3473,8 +3865,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -3491,8 +3885,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -3509,8 +3905,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -3527,8 +3925,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "general-design"
@@ -3545,8 +3945,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -3563,8 +3965,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -3581,8 +3985,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": "integration"
@@ -3599,8 +4005,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -3617,8 +4025,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -3635,8 +4045,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -3653,8 +4065,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -3671,8 +4085,10 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": null,
       "published": false,
       "pattern_group": null
@@ -3689,6 +4105,7 @@
         "source": "content/cases/apache-kafka-consumer-groups.mdx"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [
         "https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/clients/src/main/java/org/apache/kafka/clients/consumer/internals/ClassicKafkaConsumer.java",
         "https://github.com/apache/kafka/blob/ebac341b28d4224c296ada31eb45122176e8b27b/clients/src/main/java/org/apache/kafka/clients/consumer/internals/ClassicKafkaConsumer.java#L700-L771",
@@ -3728,6 +4145,7 @@
         "https://www.microsoft.com/en-us/research/wp-content/uploads/2017/09/Kafka.pdf"
       ],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": "2026-07-22",
       "published": true,
       "pattern_group": null,
@@ -3775,6 +4193,7 @@
         "source": "content/cases/aws-cell-shuffle-sharding.mdx"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [
         "https://aws.amazon.com/blogs/architecture/shuffle-sharding-massive-and-magical-fault-isolation/",
         "https://aws.amazon.com/builders-library/workload-isolation-using-shuffle-sharding/",
@@ -3803,6 +4222,7 @@
         "https://github.com/awslabs/route53-infima/tree/cabce497698e41d610a949e8a5e4a0528170382b"
       ],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": "2026-07-22",
       "published": true,
       "pattern_group": null,
@@ -3850,6 +4270,7 @@
         "source": "content/cases/aws-cli-agent-orchestrator.mdx"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [
         "https://github.com/awslabs/cli-agent-orchestrator/blob/bae80071a17e001380367c461b32d64bc6b54433/CODEBASE.md",
         "https://github.com/awslabs/cli-agent-orchestrator/blob/bae80071a17e001380367c461b32d64bc6b54433/docs/configuration.md",
@@ -3871,6 +4292,7 @@
         "https://modelcontextprotocol.io/specification/2025-06-18/architecture"
       ],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": "2026-07-20",
       "published": true,
       "pattern_group": null,
@@ -3914,6 +4336,7 @@
         "source": "content/cases/cloudflare-durable-objects-workerd.mdx"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [
         "https://developers.cloudflare.com/changelog/product/durable-objects/",
         "https://developers.cloudflare.com/durable-objects/",
@@ -3943,6 +4366,7 @@
         "https://github.com/cloudflare/workerd/tree/14894eccbb339da199d772fcadd337b6d0902128"
       ],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": "2026-07-22",
       "published": true,
       "pattern_group": null,
@@ -3990,6 +4414,7 @@
         "source": "content/cases/erlang-otp-supervision-tree.mdx"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [
         "https://github.com/erlang/otp/blob/295c7737d1b25a270e3fc6fa2b7ec7ad4779cf17/lib/stdlib/src/supervisor.erl",
         "https://github.com/erlang/otp/blob/295c7737d1b25a270e3fc6fa2b7ec7ad4779cf17/lib/stdlib/src/supervisor.erl#L1275-L1310",
@@ -4005,6 +4430,7 @@
         "https://www.erlang.org/doc/system/sup_princ.html"
       ],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": "2026-07-22",
       "published": true,
       "pattern_group": null,
@@ -4048,6 +4474,7 @@
         "source": "content/cases/google-adk-a2a.mdx"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [
         "https://a2a-protocol.org/latest/specification/",
         "https://a2a-protocol.org/latest/topics/a2a-and-mcp/",
@@ -4084,6 +4511,7 @@
         "https://modelcontextprotocol.io/specification/2025-06-18/architecture"
       ],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": "2026-07-20",
       "published": true,
       "pattern_group": null,
@@ -4127,6 +4555,7 @@
         "source": "content/cases/kong-ai-gateway-routing-resilience.mdx"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [
         "https://developer.konghq.com/ai-gateway/",
         "https://developer.konghq.com/ai-gateway/ai-audit-log-reference/",
@@ -4145,6 +4574,7 @@
         "https://github.com/Kong/developer.konghq.com/tree/f144a33379d5b599efaacf92642a2f9b41018fd6"
       ],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": "2026-07-23",
       "published": true,
       "pattern_group": null,
@@ -4189,6 +4619,7 @@
         "source": "content/cases/kubeedge-cloud-edge-autonomy.mdx"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [
         "https://github.com/kubeedge/kubeedge/blob/bae61505d4919c404665f70347ad0646aaa98958/cloud/pkg/cloudhub/dispatcher/message_dispatcher.go",
         "https://github.com/kubeedge/kubeedge/blob/bae61505d4919c404665f70347ad0646aaa98958/cloud/pkg/cloudhub/session/node_session.go",
@@ -4217,6 +4648,7 @@
         "https://release-1-20.docs.kubeedge.io/docs/architecture/edge/metamanager/"
       ],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": "2026-07-22",
       "published": true,
       "pattern_group": null,
@@ -4262,6 +4694,7 @@
         "source": "content/cases/kubernetes-reconciliation-loop.mdx"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [
         "https://github.com/kubernetes/kubernetes/blob/39c618b5c30ced3969862e0b4b5acce7a7f8cecb/pkg/controller/deployment/deployment_controller.go",
         "https://github.com/kubernetes/kubernetes/blob/39c618b5c30ced3969862e0b4b5acce7a7f8cecb/pkg/controller/deployment/deployment_controller.go#L123-L165",
@@ -4289,6 +4722,7 @@
         "https://kubernetes.io/docs/reference/using-api/server-side-apply/"
       ],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": "2026-07-22",
       "published": true,
       "pattern_group": null,
@@ -4333,6 +4767,7 @@
         "source": "content/cases/langgraph-supervisor.mdx"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [
         "https://docs.langchain.com/oss/python/langchain/multi-agent/router",
         "https://docs.langchain.com/oss/python/langchain/multi-agent/subagents",
@@ -4352,6 +4787,7 @@
         "https://github.com/langchain-ai/langgraph/tree/49ae27c2ae983cfb92091b0dea9f7bc37a716479"
       ],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": "2026-07-20",
       "published": true,
       "pattern_group": null,
@@ -4395,6 +4831,7 @@
         "source": "content/cases/litellm-virtual-keys-governance.mdx"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [
         "https://docs.litellm.ai/docs/proxy/budget_fallbacks",
         "https://docs.litellm.ai/docs/proxy/guardrails/quick_start",
@@ -4415,6 +4852,7 @@
         "https://github.com/BerriAI/litellm/tree/b3086ccd74553565c9a39716e72303ae985555f9"
       ],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": "2026-07-23",
       "published": true,
       "pattern_group": null,
@@ -4460,6 +4898,7 @@
         "source": "content/cases/micro-frontends-single-spa.mdx"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [
         "https://github.com/single-spa/single-spa/blob/297483c11265050542d7ef107d14c44936c51883/src/applications/app-errors.js",
         "https://github.com/single-spa/single-spa/blob/297483c11265050542d7ef107d14c44936c51883/src/applications/app.helpers.js",
@@ -4481,6 +4920,7 @@
         "https://single-spa.js.org/docs/recommended-setup/"
       ],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": "2026-07-22",
       "published": true,
       "pattern_group": null,
@@ -4527,6 +4967,7 @@
         "source": "content/cases/microsoft-multi-agent-reference-architecture.mdx"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [
         "https://github.com/microsoft/multi-agent-reference-architecture/blob/ed3613b54b46b595dd223aaff8772def376a8c37/docs/agent-registry/Agent-Registry.md",
         "https://github.com/microsoft/multi-agent-reference-architecture/blob/ed3613b54b46b595dd223aaff8772def376a8c37/docs/agents-communication/Agents-Communication.md",
@@ -4544,6 +4985,7 @@
         "https://learn.microsoft.com/en-us/azure/architecture/ai-ml/guide/ai-agent-design-patterns"
       ],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": "2026-07-20",
       "published": true,
       "pattern_group": null,
@@ -4587,6 +5029,7 @@
         "source": "content/cases/new-api-channel-pool-routing.mdx"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [
         "https://docs.newapi.pro/zh/docs/guide/feature-guide/admin/channel",
         "https://docs.newapi.pro/zh/docs/guide/feature-guide/admin/group",
@@ -4614,6 +5057,7 @@
         "https://github.com/QuantumNous/new-api/tree/1721144221ec5c94dd87891a7ae1bee228e7bb63"
       ],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": "2026-07-23",
       "published": true,
       "pattern_group": null,
@@ -4658,6 +5102,7 @@
         "source": "content/cases/openai-agents-sdk.mdx"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [
         "https://github.com/openai/openai-agents-python/blob/2fa463571e76dae8ff267622f1018eaf06ffeb9f/docs/guardrails.md",
         "https://github.com/openai/openai-agents-python/blob/2fa463571e76dae8ff267622f1018eaf06ffeb9f/docs/handoffs.md",
@@ -4680,6 +5125,7 @@
         "https://openai.github.io/openai-agents-python/multi_agent/"
       ],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": "2026-07-20",
       "published": true,
       "pattern_group": null,
@@ -4722,6 +5168,7 @@
         "source": "content/cases/ros2-dds-agent-lifecycle.mdx"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [
         "https://design.ros2.org/articles/node_lifecycle.html",
         "https://docs.ros.org/en/jazzy/Concepts/Basic/About-Actions.html",
@@ -4746,6 +5193,7 @@
         "https://github.com/ros2/ros2/tree/a38203a7da336eb123122bc241f53e78d2a0284f"
       ],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": "2026-07-22",
       "published": true,
       "pattern_group": null,
@@ -4790,6 +5238,7 @@
         "source": "content/cases/temporal-saga-durable-execution.mdx"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [
         "https://dl.acm.org/doi/10.1145/38713.38742",
         "https://docs.temporal.io/activities",
@@ -4822,6 +5271,7 @@
         "https://github.com/temporalio/temporal/tree/955948007cc6d9d94fa8ef484225954bd9328451"
       ],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": "2026-07-22",
       "published": true,
       "pattern_group": null,
@@ -4868,6 +5318,7 @@
         "source": "content/cases/yjs-crdt-collaboration.mdx"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [
         "https://docs.yjs.dev/api/about-awareness",
         "https://docs.yjs.dev/api/document-updates",
@@ -4885,6 +5336,7 @@
         "https://github.com/yjs/yjs/tree/9c1994547d7bc86245a21e1a4c8319f056d05ecf"
       ],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": "2026-07-22",
       "published": true,
       "pattern_group": null,
@@ -4931,10 +5383,12 @@
         "source": "content/paths/10-agent-platform-gateway.mdx"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [
         "https://docs.litellm.ai/docs/proxy/virtual_keys"
       ],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": "2026-07-23",
       "published": true,
       "pattern_group": null,
@@ -4952,10 +5406,12 @@
         "source": "content/paths/06-agentic-architecture.mdx"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [
         "https://openai.github.io/openai-agents-python/multi_agent/"
       ],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": "2026-07-23",
       "published": true,
       "pattern_group": null,
@@ -4973,10 +5429,12 @@
         "source": "content/paths/01-architecture-thinking.mdx"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [
         "https://arc42.org/"
       ],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": "2026-07-23",
       "published": true,
       "pattern_group": null,
@@ -4994,10 +5452,12 @@
         "source": "content/paths/07-cloud-native-platform.mdx"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [
         "https://kubernetes.io/docs/tutorials/kubernetes-basics/"
       ],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": "2026-07-23",
       "published": true,
       "pattern_group": null,
@@ -5015,10 +5475,12 @@
         "source": "content/paths/08-collaborative-state-frontend.mdx"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [
         "https://docs.yjs.dev/"
       ],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": "2026-07-23",
       "published": true,
       "pattern_group": null,
@@ -5036,10 +5498,12 @@
         "source": "content/paths/03-distributed-systems.mdx"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [
         "https://learn.microsoft.com/en-us/azure/architecture/patterns/retry"
       ],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": "2026-07-23",
       "published": true,
       "pattern_group": null,
@@ -5057,10 +5521,12 @@
         "source": "content/paths/09-edge-physical-agents.mdx"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [
         "https://kubeedge.io/docs/"
       ],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": "2026-07-23",
       "published": true,
       "pattern_group": null,
@@ -5078,10 +5544,12 @@
         "source": "content/paths/02-module-boundaries.mdx"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [
         "https://learn.microsoft.com/en-us/dotnet/architecture/modern-web-apps-azure/common-web-application-architectures"
       ],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": "2026-07-23",
       "published": true,
       "pattern_group": null,
@@ -5099,10 +5567,12 @@
         "source": "content/paths/05-production-governance.mdx"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [
         "https://aws.amazon.com/builders-library/workload-isolation-using-shuffle-sharding/"
       ],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": "2026-07-23",
       "published": true,
       "pattern_group": null,
@@ -5120,10 +5590,12 @@
         "source": "content/paths/04-reliability-state.mdx"
       },
       "dependencies": [],
+      "adjacent_topics": [],
       "primary_sources": [
         "https://sre.google/workbook/table-of-contents/"
       ],
       "related_cases": [],
+      "related_questions": [],
       "reviewed_at": "2026-07-23",
       "published": true,
       "pattern_group": null,

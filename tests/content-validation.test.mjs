@@ -918,7 +918,9 @@ function validKnowledgeFrontMatter(type, overrides = {}) {
     topic_id: 'FND-01',
     priority: 'P0',
     depends_on: [],
-    related_cases: [],
+    adjacent_topics: ['STY-00'],
+    related_cases: ['/cases/example'],
+    related_questions: [],
     ...overrides,
   });
 }
@@ -1015,11 +1017,74 @@ test('accepts all six knowledge content contracts', async () => {
   });
 });
 
+test('accepts either related cases or related questions and requires adjacency', async () => {
+  for (const terminalRelation of [
+    {related_cases: ['/cases/example'], related_questions: []},
+    {related_cases: [], related_questions: ['/questions/qst-01']},
+  ]) {
+    await withTempRoot(async (root) => {
+      await writeMdx(
+        root,
+        'principle.mdx',
+        validKnowledgeFrontMatter('principle', {
+          topic_id: 'PR-01',
+          adjacent_topics: ['STY-00'],
+          ...terminalRelation,
+        }),
+        knowledgeFixtures.get('principle').join('\n\n'),
+      );
+      const result = await validateContent(root);
+      assert.deepEqual(result.errors, []);
+    });
+  }
+});
+
+test('rejects a knowledge page without adjacency or a terminal relation', async () => {
+  await withTempRoot(async (root) => {
+    await writeMdx(
+      root,
+      'principle.mdx',
+      validKnowledgeFrontMatter('principle', {
+        topic_id: 'PR-01',
+        adjacent_topics: [],
+        related_cases: [],
+        related_questions: [],
+      }),
+      knowledgeFixtures.get('principle').join('\n\n'),
+    );
+    const result = await validateContent(root);
+    assert.match(result.errors.join('\n'), /requires at least one adjacent topic/);
+    assert.match(
+      result.errors.join('\n'),
+      /requires at least one related case or question/,
+    );
+  });
+});
+
 test('rejects invalid knowledge metadata', async () => {
   const invalidFixtures = [
     ['missing-summary.mdx', 'concept', {summary: undefined}, 'summary'],
     ['invalid-priority.mdx', 'principle', {priority: 'P9'}, 'priority'],
     ['scalar-dependency.mdx', 'method', {depends_on: 'FND-02'}, 'depends_on'],
+    ['invalid-adjacent.mdx', 'style', {adjacent_topics: ['bad-id']}, 'adjacent_topics'],
+    [
+      'self-adjacent.mdx',
+      'principle',
+      {topic_id: 'PR-01', adjacent_topics: ['PR-01']},
+      'adjacent_topics',
+    ],
+    [
+      'duplicate-adjacent.mdx',
+      'principle',
+      {adjacent_topics: ['STY-00', 'STY-00']},
+      'adjacent_topics',
+    ],
+    [
+      'invalid-question.mdx',
+      'modeling',
+      {related_questions: ['/questions/Bad-Slug']},
+      'related_questions',
+    ],
   ];
 
   for (const [file, type, overrides, field] of invalidFixtures) {

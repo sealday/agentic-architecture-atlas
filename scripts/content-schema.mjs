@@ -29,6 +29,7 @@ export const knowledgeRequiredFields = [
   'topic_id',
   'priority',
   'depends_on',
+  'adjacent_topics',
   'related_cases',
 ];
 

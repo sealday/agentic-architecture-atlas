@@ -1,30 +1,44 @@
 {
   "FND-02": {
     "dependencies": ["FND-01"],
-    "related_cases": []
+    "adjacent_topics": [],
+    "related_cases": [],
+    "related_questions": []
   },
   "FND-03": {
     "dependencies": ["FND-01"],
-    "related_cases": []
+    "adjacent_topics": [],
+    "related_cases": [],
+    "related_questions": []
   },
   "QA-00": {
     "dependencies": ["FND-02"],
-    "related_cases": []
+    "adjacent_topics": [],
+    "related_cases": [],
+    "related_questions": []
   },
   "MTH-01": {
     "dependencies": ["QA-01"],
-    "related_cases": []
+    "adjacent_topics": [],
+    "related_cases": [],
+    "related_questions": []
   },
   "MTH-02": {
     "dependencies": ["QA-01"],
-    "related_cases": []
+    "adjacent_topics": [],
+    "related_cases": [],
+    "related_questions": []
   },
   "MTH-06": {
     "dependencies": ["MTH-01", "MTH-02", "MTH-03", "MTH-04"],
-    "related_cases": []
+    "adjacent_topics": [],
+    "related_cases": [],
+    "related_questions": []
   },
   "STY-14": {
     "dependencies": ["STY-04", "STY-05", "STY-06"],
-    "related_cases": []
+    "adjacent_topics": [],
+    "related_cases": [],
+    "related_questions": []
   }
 }

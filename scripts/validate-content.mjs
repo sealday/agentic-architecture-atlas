@@ -58,11 +58,18 @@ function validateStringArray(file, type, field, value, errors) {
     errors.push(`${file}: ${type} field "${field}" must be an array`);
     return;
   }
+  const seen = new Set();
   for (const item of value) {
     if (typeof item !== 'string' || item.trim() === '') {
       errors.push(
         `${file}: ${type} field "${field}" contains a non-string or empty value`,
       );
+      continue;
+    }
+    if (seen.has(item)) {
+      errors.push(`${file}: ${type} field "${field}" contains duplicate value "${item}"`);
+    } else {
+      seen.add(item);
     }
   }
 }
@@ -328,20 +335,67 @@ export async function validateContent(
         validateStringArray(file, type, 'depends_on', metadata.depends_on, errors);
       }
 
-      if ('related_cases' in metadata) {
-        validateStringArray(file, type, 'related_cases', metadata.related_cases, errors);
-        if (Array.isArray(metadata.related_cases)) {
-          for (const relatedCase of metadata.related_cases) {
-            if (
-              typeof relatedCase === 'string' &&
-              !/^\/cases\/[a-z0-9]+(?:-[a-z0-9]+)*$/.test(relatedCase)
-            ) {
-              errors.push(
-                `${file}: ${type} field "related_cases" has invalid case slug "${relatedCase}"`,
-              );
-            }
+      const adjacentTopics = metadata.adjacent_topics;
+      const relatedCases = metadata.related_cases;
+      const relatedQuestions = metadata.related_questions ?? [];
+
+      validateStringArray(file, type, 'adjacent_topics', adjacentTopics, errors);
+      validateStringArray(file, type, 'related_cases', relatedCases, errors);
+      validateStringArray(file, type, 'related_questions', relatedQuestions, errors);
+
+      if (Array.isArray(adjacentTopics)) {
+        if (adjacentTopics.length === 0) {
+          errors.push(`${file}: ${type} requires at least one adjacent topic`);
+        }
+        for (const adjacentTopic of adjacentTopics) {
+          if (
+            typeof adjacentTopic === 'string' &&
+            !/^[A-Z]+(?:-[A-Z]+)*-\d{2}$/.test(adjacentTopic)
+          ) {
+            errors.push(
+              `${file}: ${type} field "adjacent_topics" has invalid topic ID "${adjacentTopic}"`,
+            );
+          }
+          if (adjacentTopic === metadata.topic_id) {
+            errors.push(
+              `${file}: ${type} field "adjacent_topics" cannot reference its own topic "${adjacentTopic}"`,
+            );
           }
         }
+      }
+
+      if (Array.isArray(relatedCases)) {
+        for (const relatedCase of relatedCases) {
+          if (
+            typeof relatedCase === 'string' &&
+            !/^\/cases\/[a-z0-9]+(?:-[a-z0-9]+)*$/.test(relatedCase)
+          ) {
+            errors.push(
+              `${file}: ${type} field "related_cases" has invalid case slug "${relatedCase}"`,
+            );
+          }
+        }
+      }
+
+      if (Array.isArray(relatedQuestions)) {
+        for (const relatedQuestion of relatedQuestions) {
+          if (
+            typeof relatedQuestion === 'string' &&
+            !/^\/questions\/[a-z0-9]+(?:-[a-z0-9]+)*$/.test(relatedQuestion)
+          ) {
+            errors.push(
+              `${file}: ${type} field "related_questions" has invalid question slug "${relatedQuestion}"`,
+            );
+          }
+        }
+      }
+
+      if (
+        Array.isArray(relatedCases) &&
+        Array.isArray(relatedQuestions) &&
+        relatedCases.length + relatedQuestions.length === 0
+      ) {
+        errors.push(`${file}: ${type} requires at least one related case or question`);
       }
 
       validateOrderedH2Contract(

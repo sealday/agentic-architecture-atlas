@@ -182,7 +182,28 @@ async function withRepositoryFixture(run) {
           topic_id: 'FND-01',
           priority: 'P0',
           depends_on: [],
-          related_cases: [],
+          adjacent_topics: ['FND-02'],
+          related_cases: ['/cases/example'],
+          related_questions: [],
+        },
+        conceptBody,
+      ),
+      writeDocument(
+        root,
+        'content/concepts/adjacent.mdx',
+        {
+          ...shared,
+          title: 'Adjacent concept',
+          slug: '/concepts/adjacent',
+          content_type: 'concept',
+          tags: ['concept'],
+          summary: 'A reciprocal adjacent concept.',
+          topic_id: 'FND-02',
+          priority: 'P0',
+          depends_on: [],
+          adjacent_topics: ['FND-01'],
+          related_cases: ['/cases/example'],
+          related_questions: [],
         },
         conceptBody,
       ),
@@ -210,6 +231,7 @@ async function withRepositoryFixture(run) {
         path.join(root, 'docs/content-backlog.md'),
         [
           '- [x] **FND-01 P0｜Example concept**。',
+          '- [x] **FND-02 P0｜Adjacent concept**。',
           '- [ ] **DDD-01 P0｜General Pattern**。',
           '- [ ] **PAT-IN-01 P0｜Integration Pattern**。',
           '- [ ] **REL-01 P0｜Reliability Pattern**。',
@@ -256,6 +278,7 @@ async function withRepositoryFixture(run) {
           documents: {
             'content/cases/example.mdx': governedDocument,
             'content/concepts/example.mdx': governedDocument,
+            'content/concepts/adjacent.mdx': governedDocument,
           },
         }, null, 2)}\n`,
       ),
@@ -328,10 +351,10 @@ test('builds all artifacts from one validated snapshot', async () => {
     let second;
     try {
       first = await buildContentArtifacts(root);
-      assert.equal(sourceReads, 2);
+      assert.equal(sourceReads, 3);
       assert.equal(ledgerReads, 1);
       second = await buildContentArtifacts(root);
-      assert.equal(sourceReads, 4);
+      assert.equal(sourceReads, 6);
       assert.equal(ledgerReads, 2);
     } finally {
       fs.promises.readFile = originalReadFile;
@@ -388,6 +411,7 @@ test('builds all artifacts from one validated snapshot', async () => {
           ],
           documents: {
             'content/cases/example.mdx': governedDocument,
+            'content/concepts/adjacent.mdx': governedDocument,
             'content/concepts/example.mdx': governedDocument,
           },
         },
@@ -397,6 +421,13 @@ test('builds all artifacts from one validated snapshot', async () => {
             metadata: {
               title: 'Example case',
               slug: '/cases/example',
+            },
+          },
+          {
+            file: 'concepts/adjacent.mdx',
+            metadata: {
+              title: 'Adjacent concept',
+              slug: '/concepts/adjacent',
             },
           },
           {

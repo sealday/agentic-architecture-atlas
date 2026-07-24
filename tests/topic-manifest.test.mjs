@@ -42,6 +42,37 @@ const publishedConcept = (overrides = {}) => ({
   },
 });
 
+const publishedKnowledge = (id, type, overrides = {}) => ({
+  file: `${type}s/${id.toLowerCase()}.mdx`,
+  metadata: {
+    title: id,
+    slug: `/${type}s/${id.toLowerCase()}`,
+    content_type: type,
+    status: 'reviewed',
+    topic_id: id,
+    priority: 'P0',
+    depends_on: [],
+    adjacent_topics: [],
+    related_cases: [],
+    related_questions: [],
+    analyzed_at: '2026-07-23',
+    ...overrides,
+  },
+});
+
+const publishedQuestion = (id, slug) => ({
+  file: `questions/${id.toLowerCase()}.mdx`,
+  metadata: {
+    title: id,
+    slug,
+    content_type: 'question',
+    status: 'reviewed',
+    topic_id: id,
+    priority: 'P1',
+    analyzed_at: '2026-07-23',
+  },
+});
+
 const caseMetadata = (overrides = {}) => ({
   title: 'OpenAI Agents SDK',
   slug: '/cases/openai-agents-sdk',
@@ -142,14 +173,189 @@ test('merges published knowledge content by topic id', () => {
         source: 'docs/content-backlog.md',
       },
       dependencies: [],
+      adjacent_topics: [],
       primary_sources: ['https://example.com/architecture-scale'],
       related_cases: [],
+      related_questions: [],
       reviewed_at: '2026-07-23',
       published: true,
       pattern_group: null,
       presentation: {},
     },
   ]);
+});
+
+test('validates adjacent topics and related questions without adding dependency cycles', () => {
+  const documents = [
+    publishedKnowledge('PR-01', 'principle', {
+      adjacent_topics: ['STY-00'],
+      related_cases: [],
+      related_questions: ['/questions/qst-01'],
+    }),
+    publishedKnowledge('STY-00', 'style', {
+      adjacent_topics: ['PR-01'],
+      related_cases: ['/cases/openai-agents-sdk'],
+      related_questions: [],
+    }),
+    publishedQuestion('QST-01', '/questions/qst-01'),
+    {file: 'cases/openai.mdx', metadata: caseMetadata()},
+  ];
+  const result = buildTopicManifest({
+    backlogSource: backlog(
+      topic('PR-01', 'P0'),
+      topic('STY-00', 'P0'),
+      topic('QST-01', 'P1'),
+    ),
+    documents,
+    primarySourcesByFile: primarySources(
+      ['principles/pr-01.mdx', ['https://example.com/pr-primary']],
+      ['styles/sty-00.mdx', ['https://example.com/sty-primary']],
+      ['questions/qst-01.mdx', ['https://example.com/qst-primary']],
+      ['cases/openai.mdx', ['https://example.com/case-primary']],
+    ),
+  });
+  assert.deepEqual(result.errors, []);
+  assert.deepEqual(
+    result.manifest.topics.find(({id}) => id === 'PR-01').adjacent_topics,
+    ['STY-00'],
+  );
+  assert.deepEqual(
+    result.manifest.topics.find(({id}) => id === 'PR-01').related_questions,
+    ['/questions/qst-01'],
+  );
+});
+
+test('rejects any override for a published topic even when values match', () => {
+  const documents = [
+    publishedKnowledge('PR-01', 'principle', {
+      adjacent_topics: ['STY-00'],
+      related_cases: ['/cases/openai-agents-sdk'],
+    }),
+    publishedKnowledge('STY-00', 'style', {
+      adjacent_topics: ['PR-01'],
+      related_cases: ['/cases/openai-agents-sdk'],
+    }),
+    {file: 'cases/openai.mdx', metadata: caseMetadata()},
+  ];
+  const result = buildTopicManifest({
+    backlogSource: backlog(topic('PR-01', 'P0'), topic('STY-00', 'P0')),
+    documents,
+    primarySourcesByFile: primarySources(
+      ['principles/pr-01.mdx', ['https://example.com/pr-primary']],
+      ['styles/sty-00.mdx', ['https://example.com/sty-primary']],
+      ['cases/openai.mdx', ['https://example.com/case-primary']],
+    ),
+    relations: {
+      'PR-01': {
+        dependencies: [],
+        adjacent_topics: ['STY-00'],
+        related_cases: ['/cases/openai-agents-sdk'],
+        related_questions: [],
+      },
+    },
+  });
+  assert.match(
+    result.errors.join('\n'),
+    /published topic "PR-01" must define relations only in front matter/,
+  );
+});
+
+test('projects all four relation fields for planned topics', () => {
+  const result = buildTopicManifest({
+    backlogSource: backlog(
+      topic('PR-01', 'P0'),
+      topic('STY-00', 'P0'),
+      topic('QST-01', 'P1'),
+    ),
+    documents: [
+      publishedQuestion('QST-01', '/questions/qst-01'),
+      {file: 'cases/openai.mdx', metadata: caseMetadata()},
+    ],
+    primarySourcesByFile: primarySources(
+      ['questions/qst-01.mdx', ['https://example.com/qst-primary']],
+      ['cases/openai.mdx', ['https://example.com/case-primary']],
+    ),
+    relations: {
+      'PR-01': {
+        dependencies: ['STY-00'],
+        adjacent_topics: ['STY-00'],
+        related_cases: ['/cases/openai-agents-sdk'],
+        related_questions: ['/questions/qst-01'],
+      },
+    },
+  });
+  const projected = result.manifest.topics.find(({id}) => id === 'PR-01');
+  assert.deepEqual(result.errors, []);
+  assert.deepEqual(projected.dependencies, ['STY-00']);
+  assert.deepEqual(projected.adjacent_topics, ['STY-00']);
+  assert.deepEqual(projected.related_cases, ['/cases/openai-agents-sdk']);
+  assert.deepEqual(projected.related_questions, ['/questions/qst-01']);
+});
+
+test('rejects invalid published adjacency and related-question targets', () => {
+  const baseDocuments = [
+    publishedKnowledge('PR-01', 'principle', {
+      adjacent_topics: ['STY-00'],
+      related_cases: ['/cases/openai-agents-sdk'],
+    }),
+    publishedKnowledge('STY-00', 'style', {
+      adjacent_topics: [],
+      related_cases: ['/cases/openai-agents-sdk'],
+    }),
+    {file: 'cases/openai.mdx', metadata: caseMetadata()},
+  ];
+  const primarySourcesByFile = primarySources(
+    ['principles/pr-01.mdx', ['https://example.com/pr-primary']],
+    ['styles/sty-00.mdx', ['https://example.com/sty-primary']],
+    ['cases/openai.mdx', ['https://example.com/case-primary']],
+  );
+
+  const missingReverse = buildTopicManifest({
+    backlogSource: backlog(topic('PR-01', 'P0'), topic('STY-00', 'P0')),
+    documents: baseDocuments,
+    primarySourcesByFile,
+  });
+  assert.match(
+    missingReverse.errors.join('\n'),
+    /published adjacency "PR-01" -> "STY-00" is missing reverse edge/,
+  );
+
+  const plannedTarget = buildTopicManifest({
+    backlogSource: backlog(topic('PR-01', 'P0'), topic('STY-00', 'P0')),
+    documents: [
+      publishedKnowledge('PR-01', 'principle', {
+        adjacent_topics: ['STY-00'],
+        related_cases: ['/cases/openai-agents-sdk'],
+      }),
+      {file: 'cases/openai.mdx', metadata: caseMetadata()},
+    ],
+    primarySourcesByFile,
+  });
+  assert.match(
+    plannedTarget.errors.join('\n'),
+    /adjacent topic "STY-00" for "PR-01" is not a published knowledge topic/,
+  );
+
+  const wrongQuestionType = buildTopicManifest({
+    backlogSource: backlog(topic('PR-01', 'P0'), topic('STY-00', 'P0')),
+    documents: [
+      publishedKnowledge('PR-01', 'principle', {
+        adjacent_topics: ['STY-00'],
+        related_cases: [],
+        related_questions: ['/styles/sty-00'],
+      }),
+      publishedKnowledge('STY-00', 'style', {
+        adjacent_topics: ['PR-01'],
+        related_cases: ['/cases/openai-agents-sdk'],
+      }),
+      {file: 'cases/openai.mdx', metadata: caseMetadata()},
+    ],
+    primarySourcesByFile,
+  });
+  assert.match(
+    wrongQuestionType.errors.join('\n'),
+    /related question "\/styles\/sty-00" for "PR-01" is not a published question/,
+  );
 });
 
 test('projects only validated ledger sources into the manifest', () => {
@@ -233,10 +439,12 @@ test('projects legacy documents with explicit compatibility defaults', () => {
       source: 'content/cases/openai-agents-sdk.mdx',
     },
     dependencies: [],
+    adjacent_topics: [],
     primary_sources: [
       'https://openai.github.io/openai-agents-python/multi_agent/',
     ],
     related_cases: [],
+    related_questions: [],
     reviewed_at: '2026-07-20',
     published: true,
     pattern_group: null,
@@ -368,7 +576,7 @@ test('rejects manifest identity and relation conflicts', () => {
   });
   assert.match(
     frontMatterConflict.errors.join('\n'),
-    /topic "FND-01" dependencies conflict with data\/topic-relations\.json/,
+    /published topic "FND-01" must define relations only in front matter/,
   );
 });
 

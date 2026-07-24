@@ -13,7 +13,21 @@ export const indexedTopicTypes = [
   'path',
 ];
 
-const allowedRelationKeys = new Set(['dependencies', 'related_cases']);
+const allowedRelationKeys = new Set([
+  'dependencies',
+  'adjacent_topics',
+  'related_cases',
+  'related_questions',
+]);
+const knowledgeTopicTypes = new Set([
+  'concept',
+  'principle',
+  'quality-attribute',
+  'method',
+  'modeling',
+  'style',
+  'pattern',
+]);
 const catalogFields = [
   'title',
   'slug',
@@ -66,13 +80,6 @@ function normalizedStrings(value) {
   return [...value].sort((left, right) => left.localeCompare(right, 'en'));
 }
 
-function sameStrings(left, right) {
-  return (
-    left.length === right.length &&
-    left.every((value, index) => value === right[index])
-  );
-}
-
 function isCalendarDate(value) {
   if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
     return false;
@@ -119,8 +126,10 @@ function projectBacklogTopic(topic, patternGroupByTopicId) {
     priority: topic.priority,
     status: backlogStatus(topic.complete),
     dependencies: [],
+    adjacent_topics: [],
     primary_sources: [],
     related_cases: [],
+    related_questions: [],
     reviewed_at: null,
     published: false,
     pattern_group: patternGroupByTopicId.get(topic.id) ?? null,
@@ -151,8 +160,10 @@ function projectDocument(
     priority: existing?.priority ?? metadata.priority ?? null,
     status: existing?.status ?? contentStatus(file, metadata.status),
     dependencies: copyArray(metadata.depends_on ?? []),
+    adjacent_topics: copyArray(metadata.adjacent_topics ?? []),
     primary_sources: copyArray(primarySources ?? []),
     related_cases: copyArray(metadata.related_cases ?? []),
+    related_questions: copyArray(metadata.related_questions ?? []),
     reviewed_at: metadata.analyzed_at,
     published: true,
     pattern_group: patternGroupByTopicId.get(id) ?? null,
@@ -195,6 +206,12 @@ function validateRelationArray(topicId, field, value, errors) {
   if (value.some((entry) => typeof entry !== 'string' || entry === '')) {
     errors.push(
       `data/topic-relations.json: relation "${topicId}" field "${field}" must contain non-empty strings`,
+    );
+    return undefined;
+  }
+  if (new Set(value).size !== value.length) {
+    errors.push(
+      `data/topic-relations.json: relation "${topicId}" field "${field}" must not contain duplicate values`,
     );
     return undefined;
   }
@@ -269,9 +286,11 @@ export function buildTopicManifest({
     ]),
   );
   const documentIds = new Map();
-  const publishedRelations = new Map();
+  const publishedTopicIds = new Set();
   const dependencySources = new Map();
+  const adjacentTopicSources = new Map();
   const relatedCaseSources = new Map();
+  const relatedQuestionSources = new Map();
 
   for (const {file, metadata} of documents) {
     if (file === 'index.mdx' || file.endsWith('/index.mdx')) {
@@ -320,16 +339,21 @@ export function buildTopicManifest({
     );
     topicsById.set(id, projected);
     topicSources.set(id, `content/${file}`);
-    publishedRelations.set(id, {
-      file,
-      dependencies: normalizedStrings(projected.dependencies),
-      related_cases: normalizedStrings(projected.related_cases),
-    });
+    publishedTopicIds.add(id);
     for (const dependency of projected.dependencies) {
       dependencySources.set(edgeKey(id, dependency), `content/${file}`);
     }
     for (const relatedCase of projected.related_cases) {
       relatedCaseSources.set(edgeKey(id, relatedCase), `content/${file}`);
+    }
+    for (const adjacentTopic of projected.adjacent_topics) {
+      adjacentTopicSources.set(edgeKey(id, adjacentTopic), `content/${file}`);
+    }
+    for (const relatedQuestion of projected.related_questions) {
+      relatedQuestionSources.set(
+        edgeKey(id, relatedQuestion),
+        `content/${file}`,
+      );
     }
 
     if (
@@ -400,18 +424,11 @@ export function buildTopicManifest({
       }
     }
 
-    const published = publishedRelations.get(id);
-    if (published) {
-      for (const field of allowedRelationKeys) {
-        if (
-          normalized[field] &&
-          !sameStrings(published[field], normalized[field])
-        ) {
-          errors.push(
-            `content/${published.file}: topic "${id}" ${field} conflict with data/topic-relations.json`,
-          );
-        }
-      }
+    if (publishedTopicIds.has(id)) {
+      errors.push(
+        `data/topic-relations.json: published topic "${id}" must define relations only in front matter`,
+      );
+      continue;
     }
 
     const topic = topicsById.get(id);
@@ -424,11 +441,29 @@ export function buildTopicManifest({
         );
       }
     }
+    if (normalized.adjacent_topics) {
+      topic.adjacent_topics = normalized.adjacent_topics;
+      for (const adjacentTopic of normalized.adjacent_topics) {
+        adjacentTopicSources.set(
+          edgeKey(id, adjacentTopic),
+          'data/topic-relations.json',
+        );
+      }
+    }
     if (normalized.related_cases) {
       topic.related_cases = normalized.related_cases;
       for (const relatedCase of normalized.related_cases) {
         relatedCaseSources.set(
           edgeKey(id, relatedCase),
+          'data/topic-relations.json',
+        );
+      }
+    }
+    if (normalized.related_questions) {
+      topic.related_questions = normalized.related_questions;
+      for (const relatedQuestion of normalized.related_questions) {
+        relatedQuestionSources.set(
+          edgeKey(id, relatedQuestion),
           'data/topic-relations.json',
         );
       }
@@ -452,11 +487,18 @@ export function buildTopicManifest({
       .filter(({type, published}) => type === 'case' && published)
       .map(({slug}) => slug),
   );
+  const publishedQuestionSlugs = new Set(
+    [...topicsById.values()]
+      .filter(({type, published}) => type === 'question' && published)
+      .map(({slug}) => slug),
+  );
   let graphIsValid = true;
 
   for (const topic of topicsById.values()) {
     topic.dependencies = normalizedStrings(topic.dependencies);
+    topic.adjacent_topics = normalizedStrings(topic.adjacent_topics);
     topic.related_cases = normalizedStrings(topic.related_cases);
+    topic.related_questions = normalizedStrings(topic.related_questions);
 
     for (const dependency of topic.dependencies) {
       const source =
@@ -475,6 +517,40 @@ export function buildTopicManifest({
       }
     }
 
+    for (const adjacentTopicId of topic.adjacent_topics) {
+      const source =
+        adjacentTopicSources.get(edgeKey(topic.id, adjacentTopicId)) ??
+        topicSources.get(topic.id);
+      const adjacentTopic = topicsById.get(adjacentTopicId);
+      if (!adjacentTopic) {
+        errors.push(
+          `${source}: adjacent topic "${adjacentTopicId}" for "${topic.id}" does not exist`,
+        );
+        continue;
+      }
+      if (adjacentTopicId === topic.id) {
+        errors.push(`${source}: topic "${topic.id}" cannot be adjacent to itself`);
+        continue;
+      }
+      if (
+        topic.published &&
+        (!adjacentTopic.published || !knowledgeTopicTypes.has(adjacentTopic.type))
+      ) {
+        errors.push(
+          `${source}: adjacent topic "${adjacentTopicId}" for "${topic.id}" is not a published knowledge topic`,
+        );
+        continue;
+      }
+      if (
+        topic.published &&
+        !adjacentTopic.adjacent_topics.includes(topic.id)
+      ) {
+        errors.push(
+          `${source}: published adjacency "${topic.id}" -> "${adjacentTopicId}" is missing reverse edge "${adjacentTopicId}" -> "${topic.id}"`,
+        );
+      }
+    }
+
     for (const relatedCase of topic.related_cases) {
       if (!publishedCaseSlugs.has(relatedCase)) {
         const source =
@@ -482,6 +558,17 @@ export function buildTopicManifest({
           topicSources.get(topic.id);
         errors.push(
           `${source}: related case "${relatedCase}" for "${topic.id}" is not a published case`,
+        );
+      }
+    }
+
+    for (const relatedQuestion of topic.related_questions) {
+      if (!publishedQuestionSlugs.has(relatedQuestion)) {
+        const source =
+          relatedQuestionSources.get(edgeKey(topic.id, relatedQuestion)) ??
+          topicSources.get(topic.id);
+        errors.push(
+          `${source}: related question "${relatedQuestion}" for "${topic.id}" is not a published question`,
         );
       }
     }

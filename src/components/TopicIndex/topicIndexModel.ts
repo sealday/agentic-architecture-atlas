@@ -26,8 +26,10 @@ export type TopicIndexEntry = {
   priority: TopicPriority;
   status: TopicStatus;
   dependencies: string[];
+  adjacent_topics: string[];
   primary_sources: string[];
   related_cases: string[];
+  related_questions: string[];
   reviewed_at: string | null;
   published: boolean;
   pattern_group: string | null;
@@ -81,8 +83,10 @@ function isTopicIndexEntry(
     isTopicPriority(value.priority) &&
     isTopicStatus(value.status) &&
     isStringArray(value.dependencies) &&
+    isStringArray(value.adjacent_topics) &&
     isStringArray(value.primary_sources) &&
     isStringArray(value.related_cases) &&
+    isStringArray(value.related_questions) &&
     (value.reviewed_at === null || typeof value.reviewed_at === 'string') &&
     typeof value.published === 'boolean' &&
     (value.pattern_group === null || typeof value.pattern_group === 'string')
