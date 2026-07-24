@@ -56,6 +56,11 @@ function expectedPageRoutes() {
   );
 }
 
+function expectedMountedPageRoutes() {
+  const basePath = baseUrl.replace(/\/+$/, '');
+  return expectedPageRoutes().map((route) => `${basePath}${route}`);
+}
+
 function buildFileForRoute(route) {
   return path.join(rootPath, 'build', `${route.slice(1)}.html`);
 }
@@ -195,7 +200,7 @@ test('plans complete canonical source pages in deterministic 20-card slices', as
   assert.deepEqual(pagedIds, canonicalIds);
 });
 
-test('registers every static page through Docusaurus content hooks', async () => {
+test('mounts static pages under baseUrl without prefixing serialized Link routes', async () => {
   const pluginModule = await importPaginationPlugin();
   assert.equal(typeof pluginModule.default, 'function');
   const plugin = pluginModule.default({baseUrl, siteDir: rootPath}, {});
@@ -210,15 +215,19 @@ test('registers every static page through Docusaurus content hooks', async () =>
   );
 
   const created = [];
+  const globalData = [];
   const routes = [];
   await plugin.contentLoaded({
     content,
     actions: {
       async createData(name, data) {
-        JSON.parse(data);
+        const pageData = JSON.parse(data);
         const dataPath = `/generated/${name}`;
-        created.push({dataPath, name});
+        created.push({dataPath, name, pageData});
         return dataPath;
+      },
+      setGlobalData(data) {
+        globalData.push(data);
       },
       addRoute(route) {
         routes.push(route);
@@ -227,9 +236,34 @@ test('registers every static page through Docusaurus content hooks', async () =>
   });
 
   assert.equal(created.length, expectedPageRoutes().length);
+  assert.equal(globalData.length, 1);
   assert.deepEqual(
     routes.map(({path: route}) => route),
+    expectedMountedPageRoutes(),
+  );
+  assert.ok(
+    routes.every(({path: route}) => !/\/{2,}/u.test(route)),
+    'Mounted source-ledger routes must not contain duplicate slashes',
+  );
+  assert.deepEqual(
+    created.map(({pageData}) => pageData.route),
     expectedPageRoutes(),
+  );
+  const logicalRoutes = new Set(expectedPageRoutes());
+  assert.ok(
+    created.every(({pageData}) =>
+      [
+        pageData.previousRoute,
+        pageData.nextRoute,
+        ...pageData.pageLinks.map(({route}) => route),
+      ]
+        .filter(Boolean)
+        .every((route) =>
+          logicalRoutes.has(route) &&
+          !route.startsWith(baseUrl),
+        ),
+    ),
+    'Serialized Link routes must remain logical paths without baseUrl',
   );
   assert.ok(
     routes.every(
