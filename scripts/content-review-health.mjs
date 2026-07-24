@@ -171,6 +171,7 @@ export function evaluateContentReviewHealth({
   const monthlyWindow = previousCompleteMonth(asOf);
   const sourceById = new Map(sources.map((source) => [source.id, source]));
   const citedSourceIds = new Set();
+  const citationsBySourceId = new Map();
   const dueDocuments = [];
   const approachingDueDocuments = [];
   let policyValidationFailed = !(policyById instanceof Map);
@@ -198,6 +199,19 @@ export function evaluateContentReviewHealth({
   for (const [ledgerPath, ledgerDocument] of Object.entries(ledgerDocuments)) {
     for (const citation of ledgerDocument.citations ?? []) {
       citedSourceIds.add(citation.source_id);
+      let documentsByPath = citationsBySourceId.get(citation.source_id);
+      if (!documentsByPath) {
+        documentsByPath = new Map();
+        citationsBySourceId.set(citation.source_id, documentsByPath);
+      }
+      let roles = documentsByPath.get(ledgerPath);
+      if (!roles) {
+        roles = new Set();
+        documentsByPath.set(ledgerPath, roles);
+      }
+      for (const role of Array.isArray(citation.roles) ? citation.roles : []) {
+        roles.add(role);
+      }
     }
     if (!ledgerPath.startsWith('content/')) {
       errors.push(`${ledgerPath}: invalid-ledger-document-path`);
@@ -303,6 +317,25 @@ export function evaluateContentReviewHealth({
     .filter((source) => inWindow(source.registered_at, monthlyWindow))
     .map(({id}) => id)
     .sort(compareText);
+  const newSources = newSourceIds.map((id) => {
+    const citations = [...(citationsBySourceId.get(id) ?? new Map())]
+      .map(([document, roles]) => ({
+        document,
+        roles: [...roles].sort(compareText),
+      }))
+      .sort((left, right) => compareText(left.document, right.document));
+    return {
+      id,
+      citations,
+      discovery_learning_only:
+        citations.length > 0 &&
+        citations.every(
+          ({roles}) =>
+            roles.length > 0 &&
+            roles.every((role) => ['discovery', 'learning'].includes(role)),
+        ),
+    };
+  });
   const recheckedSourceIds = sources
     .filter((source) => inWindow(source.checked_at, monthlyWindow))
     .map(({id}) => id)
@@ -330,6 +363,7 @@ export function evaluateContentReviewHealth({
       review_health: errors.length === 0 ? 'passed' : 'failed',
     },
     new_source_ids: newSourceIds,
+    new_sources: newSources,
     rechecked_source_ids: recheckedSourceIds,
     orphan_source_ids: orphanSourceIds,
     due_documents: dueDocuments,
@@ -365,6 +399,23 @@ export function serializeReviewHealthMarkdown(report) {
     (document) =>
       `- \`${document.slug}\` — due ${document.due_date}; ${document.days_remaining} day(s) remaining`,
   );
+  const newSources = markdownList(
+    report.new_sources,
+    (source) => {
+      const citations = source.citations.length === 0
+        ? '  - No citations.'
+        : source.citations.map(
+          ({document, roles}) =>
+            `  - \`${document}\` — roles: ${roles.join(', ') || 'none'}`,
+        ).join('\n');
+      return [
+        `- \`${source.id}\` — Discovery/learning only: ${
+          source.discovery_learning_only ? 'yes' : 'no'
+        }`,
+        citations,
+      ].join('\n');
+    },
+  );
   return [
     '# Content review health',
     '',
@@ -386,7 +437,7 @@ export function serializeReviewHealthMarkdown(report) {
     '',
     '### Newly registered',
     '',
-    markdownList(report.new_source_ids),
+    newSources,
     '',
     '### Rechecked',
     '',

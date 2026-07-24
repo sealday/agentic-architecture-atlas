@@ -103,6 +103,68 @@ test('separates the previous complete month registered and rechecked lists', () 
   });
   assert.deepEqual(result.report.new_source_ids, ['src-floating']);
   assert.deepEqual(result.report.rechecked_source_ids, ['src-floating']);
+  assert.deepEqual(result.report.new_sources, [{
+    id: 'src-floating',
+    citations: [{
+      document: 'content/cases/example.mdx',
+      roles: ['runtime-fact'],
+    }],
+    discovery_learning_only: false,
+  }]);
+});
+
+test('describes new source citations and keeps uncited new sources orphaned', () => {
+  const input = fixture();
+  input.ledger.sources.push(
+    source({id: 'src-learning'}),
+    source({id: 'src-orphan'}),
+  );
+  input.ledger.documents['content/cases/example.mdx'].citations.push(
+    citation('src-learning', ['learning', 'discovery']),
+    citation('src-learning', ['learning']),
+  );
+  input.ledger.documents['content/paths/example.mdx'] = {
+    reviewed_at: '2026-07-24',
+    copyright_checks: [],
+    citations: [citation('src-learning', ['discovery'])],
+  };
+
+  const result = evaluateContentReviewHealth(input);
+  assert.deepEqual(result.report.new_source_ids, [
+    'src-floating',
+    'src-learning',
+    'src-orphan',
+  ]);
+  assert.deepEqual(result.report.new_sources, [
+    {
+      id: 'src-floating',
+      citations: [{
+        document: 'content/cases/example.mdx',
+        roles: ['runtime-fact'],
+      }],
+      discovery_learning_only: false,
+    },
+    {
+      id: 'src-learning',
+      citations: [
+        {
+          document: 'content/cases/example.mdx',
+          roles: ['discovery', 'learning'],
+        },
+        {
+          document: 'content/paths/example.mdx',
+          roles: ['discovery'],
+        },
+      ],
+      discovery_learning_only: true,
+    },
+    {
+      id: 'src-orphan',
+      citations: [],
+      discovery_learning_only: false,
+    },
+  ]);
+  assert.deepEqual(result.report.orphan_source_ids, ['src-orphan']);
 });
 
 test('does not infer due from checked_at or link_policy', () => {
@@ -213,6 +275,11 @@ test('serializes deterministic JSON and complete Markdown sections', () => {
     assert.match(markdown, new RegExp(heading));
   }
   assert.match(markdown, /None\./);
+  assert.match(
+    markdown,
+    /src-floating[\s\S]*content\/cases\/example\.mdx[\s\S]*runtime-fact/,
+  );
+  assert.match(markdown, /Discovery\/learning only: no/);
 });
 
 test('loads non-empty canonical review inputs through generator plumbing', async () => {
@@ -223,6 +290,20 @@ test('loads non-empty canonical review inputs through generator plumbing', async
   assert.equal(
     inputs.policyById.get('quarterly-version-sensitive')?.calendar_months,
     3,
+  );
+  const report = evaluateContentReviewHealth({
+    ...inputs,
+    asOf: '2026-08-01',
+  }).report;
+  assert.equal(report.new_source_ids.length, 363);
+  assert.equal(report.new_sources.length, 363);
+  assert.equal(
+    report.new_sources.every(({id, citations, discovery_learning_only}) =>
+      typeof id === 'string' &&
+      Array.isArray(citations) &&
+      typeof discovery_learning_only === 'boolean'
+    ),
+    true,
   );
 });
 
