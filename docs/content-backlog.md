@@ -156,8 +156,8 @@
 - [x] **FND-01 P0｜软件架构、应用设计与代码设计的尺度边界**：核心内容 [`48a72a1`](https://github.com/sealday/agentic-architecture-atlas/commit/48a72a1)、最终修复 [`0f6eebb`](https://github.com/sealday/agentic-architecture-atlas/commit/0f6eebb) 与最终评审 [`c68f134`](https://github.com/sealday/agentic-architecture-atlas/commit/c68f134) 已由 [Pages run 30089504406](https://github.com/sealday/agentic-architecture-atlas/actions/runs/30089504406) 成功部署；线上 [`/concepts/fnd-01`](https://sealday.github.io/agentic-architecture-atlas/concepts/fnd-01) 已验证。
 - [x] **FND-02 P0｜架构驱动因素**：业务目标、约束、质量属性和架构重要需求（ASR）；核心内容 [`48a72a1`](https://github.com/sealday/agentic-architecture-atlas/commit/48a72a1)、最终修复 [`0f6eebb`](https://github.com/sealday/agentic-architecture-atlas/commit/0f6eebb) 与最终评审 [`c68f134`](https://github.com/sealday/agentic-architecture-atlas/commit/c68f134) 已由 [Pages run 30089504406](https://github.com/sealday/agentic-architecture-atlas/actions/runs/30089504406) 成功部署；线上 [`/concepts/fnd-02`](https://sealday.github.io/agentic-architecture-atlas/concepts/fnd-02) 已验证。
 - [x] **FND-03 P0｜原则、战术、模式、风格、参考架构和最佳实践的分类边界**：核心内容 [`48a72a1`](https://github.com/sealday/agentic-architecture-atlas/commit/48a72a1)、最终修复 [`0f6eebb`](https://github.com/sealday/agentic-architecture-atlas/commit/0f6eebb) 与最终评审 [`c68f134`](https://github.com/sealday/agentic-architecture-atlas/commit/c68f134) 已由 [Pages run 30089504406](https://github.com/sealday/agentic-architecture-atlas/actions/runs/30089504406) 成功部署；线上 [`/concepts/fnd-03`](https://sealday.github.io/agentic-architecture-atlas/concepts/fnd-03) 已验证。
-- [ ] **FND-04 P0｜权衡、敏感点、权衡点、风险与非风险**。
-- [ ] **FND-05 P1｜技术债、架构债与演进式设计**。
+- [x] **FND-04 P0｜权衡、敏感点、权衡点、风险与非风险**。证据：[implementation `15afc9d`](https://github.com/sealday/agentic-architecture-atlas/commit/15afc9d)、[Stage A deploy/review `eea2d76`](https://github.com/sealday/agentic-architecture-atlas/commit/eea2d76)、[Pages run `30095517683`](https://github.com/sealday/agentic-architecture-atlas/actions/runs/30095517683)；[live route](https://sealday.github.io/agentic-architecture-atlas/concepts/fnd-04) 于 2026-07-24 live smoke 200/标题通过。
+- [x] **FND-05 P1｜技术债、架构债与演进式设计**。证据：[implementation `15afc9d`](https://github.com/sealday/agentic-architecture-atlas/commit/15afc9d)、[Stage A deploy/review `eea2d76`](https://github.com/sealday/agentic-architecture-atlas/commit/eea2d76)、[Pages run `30095517683`](https://github.com/sealday/agentic-architecture-atlas/actions/runs/30095517683)；[live route](https://sealday.github.io/agentic-architecture-atlas/concepts/fnd-05) 于 2026-07-24 live smoke 200/标题通过。
 
 ### 质量属性
 
@@ -175,9 +175,9 @@
 
 ### 方法
 
-- [ ] **MTH-01 P0｜QAW**：从利益相关者关切形成可排序的质量属性场景。
-- [ ] **MTH-02 P0｜ATAM**：用场景、架构方法、敏感点和权衡点评估风险。
-- [ ] **MTH-03 P0｜ADR 生命周期**：提出、接受、替代、废弃和重新评估。
+- [x] **MTH-01 P0｜QAW**：从利益相关者关切形成可排序的质量属性场景。证据：[implementation `15afc9d`](https://github.com/sealday/agentic-architecture-atlas/commit/15afc9d)、[Stage A deploy/review `eea2d76`](https://github.com/sealday/agentic-architecture-atlas/commit/eea2d76)、[Pages run `30095517683`](https://github.com/sealday/agentic-architecture-atlas/actions/runs/30095517683)；[live route](https://sealday.github.io/agentic-architecture-atlas/methods/mth-01) 于 2026-07-24 live smoke 200/标题通过。
+- [x] **MTH-02 P0｜ATAM**：用场景、架构方法、敏感点和权衡点评估风险。证据：[implementation `15afc9d`](https://github.com/sealday/agentic-architecture-atlas/commit/15afc9d)、[Stage A deploy/review `eea2d76`](https://github.com/sealday/agentic-architecture-atlas/commit/eea2d76)、[Pages run `30095517683`](https://github.com/sealday/agentic-architecture-atlas/actions/runs/30095517683)；[live route](https://sealday.github.io/agentic-architecture-atlas/methods/mth-02) 于 2026-07-24 live smoke 200/标题通过。
+- [x] **MTH-03 P0｜ADR 生命周期**：提出、接受、替代、废弃和重新评估。证据：[implementation `15afc9d`](https://github.com/sealday/agentic-architecture-atlas/commit/15afc9d)、[Stage A deploy/review `eea2d76`](https://github.com/sealday/agentic-architecture-atlas/commit/eea2d76)、[Pages run `30095517683`](https://github.com/sealday/agentic-architecture-atlas/actions/runs/30095517683)；[live route](https://sealday.github.io/agentic-architecture-atlas/methods/mth-03) 于 2026-07-24 live smoke 200/标题通过。
 - [ ] **MTH-04 P1｜架构适应度函数**：把关键边界转成持续验证。
 - [ ] **MTH-05 P1｜风险风暴与预演**：与 ATAM、威胁建模和故障演练的分工。
 - [ ] **MTH-06 P1｜从需求到演进的闭环**：QAW → C4/arc42 → ADR → ATAM → fitness functions。
