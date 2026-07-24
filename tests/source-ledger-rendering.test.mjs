@@ -13,15 +13,28 @@ async function generatedLedger() {
 }
 
 test('renders the generated source ledger instead of a hand-maintained catalog', async () => {
-  const [component, references, styles] = await Promise.all([
+  const [component, plugin, references, styles] = await Promise.all([
     source('src/components/SourceLedger/index.tsx'),
+    source('plugins/source-ledger-pages/index.mjs'),
     source('content/references/index.mdx'),
     source('src/components/SourceLedger/styles.module.css'),
   ]);
 
   assert.match(
+    plugin,
+    /src\/generated\/source-ledger\.json/u,
+  );
+  assert.match(
+    plugin,
+    /JSON\.parse\(await readFile\(ledgerPath,\s*['"]utf8['"]\)\)/u,
+  );
+  assert.match(
     component,
-    /import sourceLedger from '@site\/src\/generated\/source-ledger\.json';/,
+    /usePluginData\s*\(\s*['"]source-ledger-pages['"]\s*,?\s*\)/su,
+  );
+  assert.doesNotMatch(
+    component,
+    /generated\/source-ledger|buildSourceLedgerSections/u,
   );
   assert.doesNotMatch(component, /data\/source-ledger|content\//);
   assert.match(
@@ -97,7 +110,9 @@ test('shows provenance copyright evidence roles and usage boundaries', async () 
     ),
   );
 
-  const component = await source('src/components/SourceLedger/index.tsx');
+  const component = await source(
+    'src/components/SourceLedger/SourceLedgerCards.tsx',
+  );
   for (const label of [
     '作者或机构',
     '来源层级',
@@ -121,7 +136,9 @@ test('shows provenance copyright evidence roles and usage boundaries', async () 
 });
 
 test('renders healthy auth-required retired and stale source health', async () => {
-  const component = await source('src/components/SourceLedger/index.tsx');
+  const component = await source(
+    'src/components/SourceLedger/SourceLedgerCards.tsx',
+  );
   for (const value of ['healthy', 'auth-required', 'retired', 'stale']) {
     assert.match(component, new RegExp(value));
   }
@@ -186,10 +203,13 @@ test('labels discovery indexes as navigation rather than factual evidence', asyn
       .every(({externalHref, canonicalLocator}) => externalHref === canonicalLocator),
   );
 
-  const component = await source('src/components/SourceLedger/index.tsx');
-  assert.match(component, /选题\/学习导航，不是事实证据/);
+  const [cardsComponent, overview] = await Promise.all([
+    source('src/components/SourceLedger/SourceLedgerCards.tsx'),
+    source('src/components/SourceLedger/index.tsx'),
+  ]);
+  assert.match(overview, /选题\/学习导航，不是事实证据/);
   assert.match(
-    component,
+    cardsComponent,
     /source\.externalHref \? \([\s\S]*?<a href=\{source\.externalHref\}>/,
   );
 });
