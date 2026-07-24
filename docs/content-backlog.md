@@ -11,7 +11,7 @@
 - **本地执行层：** Ultragoal 由负责人运行 `omx ultragoal status` 查看当前故事、运行 `omx ultragoal complete-goals` 取得下一步。执行者不得自行改写 `.omx/ultragoal/`，也不得在父故事尚未通过全部门槛时 checkpoint。
 - **每个父故事的完成门槛：** 依次完成 targeted verification、`npm run verify`、独立审查、提交到 `main`、推送 `origin/main`、等待 GitHub Pages 成功、检查受影响的线上 route，再把成功部署日期和 commit 更新到“当前发布基线”。基线记录也必须提交并推送到 `origin/main`；上述证据齐全后，负责人才能运行 `omx ultragoal checkpoint` 并进入下一故事。
 - **远端持久层：** 完成项必须同时有本文件的 `[x]`、对应 Git commit、成功部署和线上 route 证据。任一门槛失败时保持当前 story 未完成；本地状态丢失时，从本文件第一个未完成 story 和“当前发布基线”所指的最后成功部署 commit 恢复，不以未部署的本地提交或历史 plan checkbox 推断完成。
-- **当前发布基线：** 2026-07-23 成功部署的内容基线为 commit [`869050b`](https://github.com/sealday/agentic-architecture-atlas/commit/869050b4c69fae263ecdc45b329b33f1a03a1549)，发布证据为 [GitHub Actions run 30018577871](https://github.com/sealday/agentic-architecture-atlas/actions/runs/30018577871)；[`/concepts`](https://sealday.github.io/agentic-architecture-atlas/concepts)、[`/quality-attributes`](https://sealday.github.io/agentic-architecture-atlas/quality-attributes)、[`/cases`](https://sealday.github.io/agentic-architecture-atlas/cases) 与 [`/paths`](https://sealday.github.io/agentic-architecture-atlas/paths) 均返回 HTTP 200，且分别保留 FND-01、QA-00、案例目录和学习路线内容。随后仅承载本记录的 metadata commit 不改变该内容基线。
+- **当前发布基线：** 2026-07-24 成功部署的内容基线为 commit [`3ff09a8`](https://github.com/sealday/agentic-architecture-atlas/commit/3ff09a86cbd2237bb60b3d9a08445b44fc06265e)，发布证据为 [GitHub Actions run 30062252970](https://github.com/sealday/agentic-architecture-atlas/actions/runs/30062252970)；[`/references`](https://sealday.github.io/agentic-architecture-atlas/references) 已显示 361 张来源卡、链接健康信息与 discovery 索引警告，[`/paths`](https://sealday.github.io/agentic-architecture-atlas/paths) 保留学习路线，[`/cases`](https://sealday.github.io/agentic-architecture-atlas/cases) 保留案例目录，[`/patterns`](https://sealday.github.io/agentic-architecture-atlas/patterns) 保留模式索引。随后仅承载本记录的 metadata commit 不改变该内容基线。
 
 ## 目标与停止条件
 
@@ -136,16 +136,16 @@
 
 - [x] **E0-01 P0｜建立内容类型契约**：[`869050b`](https://github.com/sealday/agentic-architecture-atlas/commit/869050b4c69fae263ecdc45b329b33f1a03a1549) 已为 `concept`、`principle`、`quality-attribute`、`method`、`modeling` 和 `style` 落实必需元数据、章节顺序与校验测试，并由 [Pages run 30018577871](https://github.com/sealday/agentic-architecture-atlas/actions/runs/30018577871) 成功发布。
 - [x] **E0-02 P0｜建立唯一主题清单**：[`869050b`](https://github.com/sealday/agentic-architecture-atlas/commit/869050b4c69fae263ecdc45b329b33f1a03a1549) 已生成含 ID、类型、slug、优先级、只读状态投影、依赖、来源、相关案例和复核日期的 manifest 及十类索引；线上 [`/concepts`](https://sealday.github.io/agentic-architecture-atlas/concepts)、[`/quality-attributes`](https://sealday.github.io/agentic-architecture-atlas/quality-attributes)、[`/cases`](https://sealday.github.io/agentic-architecture-atlas/cases) 与 [`/paths`](https://sealday.github.io/agentic-architecture-atlas/paths) 已验证。
-- [ ] **E0-03 P0｜建立全站 source ledger**：把当前只服务学习路线的资料库升级为全站来源登记，区分定义来源、事实来源、案例证据和插图来源。
+- [x] **E0-03 P0｜建立全站 source ledger**：[`3ff09a8`](https://github.com/sealday/agentic-architecture-atlas/commit/3ff09a86cbd2237bb60b3d9a08445b44fc06265e) 已建立 361-source canonical ledger、文档引用与公开资料库投影，并由 [Pages run 30062252970](https://github.com/sealday/agentic-architecture-atlas/actions/runs/30062252970) 成功发布。
 - [ ] **E0-04 P0｜落实五类文章模板**：为原则、模式、风格、方法/建模、质量属性各写一篇 fixture，并建立章节顺序测试。
-- [ ] **E0-05 P0｜建立版权与署名检查表**：记录 CC BY、CC BY-SA、政府作品、许可不明和厂商材料的处理方式；发布审查必须可勾选。
+- [x] **E0-05 P0｜建立版权与署名检查表**：[`3ff09a8`](https://github.com/sealday/agentic-architecture-atlas/commit/3ff09a86cbd2237bb60b3d9a08445b44fc06265e) 已落实许可证、使用方式、署名、引文与改编边界的可执行版权矩阵，并由 [Pages run 30062252970](https://github.com/sealday/agentic-architecture-atlas/actions/runs/30062252970) 成功发布。
 - [ ] **E0-06 P0｜拆分通用模式与 Agent 模式导航**：保留现有 Agent 控制模式，但为通用设计、集成、可靠性、数据和迁移模式建立独立分组。
 - [ ] **E0-07 P0｜修复案例分类扩展性**：为 Agent 平台/网关增加合适 series，减少所有新案例都要手工改多处硬编码清单的维护成本。
 - [x] **E0-08 P0｜把事实库存扩到全部 18 篇案例**：事实库存测试现由 18-case canonical manifest 校验覆盖集合，并保护 New API、LiteLLM、Kong 的关键运行字段；不再保留固定 15 篇断言。
 - [x] **E0-09 P0｜补齐学习路线图片资产**：图片已提交到 `static/img/paths/software-architecture-learning-roadmap.png`，学习路线测试校验文件存在，且[线上图片 URL](https://sealday.github.io/agentic-architecture-atlas/img/paths/software-architecture-learning-roadmap.png)返回成功。
 - [x] **E0-10 P0｜标记过期历史计划**：单页学习路线、五篇首发案例和十五篇案例阶段的 design/plan 均已标为 `Superseded`，并链接到当前替代文档或本 backlog。
-- [ ] **E0-11 P1｜建立外链健康检查**：区分永久链接、会漂移的 latest 文档、登录墙和已失效页面；失败不能静默。
-- [ ] **E0-12 P1｜建立“索引不等于证据”检查**：原则、模式和案例页不能只引用 Awesome 列表、面试站或二手聚合页。
+- [x] **E0-11 P1｜建立外链健康检查**：[`3ff09a8`](https://github.com/sealday/agentic-architecture-atlas/commit/3ff09a86cbd2237bb60b3d9a08445b44fc06265e) 已提交覆盖 360 个 transport 的已审缓存、离线失败门禁与只读定时/手工 live workflow，并由 [Pages run 30062252970](https://github.com/sealday/agentic-architecture-atlas/actions/runs/30062252970) 成功发布。
+- [x] **E0-12 P1｜建立“索引不等于证据”检查**：[`3ff09a8`](https://github.com/sealday/agentic-architecture-atlas/commit/3ff09a86cbd2237bb60b3d9a08445b44fc06265e) 已强制 `community-index` 只能承担 discovery/learning，不能满足事实证据门槛，并由 [Pages run 30062252970](https://github.com/sealday/agentic-architecture-atlas/actions/runs/30062252970) 成功发布。
 - [ ] **E0-13 P1｜建立页面间关系检查**：每个知识页至少链接一个上位入口、一个相邻主题和一个案例或练习。
 - [ ] **E0-14 P1｜建立周期复核机制**：每月检查新增来源与失效链接，每季度按 `source_cutoff` 复核版本敏感内容。
 
