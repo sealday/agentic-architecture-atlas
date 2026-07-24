@@ -153,9 +153,9 @@
 
 ### 基础概念
 
-- [ ] **FND-01 P0｜软件架构、应用设计与代码设计的尺度边界**。
-- [ ] **FND-02 P0｜架构驱动因素**：业务目标、约束、质量属性和架构重要需求（ASR）。
-- [ ] **FND-03 P0｜原则、战术、模式、风格、参考架构和最佳实践的分类边界**。
+- [x] **FND-01 P0｜软件架构、应用设计与代码设计的尺度边界**：核心内容 [`48a72a1`](https://github.com/sealday/agentic-architecture-atlas/commit/48a72a1)、最终修复 [`0f6eebb`](https://github.com/sealday/agentic-architecture-atlas/commit/0f6eebb) 与最终评审 [`c68f134`](https://github.com/sealday/agentic-architecture-atlas/commit/c68f134) 已由 [Pages run 30089504406](https://github.com/sealday/agentic-architecture-atlas/actions/runs/30089504406) 成功部署；线上 [`/concepts/fnd-01`](https://sealday.github.io/agentic-architecture-atlas/concepts/fnd-01) 已验证。
+- [x] **FND-02 P0｜架构驱动因素**：业务目标、约束、质量属性和架构重要需求（ASR）；核心内容 [`48a72a1`](https://github.com/sealday/agentic-architecture-atlas/commit/48a72a1)、最终修复 [`0f6eebb`](https://github.com/sealday/agentic-architecture-atlas/commit/0f6eebb) 与最终评审 [`c68f134`](https://github.com/sealday/agentic-architecture-atlas/commit/c68f134) 已由 [Pages run 30089504406](https://github.com/sealday/agentic-architecture-atlas/actions/runs/30089504406) 成功部署；线上 [`/concepts/fnd-02`](https://sealday.github.io/agentic-architecture-atlas/concepts/fnd-02) 已验证。
+- [x] **FND-03 P0｜原则、战术、模式、风格、参考架构和最佳实践的分类边界**：核心内容 [`48a72a1`](https://github.com/sealday/agentic-architecture-atlas/commit/48a72a1)、最终修复 [`0f6eebb`](https://github.com/sealday/agentic-architecture-atlas/commit/0f6eebb) 与最终评审 [`c68f134`](https://github.com/sealday/agentic-architecture-atlas/commit/c68f134) 已由 [Pages run 30089504406](https://github.com/sealday/agentic-architecture-atlas/actions/runs/30089504406) 成功部署；线上 [`/concepts/fnd-03`](https://sealday.github.io/agentic-architecture-atlas/concepts/fnd-03) 已验证。
 - [ ] **FND-04 P0｜权衡、敏感点、权衡点、风险与非风险**。
 - [ ] **FND-05 P1｜技术债、架构债与演进式设计**。
 
