@@ -115,6 +115,31 @@ test('uses the exact concept H2 sequence on every Batch 1 page', () => {
   }
 });
 
+test('compares all six foundation taxonomy categories in FND-03', () => {
+  const taxonomy = sectionForHeading(
+    requiredDocument('FND-03').body,
+    '核心机制',
+  );
+  const categories = taxonomy
+    .split(/\r?\n/)
+    .map((line) => line.match(/^\|\s*([^|]+?)\s*\|/)?.[1])
+    .filter(
+      (category) =>
+        category &&
+        category !== '类别' &&
+        !/^:?-{3,}:?$/.test(category),
+    );
+
+  assert.deepEqual(categories, [
+    '原则',
+    '战术',
+    '模式',
+    '风格',
+    '参考架构',
+    '最佳实践',
+  ]);
+});
+
 test('publishes the required dependency and reciprocal adjacency graph', () => {
   const expectedDependencies = new Map([
     ['FND-01', []],

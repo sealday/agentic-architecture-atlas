@@ -881,6 +881,36 @@ test('orders the Batch 1 foundation concepts first in the stage-one learning seq
   );
 });
 
+test('checks each Batch 1 foundation capability at the stage-one checkpoint', async () => {
+  const source = await readRequiredFile(
+    path.join(pathDirectory, mainStages[0][0]),
+    'stage-one learning path',
+  );
+  const checkpoint = sectionForHeading(extractMarkdownBody(source), '检查点');
+  const checkpointItems = checkpoint
+    .split(/\r?\n/)
+    .filter((line) => /^ {0,3}(?:[-*+]|\d+[.)])\s+\S/.test(line));
+  const expectedCapabilities = [
+    ['/concepts/fnd-01', /(?:尺度|架构级|应用设计|代码设计)/u],
+    [
+      '/concepts/fnd-02',
+      /(?:驱动因素|drivers?|ASR).*(?:追踪|追溯)|(?:追踪|追溯).*(?:驱动因素|drivers?|ASR)/iu,
+    ],
+    [
+      '/concepts/fnd-03',
+      /(?:分类|原则|战术|模式|风格|参考架构|最佳实践)/u,
+    ],
+  ];
+
+  for (const [slug, capability] of expectedCapabilities) {
+    const item = checkpointItems.find((candidate) =>
+      extractMarkdownLinks(candidate).has(slug),
+    );
+    assert.ok(item, `Stage-one checkpoint must exercise ${slug}`);
+    assert.match(item, capability, `${slug} checkpoint lacks its capability`);
+  }
+});
+
 test('ships exactly one valid generated roadmap PNG larger than 50 KB', async () => {
   const rasterFiles = await listFilesRecursively(
     roadmapImageDirectory,
