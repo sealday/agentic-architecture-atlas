@@ -54,10 +54,24 @@ wait_for_pages_run() {
     --json databaseId,headSha,status,conclusion,url \
     --jq 'select(.headSha == "'"$expected_sha"'" and .status == "completed" and .conclusion == "success")'
 }
+
+fetch_and_assert_text() {
+  local route="$1"
+  local expected_text="$2"
+  local smoke_name
+  smoke_name=$(printf '%s' "$route" | tr '/' '-')
+  SMOKE_FILE="/tmp/g004-smoke-${smoke_name}.html"
+  curl --fail --silent --show-error \
+    "https://sealday.github.io/agentic-architecture-atlas/$route" \
+    --output "$SMOKE_FILE"
+  test -s "$SMOKE_FILE"
+  rg -F -- "$expected_text" "$SMOKE_FILE" >/dev/null
+}
 ```
 
 The 30 × 10-second discovery loop is bounded. A missing run, mismatched `headSha`, non-success conclusion, or empty
-final JSON fails the release gate.
+final JSON fails the release gate. `fetch_and_assert_text` retains each response under `/tmp` and fails when the
+expected page text is absent; a bare HTTP 200 is not sufficient smoke evidence.
 
 ---
 
@@ -1272,9 +1286,9 @@ Expected: FAIL with `ERR_MODULE_NOT_FOUND` for `scripts/content-registries.mjs`.
 Add these pending topics to the migration section of `docs/content-backlog.md`:
 
 ```md
-- [ ] `PAT-MIG-01` P0｜Strangler Fig 渐进迁移
-- [ ] `PAT-MIG-02` P1｜Branch by Abstraction
-- [ ] `PAT-MIG-03` P1｜Expand/Contract
+- [ ] **PAT-MIG-01 P0｜Strangler Fig 渐进迁移**：按可观测业务切片逐步替换旧系统，并定义流量迁移、回退和退役条件。
+- [ ] **PAT-MIG-02 P1｜Branch by Abstraction**：在稳定抽象后并行替换实现，控制双写、切换和旧分支删除窗口。
+- [ ] **PAT-MIG-03 P1｜Expand/Contract**：用兼容性扩展、分阶段迁移和最终收缩完成 schema/API 演进。
 ```
 
 Add `PAT-MIG` to `topicPrefixTypes` as `pattern` / `/patterns`, and extend
@@ -1509,7 +1523,9 @@ Expected: one local commit with the registry, parser, and exhaustive tests.
 - Produces: manifest/index topic field `pattern_group: string | null`; generated path
   `src/generated/pattern-groups.json`; `<PatternTopicIndex />`.
 - `selectPatternGroups(groups, topics)` returns ordered groups with `topics`.
-- Invariant: `/patterns` stays stable; planned topics have no internal link; the hand-written Agent control sections remain present.
+- Invariant: `/patterns` stays stable; planned topics have no internal link; `selectPatternGroups` returns the five
+  common groups, while the page renders a sixth explicit `Agent 控制与协作模式` wrapper around all preserved
+  hand-written Agent control content.
 
 - [ ] **Step 1: Write RED projection and UI model tests**
 
@@ -1536,28 +1552,50 @@ shared `primarySourcesFor(documents)` fixture and an assertion that no published
 Add to `tests/topic-index.test.mjs`:
 
 ```js
+import {readFile} from 'node:fs/promises';
+import {fileURLToPath} from 'node:url';
+
 test('groups Pattern topics from generated registry order', async () => {
   const {selectPatternGroups} = await import(
     '../src/components/PatternTopicIndex/patternTopicIndexModel.ts'
   );
   const groups = [
-    {id: 'reliability', label: '可靠性', description: '恢复模式', order: 30},
-    {id: 'migration', label: '迁移', description: '迁移模式', order: 50},
+    {id: 'general-design', label: '通用设计模式', description: '边界模式', order: 10},
+    {id: 'integration', label: '集成模式', description: '集成模式', order: 20},
+    {id: 'reliability', label: '可靠性与生产治理模式', description: '恢复模式', order: 30},
+    {id: 'data', label: '数据与一致性模式', description: '数据模式', order: 40},
+    {id: 'migration', label: '迁移模式', description: '迁移模式', order: 50},
+    {id: 'agent-control', label: 'Agent 控制与协作模式', description: 'Agent 模式', order: 60},
   ];
   const topics = [
     {...topicFixture({id: 'REL-02', priority: 'P0'}), type: 'pattern', pattern_group: 'reliability'},
   ];
   assert.deepEqual(
-    selectPatternGroups(groups, topics).map(({id, topics}) => [id, topics.length]),
-    [['reliability', 1], ['migration', 0]],
+    selectPatternGroups(groups, topics).map(({label, topics}) => [label, topics.length]),
+    [
+      ['通用设计模式', 0],
+      ['集成模式', 0],
+      ['可靠性与生产治理模式', 1],
+      ['数据与一致性模式', 0],
+      ['迁移模式', 0],
+    ],
   );
+});
+
+test('Pattern page renders five common groups plus one Agent wrapper', async () => {
+  const source = await readFile(
+    fileURLToPath(new URL('../content/patterns/index.mdx', import.meta.url)),
+    'utf8',
+  );
+  assert.match(source, /<PatternTopicIndex \\/>/);
+  assert.match(source, /## Agent 控制与协作模式/);
 });
 ```
 
 - [ ] **Step 2: Run tests and observe RED**
 
 ```bash
-node --test --test-name-pattern='canonical Pattern group|groups Pattern topics' \
+node --test --test-name-pattern='canonical Pattern group|groups Pattern topics|five common groups plus one Agent wrapper' \
   tests/topic-manifest.test.mjs tests/topic-index.test.mjs
 ```
 
@@ -1666,7 +1704,7 @@ export type TopicIndexEntry = {
 };
 ```
 
-Create `src/components/PatternTopicIndex/index.tsx` so every group renders its registry label/description, published
+Create `src/components/PatternTopicIndex/index.tsx` so each of the five common groups renders its registry label/description, published
 topics use `<Link to={topic.slug}>`, planned topics render `<span>`, and empty groups render `该分组尚无已登记主题。`.
 Import this component in `content/patterns/index.mdx` and replace only:
 
@@ -1680,7 +1718,15 @@ with:
 <PatternTopicIndex />
 ```
 
-Keep every existing Agent control heading and paragraph below the grouped common-pattern section.
+Immediately after `<PatternTopicIndex />`, add the explicit wrapper heading:
+
+```mdx
+## Agent 控制与协作模式
+```
+
+Keep every existing Agent control heading and paragraph under that wrapper. The Agent material must not be emitted
+by `selectPatternGroups`, but the built `/patterns` page and tests must contain all five common registry labels plus
+this sixth wrapper title.
 
 - [ ] **Step 5: Generate and run navigation regressions**
 
@@ -1731,14 +1777,15 @@ Expected: all commands pass and the worktree is clean.
 git push origin main
 UNIT_HEAD=$(git rev-parse HEAD)
 wait_for_pages_run "$UNIT_HEAD"
-curl --fail --silent --show-error \
-  https://sealday.github.io/agentic-architecture-atlas/patterns >/dev/null
-curl --fail --silent --show-error \
-  https://sealday.github.io/agentic-architecture-atlas/patterns/rel-02 >/dev/null
+for heading in \
+  "通用设计模式" "集成模式" "可靠性与生产治理模式" \
+  "数据与一致性模式" "迁移模式" "Agent 控制与协作模式"; do
+  fetch_and_assert_text patterns "$heading"
+done
+fetch_and_assert_text patterns/rel-02 "Retry、Exponential Backoff 与 Jitter"
 ```
 
-Expected: Pages concludes `success`; both requests exit 0; the Pattern index visibly contains all six group headings
-and the preserved Agent sections.
+Expected: Pages concludes `success`; saved HTML proves all six group headings and the REL-02 title are rendered.
 
 - [ ] Update only E0-06 deployment metadata and push that leader-owned commit:
 
@@ -1748,10 +1795,12 @@ git commit -m "docs: record e0-06 deployment"
 git push origin main
 METADATA_HEAD=$(git rev-parse HEAD)
 wait_for_pages_run "$METADATA_HEAD"
-curl --fail --silent --show-error \
-  https://sealday.github.io/agentic-architecture-atlas/patterns >/dev/null
-curl --fail --silent --show-error \
-  https://sealday.github.io/agentic-architecture-atlas/patterns/rel-02 >/dev/null
+for heading in \
+  "通用设计模式" "集成模式" "可靠性与生产治理模式" \
+  "数据与一致性模式" "迁移模式" "Agent 控制与协作模式"; do
+  fetch_and_assert_text patterns "$heading"
+done
+fetch_and_assert_text patterns/rel-02 "Retry、Exponential Backoff 与 Jitter"
 ```
 
 Expected: only `docs/content-backlog.md` changes; the metadata commit's Pages run and repeated smoke both pass.
@@ -2180,17 +2229,13 @@ Expected: the matching Pages run concludes `success`.
 - [ ] Smoke the catalog and three gateway cases:
 
 ```bash
-for route in \
-  cases \
-  cases/new-api-channel-pool-routing \
-  cases/litellm-virtual-keys-governance \
-  cases/kong-ai-gateway-routing-resilience; do
-  curl --fail --silent --show-error \
-    "https://sealday.github.io/agentic-architecture-atlas/$route" >/dev/null
-done
+fetch_and_assert_text cases "Agent 平台与模型网关"
+fetch_and_assert_text cases/new-api-channel-pool-routing "New API"
+fetch_and_assert_text cases/litellm-virtual-keys-governance "LiteLLM"
+fetch_and_assert_text cases/kong-ai-gateway-routing-resilience "Kong AI Gateway"
 ```
 
-Expected: all four routes return success; the catalog HTML includes `Agent 平台与模型网关`.
+Expected: all four saved responses are non-empty and contain the catalog/group or page-specific title.
 
 - [ ] Update E0-07 deployment metadata in a leader-only commit and push it:
 
@@ -2200,11 +2245,13 @@ git commit -m "docs: record e0-07 deployment"
 git push origin main
 METADATA_HEAD=$(git rev-parse HEAD)
 wait_for_pages_run "$METADATA_HEAD"
-curl --fail --silent --show-error \
-  https://sealday.github.io/agentic-architecture-atlas/cases >/dev/null
+fetch_and_assert_text cases "Agent 平台与模型网关"
+fetch_and_assert_text cases/new-api-channel-pool-routing "New API"
+fetch_and_assert_text cases/litellm-virtual-keys-governance "LiteLLM"
+fetch_and_assert_text cases/kong-ai-gateway-routing-resilience "Kong AI Gateway"
 ```
 
-Expected: deployment metadata is durable and its matching Pages run plus catalog smoke pass. Add Unit C evidence to the running G004 summary and do not perform an
+Expected: deployment metadata is durable and its matching Pages run plus repeated content assertions pass. Add Unit C evidence to the running G004 summary and do not perform an
 Ultragoal completion checkpoint.
 
 ## Release Unit D — E0-13: Executable Page Relationships
@@ -2326,7 +2373,7 @@ test('rejects any override for a published topic even when values match', () => 
     backlogSource: backlog(topic('PR-01', 'P0'), topic('STY-00', 'P0')),
     documents: reciprocalPublishedKnowledgeFixtures(),
     primarySourcesByFile: primarySourcesFor(reciprocalPublishedKnowledgeFixtures()),
-    relationOverrides: {
+    relations: {
       'PR-01': {
         dependencies: [],
         adjacent_topics: ['STY-00'],
@@ -3445,15 +3492,19 @@ Expected: the bounded helper matches `UNIT_HEAD` and Pages concludes `success`.
 - [ ] Smoke public routes and manually dispatch the monthly workflow:
 
 ```bash
-for route in patterns cases references paths \
-  principles/pr-01 patterns/rel-02 styles/sty-00 methods/mth-03 \
-  modeling/mod-02 quality-attributes/qa-01; do
-  curl --fail --silent --show-error \
-    "https://sealday.github.io/agentic-architecture-atlas/$route" >/dev/null
-done
+fetch_and_assert_text patterns "Agent 控制与协作模式"
+fetch_and_assert_text cases "Agent 平台与模型网关"
+fetch_and_assert_text references "资料库"
+fetch_and_assert_text paths "软件架构学习路线"
+fetch_and_assert_text principles/pr-01 "信息隐藏与封装"
+fetch_and_assert_text patterns/rel-02 "Retry、Exponential Backoff 与 Jitter"
+fetch_and_assert_text styles/sty-00 "架构风格比较框架"
+fetch_and_assert_text methods/mth-03 "ADR 生命周期"
+fetch_and_assert_text modeling/mod-02 "C4 Context 与 Container"
+fetch_and_assert_text quality-attributes/qa-01 "质量属性场景写法"
 ```
 
-Expected: all routes return success.
+Expected: every response is saved and contains its index, group, or fixture title.
 
 - [ ] Dispatch, identify, wait for, and inspect the monthly workflow:
 
@@ -3482,6 +3533,8 @@ gh run download "$AUDIT_RUN_ID" -n content-review-health -D /tmp/g004-content-re
 test -n "$(find /tmp/g004-source-link-health-live -type f -size +0c -print -quit)"
 test -s /tmp/g004-content-review-health/content-review-health.json
 test -s /tmp/g004-content-review-health/content-review-health.md
+rg -F -- "# Content review health" \
+  /tmp/g004-content-review-health/content-review-health.md >/dev/null
 node -e 'const r=require("/tmp/g004-content-review-health/content-review-health.json"); if (r.gates?.inputs_non_empty !== "passed") throw new Error("empty report inputs"); for (const k of ["new_sources","rechecked_sources","orphan_sources","due_documents","approaching_due_documents"]) if (!Number.isInteger(r.counts?.[k])) throw new Error(`missing count ${k}`)'
 ```
 
@@ -3496,10 +3549,16 @@ git commit -m "docs: record e0-14 and g004 deployment"
 git push origin main
 METADATA_HEAD=$(git rev-parse HEAD)
 wait_for_pages_run "$METADATA_HEAD"
-for route in patterns cases references paths; do
-  curl --fail --silent --show-error \
-    "https://sealday.github.io/agentic-architecture-atlas/$route" >/dev/null
-done
+fetch_and_assert_text patterns "Agent 控制与协作模式"
+fetch_and_assert_text cases "Agent 平台与模型网关"
+fetch_and_assert_text references "资料库"
+fetch_and_assert_text paths "软件架构学习路线"
+fetch_and_assert_text principles/pr-01 "信息隐藏与封装"
+fetch_and_assert_text patterns/rel-02 "Retry、Exponential Backoff 与 Jitter"
+fetch_and_assert_text styles/sty-00 "架构风格比较框架"
+fetch_and_assert_text methods/mth-03 "ADR 生命周期"
+fetch_and_assert_text modeling/mod-02 "C4 Context 与 Container"
+fetch_and_assert_text quality-attributes/qa-01 "质量属性场景写法"
 ```
 
 Expected: the backlog records E0-04, E0-06, E0-07, E0-13, and E0-14 implementation commit/Pages evidence. Fixture
