@@ -9,7 +9,7 @@ Read this contract before drafting or rewriting a complete architecture case. Pr
 | 1 | `## 学习问题` | Give 4–6 questions that drive the reading, prioritizing control, state, failure, boundary, and transfer. |
 | 2 | `## 一页摘要` | Establish the architecture in 2–4 short paragraphs, then use one compact table to orient the reader. |
 | 3 | `## 事实边界` | State the evidence scope and only the version boundaries that affect conclusions; defer anchor inventories. |
-| 4 | `## 架构图` | Tell readers what relationship to inspect before the diagram, then explain one task flow after it. |
+| 4 | `## 架构图` | Tell readers what relationship to inspect before the visual, include the selected original raster illustration when the visual scan triggers, retain a deterministic diagram when exact topology matters, then explain one task flow after it. |
 | 5 | `## 控制权与任务流` | Trace a micro-scenario through roles, state, handoffs, failure, termination, and retry authority. |
 | 6 | `## 关键源码导读` | State the reading purpose and shortest decisive source path; separate mechanism proof from business inference. |
 | 7 | `## 架构决策与权衡` | For each decision, connect the problem, mechanism, cost, and applicability boundary. |
@@ -60,6 +60,20 @@ Use this shape:
 Open with a concrete conflict or counterintuitive result, a transferable lens, and the evidence scope within three paragraphs. Keep one principal reader question per section. Use a labeled micro-scenario in `控制权与任务流` or `生产化分析`; trace actual supported mechanisms and return to a decision.
 
 Introduce every table, diagram, and code block with the question it answers. Follow it with the conclusion or boundary the reader should retain. End the article by synthesizing the decision, trade-off, and transfer condition rather than repeating section summaries.
+
+## Illustration boundary
+
+Use the `illustrating-architecture-articles` skill for selected raster visuals. The image establishes orientation and makes one architectural judgment memorable; prose, Mermaid, tables, code, and evidence cards remain authoritative for exact names, topology, versions, and source claims.
+
+For a complete case, run the visual scan in the writing skill. When a trigger applies:
+
+- generate and embed at least one original image;
+- place it after a paragraph that names what to inspect;
+- add concise purpose-oriented alt text;
+- state the conclusion or critical boundary after it;
+- register the asset as an original illustration under repository source-governance rules.
+
+Do not reuse supplied reference art, identifiable characters, signatures, watermarks, or exact compositions.
 
 ## Density reporter contract
 

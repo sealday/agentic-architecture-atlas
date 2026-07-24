@@ -1,0 +1,4 @@
+interface:
+  display_name: "架构文章手绘插图"
+  short_description: "为 Tego Arch 文章生成清晰、原创、可核验的手绘技术信息图"
+  default_prompt: "Use $illustrating-architecture-articles to create and integrate a hand-drawn architecture infographic for this article."

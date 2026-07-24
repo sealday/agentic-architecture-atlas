@@ -18,6 +18,8 @@ Run these gates in order. A later gate cannot compensate for failure in an earli
 - [ ] The opening reaches a concrete conflict or conclusion, transferable lens, and evidence scope within three short paragraphs.
 - [ ] Each section answers one main reader question; each paragraph advances one center of gravity.
 - [ ] Scenarios return to an architectural judgment; tables, diagrams, and code have a before-reading question and an after-reading conclusion.
+- [ ] The visual scan is recorded. When a trigger applies, at least one original raster illustration exists in the repository, is embedded after an inspection question, and is followed by its conclusion or boundary.
+- [ ] The illustration and any nearby Mermaid/table divide responsibilities: the raster image orients; deterministic text and diagrams preserve exact labels, topology, versions, and evidence.
 - [ ] `COSMETIC_ONLY`: if density came from mixed concerns or source inventories, the revision changes information placement and structure rather than only wording.
 - [ ] `LOW_DENSITY_FILLER`: each lighter sentence establishes context, explains a term, bridges causality, traces flow, poses a check, or synthesizes a decision.
 
@@ -43,4 +45,6 @@ Run these gates in order. A later gate cannot compensate for failure in an earli
 - [ ] Resolve `empty-evidence-card`; review `unanchored-evidence-card` and add a source, file, symbol, version, commit, link, or other concrete anchor when the block claims to be evidence.
 - [ ] Remove empty setup, fake suspense, slogans, repeated conclusions, mechanical parallelism, synonym chains, and exhaustive name dumping.
 - [ ] Confirm the ending states a decision, trade-off, or transfer condition without a generic inspirational close.
-- [ ] Review rendered desktop and mobile views for opening value, paragraph rhythm, overflow, evidence-card usability, and table/code readability.
+- [ ] Inspect every generated illustration at original size: exact Chinese labels, correct arrows/loops/states, supported facts only, no copied person/signature/watermark/layout, and no pseudo-text.
+- [ ] Confirm every embedded illustration has purpose-oriented alt text, a stable `/img/illustrations/` path, and an `original-illustration` source-ledger citation with `illustration-rights`.
+- [ ] Review rendered desktop and mobile views for opening value, paragraph rhythm, illustration legibility, overflow, evidence-card usability, and table/code readability.
