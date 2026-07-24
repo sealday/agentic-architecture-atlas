@@ -153,6 +153,17 @@ test('renders the generated source ledger instead of a hand-maintained catalog',
   assert.doesNotMatch(styles, /overflow\s*:\s*hidden/);
 });
 
+test('describes link health as a reviewed committed cache rather than real-time status', async () => {
+  const references = await source('content/references/index.mdx');
+
+  assert.doesNotMatch(references, /Task 6|当前占位/);
+  assert.match(references, /随仓库提交的最近一次链接核查缓存/);
+  assert.match(references, /不是实时探测/);
+  assert.match(references, /120 天/);
+  assert.match(references, /每月定时与手工触发的在线检查/);
+  assert.match(references, /人工复核后提交.*页面才会更新/);
+});
+
 test('shows provenance copyright evidence roles and usage boundaries', async () => {
   const {buildSourceLedgerSections} = await import(
     '../src/components/SourceLedger/sourceLedgerModel.ts'
