@@ -5,8 +5,10 @@ import type {
   CatalogFilters,
   SourceKind,
 } from '../../data/caseCatalog';
-// @ts-expect-error Node's native TypeScript loader requires the explicit extension in tests.
-import {caseSeries} from '../../data/caseCatalog.ts';
+// @ts-expect-error TS5097: Node's native TS loader requires the explicit .ts extension in tests.
+import * as caseCatalogModule from '../../data/caseCatalog.ts';
+
+const {caseSeries} = caseCatalogModule;
 
 export type CaseSeriesGroup = {
   series: CaseSeries;
