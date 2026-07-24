@@ -110,7 +110,7 @@ function makeTopicComparator(topicsById) {
     left.id.localeCompare(right.id, 'en');
 }
 
-function projectBacklogTopic(topic) {
+function projectBacklogTopic(topic, patternGroupByTopicId) {
   return {
     id: topic.id,
     type: topic.type,
@@ -123,10 +123,18 @@ function projectBacklogTopic(topic) {
     related_cases: [],
     reviewed_at: null,
     published: false,
+    pattern_group: patternGroupByTopicId.get(topic.id) ?? null,
   };
 }
 
-function projectDocument(id, file, metadata, existing, primarySources) {
+function projectDocument(
+  id,
+  file,
+  metadata,
+  existing,
+  primarySources,
+  patternGroupByTopicId,
+) {
   const caseCatalog =
     metadata.content_type === 'case'
       ? Object.fromEntries(
@@ -147,6 +155,7 @@ function projectDocument(id, file, metadata, existing, primarySources) {
     related_cases: copyArray(metadata.related_cases ?? []),
     reviewed_at: metadata.analyzed_at,
     published: true,
+    pattern_group: patternGroupByTopicId.get(id) ?? null,
     presentation,
   };
 }
@@ -154,6 +163,7 @@ function projectDocument(id, file, metadata, existing, primarySources) {
 export function projectPublishedDocuments(
   documents,
   primarySourcesByFile = new Map(),
+  patternGroupByTopicId = new Map(),
 ) {
   return documents
     .filter(
@@ -170,6 +180,7 @@ export function projectPublishedDocuments(
         metadata,
         undefined,
         primarySourcesByFile.get(file) ?? [],
+        patternGroupByTopicId,
       ),
     );
 }
@@ -238,6 +249,7 @@ export function buildTopicManifest({
   documents,
   relations = {},
   primarySourcesByFile,
+  patternGroupByTopicId = new Map(),
 }) {
   const parsed = parseBacklogTopics(
     backlogSource,
@@ -245,7 +257,10 @@ export function buildTopicManifest({
   );
   const errors = [...parsed.errors];
   const topicsById = new Map(
-    parsed.topics.map((topic) => [topic.id, projectBacklogTopic(topic)]),
+    parsed.topics.map((topic) => [
+      topic.id,
+      projectBacklogTopic(topic, patternGroupByTopicId),
+    ]),
   );
   const topicSources = new Map(
     parsed.topics.map((topic) => [
@@ -301,6 +316,7 @@ export function buildTopicManifest({
       metadata,
       existing,
       primarySources,
+      patternGroupByTopicId,
     );
     topicsById.set(id, projected);
     topicSources.set(id, `content/${file}`);
@@ -341,6 +357,11 @@ export function buildTopicManifest({
     if (!isCalendarDate(projected.reviewed_at)) {
       errors.push(
         `content/${file}: published topic "${id}" has invalid reviewed_at "${projected.reviewed_at}"`,
+      );
+    }
+    if (projected.type === 'pattern' && projected.pattern_group === null) {
+      errors.push(
+        `content/${file}: published Pattern topic "${id}" has no registered group`,
       );
     }
   }

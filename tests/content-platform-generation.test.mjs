@@ -19,6 +19,8 @@ import {
   buildCaseCatalog,
   serializeCaseCatalog,
 } from '../scripts/generate-case-catalog.mjs';
+import {loadPatternGroupRegistry} from '../scripts/content-registries.mjs';
+import {parseBacklogTopics} from '../scripts/backlog-topics.mjs';
 import {
   buildContentArtifacts,
   checkContentArtifacts,
@@ -203,9 +205,31 @@ async function withRepositoryFixture(run) {
     await Promise.all([
       writeFile(
         path.join(root, 'docs/content-backlog.md'),
-        '- [x] **FND-01 P0｜Example concept**。\n',
+        [
+          '- [x] **FND-01 P0｜Example concept**。',
+          '- [ ] **DDD-01 P0｜General Pattern**。',
+          '- [ ] **PAT-IN-01 P0｜Integration Pattern**。',
+          '- [ ] **REL-01 P0｜Reliability Pattern**。',
+          '- [ ] **PAT-DC-01 P0｜Data Pattern**。',
+          '- [ ] **PAT-MIG-01 P0｜Migration Pattern**。',
+          '',
+        ].join('\n'),
       ),
       writeFile(path.join(root, 'data/topic-relations.json'), '{}\n'),
+      writeFile(
+        path.join(root, 'data/pattern-groups.json'),
+        `${JSON.stringify({
+          schema_version: 1,
+          groups: [
+            {id: 'general-design', label: 'General', description: 'General patterns', order: 10, topic_ids: ['DDD-01']},
+            {id: 'integration', label: 'Integration', description: 'Integration patterns', order: 20, topic_ids: ['PAT-IN-01']},
+            {id: 'reliability', label: 'Reliability', description: 'Reliability patterns', order: 30, topic_ids: ['REL-01']},
+            {id: 'data', label: 'Data', description: 'Data patterns', order: 40, topic_ids: ['PAT-DC-01']},
+            {id: 'migration', label: 'Migration', description: 'Migration patterns', order: 50, topic_ids: ['PAT-MIG-01']},
+            {id: 'agent-control', label: 'Agent', description: 'Agent patterns', order: 60, topic_ids: []},
+          ],
+        }, null, 2)}\n`,
+      ),
       writeFile(
         path.join(root, 'data/source-ledger.json'),
         `${JSON.stringify({
@@ -300,6 +324,7 @@ test('builds all artifacts from one validated snapshot', async () => {
       generatedPaths.sourceLedger,
       generatedPaths.manifest,
       generatedPaths.indexes,
+      generatedPaths.patternGroups,
       generatedPaths.caseCatalog,
     ]);
     assert.match(
@@ -538,6 +563,7 @@ test('recovers idempotently after an interrupted replacement', async () => {
     assert.deepEqual(stagedNames, [
       'case-catalog.json',
       'manifest.json',
+      'pattern-groups.json',
       'source-ledger.json',
       'topic-indexes.json',
       'topic-manifest.json',
@@ -563,10 +589,16 @@ test('derives the compatibility case catalog from the manifest', async () => {
     const artifacts = await buildContentArtifacts(root, {
       requiredCollection: null,
     });
+    const topics = parseBacklogTopics(
+      await readFile(path.join(root, 'docs/content-backlog.md'), 'utf8'),
+    ).topics;
+    const patternGroupRegistry = await loadPatternGroupRegistry(root, topics);
     assert.equal(
       artifacts[generatedPaths.caseCatalog],
       serializeCaseCatalog(
-        await buildCaseCatalog(path.join(root, 'content')),
+        await buildCaseCatalog(path.join(root, 'content'), {
+          patternGroupRegistry,
+        }),
       ),
     );
   });

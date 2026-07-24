@@ -110,6 +110,18 @@ test('projects backlog status without a second writer', () => {
   );
 });
 
+test('projects the canonical Pattern group without changing the Pattern slug', () => {
+  const result = buildTopicManifestCore({
+    backlogSource: topic('REL-02', 'P0', 'Retry'),
+    documents: [],
+    primarySourcesByFile: new Map(),
+    patternGroupByTopicId: new Map([['REL-02', 'reliability']]),
+  });
+  assert.deepEqual(result.errors, []);
+  assert.equal(result.manifest.topics[0].slug, '/patterns/rel-02');
+  assert.equal(result.manifest.topics[0].pattern_group, 'reliability');
+});
+
 test('merges published knowledge content by topic id', () => {
   const result = buildTopicManifest({
     backlogSource: topic('FND-01', 'P0', '计划标题'),
@@ -134,6 +146,7 @@ test('merges published knowledge content by topic id', () => {
       related_cases: [],
       reviewed_at: '2026-07-23',
       published: true,
+      pattern_group: null,
       presentation: {},
     },
   ]);
@@ -226,6 +239,7 @@ test('projects legacy documents with explicit compatibility defaults', () => {
     related_cases: [],
     reviewed_at: '2026-07-20',
     published: true,
+    pattern_group: null,
     presentation: {
       case_catalog: {
         title: 'OpenAI Agents SDK',

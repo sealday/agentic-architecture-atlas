@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "groups": [
+    {
+      "id": "general-design",
+      "label": "通用设计模式",
+      "description": "领域、企业应用、代码责任与结构模式。",
+      "order": 10
+    },
+    {
+      "id": "integration",
+      "label": "集成模式",
+      "description": "服务、消息、网关、协议与跨边界协作模式。",
+      "order": 20
+    },
+    {
+      "id": "reliability",
+      "label": "可靠性与生产治理模式",
+      "description": "恢复、隔离、容量、观测和安全控制模式。",
+      "order": 30
+    },
+    {
+      "id": "data",
+      "label": "数据与一致性模式",
+      "description": "事务消息、投影、事件和一致性协作模式。",
+      "order": 40
+    },
+    {
+      "id": "migration",
+      "label": "迁移模式",
+      "description": "渐进替换、兼容窗口和风险受控的结构迁移。",
+      "order": 50
+    },
+    {
+      "id": "agent-control",
+      "label": "Agent 控制与协作模式",
+      "description": "Router、Supervisor、Handoff、A2A 与 MCP 等现有控制概览。",
+      "order": 60
+    }
+  ]
+}

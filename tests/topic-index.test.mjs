@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import test from 'node:test';
+import {fileURLToPath} from 'node:url';
 
 const root = new URL('../', import.meta.url);
 
@@ -29,8 +30,61 @@ function topicFixture({id, priority, published = false}) {
     related_cases: [],
     reviewed_at: published ? '2026-07-23' : null,
     published,
+    pattern_group: null,
   };
 }
+
+test('groups Pattern topics from generated registry order', async () => {
+  const {selectPatternGroups} = await import(
+    '../src/components/PatternTopicIndex/patternTopicIndexModel.ts'
+  );
+  const groups = [
+    {id: 'general-design', label: '通用设计模式', description: '边界模式', order: 10},
+    {id: 'integration', label: '集成模式', description: '集成模式', order: 20},
+    {id: 'reliability', label: '可靠性与生产治理模式', description: '恢复模式', order: 30},
+    {id: 'data', label: '数据与一致性模式', description: '数据模式', order: 40},
+    {id: 'migration', label: '迁移模式', description: '迁移模式', order: 50},
+    {id: 'agent-control', label: 'Agent 控制与协作模式', description: 'Agent 模式', order: 60},
+  ];
+  const topics = [
+    {...topicFixture({id: 'REL-02', priority: 'P0'}), type: 'pattern', pattern_group: 'reliability'},
+  ];
+  assert.deepEqual(
+    selectPatternGroups(groups, topics).map(({label, topics}) => [label, topics.length]),
+    [
+      ['通用设计模式', 0],
+      ['集成模式', 0],
+      ['可靠性与生产治理模式', 1],
+      ['数据与一致性模式', 0],
+      ['迁移模式', 0],
+    ],
+  );
+});
+
+test('Pattern page renders five common groups plus one Agent wrapper', async () => {
+  const source = await readFile(
+    fileURLToPath(new URL('../content/patterns/index.mdx', import.meta.url)),
+    'utf8',
+  );
+  const lines = source.split('\n');
+  assert.equal(source.includes('<PatternTopicIndex />'), true);
+  assert.equal(lines.includes('## Agent 控制与协作模式'), true);
+  const agentHeadings = [
+    'Router',
+    'Supervisor',
+    'Agents as Tools',
+    'Handoff',
+    'Fan-out / Fan-in',
+    'Evaluator-Optimizer',
+    'Hierarchical Teams',
+    'A2A',
+    'MCP',
+  ];
+  for (const heading of agentHeadings) {
+    assert.equal(lines.includes(`### ${heading}`), true, heading);
+    assert.equal(lines.includes(`## ${heading}`), false, heading);
+  }
+});
 
 test('connects all ten content type indexes', async () => {
   const indexPages = new Map([
@@ -53,18 +107,27 @@ test('connects all ten content type indexes', async () => {
     const page = await source(path);
 
     assert.match(page, new RegExp(`^slug: ${slug}$`, 'm'), path);
-    assert.match(
-      page,
-      /import TopicIndex from '@site\/src\/components\/TopicIndex';/,
-      path,
-    );
-    assert.match(
-      page,
-      new RegExp(
-        `<TopicIndex type="${type}"${type === 'case' ? ' plannedOnly' : ''} \\/>`,
-      ),
-      path,
-    );
+    if (type === 'pattern') {
+      assert.match(
+        page,
+        /import PatternTopicIndex from '@site\/src\/components\/PatternTopicIndex';/,
+        path,
+      );
+      assert.match(page, /<PatternTopicIndex \/>/, path);
+    } else {
+      assert.match(
+        page,
+        /import TopicIndex from '@site\/src\/components\/TopicIndex';/,
+        path,
+      );
+      assert.match(
+        page,
+        new RegExp(
+          `<TopicIndex type="${type}"${type === 'case' ? ' plannedOnly' : ''} \\/>`,
+        ),
+        path,
+      );
+    }
   }
 
   const cases = await source('content/cases/index.mdx');
@@ -116,6 +179,20 @@ test('renders published and planned topics without broken links', async () => {
   assert.match(component, /href=\{firstSource\}/);
   assert.match(component, /topic\.status\.scope === 'backlog-projection'/);
   assert.match(component, /内容状态：\$\{topic\.status\.value\}/);
+
+  const patternComponent = await source(
+    'src/components/PatternTopicIndex/index.tsx',
+  );
+  assert.match(patternComponent, /topic\.published \? \(/);
+  assert.match(
+    patternComponent,
+    /<Link to=\{topic\.slug\}>\{topic\.title\}<\/Link>/,
+  );
+  assert.match(patternComponent, /<span>\{topic\.title\}<\/span>/);
+  assert.doesNotMatch(
+    patternComponent,
+    /!topic\.published[\s\S]{0,160}<Link[^>]+topic\.slug/,
+  );
 });
 
 test('renders review dates and nullable priorities honestly', async () => {

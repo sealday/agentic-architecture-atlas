@@ -16,7 +16,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "general-design"
     },
     {
       "id": "APP-02",
@@ -33,7 +34,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "general-design"
     },
     {
       "id": "CASE-01",
@@ -50,7 +52,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "CASE-02",
@@ -67,7 +70,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "CASE-03",
@@ -84,7 +88,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "CASE-04",
@@ -101,7 +106,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "CASE-05",
@@ -118,7 +124,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "DDD-01",
@@ -135,7 +142,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "general-design"
     },
     {
       "id": "DDD-02",
@@ -152,7 +160,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "general-design"
     },
     {
       "id": "DDD-03",
@@ -169,7 +178,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "general-design"
     },
     {
       "id": "DDD-04",
@@ -186,7 +196,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "general-design"
     },
     {
       "id": "DST-01",
@@ -203,7 +214,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "DST-02",
@@ -220,7 +232,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "DST-03",
@@ -237,7 +250,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "DST-04",
@@ -254,7 +268,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "DST-05",
@@ -271,7 +286,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "DST-06",
@@ -288,7 +304,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "FND-01",
@@ -305,7 +322,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "FND-04",
@@ -322,7 +340,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "MOD-01",
@@ -339,7 +358,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "MOD-02",
@@ -362,6 +382,7 @@
       ],
       "reviewed_at": "2026-07-24",
       "published": true,
+      "pattern_group": null,
       "presentation": {}
     },
     {
@@ -379,7 +400,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "MOD-04",
@@ -396,7 +418,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "MOD-05",
@@ -413,7 +436,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "MOD-06",
@@ -430,7 +454,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "MOD-07",
@@ -447,7 +472,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "OPS-01",
@@ -464,7 +490,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "reliability"
     },
     {
       "id": "OPS-02",
@@ -481,7 +508,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "reliability"
     },
     {
       "id": "OPS-03",
@@ -498,7 +526,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "reliability"
     },
     {
       "id": "PAT-DC-01",
@@ -515,7 +544,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "data"
     },
     {
       "id": "PAT-DC-02",
@@ -532,7 +562,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "data"
     },
     {
       "id": "PAT-DC-03",
@@ -549,7 +580,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "data"
     },
     {
       "id": "PAT-DC-04",
@@ -566,7 +598,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "data"
     },
     {
       "id": "PAT-DC-05",
@@ -583,7 +616,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "data"
     },
     {
       "id": "PAT-IN-01",
@@ -600,7 +634,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "integration"
     },
     {
       "id": "PAT-IN-02",
@@ -617,7 +652,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "integration"
     },
     {
       "id": "PAT-IN-03",
@@ -634,7 +670,26 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "integration"
+    },
+    {
+      "id": "PAT-MIG-01",
+      "type": "pattern",
+      "title": "Strangler Fig 渐进迁移",
+      "slug": "/patterns/pat-mig-01",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false,
+      "pattern_group": "migration"
     },
     {
       "id": "PR-01",
@@ -656,6 +711,7 @@
       ],
       "reviewed_at": "2026-07-24",
       "published": true,
+      "pattern_group": null,
       "presentation": {}
     },
     {
@@ -673,7 +729,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "PR-03",
@@ -690,7 +747,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "PR-04",
@@ -707,7 +765,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "PR-05",
@@ -724,7 +783,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "PR-06",
@@ -741,7 +801,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "PR-07",
@@ -758,7 +819,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "PR-08",
@@ -775,7 +837,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "PR-09",
@@ -792,7 +855,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "PR-10",
@@ -809,7 +873,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "QA-02",
@@ -826,7 +891,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "QA-03",
@@ -843,7 +909,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "QA-04",
@@ -860,7 +927,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "QST-01",
@@ -877,7 +945,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "QST-02",
@@ -894,7 +963,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "REL-01",
@@ -911,7 +981,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "reliability"
     },
     {
       "id": "REL-02",
@@ -934,6 +1005,7 @@
       ],
       "reviewed_at": "2026-07-24",
       "published": true,
+      "pattern_group": "reliability",
       "presentation": {}
     },
     {
@@ -951,7 +1023,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "reliability"
     },
     {
       "id": "REL-04",
@@ -968,7 +1041,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "reliability"
     },
     {
       "id": "REL-05",
@@ -985,7 +1059,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "reliability"
     },
     {
       "id": "REL-06",
@@ -1002,7 +1077,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "reliability"
     },
     {
       "id": "SEC-01",
@@ -1019,7 +1095,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "reliability"
     },
     {
       "id": "SEC-02",
@@ -1036,7 +1113,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "reliability"
     },
     {
       "id": "STY-00",
@@ -1059,6 +1137,7 @@
       ],
       "reviewed_at": "2026-07-24",
       "published": true,
+      "pattern_group": null,
       "presentation": {}
     },
     {
@@ -1076,7 +1155,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "STY-02",
@@ -1093,7 +1173,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "STY-03",
@@ -1110,7 +1191,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "STY-04",
@@ -1127,7 +1209,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "STY-05",
@@ -1144,7 +1227,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "STY-06",
@@ -1161,7 +1245,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "FND-02",
@@ -1180,7 +1265,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "FND-03",
@@ -1199,7 +1285,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "QA-00",
@@ -1218,7 +1305,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "QA-01",
@@ -1244,6 +1332,7 @@
       ],
       "reviewed_at": "2026-07-24",
       "published": true,
+      "pattern_group": null,
       "presentation": {}
     },
     {
@@ -1263,7 +1352,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "MTH-02",
@@ -1282,7 +1372,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "MTH-03",
@@ -1306,6 +1397,7 @@
       ],
       "reviewed_at": "2026-07-24",
       "published": true,
+      "pattern_group": null,
       "presentation": {}
     },
     {
@@ -1323,7 +1415,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "AGT-02",
@@ -1340,7 +1433,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "AGT-03",
@@ -1357,7 +1451,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "AGT-04",
@@ -1374,7 +1469,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "AGT-05",
@@ -1391,7 +1487,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "AGT-06",
@@ -1408,7 +1505,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "ANTI-01",
@@ -1425,7 +1523,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "general-design"
     },
     {
       "id": "ANTI-02",
@@ -1442,7 +1541,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "general-design"
     },
     {
       "id": "ANTI-03",
@@ -1459,7 +1559,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "data"
     },
     {
       "id": "ANTI-04",
@@ -1476,7 +1577,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "reliability"
     },
     {
       "id": "ANTI-05",
@@ -1493,7 +1595,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "integration"
     },
     {
       "id": "ANTI-06",
@@ -1510,7 +1613,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "general-design"
     },
     {
       "id": "ANTI-07",
@@ -1527,7 +1631,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "general-design"
     },
     {
       "id": "ANTI-08",
@@ -1544,7 +1649,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "general-design"
     },
     {
       "id": "APP-03",
@@ -1561,7 +1667,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "general-design"
     },
     {
       "id": "APP-04",
@@ -1578,7 +1685,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "general-design"
     },
     {
       "id": "CASE-06",
@@ -1595,7 +1703,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "CASE-07",
@@ -1612,7 +1721,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "CASE-08",
@@ -1629,7 +1739,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "CASE-09",
@@ -1646,7 +1757,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "CASE-10",
@@ -1663,7 +1775,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "CASE-11",
@@ -1680,7 +1793,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "CASE-12",
@@ -1697,7 +1811,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "CASE-13",
@@ -1714,7 +1829,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "CASE-14",
@@ -1731,7 +1847,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "CASE-15",
@@ -1748,7 +1865,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "CLD-01",
@@ -1765,7 +1883,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "CLD-02",
@@ -1782,7 +1901,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "CLD-03",
@@ -1799,7 +1919,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "CLD-04",
@@ -1816,7 +1937,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "CLD-05",
@@ -1833,7 +1955,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "DDD-05",
@@ -1850,7 +1973,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "general-design"
     },
     {
       "id": "DDD-06",
@@ -1867,7 +1991,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "general-design"
     },
     {
       "id": "DP-01",
@@ -1884,7 +2009,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "general-design"
     },
     {
       "id": "DP-02",
@@ -1901,7 +2027,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "general-design"
     },
     {
       "id": "DP-03",
@@ -1918,7 +2045,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "general-design"
     },
     {
       "id": "DP-04",
@@ -1935,7 +2063,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "general-design"
     },
     {
       "id": "DP-05",
@@ -1952,7 +2081,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "general-design"
     },
     {
       "id": "DP-06",
@@ -1969,7 +2099,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "general-design"
     },
     {
       "id": "DP-07",
@@ -1986,7 +2117,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "general-design"
     },
     {
       "id": "DP-08",
@@ -2003,7 +2135,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "general-design"
     },
     {
       "id": "DP-09",
@@ -2020,7 +2153,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "general-design"
     },
     {
       "id": "DST-07",
@@ -2037,7 +2171,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "DST-08",
@@ -2054,7 +2189,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "DST-09",
@@ -2071,7 +2207,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "EDGE-01",
@@ -2088,7 +2225,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "EDGE-02",
@@ -2105,7 +2243,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "EDGE-04",
@@ -2122,7 +2261,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "EDGE-05",
@@ -2139,7 +2279,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "FE-01",
@@ -2156,7 +2297,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "FE-02",
@@ -2173,7 +2315,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "FE-03",
@@ -2190,7 +2333,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "FE-04",
@@ -2207,7 +2351,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "FE-05",
@@ -2224,7 +2369,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "FND-05",
@@ -2241,7 +2387,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "MOD-08",
@@ -2258,7 +2405,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "MOD-09",
@@ -2275,7 +2423,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "MOD-10",
@@ -2292,7 +2441,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "MOD-11",
@@ -2309,7 +2459,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "MOD-12",
@@ -2326,7 +2477,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "MTH-04",
@@ -2343,7 +2495,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "MTH-05",
@@ -2360,7 +2513,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "OPS-04",
@@ -2377,7 +2531,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "reliability"
     },
     {
       "id": "OPS-05",
@@ -2394,7 +2549,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "reliability"
     },
     {
       "id": "OPS-06",
@@ -2411,7 +2567,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "reliability"
     },
     {
       "id": "PAT-DC-06",
@@ -2428,7 +2585,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "data"
     },
     {
       "id": "PAT-DC-07",
@@ -2445,7 +2603,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "data"
     },
     {
       "id": "PAT-DC-08",
@@ -2462,7 +2621,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "data"
     },
     {
       "id": "PAT-DC-09",
@@ -2479,7 +2639,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "data"
     },
     {
       "id": "PAT-IN-04",
@@ -2496,7 +2657,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "integration"
     },
     {
       "id": "PAT-IN-05",
@@ -2513,7 +2675,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "integration"
     },
     {
       "id": "PAT-IN-06",
@@ -2530,7 +2693,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "integration"
     },
     {
       "id": "PAT-IN-07",
@@ -2547,7 +2711,44 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "integration"
+    },
+    {
+      "id": "PAT-MIG-02",
+      "type": "pattern",
+      "title": "Branch by Abstraction",
+      "slug": "/patterns/pat-mig-02",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false,
+      "pattern_group": "migration"
+    },
+    {
+      "id": "PAT-MIG-03",
+      "type": "pattern",
+      "title": "Expand/Contract",
+      "slug": "/patterns/pat-mig-03",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [],
+      "primary_sources": [],
+      "related_cases": [],
+      "reviewed_at": null,
+      "published": false,
+      "pattern_group": "migration"
     },
     {
       "id": "PR-11",
@@ -2564,7 +2765,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "PR-12",
@@ -2581,7 +2783,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "PR-13",
@@ -2598,7 +2801,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "PR-14",
@@ -2615,7 +2819,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "PR-15",
@@ -2632,7 +2837,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "QA-05",
@@ -2649,7 +2855,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "QA-06",
@@ -2666,7 +2873,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "QA-07",
@@ -2683,7 +2891,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "QA-08",
@@ -2700,7 +2909,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "QA-09",
@@ -2717,7 +2927,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "QST-03",
@@ -2734,7 +2945,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "QST-04",
@@ -2751,7 +2963,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "QST-05",
@@ -2768,7 +2981,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "QST-06",
@@ -2785,7 +2999,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "QST-07",
@@ -2802,7 +3017,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "QST-08",
@@ -2819,7 +3035,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "QST-09",
@@ -2836,7 +3053,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "REL-07",
@@ -2853,7 +3071,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "reliability"
     },
     {
       "id": "REL-08",
@@ -2870,7 +3089,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "reliability"
     },
     {
       "id": "REL-09",
@@ -2887,7 +3107,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "reliability"
     },
     {
       "id": "REL-10",
@@ -2904,7 +3125,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "reliability"
     },
     {
       "id": "SEC-03",
@@ -2921,7 +3143,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "reliability"
     },
     {
       "id": "SEC-04",
@@ -2938,7 +3161,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "reliability"
     },
     {
       "id": "SEC-05",
@@ -2955,7 +3179,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "reliability"
     },
     {
       "id": "SEC-06",
@@ -2972,7 +3197,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "reliability"
     },
     {
       "id": "STY-07",
@@ -2989,7 +3215,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "STY-08",
@@ -3006,7 +3233,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "STY-09",
@@ -3023,7 +3251,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "STY-10",
@@ -3040,7 +3269,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "STY-11",
@@ -3057,7 +3287,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "STY-12",
@@ -3074,7 +3305,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "STY-14",
@@ -3095,7 +3327,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "MTH-06",
@@ -3117,7 +3350,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "ANTI-09",
@@ -3134,7 +3368,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "general-design"
     },
     {
       "id": "ANTI-10",
@@ -3151,7 +3386,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "general-design"
     },
     {
       "id": "CASE-16",
@@ -3168,7 +3404,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "CASE-17",
@@ -3185,7 +3422,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "CASE-18",
@@ -3202,7 +3440,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "CASE-19",
@@ -3219,7 +3458,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "CASE-20",
@@ -3236,7 +3476,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "CLD-06",
@@ -3253,7 +3494,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "CLD-07",
@@ -3270,7 +3512,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "DP-10",
@@ -3287,7 +3530,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "general-design"
     },
     {
       "id": "EDGE-03",
@@ -3304,7 +3548,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "MOD-13",
@@ -3321,7 +3566,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "PAT-IN-08",
@@ -3338,7 +3584,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": "integration"
     },
     {
       "id": "PR-16",
@@ -3355,7 +3602,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "PR-17",
@@ -3372,7 +3620,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "QA-10",
@@ -3389,7 +3638,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "QST-10",
@@ -3406,7 +3656,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "STY-13",
@@ -3423,7 +3674,8 @@
       "primary_sources": [],
       "related_cases": [],
       "reviewed_at": null,
-      "published": false
+      "published": false,
+      "pattern_group": null
     },
     {
       "id": "DOC-CASE-APACHE-KAFKA-CONSUMER-GROUPS",
@@ -3478,6 +3730,7 @@
       "related_cases": [],
       "reviewed_at": "2026-07-22",
       "published": true,
+      "pattern_group": null,
       "presentation": {
         "case_catalog": {
           "title": "Apache Kafka Consumer Groups：用分区所有权组织可重放的 Agent 工作",
@@ -3552,6 +3805,7 @@
       "related_cases": [],
       "reviewed_at": "2026-07-22",
       "published": true,
+      "pattern_group": null,
       "presentation": {
         "case_catalog": {
           "title": "AWS Cell Architecture + Shuffle Sharding：把失控智能体限制在可计算的故障半径内",
@@ -3619,6 +3873,7 @@
       "related_cases": [],
       "reviewed_at": "2026-07-20",
       "published": true,
+      "pattern_group": null,
       "presentation": {
         "case_catalog": {
           "title": "AWS Labs CLI Agent Orchestrator：以终端为执行边界的 Supervisor–Worker 编排",
@@ -3690,6 +3945,7 @@
       "related_cases": [],
       "reviewed_at": "2026-07-22",
       "published": true,
+      "pattern_group": null,
       "presentation": {
         "case_catalog": {
           "title": "Cloudflare Durable Objects + workerd：把边缘协调收敛到身份寻址的状态单元",
@@ -3751,6 +4007,7 @@
       "related_cases": [],
       "reviewed_at": "2026-07-22",
       "published": true,
+      "pattern_group": null,
       "presentation": {
         "case_catalog": {
           "title": "Erlang/OTP Supervision Tree：把失败恢复设计成层级控制协议",
@@ -3829,6 +4086,7 @@
       "related_cases": [],
       "reviewed_at": "2026-07-20",
       "published": true,
+      "pattern_group": null,
       "presentation": {
         "case_catalog": {
           "title": "Google ADK 与 A2A：从本地层级编排到跨系统智能体协作",
@@ -3889,6 +4147,7 @@
       "related_cases": [],
       "reviewed_at": "2026-07-23",
       "published": true,
+      "pattern_group": null,
       "presentation": {
         "case_catalog": {
           "title": "Kong AI Gateway：把模型路由与副作用恢复分成两条控制链",
@@ -3960,6 +4219,7 @@
       "related_cases": [],
       "reviewed_at": "2026-07-22",
       "published": true,
+      "pattern_group": null,
       "presentation": {
         "case_catalog": {
           "title": "KubeEdge Cloud-Edge Autonomy：在断网边界上划分规划权与执行权",
@@ -4031,6 +4291,7 @@
       "related_cases": [],
       "reviewed_at": "2026-07-22",
       "published": true,
+      "pattern_group": null,
       "presentation": {
         "case_catalog": {
           "title": "Kubernetes Reconciliation Loop：让智能体围绕期望状态持续收敛",
@@ -4093,6 +4354,7 @@
       "related_cases": [],
       "reviewed_at": "2026-07-20",
       "published": true,
+      "pattern_group": null,
       "presentation": {
         "case_catalog": {
           "title": "LangGraph Supervisor：用显式状态构建可恢复的多智能体编排",
@@ -4155,6 +4417,7 @@
       "related_cases": [],
       "reviewed_at": "2026-07-23",
       "published": true,
+      "pattern_group": null,
       "presentation": {
         "case_catalog": {
           "title": "LiteLLM Virtual Keys：把模型网关变成权限与预算的交汇点",
@@ -4220,6 +4483,7 @@
       "related_cases": [],
       "reviewed_at": "2026-07-22",
       "published": true,
+      "pattern_group": null,
       "presentation": {
         "case_catalog": {
           "title": "Micro Frontends + single-spa：用垂直业务切片约束多 Agent 所有权",
@@ -4282,6 +4546,7 @@
       "related_cases": [],
       "reviewed_at": "2026-07-20",
       "published": true,
+      "pattern_group": null,
       "presentation": {
         "case_catalog": {
           "title": "Microsoft 多智能体参考架构：企业治理下的受控自治",
@@ -4351,6 +4616,7 @@
       "related_cases": [],
       "reviewed_at": "2026-07-23",
       "published": true,
+      "pattern_group": null,
       "presentation": {
         "case_catalog": {
           "title": "New API Channel Pool Routing：把模型请求分解为能力、层级与故障隔离",
@@ -4416,6 +4682,7 @@
       "related_cases": [],
       "reviewed_at": "2026-07-20",
       "published": true,
+      "pattern_group": null,
       "presentation": {
         "case_catalog": {
           "title": "OpenAI Agents SDK：小型多智能体系统的控制权模型",
@@ -4481,6 +4748,7 @@
       "related_cases": [],
       "reviewed_at": "2026-07-22",
       "published": true,
+      "pattern_group": null,
       "presentation": {
         "case_catalog": {
           "title": "ROS 2 + DDS Agent Lifecycle：为物理智能体选择通信语义与受管状态",
@@ -4556,6 +4824,7 @@
       "related_cases": [],
       "reviewed_at": "2026-07-22",
       "published": true,
+      "pattern_group": null,
       "presentation": {
         "case_catalog": {
           "title": "Temporal Durable Execution + Saga：为长时智能体任务建立可恢复边界",
@@ -4618,6 +4887,7 @@
       "related_cases": [],
       "reviewed_at": "2026-07-22",
       "published": true,
+      "pattern_group": null,
       "presentation": {
         "case_catalog": {
           "title": "Yjs CRDT Collaboration：让人和多个 Agent 合并共享工作区状态",
@@ -4667,6 +4937,7 @@
       "related_cases": [],
       "reviewed_at": "2026-07-23",
       "published": true,
+      "pattern_group": null,
       "presentation": {}
     },
     {
@@ -4687,6 +4958,7 @@
       "related_cases": [],
       "reviewed_at": "2026-07-23",
       "published": true,
+      "pattern_group": null,
       "presentation": {}
     },
     {
@@ -4707,6 +4979,7 @@
       "related_cases": [],
       "reviewed_at": "2026-07-23",
       "published": true,
+      "pattern_group": null,
       "presentation": {}
     },
     {
@@ -4727,6 +5000,7 @@
       "related_cases": [],
       "reviewed_at": "2026-07-23",
       "published": true,
+      "pattern_group": null,
       "presentation": {}
     },
     {
@@ -4747,6 +5021,7 @@
       "related_cases": [],
       "reviewed_at": "2026-07-23",
       "published": true,
+      "pattern_group": null,
       "presentation": {}
     },
     {
@@ -4767,6 +5042,7 @@
       "related_cases": [],
       "reviewed_at": "2026-07-23",
       "published": true,
+      "pattern_group": null,
       "presentation": {}
     },
     {
@@ -4787,6 +5063,7 @@
       "related_cases": [],
       "reviewed_at": "2026-07-23",
       "published": true,
+      "pattern_group": null,
       "presentation": {}
     },
     {
@@ -4807,6 +5084,7 @@
       "related_cases": [],
       "reviewed_at": "2026-07-23",
       "published": true,
+      "pattern_group": null,
       "presentation": {}
     },
     {
@@ -4827,6 +5105,7 @@
       "related_cases": [],
       "reviewed_at": "2026-07-23",
       "published": true,
+      "pattern_group": null,
       "presentation": {}
     },
     {
@@ -4847,6 +5126,7 @@
       "related_cases": [],
       "reviewed_at": "2026-07-23",
       "published": true,
+      "pattern_group": null,
       "presentation": {}
     }
   ]

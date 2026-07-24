@@ -11,6 +11,8 @@ import {
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 
+import {parseBacklogTopics} from './backlog-topics.mjs';
+import {loadPatternGroupRegistry} from './content-registries.mjs';
 import {
   buildCaseCatalogFromManifest,
   serializeCaseCatalog,
@@ -30,6 +32,7 @@ export const generatedPaths = {
   sourceLedger: 'src/generated/source-ledger.json',
   manifest: 'src/generated/topic-manifest.json',
   indexes: 'src/generated/topic-indexes.json',
+  patternGroups: 'src/generated/pattern-groups.json',
   caseCatalog: 'src/generated/case-catalog.json',
 };
 
@@ -236,6 +239,21 @@ export async function buildContentArtifacts(
     path.join(root, 'docs/content-backlog.md'),
     'utf8',
   );
+  const parsedBacklog = parseBacklogTopics(
+    backlogSource,
+    'docs/content-backlog.md',
+  );
+  const patternGroupRegistry = await loadPatternGroupRegistry(
+    root,
+    parsedBacklog.topics,
+  );
+  const inputErrors = [
+    ...parsedBacklog.errors,
+    ...patternGroupRegistry.errors,
+  ];
+  if (inputErrors.length) {
+    throw new Error(`Registry input failed:\n${inputErrors.join('\n')}`);
+  }
   const relations = JSON.parse(
     await readFile(path.join(root, 'data/topic-relations.json'), 'utf8'),
   );
@@ -265,8 +283,11 @@ export async function buildContentArtifacts(
   }
   const validation =
     requiredCollection === null
-      ? await validateContent(contentRoot)
-      : await validateContent(contentRoot, {requiredCollection});
+      ? await validateContent(contentRoot, {patternGroupRegistry})
+      : await validateContent(contentRoot, {
+          requiredCollection,
+          patternGroupRegistry,
+        });
   if (validation.errors.length) {
     throw new Error(
       `Content validation failed:\n${validation.errors.join('\n')}`,
@@ -288,12 +309,24 @@ export async function buildContentArtifacts(
     documents: validation.documents,
     relations,
     primarySourcesByFile: governance.primarySourcesByFile,
+    patternGroupByTopicId: patternGroupRegistry.groupByTopicId,
   });
   if (built.errors.length) {
     throw new Error(`Topic manifest failed:\n${built.errors.join('\n')}`);
   }
 
   const caseCatalog = buildCaseCatalogFromManifest(built.manifest);
+  const publicPatternGroups = {
+    schema_version: 1,
+    groups: patternGroupRegistry.registry.groups.map(
+      ({id, label, description, order}) => ({
+        id,
+        label,
+        description,
+        order,
+      }),
+    ),
+  };
   return {
     [generatedPaths.sourceLedger]: serializePublicSourceLedger(
       mergePublicLedgerHealth(governance.governedLedger, linkHealthCache),
@@ -301,6 +334,7 @@ export async function buildContentArtifacts(
     ),
     [generatedPaths.manifest]: `${JSON.stringify(built.manifest, null, 2)}\n`,
     [generatedPaths.indexes]: `${JSON.stringify(built.indexes, null, 2)}\n`,
+    [generatedPaths.patternGroups]: `${JSON.stringify(publicPatternGroups, null, 2)}\n`,
     [generatedPaths.caseCatalog]: serializeCaseCatalog(caseCatalog),
   };
 }

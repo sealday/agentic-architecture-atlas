@@ -2,6 +2,8 @@ import {mkdir, readFile, writeFile} from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 
+import {parseBacklogTopics} from './backlog-topics.mjs';
+import {loadPatternGroupRegistry} from './content-registries.mjs';
 import {validateContent} from './validate-content.mjs';
 import {projectPublishedDocuments} from './topic-manifest.mjs';
 
@@ -36,8 +38,8 @@ export const catalogFields = [
  * @param {string} root
  * @returns {Promise<GeneratedCaseCatalogEntry[]>}
  */
-export async function buildCaseCatalog(root) {
-  const validation = await validateContent(root);
+export async function buildCaseCatalog(root, {patternGroupRegistry} = {}) {
+  const validation = await validateContent(root, {patternGroupRegistry});
   if (validation.errors.length > 0) {
     throw new Error(`Content validation failed:\n${validation.errors.join('\n')}`);
   }
@@ -67,8 +69,14 @@ export function serializeCaseCatalog(entries) {
  * @param {{contentRoot: string, outputPath: string}} options
  * @returns {Promise<void>}
  */
-export async function writeCaseCatalog({contentRoot, outputPath}) {
-  const serialized = serializeCaseCatalog(await buildCaseCatalog(contentRoot));
+export async function writeCaseCatalog({
+  contentRoot,
+  outputPath,
+  patternGroupRegistry,
+}) {
+  const serialized = serializeCaseCatalog(
+    await buildCaseCatalog(contentRoot, {patternGroupRegistry}),
+  );
   await mkdir(path.dirname(outputPath), {recursive: true});
   await writeFile(outputPath, serialized);
 }
@@ -77,8 +85,16 @@ export async function writeCaseCatalog({contentRoot, outputPath}) {
  * @param {{contentRoot: string, outputPath: string}} options
  * @returns {Promise<{matches: boolean}>}
  */
-export async function checkCaseCatalog({contentRoot, outputPath}) {
-  const expected = Buffer.from(serializeCaseCatalog(await buildCaseCatalog(contentRoot)));
+export async function checkCaseCatalog({
+  contentRoot,
+  outputPath,
+  patternGroupRegistry,
+}) {
+  const expected = Buffer.from(
+    serializeCaseCatalog(
+      await buildCaseCatalog(contentRoot, {patternGroupRegistry}),
+    ),
+  );
 
   try {
     const actual = await readFile(outputPath);
@@ -104,8 +120,30 @@ async function runCli() {
   }
 
   try {
+    const projectRoot = path.dirname(path.resolve(contentRoot));
+    const backlogSource = await readFile(
+      path.join(projectRoot, 'docs/content-backlog.md'),
+      'utf8',
+    );
+    const parsedBacklog = parseBacklogTopics(
+      backlogSource,
+      'docs/content-backlog.md',
+    );
+    const patternGroupRegistry = await loadPatternGroupRegistry(
+      projectRoot,
+      parsedBacklog.topics,
+    );
+    const inputErrors = [...parsedBacklog.errors, ...patternGroupRegistry.errors];
+    if (inputErrors.length) {
+      throw new Error(`Registry input failed:\n${inputErrors.join('\n')}`);
+    }
+
     if (check) {
-      const {matches} = await checkCaseCatalog({contentRoot, outputPath});
+      const {matches} = await checkCaseCatalog({
+        contentRoot,
+        outputPath,
+        patternGroupRegistry,
+      });
       if (!matches) {
         console.error('Catalog is stale. Run npm run generate:catalog.');
         process.exitCode = 1;
@@ -113,7 +151,7 @@ async function runCli() {
       return;
     }
 
-    await writeCaseCatalog({contentRoot, outputPath});
+    await writeCaseCatalog({contentRoot, outputPath, patternGroupRegistry});
   } catch (error) {
     console.error(error instanceof Error ? error.message : String(error));
     process.exitCode = 1;

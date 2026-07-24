@@ -13,6 +13,12 @@ import {
   writeCaseCatalog,
 } from '../scripts/generate-case-catalog.mjs';
 
+const patternGroupRegistry = {
+  registry: {schema_version: 1, groups: []},
+  groupByTopicId: new Map(),
+  errors: [],
+};
+
 const validCaseBody = [
   '# Fixture',
   '## 学习问题',
@@ -115,7 +121,7 @@ async function withCatalogFixture(run) {
 
 test('builds a deterministic catalog containing only ordered case fields', async () => {
   await withCatalogFixture(async (contentRoot) => {
-    const entries = await buildCaseCatalog(contentRoot);
+    const entries = await buildCaseCatalog(contentRoot, {patternGroupRegistry});
     const expectedKeys = [
       'title',
       'slug',
@@ -168,7 +174,7 @@ test('builds the catalog from the validated document snapshot without rereading 
     syncBuiltinESMExports();
 
     try {
-      await buildCaseCatalog(contentRoot);
+      await buildCaseCatalog(contentRoot, {patternGroupRegistry});
     } finally {
       fs.promises.readFile = originalReadFile;
       syncBuiltinESMExports();
@@ -181,13 +187,21 @@ test('builds the catalog from the validated document snapshot without rereading 
 test('writes current catalog bytes and detects a stale output file', async () => {
   await withCatalogFixture(async (contentRoot) => {
     const outputPath = path.join(contentRoot, 'generated', 'case-catalog.json');
-    await writeCaseCatalog({contentRoot, outputPath});
+    await writeCaseCatalog({contentRoot, outputPath, patternGroupRegistry});
 
-    const expected = serializeCaseCatalog(await buildCaseCatalog(contentRoot));
+    const expected = serializeCaseCatalog(
+      await buildCaseCatalog(contentRoot, {patternGroupRegistry}),
+    );
     assert.equal(await readFile(outputPath, 'utf8'), expected);
-    assert.deepEqual(await checkCaseCatalog({contentRoot, outputPath}), {matches: true});
+    assert.deepEqual(
+      await checkCaseCatalog({contentRoot, outputPath, patternGroupRegistry}),
+      {matches: true},
+    );
 
     await writeFile(outputPath, '[]\n');
-    assert.deepEqual(await checkCaseCatalog({contentRoot, outputPath}), {matches: false});
+    assert.deepEqual(
+      await checkCaseCatalog({contentRoot, outputPath, patternGroupRegistry}),
+      {matches: false},
+    );
   });
 });

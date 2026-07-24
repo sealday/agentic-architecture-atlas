@@ -30,6 +30,7 @@ export type TopicIndexEntry = {
   related_cases: string[];
   reviewed_at: string | null;
   published: boolean;
+  pattern_group: string | null;
 };
 
 export type TopicIndexes = Record<TopicType, TopicIndexEntry[]>;
@@ -83,7 +84,8 @@ function isTopicIndexEntry(
     isStringArray(value.primary_sources) &&
     isStringArray(value.related_cases) &&
     (value.reviewed_at === null || typeof value.reviewed_at === 'string') &&
-    typeof value.published === 'boolean'
+    typeof value.published === 'boolean' &&
+    (value.pattern_group === null || typeof value.pattern_group === 'string')
   );
 }
 
