@@ -37,7 +37,7 @@ For a complete case, **read `references/article-contract.md` before drafting or 
    node .codex/skills/writing-architecture-cases/scripts/analyze_case_density.mjs content/cases
    ```
 
-   Treat the report as editorial evidence, not a deletion quota. Defaults are 80 prose characters per sentence, 200 per narrative paragraph, and 3 unique inline identifiers per paragraph. Review `identifier-density`, `duplicate-evidence-summary`, `repeated-evidence-label`, `missing-illustrative-label`, and `unanchored-evidence-card` by category. A heading、table、code、list 与 evidence card 会中断相邻叙事段落的 `dense-run`；不要跨这些功能边界合并告警。
+   Treat the report as editorial evidence, not a deletion quota. Defaults are 80 prose characters per sentence, 200 per narrative paragraph, and 3 unique inline identifiers per paragraph. Review `identifier-density`, `duplicate-evidence-summary`, `repeated-evidence-label`, `missing-illustrative-label`, and `unanchored-evidence-card` by category. Also review the `visual-balance` result: resolve `missing-visual-content`, and resolve `low-visual-balance` for a complete case until its score is strictly greater than 90. Add visuals that teach a supported architectural judgment, never decorative filler added only to raise the score. A heading、table、code、list 与 evidence card 会中断相邻叙事段落的 `dense-run`；不要跨这些功能边界合并告警。
 
 9. Replace AI-pattern prose only where it appears: empty setup, repeated conclusion, slogan, fake suspense, mechanical parallelism, or exhaustive name dumping.
 10. Compare source and result item by item; restore every fact, structure element, label, and boundary before improving style further.

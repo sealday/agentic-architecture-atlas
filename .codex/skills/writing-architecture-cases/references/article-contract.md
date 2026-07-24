@@ -79,6 +79,17 @@ Do not reuse supplied reference art, identifiable characters, signatures, waterm
 
 The reporter uses 80/200 as advisory prose thresholds and reports more than 3 unique inline identifiers as `identifier-density` by default. Inline identifiers are excluded from prose-length measurement but retained for this separate warning; callers may pass `identifierLimit` to `analyzeCaseText`.
 
+The separate `visual-balance` result counts eligible narrative prose and weights explanatory forms as follows:
+
+| Visual form | Weight |
+| --- | ---: |
+| Markdown raster image (`png`, `jpg`, `jpeg`, `webp`) | 3.0 |
+| Mermaid fence | 1.5 |
+| Markdown table | 0.75 |
+| Non-Mermaid fenced code block | 0.25 |
+
+Its target is `max(2, eligible prose characters / 1000 × 2)`, and its score is the weighted units divided by that target, rounded and capped at 100. Eligible prose excludes front matter, fences, evidence cards, tables, headings, list items, and Markdown image syntax. A complete architecture case requires a score strictly greater than 90. Mermaid, tables, and code receive partial credit, but they do not automatically replace an explanatory raster illustration selected by the visual scan.
+
 It also reports:
 
 - `duplicate-evidence-summary` when one case repeats the same normalized evidence-card summary;
@@ -86,5 +97,7 @@ It also reports:
 - `missing-illustrative-label` when the scenario-bearing sections contain neither `说明性场景` nor `说明性演练`;
 - `empty-evidence-card` for a card with no body;
 - `unanchored-evidence-card` for a non-empty card with no source, file, symbol, version, commit, link, or other concrete evidence anchor.
+- `missing-visual-content` when a case has at least 800 eligible prose characters and no counted visual form;
+- `low-visual-balance` when a case has at least 800 eligible prose characters and its score is not strictly greater than the configured threshold.
 
-A heading、table、code、list 与 evidence card 必须中断相邻叙事段落的 `dense-run`。The reporter does not combine dense prose across these functional boundaries, and warnings remain editorial review inputs rather than CI failures.
+A heading、table、code、list 与 evidence card 必须中断相邻叙事段落的 `dense-run`。The reporter does not combine dense prose across these functional boundaries, and warnings remain editorial review inputs rather than CI failures. Resolve visual-balance warnings with useful orientation, comparison, topology, or flow explanations; decorative filler is prohibited.

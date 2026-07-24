@@ -8,6 +8,8 @@ const DEFAULT_SENTENCE_LIMIT = 80;
 const DEFAULT_PARAGRAPH_LIMIT = 200;
 const DEFAULT_CONSECUTIVE_DENSE_LIMIT = 2;
 const DEFAULT_IDENTIFIER_LIMIT = 3;
+const DEFAULT_VISUAL_BALANCE_THRESHOLD = 90;
+const DEFAULT_VISUAL_MINIMUM_PROSE_CHARACTERS = 800;
 
 function measuredLength(value) {
   return Array.from(value.replace(/\s+/gu, '')).length;
@@ -241,6 +243,88 @@ function maskInlineTechnicalSyntax(value) {
     );
 }
 
+function visualFormCounts(lines, excluded, evidenceLines) {
+  let rasterCount = 0;
+  let mermaidCount = 0;
+  let tableCount = 0;
+  let codeCount = 0;
+  const frontMatter = frontMatterLines(lines);
+
+  for (let index = 0; index < lines.length; index += 1) {
+    if (!excluded.has(index) && !evidenceLines.has(index)) {
+      for (const match of lines[index].matchAll(
+        /!\[[^\]\n]*\]\(\s*<?([^)\s>]+)>?(?:\s+["'][^"']*["'])?\s*\)/gu,
+      )) {
+        if (/\.(?:png|jpe?g|webp)(?:\?[^)\s]*)?$/iu.test(match[1])) {
+          rasterCount += 1;
+        }
+      }
+    }
+
+    if (frontMatter.has(index)) continue;
+    if (
+      isTableDelimiter(lines[index]) &&
+      index > 0 &&
+      lines[index - 1].trim() &&
+      lines[index - 1].includes('|')
+    ) {
+      tableCount += 1;
+      continue;
+    }
+
+    const opening = lines[index].match(/^\s*(`{3,}|~{3,})(.*)$/u);
+    if (!opening) continue;
+
+    const marker = opening[1];
+    const language = opening[2].trim().split(/\s+/u)[0].toLowerCase();
+    if (language === 'mermaid') mermaidCount += 1;
+    else codeCount += 1;
+
+    for (index += 1; index < lines.length; index += 1) {
+      const closing = lines[index].match(/^\s*(`{3,}|~{3,})\s*$/u);
+      if (
+        closing &&
+        closing[1][0] === marker[0] &&
+        closing[1].length >= marker.length
+      ) {
+        break;
+      }
+    }
+  }
+
+  return {rasterCount, mermaidCount, tableCount, codeCount};
+}
+
+function visualBalanceResult(paragraphs, lines, excluded, evidenceLines) {
+  const eligibleProseCharacters = paragraphs.reduce(
+    (total, paragraph) =>
+      total + measuredLength(maskInlineTechnicalSyntax(paragraph.text)),
+    0,
+  );
+  const counts = visualFormCounts(lines, excluded, evidenceLines);
+  const visualUnits =
+    counts.rasterCount * 3 +
+    counts.mermaidCount * 1.5 +
+    counts.tableCount * 0.75 +
+    counts.codeCount * 0.25;
+  const targetVisualUnits = Math.max(
+    2,
+    (eligibleProseCharacters / 1000) * 2,
+  );
+  const score = Math.min(
+    100,
+    Math.round((visualUnits / targetVisualUnits) * 100),
+  );
+
+  return {
+    eligibleProseCharacters,
+    ...counts,
+    visualUnits,
+    targetVisualUnits,
+    score,
+  };
+}
+
 function inlineIdentifiers(value) {
   const identifiers = new Set();
 
@@ -344,6 +428,8 @@ function sentenceWarnings(paragraph, analysisText, sentenceLimit) {
  *   paragraphLimit?: number;
  *   consecutiveDenseLimit?: number;
  *   identifierLimit?: number;
+ *   visualBalanceThreshold?: number;
+ *   visualMinimumProseCharacters?: number;
  * }} [options]
  */
 export function analyzeCaseText(source, options = {}) {
@@ -363,9 +449,23 @@ export function analyzeCaseText(source, options = {}) {
     options.identifierLimit,
     DEFAULT_IDENTIFIER_LIMIT,
   );
+  const visualBalanceThreshold = normalizedLimit(
+    options.visualBalanceThreshold,
+    DEFAULT_VISUAL_BALANCE_THRESHOLD,
+  );
+  const visualMinimumProseCharacters = normalizedLimit(
+    options.visualMinimumProseCharacters,
+    DEFAULT_VISUAL_MINIMUM_PROSE_CHARACTERS,
+  );
   const {excluded, lines, maskedSource} = scanSource(source);
   const evidenceLines = evidenceCardLineIndexes(maskedSource);
   const paragraphs = collectParagraphs(lines, excluded, evidenceLines);
+  const visualBalance = visualBalanceResult(
+    paragraphs,
+    lines,
+    excluded,
+    evidenceLines,
+  );
   const warnings = [
     ...evidenceCardWarnings(maskedSource),
     ...missingIllustrativeLabelWarnings(lines),
@@ -423,8 +523,40 @@ export function analyzeCaseText(source, options = {}) {
     }
   }
 
+  if (
+    visualBalance.eligibleProseCharacters >= visualMinimumProseCharacters
+  ) {
+    const {
+      rasterCount,
+      mermaidCount,
+      tableCount,
+      codeCount,
+      score,
+      visualUnits,
+    } = visualBalance;
+    const hasVisualContent =
+      rasterCount + mermaidCount + tableCount + codeCount > 0;
+
+    if (!hasVisualContent) {
+      warnings.push({
+        kind: 'missing-visual-content',
+        line: 1,
+        message:
+          'Case has enough eligible prose to require explanatory visual content, but none was counted.',
+      });
+    }
+
+    if (score <= visualBalanceThreshold) {
+      warnings.push({
+        kind: 'low-visual-balance',
+        line: 1,
+        message: `Visual-balance score ${score} must be greater than ${visualBalanceThreshold}; raster=${rasterCount}, mermaid=${mermaidCount}, table=${tableCount}, code=${codeCount}, weighted units=${visualUnits}.`,
+      });
+    }
+  }
+
   warnings.sort((left, right) => left.line - right.line);
-  return {paragraphs: paragraphs.length, warnings};
+  return {paragraphs: paragraphs.length, visualBalance, warnings};
 }
 
 async function collectMdxFiles(inputPath) {

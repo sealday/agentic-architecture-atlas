@@ -283,6 +283,174 @@ test('functional boundaries interrupt consecutive dense prose runs', () => {
   }
 });
 
+test('scores the Microsoft-like visual mix at 81 and warns below the completion gate', () => {
+  const source = [
+    '正文'.repeat(2465),
+    '',
+    '![架构总览](/img/illustrations/microsoft-reference.png)',
+    '',
+    '```mermaid',
+    'flowchart LR',
+    '  A --> B',
+    '```',
+    '',
+    '```mermaid',
+    'stateDiagram-v2',
+    '  Ready --> Running',
+    '```',
+    '',
+    '```ts',
+    'const first = true;',
+    '```',
+    '',
+    '```json',
+    '{"second": true}',
+    '```',
+    '',
+    '| 维度 | 结论 |',
+    '| --- | --- |',
+    '| 控制 | 集中 |',
+    '',
+    '名称 | 取舍',
+    '--- | ---',
+    '恢复 | 有界',
+  ].join('\n');
+
+  const result = analyzeCaseText(source);
+
+  assert.deepEqual(result.visualBalance, {
+    eligibleProseCharacters: 4930,
+    rasterCount: 1,
+    mermaidCount: 2,
+    tableCount: 2,
+    codeCount: 2,
+    visualUnits: 8,
+    targetVisualUnits: 9.86,
+    score: 81,
+  });
+  assert.equal(
+    result.warnings.some(({kind}) => kind === 'low-visual-balance'),
+    true,
+  );
+});
+
+test('applies the exact visual-form weights', () => {
+  const result = analyzeCaseText(`正文。
+
+![总览](overview.webp?width=1200)
+
+\`\`\`mermaid
+flowchart LR
+  A --> B
+\`\`\`
+
+\`\`\`ts
+const value = 1;
+\`\`\`
+
+| 维度 | 结论 |
+| --- | --- |
+| 控制 | 集中 |
+`);
+
+  assert.equal(result.visualBalance.rasterCount, 1);
+  assert.equal(result.visualBalance.mermaidCount, 1);
+  assert.equal(result.visualBalance.tableCount, 1);
+  assert.equal(result.visualBalance.codeCount, 1);
+  assert.equal(result.visualBalance.visualUnits, 5.5);
+  assert.equal(result.visualBalance.targetVisualUnits, 2);
+  assert.equal(result.visualBalance.score, 100);
+});
+
+test('requires a visual-balance score strictly greater than the threshold', () => {
+  const score90 = analyzeCaseText(
+    `${'文'.repeat(1667)}
+
+![总览](overview.png)
+`,
+  );
+  assert.equal(score90.visualBalance.score, 90);
+  assert.equal(
+    score90.warnings.some(({kind}) => kind === 'low-visual-balance'),
+    true,
+  );
+
+  const score91 = analyzeCaseText(
+    `${'文'.repeat(1649)}
+
+![总览](overview.jpg)
+`,
+  );
+  assert.equal(score91.visualBalance.score, 91);
+  assert.equal(
+    score91.warnings.some(({kind}) => kind === 'low-visual-balance'),
+    false,
+  );
+
+  const raisedThreshold = analyzeCaseText(
+    `${'文'.repeat(1649)}
+
+![总览](overview.jpeg)
+`,
+    {visualBalanceThreshold: 91},
+  );
+  assert.equal(
+    raisedThreshold.warnings.some(({kind}) => kind === 'low-visual-balance'),
+    true,
+  );
+});
+
+test('warns long all-text cases but exempts pages below the prose floor', () => {
+  const longResult = analyzeCaseText('文'.repeat(800));
+  assert.deepEqual(
+    longResult.warnings
+      .filter(({kind}) =>
+        ['missing-visual-content', 'low-visual-balance'].includes(kind),
+      )
+      .map(({kind}) => kind),
+    ['missing-visual-content', 'low-visual-balance'],
+  );
+
+  const shortResult = analyzeCaseText('文'.repeat(799));
+  assert.equal(
+    shortResult.warnings.some(({kind}) =>
+      ['missing-visual-content', 'low-visual-balance'].includes(kind),
+    ),
+    false,
+  );
+
+  const customFloor = analyzeCaseText('文'.repeat(799), {
+    visualMinimumProseCharacters: 799,
+  });
+  assert.equal(
+    customFloor.warnings.some(({kind}) => kind === 'missing-visual-content'),
+    true,
+  );
+});
+
+test('does not credit raster images in excluded content', () => {
+  const source = `---
+hero: "![front matter](front.png)"
+---
+
+\`\`\`md
+![code](code.jpg)
+\`\`\`
+
+| 位置 | 图片 |
+| --- | --- |
+| 表格 | ![table](table.jpeg) |
+
+<details className="evidence-card">
+  <summary>证据：插图路径</summary>
+
+  - **路径：** \`![evidence](evidence.webp)\`
+</details>
+`;
+
+  assert.equal(analyzeCaseText(source).visualBalance.rasterCount, 0);
+});
+
 test('documents identifier density and functional reporter boundaries', async () => {
   const skillRoot = new URL(
     '../.codex/skills/writing-architecture-cases/',
@@ -300,6 +468,12 @@ test('documents identifier density and functional reporter boundaries', async ()
   assert.match(guidance, /repeated-evidence-label/u);
   assert.match(guidance, /missing-illustrative-label/u);
   assert.match(guidance, /unanchored-evidence-card/u);
+  assert.match(guidance, /visual-balance/u);
+  assert.match(guidance, /missing-visual-content/u);
+  assert.match(guidance, /low-visual-balance/u);
+  assert.match(guidance, /3\.0[\s\S]*1\.5[\s\S]*0\.75[\s\S]*0\.25/u);
+  assert.match(guidance, /(?:strictly greater than|严格大于|>)\s*90/u);
+  assert.match(guidance, /decorative filler|装饰性填充/u);
   assert.match(
     guidance,
     /heading、table、code、list 与 evidence card.*中断.*dense-run/u,

@@ -43,6 +43,9 @@ Run these gates in order. A later gate cannot compensate for failure in an earli
 - [ ] Review `duplicate-evidence-summary` and `repeated-evidence-label`; keep summaries topic-specific and let one epistemic label govern a short coherent block instead of repeating it mechanically.
 - [ ] Resolve `missing-illustrative-label` by labeling the supported micro-scenario `说明性场景` or `说明性演练`, not by inventing a story.
 - [ ] Resolve `empty-evidence-card`; review `unanchored-evidence-card` and add a source, file, symbol, version, commit, link, or other concrete anchor when the block claims to be evidence.
+- [ ] Review the `visual-balance` counts and exact weights: raster 3.0, Mermaid 1.5, table 0.75, and non-Mermaid code 0.25.
+- [ ] Resolve `missing-visual-content`; for a complete case, resolve `low-visual-balance` until the score is strictly greater than 90.
+- [ ] Every visual added for balance teaches a supported orientation, comparison, topology, flow, or boundary; no decorative filler exists only to raise the score.
 - [ ] Remove empty setup, fake suspense, slogans, repeated conclusions, mechanical parallelism, synonym chains, and exhaustive name dumping.
 - [ ] Confirm the ending states a decision, trade-off, or transfer condition without a generic inspirational close.
 - [ ] Inspect every generated illustration at original size: exact Chinese labels, correct arrows/loops/states, supported facts only, no copied person/signature/watermark/layout, and no pseudo-text.
