@@ -14525,8 +14525,8 @@
     {
       "id": "src-nist-ir-5517",
       "canonical_locator": "https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir5517.pdf",
-      "transport_locator": "https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir5517.pdf",
-      "query_insensitive": false,
+      "transport_locator": "https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir5517.pdf?download=1",
+      "query_insensitive": true,
       "locator_aliases": [
         {
           "locator": "https://www.nist.gov/publications/reference-architecture-machine-control-systems-integration-interim-report",
@@ -14569,9 +14569,9 @@
       "copyright_policy": "public-domain-with-provenance",
       "usage_boundary": "Supports a generic reference-architecture definition in NISTIR 5517; its manufacturing control framework is domain-specific and is not generalized as a universal structure.",
       "link_policy": "stable",
-      "expected_final_transport_locator": "https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir5517.pdf",
+      "expected_final_transport_locator": "https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir5517.pdf?download=1",
       "expected_final_approved_at": "2026-07-24",
-      "expected_final_approval_note": "Reviewed official NISTIR 5517 report PDF transport baseline"
+      "expected_final_approval_note": "Reviewed official query transport for the same NISTIR 5517 PDF; bounded recheck returned HTTP 200"
     },
     {
       "id": "src-nasa-swehb-7-07",

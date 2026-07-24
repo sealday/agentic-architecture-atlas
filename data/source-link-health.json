@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-07-24T12:13:42.427Z",
+  "generated_at": "2026-07-24T12:44:40.442Z",
   "results": [
     {
       "transport_locator": "https://a2a-protocol.org/latest/",
@@ -10232,16 +10232,15 @@
         "src-github-2a9e68cf5172"
       ],
       "last_attempt": {
-        "at": "2026-07-24T12:13:42.427Z",
-        "outcome": "error",
-        "final_transport_locator": null,
-        "http_status": null,
+        "at": "2026-07-24T12:44:40.442Z",
+        "outcome": "healthy",
+        "final_transport_locator": "https://github.com/apache/kafka/tree/ebac341b28d4224c296ada31eb45122176e8b27b",
+        "http_status": 206,
         "login_wall_detected": false,
-        "redirects": [],
-        "error": "The operation was aborted due to timeout"
+        "redirects": []
       },
       "last_success": {
-        "at": "2026-07-24T12:08:08.432Z",
+        "at": "2026-07-24T12:44:40.442Z",
         "outcome": "healthy",
         "final_transport_locator": "https://github.com/apache/kafka/tree/ebac341b28d4224c296ada31eb45122176e8b27b",
         "http_status": 206,
@@ -10301,9 +10300,23 @@
           "final_transport_locator": null,
           "http_status": null,
           "login_wall_detected": false
+        },
+        {
+          "at": "2026-07-24T12:40:14.042Z",
+          "outcome": "healthy",
+          "final_transport_locator": "https://github.com/apache/kafka/tree/ebac341b28d4224c296ada31eb45122176e8b27b",
+          "http_status": 206,
+          "login_wall_detected": false
+        },
+        {
+          "at": "2026-07-24T12:44:40.442Z",
+          "outcome": "healthy",
+          "final_transport_locator": "https://github.com/apache/kafka/tree/ebac341b28d4224c296ada31eb45122176e8b27b",
+          "http_status": 206,
+          "login_wall_detected": false
         }
       ],
-      "review_status": "stale"
+      "review_status": "healthy"
     },
     {
       "transport_locator": "https://github.com/awslabs/cli-agent-orchestrator",
@@ -18822,16 +18835,15 @@
         "src-github-06f3f1f4928e"
       ],
       "last_attempt": {
-        "at": "2026-07-24T12:13:42.427Z",
-        "outcome": "error",
-        "final_transport_locator": null,
-        "http_status": null,
+        "at": "2026-07-24T12:44:40.442Z",
+        "outcome": "healthy",
+        "final_transport_locator": "https://github.com/openai/openai-agents-python/blob/2fa463571e76dae8ff267622f1018eaf06ffeb9f/docs/human_in_the_loop.md",
+        "http_status": 206,
         "login_wall_detected": false,
-        "redirects": [],
-        "error": "The operation was aborted due to timeout"
+        "redirects": []
       },
       "last_success": {
-        "at": "2026-07-24T12:08:08.432Z",
+        "at": "2026-07-24T12:44:40.442Z",
         "outcome": "healthy",
         "final_transport_locator": "https://github.com/openai/openai-agents-python/blob/2fa463571e76dae8ff267622f1018eaf06ffeb9f/docs/human_in_the_loop.md",
         "http_status": 206,
@@ -18891,9 +18903,23 @@
           "final_transport_locator": null,
           "http_status": null,
           "login_wall_detected": false
+        },
+        {
+          "at": "2026-07-24T12:40:14.042Z",
+          "outcome": "healthy",
+          "final_transport_locator": "https://github.com/openai/openai-agents-python/blob/2fa463571e76dae8ff267622f1018eaf06ffeb9f/docs/human_in_the_loop.md",
+          "http_status": 206,
+          "login_wall_detected": false
+        },
+        {
+          "at": "2026-07-24T12:44:40.442Z",
+          "outcome": "healthy",
+          "final_transport_locator": "https://github.com/openai/openai-agents-python/blob/2fa463571e76dae8ff267622f1018eaf06ffeb9f/docs/human_in_the_loop.md",
+          "http_status": 206,
+          "login_wall_detected": false
         }
       ],
-      "review_status": "stale"
+      "review_status": "healthy"
     },
     {
       "transport_locator": "https://github.com/openai/openai-agents-python/blob/2fa463571e76dae8ff267622f1018eaf06ffeb9f/docs/multi_agent.md",
@@ -26595,50 +26621,42 @@
       "review_status": "healthy"
     },
     {
-      "transport_locator": "https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir5517.pdf",
+      "transport_locator": "https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir5517.pdf?download=1",
       "source_ids": [
         "src-nist-ir-5517"
       ],
       "last_attempt": {
-        "at": "2026-07-24T12:13:42.427Z",
-        "outcome": "error",
-        "final_transport_locator": "https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir5517.pdf",
-        "http_status": 404,
+        "at": "2026-07-24T12:44:40.442Z",
+        "outcome": "healthy",
+        "final_transport_locator": "https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir5517.pdf?download=1",
+        "http_status": 206,
         "login_wall_detected": false,
-        "redirects": [],
-        "error": "unexpected HTTP 404"
+        "redirects": []
       },
       "last_success": {
-        "at": "2026-07-24T10:22:06.903Z",
+        "at": "2026-07-24T12:44:40.442Z",
         "outcome": "healthy",
-        "final_transport_locator": "https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir5517.pdf",
-        "http_status": 200,
+        "final_transport_locator": "https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir5517.pdf?download=1",
+        "http_status": 206,
         "login_wall_detected": false
       },
       "attempt_history": [
         {
-          "at": "2026-07-24T10:22:06.903Z",
+          "at": "2026-07-24T12:40:14.042Z",
+          "outcome": "error",
+          "final_transport_locator": "https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir5517.pdf?download=1",
+          "http_status": 404,
+          "login_wall_detected": false
+        },
+        {
+          "at": "2026-07-24T12:44:40.442Z",
           "outcome": "healthy",
-          "final_transport_locator": "https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir5517.pdf",
-          "http_status": 200,
-          "login_wall_detected": false
-        },
-        {
-          "at": "2026-07-24T12:08:08.432Z",
-          "outcome": "error",
-          "final_transport_locator": "https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir5517.pdf",
-          "http_status": 404,
-          "login_wall_detected": false
-        },
-        {
-          "at": "2026-07-24T12:13:42.427Z",
-          "outcome": "error",
-          "final_transport_locator": "https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir5517.pdf",
-          "http_status": 404,
+          "final_transport_locator": "https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir5517.pdf?download=1",
+          "http_status": 206,
           "login_wall_detected": false
         }
       ],
-      "review_status": "stale"
+      "review_status": "healthy"
     },
     {
       "transport_locator": "https://openai.github.io/openai-agents-python/multi_agent/",
@@ -27978,16 +27996,15 @@
         "src-nasa-swehb-7-07"
       ],
       "last_attempt": {
-        "at": "2026-07-24T12:13:42.427Z",
-        "outcome": "error",
+        "at": "2026-07-24T12:44:40.442Z",
+        "outcome": "healthy",
         "final_transport_locator": "https://swehb.nasa.gov/spaces/SWEHBVD/pages/102695632/7.07%2B-%2BSoftware%2BArchitecture%2BDescription",
-        "http_status": 500,
+        "http_status": 200,
         "login_wall_detected": false,
-        "redirects": [],
-        "error": "unexpected HTTP 500"
+        "redirects": []
       },
       "last_success": {
-        "at": "2026-07-24T10:22:06.903Z",
+        "at": "2026-07-24T12:44:40.442Z",
         "outcome": "healthy",
         "final_transport_locator": "https://swehb.nasa.gov/spaces/SWEHBVD/pages/102695632/7.07%2B-%2BSoftware%2BArchitecture%2BDescription",
         "http_status": 200,
@@ -28014,9 +28031,23 @@
           "final_transport_locator": "https://swehb.nasa.gov/spaces/SWEHBVD/pages/102695632/7.07%2B-%2BSoftware%2BArchitecture%2BDescription",
           "http_status": 500,
           "login_wall_detected": false
+        },
+        {
+          "at": "2026-07-24T12:40:14.042Z",
+          "outcome": "error",
+          "final_transport_locator": "https://swehb.nasa.gov/spaces/SWEHBVD/pages/102695632/7.07%2B-%2BSoftware%2BArchitecture%2BDescription",
+          "http_status": 500,
+          "login_wall_detected": false
+        },
+        {
+          "at": "2026-07-24T12:44:40.442Z",
+          "outcome": "healthy",
+          "final_transport_locator": "https://swehb.nasa.gov/spaces/SWEHBVD/pages/102695632/7.07%2B-%2BSoftware%2BArchitecture%2BDescription",
+          "http_status": 200,
+          "login_wall_detected": false
         }
       ],
-      "review_status": "stale"
+      "review_status": "healthy"
     },
     {
       "transport_locator": "https://www.cosmicpython.com/book/preface.html",

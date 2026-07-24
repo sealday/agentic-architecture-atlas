@@ -331,20 +331,33 @@ function validateLocatorPair(locator, transport, queryInsensitive, label, errors
     return;
   }
   let expected;
+  let canonicalTransport;
   try {
     expected = canonicalizeTransportLocator(locator);
-    if (queryInsensitive && isHttps(expected)) {
-      const url = new URL(expected);
-      url.search = '';
-      expected = url.href;
-    }
+    canonicalTransport = canonicalizeTransportLocator(transport);
   } catch {
     errors.push(`${label} locator is invalid`);
     return;
   }
-  if (transport !== expected) {
+  if (transport !== canonicalTransport) {
     errors.push(
-      `${label} transport_locator "${transport}" is inconsistent; expected "${expected}"`,
+      `${label} transport_locator "${transport}" is inconsistent; expected canonical transport "${canonicalTransport}"`,
+    );
+    return;
+  }
+  if (queryInsensitive && isHttps(expected)) {
+    const expectedIdentity = new URL(expected);
+    const transportIdentity = new URL(canonicalTransport);
+    expectedIdentity.search = '';
+    transportIdentity.search = '';
+    if (transportIdentity.href === expectedIdentity.href) {
+      return;
+    }
+    expected = expectedIdentity.href;
+  }
+  if (canonicalTransport !== expected) {
+    errors.push(
+      `${label} transport_locator "${canonicalTransport}" is inconsistent; expected "${expected}"`,
     );
   }
 }

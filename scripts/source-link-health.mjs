@@ -20,7 +20,8 @@ const reviewStatuses = new Set([
 const redirectStatuses = new Set([301, 302, 303, 307, 308]);
 const transientResponseStatuses = new Set([429, 502, 503, 504]);
 const transientRetryDelayMs = 250;
-const userAgent = 'agentic-architecture-atlas-link-check/1';
+const userAgent =
+  'Mozilla/5.0 (compatible; AgenticArchitectureAtlasLinkCheck/1.0; +https://github.com/sealday/agentic-architecture-atlas)';
 
 function transportLocator(locator) {
   const value = new URL(locator);
@@ -649,7 +650,11 @@ export async function checkSourceLink(
       'HEAD',
       requestOptions,
     );
-    if ([403, 405, 501].includes(observation.response.status)) {
+    const headStatus = observation.response.status;
+    const activeHeadFailure =
+      target.link_policy !== 'retired' &&
+      (headStatus === 404 || (headStatus >= 500 && headStatus <= 599));
+    if ([403, 405].includes(headStatus) || activeHeadFailure) {
       usedGet = true;
       observation = await requestFollowingRedirects(
         target.transport_locator,

@@ -6300,15 +6300,15 @@
       "expected_final_transport_locator": "https://github.com/openai/openai-agents-python/blob/2fa463571e76dae8ff267622f1018eaf06ffeb9f/docs/human_in_the_loop.md",
       "expected_final_approved_at": "2026-07-24",
       "expected_final_approval_note": "Initial reviewed migration transport baseline",
-      "health_summary": "stale",
+      "health_summary": "healthy",
       "health_checks": [
         {
           "transport_locator": "https://github.com/openai/openai-agents-python/blob/2fa463571e76dae8ff267622f1018eaf06ffeb9f/docs/human_in_the_loop.md",
-          "status": "stale",
-          "last_attempt_at": "2026-07-24T12:13:42.427Z",
-          "last_success_at": "2026-07-24T12:08:08.432Z",
-          "http_status": null,
-          "final_transport_locator": null
+          "status": "healthy",
+          "last_attempt_at": "2026-07-24T12:44:40.442Z",
+          "last_success_at": "2026-07-24T12:44:40.442Z",
+          "http_status": 206,
+          "final_transport_locator": "https://github.com/openai/openai-agents-python/blob/2fa463571e76dae8ff267622f1018eaf06ffeb9f/docs/human_in_the_loop.md"
         }
       ]
     },
@@ -7350,15 +7350,15 @@
       "expected_final_transport_locator": "https://github.com/apache/kafka/tree/ebac341b28d4224c296ada31eb45122176e8b27b",
       "expected_final_approved_at": "2026-07-24",
       "expected_final_approval_note": "Initial reviewed migration transport baseline",
-      "health_summary": "stale",
+      "health_summary": "healthy",
       "health_checks": [
         {
           "transport_locator": "https://github.com/apache/kafka/tree/ebac341b28d4224c296ada31eb45122176e8b27b",
-          "status": "stale",
-          "last_attempt_at": "2026-07-24T12:13:42.427Z",
-          "last_success_at": "2026-07-24T12:08:08.432Z",
-          "http_status": null,
-          "final_transport_locator": null
+          "status": "healthy",
+          "last_attempt_at": "2026-07-24T12:44:40.442Z",
+          "last_success_at": "2026-07-24T12:44:40.442Z",
+          "http_status": 206,
+          "final_transport_locator": "https://github.com/apache/kafka/tree/ebac341b28d4224c296ada31eb45122176e8b27b"
         }
       ]
     },
@@ -17491,14 +17491,14 @@
       "expected_final_transport_locator": "https://swehb.nasa.gov/spaces/SWEHBVD/pages/102695632/7.07%2B-%2BSoftware%2BArchitecture%2BDescription",
       "expected_final_approved_at": "2026-07-24",
       "expected_final_approval_note": "Initial reviewed NASA SWEHB Version D Topic 7.07 transport baseline",
-      "health_summary": "stale",
+      "health_summary": "healthy",
       "health_checks": [
         {
           "transport_locator": "https://swehb.nasa.gov/spaces/SWEHBVD/pages/102695632/7.07%2B-%2BSoftware%2BArchitecture%2BDescription",
-          "status": "stale",
-          "last_attempt_at": "2026-07-24T12:13:42.427Z",
-          "last_success_at": "2026-07-24T10:22:06.903Z",
-          "http_status": 500,
+          "status": "healthy",
+          "last_attempt_at": "2026-07-24T12:44:40.442Z",
+          "last_success_at": "2026-07-24T12:44:40.442Z",
+          "http_status": 200,
           "final_transport_locator": "https://swehb.nasa.gov/spaces/SWEHBVD/pages/102695632/7.07%2B-%2BSoftware%2BArchitecture%2BDescription"
         }
       ]
@@ -17506,8 +17506,8 @@
     {
       "id": "src-nist-ir-5517",
       "canonical_locator": "https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir5517.pdf",
-      "transport_locator": "https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir5517.pdf",
-      "query_insensitive": false,
+      "transport_locator": "https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir5517.pdf?download=1",
+      "query_insensitive": true,
       "locator_aliases": [
         {
           "locator": "https://www.nist.gov/publications/reference-architecture-machine-control-systems-integration-interim-report",
@@ -17550,18 +17550,18 @@
       "copyright_policy": "public-domain-with-provenance",
       "usage_boundary": "Supports a generic reference-architecture definition in NISTIR 5517; its manufacturing control framework is domain-specific and is not generalized as a universal structure.",
       "link_policy": "stable",
-      "expected_final_transport_locator": "https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir5517.pdf",
+      "expected_final_transport_locator": "https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir5517.pdf?download=1",
       "expected_final_approved_at": "2026-07-24",
-      "expected_final_approval_note": "Reviewed official NISTIR 5517 report PDF transport baseline",
-      "health_summary": "stale",
+      "expected_final_approval_note": "Reviewed official query transport for the same NISTIR 5517 PDF; bounded recheck returned HTTP 200",
+      "health_summary": "healthy",
       "health_checks": [
         {
-          "transport_locator": "https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir5517.pdf",
-          "status": "stale",
-          "last_attempt_at": "2026-07-24T12:13:42.427Z",
-          "last_success_at": "2026-07-24T10:22:06.903Z",
-          "http_status": 404,
-          "final_transport_locator": "https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir5517.pdf"
+          "transport_locator": "https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir5517.pdf?download=1",
+          "status": "healthy",
+          "last_attempt_at": "2026-07-24T12:44:40.442Z",
+          "last_success_at": "2026-07-24T12:44:40.442Z",
+          "http_status": 206,
+          "final_transport_locator": "https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir5517.pdf?download=1"
         }
       ]
     },
