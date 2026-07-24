@@ -256,10 +256,15 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
-      "primary_sources": [],
-      "related_cases": [],
-      "reviewed_at": null,
-      "published": false
+      "primary_sources": [
+        "https://dl.acm.org/doi/10.1145/361598.361623"
+      ],
+      "related_cases": [
+        "/cases/micro-frontends-single-spa"
+      ],
+      "reviewed_at": "2026-07-24",
+      "published": true,
+      "presentation": {}
     },
     {
       "id": "PR-02",
@@ -620,10 +625,16 @@
         "FND-02",
         "QA-00"
       ],
-      "primary_sources": [],
-      "related_cases": [],
-      "reviewed_at": null,
-      "published": false
+      "primary_sources": [
+        "https://www.iso.org/standard/78176.html",
+        "https://www.sei.cmu.edu/library/quality-attribute-workshops-qaws-third-edition/"
+      ],
+      "related_cases": [
+        "/cases/aws-cell-shuffle-sharding"
+      ],
+      "reviewed_at": "2026-07-24",
+      "published": true,
+      "presentation": {}
     },
     {
       "id": "QA-05",
@@ -730,23 +741,6 @@
   ],
   "method": [
     {
-      "id": "MTH-03",
-      "type": "method",
-      "title": "ADR 生命周期",
-      "slug": "/methods/mth-03",
-      "priority": "P0",
-      "status": {
-        "scope": "backlog-projection",
-        "value": "pending",
-        "source": "docs/content-backlog.md"
-      },
-      "dependencies": [],
-      "primary_sources": [],
-      "related_cases": [],
-      "reviewed_at": null,
-      "published": false
-    },
-    {
       "id": "MTH-01",
       "type": "method",
       "title": "QAW",
@@ -783,6 +777,30 @@
       "related_cases": [],
       "reviewed_at": null,
       "published": false
+    },
+    {
+      "id": "MTH-03",
+      "type": "method",
+      "title": "ADR 生命周期",
+      "slug": "/methods/mth-03",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [
+        "QA-01"
+      ],
+      "primary_sources": [
+        "https://adr.github.io/"
+      ],
+      "related_cases": [
+        "/cases/kubernetes-reconciliation-loop"
+      ],
+      "reviewed_at": "2026-07-24",
+      "published": true,
+      "presentation": {}
     },
     {
       "id": "MTH-04",
@@ -871,10 +889,16 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
-      "primary_sources": [],
-      "related_cases": [],
-      "reviewed_at": null,
-      "published": false
+      "primary_sources": [
+        "https://arc42.org/",
+        "https://c4model.com/"
+      ],
+      "related_cases": [
+        "/cases/microsoft-multi-agent-reference-architecture"
+      ],
+      "reviewed_at": "2026-07-24",
+      "published": true,
+      "presentation": {}
     },
     {
       "id": "MOD-03",
@@ -1077,10 +1101,16 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
-      "primary_sources": [],
-      "related_cases": [],
-      "reviewed_at": null,
-      "published": false
+      "primary_sources": [
+        "https://arc42.org/",
+        "https://www.sei.cmu.edu/training/software-architecture-principles-practices/"
+      ],
+      "related_cases": [
+        "/cases/micro-frontends-single-spa"
+      ],
+      "reviewed_at": "2026-07-24",
+      "published": true,
+      "presentation": {}
     },
     {
       "id": "STY-01",
@@ -1644,10 +1674,16 @@
         "source": "docs/content-backlog.md"
       },
       "dependencies": [],
-      "primary_sources": [],
-      "related_cases": [],
-      "reviewed_at": null,
-      "published": false
+      "primary_sources": [
+        "https://docs.temporal.io/encyclopedia/retry-policies",
+        "https://learn.microsoft.com/en-us/azure/architecture/patterns/retry"
+      ],
+      "related_cases": [
+        "/cases/temporal-saga-durable-execution"
+      ],
+      "reviewed_at": "2026-07-24",
+      "published": true,
+      "presentation": {}
     },
     {
       "id": "REL-03",

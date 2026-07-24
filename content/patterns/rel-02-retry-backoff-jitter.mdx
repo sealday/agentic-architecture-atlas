@@ -1,0 +1,90 @@
+---
+title: Retry、Exponential Backoff 与 Jitter
+slug: /patterns/rel-02
+content_type: pattern
+status: reviewed
+difficulty: intermediate
+analyzed_at: 2026-07-24
+source_cutoff: 2026-07-24
+confidence: high
+domains:
+  - distributed-systems
+agent_patterns: []
+protocols: []
+quality_attributes:
+  - reliability
+  - latency
+tags:
+  - 重试
+  - 退避
+  - 抖动
+summary: 从重试资格、预算、退避与抖动解释恢复收益和放大风险。
+topic_id: REL-02
+priority: P0
+depends_on: []
+related_cases:
+  - /cases/temporal-saga-durable-execution
+---
+
+# Retry、Exponential Backoff 与 Jitter
+
+重试不是“失败后再试一次”，而是把有限的时间与容量预算分配给可能恢复的操作。[模式目录](/patterns)提供相邻模式入口；本文先决定是否有资格重试，再计算退避与停止点。
+
+## 学习问题
+
+- 什么失败值得重试？
+- 谁拥有端到端重试预算？
+- 何时应停止并暴露失败？
+
+## 问题与适用上下文
+
+瞬时网络故障、短暂限流或服务切换可能在稍后恢复；认证失败、参数错误等永久错误不会因重复发送而改变。不确定结果更危险：调用方超时不代表服务端没有完成写入。只有操作具备幂等语义、幂等键或可验证的结果查询时，重试才不会轻易制造重复副作用。
+
+## 约束与驱动力
+
+端到端 deadline 是上限，单层最大尝试次数只是局部限制。容量、公平性和尾延迟同样约束策略：大量客户端在同一时刻恢复会放大负载；逐层各自重试会让一次用户请求产生乘法级调用。预算应由最接近用户承诺的一层拥有，下游只报告可分类的失败与重试提示。
+
+## 结构与协作关系
+
+调用方判断错误类别与剩余时间，被调用方返回明确状态和可选的服务端退避提示，限流器保护容量，观测系统记录 attempt、delay、deadline 与最终结果。下面的原创决策表先封闭重试资格：
+
+| 结果类别 | 可证明无副作用或幂等 | 仍有 deadline | 决策 |
+| --- | --- | --- | --- |
+| 瞬时不可用、限流 | 是 | 是 | 按预算退避重试 |
+| 超时且结果未知 | 否 | 任意 | 先查询结果或人工补偿，不盲重试 |
+| 参数、权限、业务拒绝 | 任意 | 任意 | 立即暴露永久失败 |
+| 瞬时不可用 | 是 | 否 | 停止并返回 deadline exceeded |
+
+表的重点是资格先于算法：指数公式不能把永久错误变成可恢复错误。
+
+## 运行机制
+
+指数退避让第 `n` 次等待随尝试增长；jitter 在允许窗口内随机化等待，减少客户端同步。策略还必须规定最大间隔、最大尝试、不可重试错误和总 deadline。若服务端给出可信的 `Retry-After`，调用方仍要把它限制在自己的剩余预算内。
+
+## 失败模式与误用
+
+同步重试会形成尖峰，嵌套重试会放大调用数，重试非幂等写入会产生重复副作用，持续重试永久错误则掩盖真实故障。不要对付款扣款、不可去重的消息发布或已经明确拒绝的请求启用自动重试；也不要让重试无限延长用户等待。
+
+## 质量属性权衡
+
+重试可提高短暂故障下的成功率，却增加尾延迟和恢复期负载。更长退避保护下游但延长恢复时间；更多尝试提高机会但消耗公平性预算。应把成功率与“额外请求数、deadline 超时率、重复副作用数”一起观察。
+
+## 实现与迁移提示
+
+先统一错误分类、幂等语义和 deadline 传播，再选择退避参数。随后从调用链底部向上盘点重复策略，只保留预算所有者的重试；把历史 SDK 默认重试显式化，避免迁移后仍存在看不见的乘法。
+
+## 相邻模式与反模式
+
+[质量属性场景写法](/quality-attributes/qa-01)可把“可靠”改写成特定故障、环境和响应时间的场景。Retry Storm 反模式则提醒：当大量调用者共享相同触发与间隔时，恢复机制本身会成为故障放大器。
+
+## 说明性场景
+
+输入：读取操作幂等，端到端 deadline 为 `1,000 ms`；每次调用最多耗时 `100 ms`，初始退避 `100 ms`，之后加倍，使用确定性示例值 `80 ms` 与 `170 ms` 表示 jitter 后等待。
+
+决策与计算：第 1 次调用耗时 `100 ms` 后失败，等待 `80 ms`；第 2 次耗时 `100 ms` 后失败，等待 `170 ms`；第 3 次耗时 `100 ms` 后成功。总耗时为 `100 + 80 + 100 + 170 + 100 = 550 ms`，共 3 次尝试，仍在 deadline 内。若第 3 次也失败，下一候选等待即使为 `350 ms`，加上下一次调用也会达到 `1,000 ms`，因此停止并暴露失败。
+
+结果：预算而非“最大 5 次”决定停止点。[Temporal Retry Policies](https://docs.temporal.io/encyclopedia/retry-policies)与 [Temporal durable execution 案例](/cases/temporal-saga-durable-execution)可继续检查活动重试与工作流重放的边界，两者不能混为一次副作用的重复执行。
+
+## 来源
+
+模式资格与错误分类依据 [Azure Retry pattern](https://learn.microsoft.com/en-us/azure/architecture/patterns/retry)；重试策略字段及工作流语境依据 [Temporal Retry Policies](https://docs.temporal.io/encyclopedia/retry-policies)。本文没有把任一产品默认值当成通用保证。

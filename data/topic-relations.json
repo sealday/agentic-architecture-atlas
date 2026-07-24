@@ -11,10 +11,6 @@
     "dependencies": ["FND-02"],
     "related_cases": []
   },
-  "QA-01": {
-    "dependencies": ["FND-02", "QA-00"],
-    "related_cases": []
-  },
   "MTH-01": {
     "dependencies": ["QA-01"],
     "related_cases": []

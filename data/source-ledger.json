@@ -192,6 +192,39 @@
       "expected_final_approval_note": "Initial reviewed migration transport baseline"
     },
     {
+      "id": "src-acm-96e876360753",
+      "canonical_locator": "https://dl.acm.org/doi/10.1145/361598.361623",
+      "transport_locator": "https://dl.acm.org/doi/10.1145/361598.361623",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "On the Criteria To Be Used in Decomposing Systems into Modules",
+      "author_or_org": "D. L. Parnas / ACM",
+      "published_at": "1972-12-01",
+      "checked_at": "2026-07-24",
+      "version": "Communications of the ACM 15(12), DOI 10.1145/361598.361623",
+      "source_kind": "paper",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "definition",
+        "historical-context",
+        "method"
+      ],
+      "license": "LicenseRef-All-Rights-Reserved",
+      "license_scope": "The cited ACM paper; abstract, references, and linked works excluded from reuse",
+      "license_evidence_url": null,
+      "license_evidence_note": "ACM publication rights are reserved; only factual summary and a link are used.",
+      "license_family_id": "doi:10.1145/361598.361623",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "facts-and-short-quotation",
+      "usage_boundary": "Supports the historical definition of information hiding; it does not establish modern deployment or team claims.",
+      "link_policy": "auth-required",
+      "expected_final_transport_locator": "https://dl.acm.org/doi/10.1145/361598.361623",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Current official ACM HTTPS page returned HTTP 403 in the complete live audit on 2026-07-24; accepted as an auth-required transport baseline"
+    },
+    {
       "id": "src-adk-0d337be13a90",
       "canonical_locator": "https://adk.dev/observability/traces/",
       "transport_locator": "https://adk.dev/observability/traces/",
@@ -532,6 +565,39 @@
       "expected_final_transport_locator": "https://adk.dev/sessions/state/",
       "expected_final_approved_at": "2026-07-24",
       "expected_final_approval_note": "Initial reviewed migration transport baseline"
+    },
+    {
+      "id": "src-adr-d5366499f6a8",
+      "canonical_locator": "https://adr.github.io/",
+      "transport_locator": "https://adr.github.io/",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "Architectural Decision Records",
+      "author_or_org": "ADR GitHub organization",
+      "published_at": null,
+      "checked_at": "2026-07-24",
+      "version": "Current work/page checked on 2026-07-24",
+      "source_kind": "official-docs",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "definition",
+        "method",
+        "learning"
+      ],
+      "license": "LicenseRef-All-Rights-Reserved",
+      "license_scope": "The cited ADR website text; linked repositories and third-party works excluded",
+      "license_evidence_url": null,
+      "license_evidence_note": "No reuse license is declared on the cited website; only factual summary and links are used.",
+      "license_family_id": "https://adr.github.io/",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "facts-and-short-quotation",
+      "usage_boundary": "Defines ADR lifecycle resources; it does not prove that a particular decision is correct.",
+      "link_policy": "stable",
+      "expected_final_transport_locator": "https://adr.github.io/",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Initial reviewed transport baseline"
     },
     {
       "id": "src-aigateway-6541e9f9f8fa",
@@ -18994,6 +19060,45 @@
       ],
       "citations": []
     },
+    "content/methods/mth-03-adr-lifecycle.mdx": {
+      "reviewed_at": "2026-07-24",
+      "copyright_checks": [
+        "original-structure",
+        "quotation-boundary",
+        "attribution-complete",
+        "illustration-rights"
+      ],
+      "citations": [
+        {
+          "source_id": "src-adr-d5366499f6a8",
+          "citation_url": "https://adr.github.io/",
+          "roles": [
+            "definition",
+            "method"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "Architectural Decision Records, ADR GitHub organization",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-sei-bfb2b903b4eb",
+          "citation_url": "https://www.sei.cmu.edu/training/software-architecture-principles-practices/",
+          "roles": [
+            "method",
+            "learning"
+          ],
+          "manifest_primary": false,
+          "usage_mode": "facts-summary",
+          "attribution_note": "Software Architecture: Principles and Practices, Carnegie Mellon Software Engineering Institute",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        }
+      ]
+    },
     "content/modeling/index.mdx": {
       "reviewed_at": "2026-07-24",
       "copyright_checks": [
@@ -19003,6 +19108,44 @@
         "illustration-rights"
       ],
       "citations": []
+    },
+    "content/modeling/mod-02-c4-context-container.mdx": {
+      "reviewed_at": "2026-07-24",
+      "copyright_checks": [
+        "original-structure",
+        "quotation-boundary",
+        "attribution-complete",
+        "illustration-rights"
+      ],
+      "citations": [
+        {
+          "source_id": "src-c4model-f5342a5e8659",
+          "citation_url": "https://c4model.com/",
+          "roles": [
+            "method"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "C4 Model, Simon Brown",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-arc42-8b346f00707f",
+          "citation_url": "https://arc42.org/",
+          "roles": [
+            "method",
+            "learning"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "arc42, arc42 contributors",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        }
+      ]
     },
     "content/paths/01-architecture-thinking.mdx": {
       "reviewed_at": "2026-07-24",
@@ -19757,6 +19900,45 @@
         }
       ]
     },
+    "content/patterns/rel-02-retry-backoff-jitter.mdx": {
+      "reviewed_at": "2026-07-24",
+      "copyright_checks": [
+        "original-structure",
+        "quotation-boundary",
+        "attribution-complete",
+        "illustration-rights"
+      ],
+      "citations": [
+        {
+          "source_id": "src-learn-1abc9c267864",
+          "citation_url": "https://learn.microsoft.com/en-us/azure/architecture/patterns/retry",
+          "roles": [
+            "definition",
+            "method"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "Retry pattern, Microsoft Azure Architecture Center",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-docs-9950c767c50f",
+          "citation_url": "https://docs.temporal.io/encyclopedia/retry-policies",
+          "roles": [
+            "method",
+            "runtime-fact"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "Retry Policies, Temporal Technologies",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        }
+      ]
+    },
     "content/principles/index.mdx": {
       "reviewed_at": "2026-07-24",
       "copyright_checks": [
@@ -19767,6 +19949,44 @@
       ],
       "citations": []
     },
+    "content/principles/pr-01-information-hiding.mdx": {
+      "reviewed_at": "2026-07-24",
+      "copyright_checks": [
+        "original-structure",
+        "quotation-boundary",
+        "attribution-complete",
+        "illustration-rights"
+      ],
+      "citations": [
+        {
+          "source_id": "src-acm-96e876360753",
+          "citation_url": "https://dl.acm.org/doi/10.1145/361598.361623",
+          "roles": [
+            "definition",
+            "historical-context"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "On the Criteria To Be Used in Decomposing Systems into Modules, D. L. Parnas / ACM",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-sei-bfb2b903b4eb",
+          "citation_url": "https://www.sei.cmu.edu/training/software-architecture-principles-practices/",
+          "roles": [
+            "learning"
+          ],
+          "manifest_primary": false,
+          "usage_mode": "facts-summary",
+          "attribution_note": "Software Architecture: Principles and Practices, Carnegie Mellon Software Engineering Institute",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        }
+      ]
+    },
     "content/quality-attributes/index.mdx": {
       "reviewed_at": "2026-07-24",
       "copyright_checks": [
@@ -19776,6 +19996,43 @@
         "illustration-rights"
       ],
       "citations": []
+    },
+    "content/quality-attributes/qa-01-scenario-writing.mdx": {
+      "reviewed_at": "2026-07-24",
+      "copyright_checks": [
+        "original-structure",
+        "quotation-boundary",
+        "attribution-complete",
+        "illustration-rights"
+      ],
+      "citations": [
+        {
+          "source_id": "src-sei-0547756e19ba",
+          "citation_url": "https://www.sei.cmu.edu/library/quality-attribute-workshops-qaws-third-edition/",
+          "roles": [
+            "method"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "Quality Attribute Workshops (QAWs), Third Edition, Carnegie Mellon Software Engineering Institute",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-iso-11f3b103e932",
+          "citation_url": "https://www.iso.org/standard/78176.html",
+          "roles": [
+            "definition"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "ISO/IEC 25010:2023, International Organization for Standardization",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        }
+      ]
     },
     "content/questions/index.mdx": {
       "reviewed_at": "2026-07-24",
@@ -20368,6 +20625,45 @@
         "illustration-rights"
       ],
       "citations": []
+    },
+    "content/styles/sty-00-comparison-framework.mdx": {
+      "reviewed_at": "2026-07-24",
+      "copyright_checks": [
+        "original-structure",
+        "quotation-boundary",
+        "attribution-complete",
+        "illustration-rights"
+      ],
+      "citations": [
+        {
+          "source_id": "src-sei-bfb2b903b4eb",
+          "citation_url": "https://www.sei.cmu.edu/training/software-architecture-principles-practices/",
+          "roles": [
+            "definition",
+            "method"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "Software Architecture: Principles and Practices, Carnegie Mellon Software Engineering Institute",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-arc42-8b346f00707f",
+          "citation_url": "https://arc42.org/",
+          "roles": [
+            "method",
+            "learning"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "arc42, arc42 contributors",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        }
+      ]
     }
   }
 }
