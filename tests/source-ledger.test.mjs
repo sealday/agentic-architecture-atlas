@@ -601,6 +601,53 @@ test('requires complete copyright review records', () => {
   assert.match(parsed.errors.join('\n'), /original-illustration.*illustration/i);
 });
 
+test('allows query-only transport differences for query-insensitive source identity', () => {
+  const canonical = 'https://example.com/download';
+  const queryTransport = `${canonical}?download=1`;
+  const queryInsensitiveSource = sourceFixture('src-query-download', {
+    canonical_locator: canonical,
+    transport_locator: queryTransport,
+    query_insensitive: true,
+    license_family_id: canonical,
+    expected_final_transport_locator: queryTransport,
+  });
+  const citation = citationFixture(queryInsensitiveSource, {
+    citation_url: `${canonical}?view=reader#overview`,
+  });
+  const parsed = parseSourceLedger(ledger({
+    sources: [queryInsensitiveSource],
+    documents: {
+      'content/cases/example.mdx': {
+        ...validDocument,
+        citations: [citation],
+      },
+    },
+  }));
+
+  assert.deepEqual(parsed.errors, []);
+  assert.equal(citationMatchesSource(citation.citation_url, queryInsensitiveSource), true);
+
+  for (const invalidTransport of [
+    'http://example.com/download?download=1',
+    'https://other.example.com/download?download=1',
+    'https://example.com/other?download=1',
+    'https://example.com/download?download=1#fragment',
+  ]) {
+    const invalid = parseSourceLedger(ledger({
+      sources: [{
+        ...queryInsensitiveSource,
+        transport_locator: invalidTransport,
+      }],
+      documents: {},
+    }));
+    assert.match(
+      invalid.errors.join('\n'),
+      /transport_locator/u,
+      `Must reject non-query transport difference: ${invalidTransport}`,
+    );
+  }
+});
+
 test('keeps stable source identity across citation anchors queries and locator migration', () => {
   assert.equal(
     canonicalizeTransportLocator('HTTPS://GitHub.COM:443/Org/Repo/blob/main/file.js?plain=1#L10-L20'),
