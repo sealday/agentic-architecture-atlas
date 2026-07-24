@@ -29,6 +29,7 @@ const config: Config = {
     mermaid: true,
   },
   themes: ['@docusaurus/theme-mermaid'],
+  plugins: ['./plugins/source-ledger-pages/index.mjs'],
 
   presets: [
     [

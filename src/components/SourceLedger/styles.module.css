@@ -6,6 +6,37 @@
   margin-top: 2rem;
 }
 
+.tierGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tierLink {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  border: 1px solid var(--atlas-line);
+  border-radius: 3px;
+  background: var(--atlas-paper-muted);
+  padding: 1rem;
+  color: inherit;
+  text-decoration: none;
+}
+
+.tierLink:hover {
+  border-color: var(--atlas-accent);
+  text-decoration: none;
+}
+
+.tierLink span,
+.tierLink small {
+  color: var(--atlas-ink-soft);
+}
+
 .warning {
   border-left: 3px solid var(--atlas-accent);
   background: var(--atlas-paper-muted);
@@ -64,8 +95,24 @@
   color: var(--atlas-ink-soft);
 }
 
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 2rem 0;
+}
+
+.pagination a,
+.pagination strong {
+  border: 1px solid var(--atlas-line);
+  border-radius: 3px;
+  padding: 0.35rem 0.65rem;
+}
+
 @media (min-width: 768px) {
-  .grid {
+  .grid,
+  .tierGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
