@@ -32,9 +32,18 @@ const g005ClosureRoutes = new Map([
   ['MTH-02', '/methods/mth-02'],
   ['MTH-03', '/methods/mth-03'],
 ]);
+const g005Batch3ClosureRoutes = new Map([
+  ['MTH-04', '/methods/mth-04'],
+  ['MTH-05', '/methods/mth-05'],
+  ['MTH-06', '/methods/mth-06'],
+]);
 const implementationCommit = '15afc9d';
 const deploymentCommit = 'eea2d76';
 const pagesRun = '30095517683';
+const batch3ImplementationCommit = 'c4a76ac';
+const batch3DeploymentCommit = 'e196683';
+const batch3PagesRun = '30101647896';
+const batch3LiveDate = '2026-07-24';
 
 test('publishes one production fixture for each independent knowledge contract', async () => {
   const contentRoot = fileURLToPath(new URL('../content/', import.meta.url));
@@ -166,6 +175,110 @@ test('projects G005 Batch 2 completion into the manifest and topic indexes', asy
   );
 
   for (const id of g005ClosureRoutes.keys()) {
+    for (const [projection, topic] of [
+      ['manifest', manifestById.get(id)],
+      ['topic index', indexById.get(id)],
+    ]) {
+      assert.ok(topic, `${id} must exist in ${projection}`);
+      assert.deepEqual(
+        topic.status,
+        {
+          scope: 'backlog-projection',
+          value: 'complete',
+          source: 'docs/content-backlog.md',
+        },
+        `${id} ${projection} must project complete=true`,
+      );
+    }
+  }
+});
+
+test('marks every G005 Batch 3 topic complete in the visible backlog', async () => {
+  const backlogSource = await readFile(
+    fileURLToPath(new URL('../docs/content-backlog.md', import.meta.url)),
+    'utf8',
+  );
+  const visibleBacklog = backlogSource.replace(/<!--[\s\S]*?-->/gu, '');
+  const parsed = parseBacklogTopics(visibleBacklog, 'docs/content-backlog.md');
+  assert.deepEqual(parsed.errors, []);
+
+  for (const id of g005Batch3ClosureRoutes.keys()) {
+    assert.equal(
+      parsed.topics.find((topic) => topic.id === id)?.complete,
+      true,
+      `${id} backlog closure must be complete`,
+    );
+  }
+});
+
+test('records deployment closure evidence on every G005 Batch 3 backlog row', async () => {
+  const backlogSource = await readFile(
+    fileURLToPath(new URL('../docs/content-backlog.md', import.meta.url)),
+    'utf8',
+  );
+  const visibleBacklog = backlogSource.replace(/<!--[\s\S]*?-->/gu, '');
+  const lines = visibleBacklog.split(/\r?\n/);
+  const parsed = parseBacklogTopics(visibleBacklog, 'docs/content-backlog.md');
+  assert.deepEqual(parsed.errors, []);
+
+  for (const [id, route] of g005Batch3ClosureRoutes) {
+    const topic = parsed.topics.find((candidate) => candidate.id === id);
+    assert.ok(topic, `${id} must remain visible in the backlog`);
+    const row = lines[topic.line - 1];
+    assert.match(
+      row,
+      new RegExp(
+        `implementation[^\\n]{0,80}\\b${batch3ImplementationCommit}\\b`,
+        'iu',
+      ),
+      `${id} must record implementation ${batch3ImplementationCommit}`,
+    );
+    assert.match(
+      row,
+      new RegExp(`deploy[^\\n]{0,80}\\b${batch3DeploymentCommit}\\b`, 'iu'),
+      `${id} must record deployment ${batch3DeploymentCommit}`,
+    );
+    assert.match(
+      row,
+      new RegExp(`actions/runs/${batch3PagesRun}(?:\\b|[/?#])`, 'u'),
+      `${id} must link Pages run ${batch3PagesRun}`,
+    );
+    assert.ok(
+      row.includes(
+        `https://sealday.github.io/agentic-architecture-atlas${route}`,
+      ),
+      `${id} must link its live route ${route}`,
+    );
+    assert.match(
+      row,
+      new RegExp(`\\b${batch3LiveDate}\\b`, 'u'),
+      `${id} must record live verification date ${batch3LiveDate}`,
+    );
+  }
+});
+
+test('projects G005 Batch 3 completion into the manifest and topic indexes', async () => {
+  const [manifest, indexes] = await Promise.all([
+    readFile(
+      new URL('../src/generated/topic-manifest.json', import.meta.url),
+      'utf8',
+    ).then(JSON.parse),
+    readFile(
+      new URL('../src/generated/topic-indexes.json', import.meta.url),
+      'utf8',
+    ).then(JSON.parse),
+  ]);
+  const manifestById = new Map(
+    manifest.topics.map((topic) => [topic.id, topic]),
+  );
+  const indexById = new Map(
+    Object.values(indexes)
+      .filter(Array.isArray)
+      .flat()
+      .map((topic) => [topic.id, topic]),
+  );
+
+  for (const id of g005Batch3ClosureRoutes.keys()) {
     for (const [projection, topic] of [
       ['manifest', manifestById.get(id)],
       ['topic index', indexById.get(id)],
