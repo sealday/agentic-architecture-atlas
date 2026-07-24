@@ -4,49 +4,27 @@ import {fileURLToPath} from 'node:url';
 
 import {readContentDocuments} from './content-metadata.mjs';
 import {parseBacklogTopics} from './backlog-topics.mjs';
-import {loadPatternGroupRegistry} from './content-registries.mjs';
+import {
+  loadCaseSeriesRegistry,
+  loadPatternGroupRegistry,
+} from './content-registries.mjs';
 import {
   parseSourceLedger,
   validateSourceGovernance,
 } from './source-ledger.mjs';
 import {
   allowedPriorities,
-  allowedSeries,
   allowedSourceKinds,
   allowedValues,
-  caseCatalogManifest,
   caseRequiredFields,
-  classicCollectionSlugs,
   knowledgeContentTypes,
   knowledgeRequiredFields,
   knowledgeTypeContracts,
-  launchCaseSlugs,
   qualityAttributeScenarioHeadings,
   requiredCaseHeadings,
   requiredMigrationHeadings,
-  requiredCaseSlugs,
   requiredFields,
-  secondCollectionSlugs,
 } from './content-schema.mjs';
-
-const collectionRequirements = {
-  launch: {
-    slugs: launchCaseSlugs,
-    missingLabel: 'launch case',
-  },
-  classic: {
-    slugs: classicCollectionSlugs,
-    missingLabel: 'classic collection case',
-  },
-  complete: {
-    slugs: requiredCaseSlugs,
-    missingLabel: 'complete catalog case',
-  },
-};
-
-const approvedCatalogOrders = new Map(
-  caseCatalogManifest.map(({slug, catalog_order}) => [slug, catalog_order]),
-);
 
 function headingText(heading) {
   return heading.replace(/^#{2,3}[ \t]+/, '');
@@ -203,7 +181,7 @@ function isKnowledgeArticle(file, metadata) {
 
 export async function validateContent(
   root,
-  {requiredCollection, patternGroupRegistry} = {},
+  {patternGroupRegistry, caseSeriesById} = {},
 ) {
   if (
     !patternGroupRegistry ||
@@ -215,11 +193,10 @@ export async function validateContent(
       'Pattern group registry is required; call loadPatternGroupRegistry(projectRoot, topics)',
     );
   }
-  if (
-    requiredCollection !== undefined &&
-    !Object.hasOwn(collectionRequirements, requiredCollection)
-  ) {
-    throw new TypeError(`Unknown required collection "${requiredCollection}"`);
+  if (!(caseSeriesById instanceof Map)) {
+    throw new TypeError(
+      'Case series registry is required; call loadCaseSeriesRegistry(projectRoot)',
+    );
   }
 
   const documents = await readContentDocuments(root);
@@ -255,8 +232,11 @@ export async function validateContent(
         errors.push(`${file}: field "summary" must be a non-empty string`);
       }
 
-      if ('series' in metadata && !allowedSeries.includes(metadata.series)) {
-        errors.push(`${file}: invalid series value "${metadata.series}"`);
+      if (
+        'series' in metadata &&
+        !caseSeriesById.has(metadata.series)
+      ) {
+        errors.push(`${file}: unregistered case series "${metadata.series}"`);
       }
 
       if (
@@ -264,16 +244,6 @@ export async function validateContent(
         (!Number.isInteger(metadata.catalog_order) || metadata.catalog_order <= 0)
       ) {
         errors.push(`${file}: field "catalog_order" must be a positive integer`);
-      }
-
-      const approvedCatalogOrder = approvedCatalogOrders.get(metadata.slug);
-      if (
-        approvedCatalogOrder !== undefined &&
-        metadata.catalog_order !== approvedCatalogOrder
-      ) {
-        errors.push(
-          `${file}: slug "${metadata.slug}" has invalid approved catalog_order; expected ${approvedCatalogOrder}, actual ${metadata.catalog_order}`,
-        );
       }
 
       if ('featured' in metadata && typeof metadata.featured !== 'boolean') {
@@ -308,7 +278,7 @@ export async function validateContent(
 
       validateCaseHeadingContract(file, headings, errors);
 
-      if (secondCollectionSlugs.has(metadata.slug)) {
+      if (metadata.featured === false) {
         validateMigrationHeadingContract(file, headings, errors);
       }
 
@@ -402,20 +372,6 @@ export async function validateContent(
     }
   }
 
-  if (requiredCollection) {
-    const {slugs, missingLabel} = collectionRequirements[requiredCollection];
-    const caseSlugs = new Set(
-      documents
-        .filter(({metadata}) => metadata.content_type === 'case')
-        .map(({metadata}) => metadata.slug),
-    );
-    for (const slug of slugs) {
-      if (!caseSlugs.has(slug)) {
-        errors.push(`Missing ${missingLabel} slug "${slug}"`);
-      }
-    }
-  }
-
   return {
     documents,
     errors,
@@ -424,32 +380,14 @@ export async function validateContent(
 
 async function runCli() {
   const args = process.argv.slice(2);
-  const collectionFlags = new Map([
-    ['--require-launch-cases', 'launch'],
-    ['--require-classic-collection', 'classic'],
-    ['--require-complete-catalog', 'complete'],
-  ]);
-  const requestedCollections = new Set(
-    args.filter((arg) => collectionFlags.has(arg)).map((arg) => collectionFlags.get(arg)),
-  );
-  const root = args.find((arg) => !arg.startsWith('--'));
-
-  if (requestedCollections.size > 1) {
-    console.error('Conflicting coverage flags: choose exactly one catalog coverage flag.');
-    process.exitCode = 1;
-    return;
-  }
-
-  if (!root) {
-    console.error(
-      'Usage: node scripts/validate-content.mjs <root> [--require-launch-cases | --require-classic-collection | --require-complete-catalog]',
-    );
+  if (args.length !== 1 || args[0].startsWith('--')) {
+    console.error('Usage: node scripts/validate-content.mjs <root>');
     process.exitCode = 1;
     return;
   }
 
   try {
-    const [requiredCollection] = requestedCollections;
+    const [root] = args;
     const scriptProjectRoot = fileURLToPath(new URL('..', import.meta.url));
     const contentRoot = path.resolve(scriptProjectRoot, root);
     const projectRoot = path.dirname(contentRoot);
@@ -478,11 +416,19 @@ async function runCli() {
       projectRoot,
       topics,
     );
+    const caseSeriesRegistry = await loadCaseSeriesRegistry(projectRoot);
     const {documents, errors: contentErrors} = await validateContent(
       contentRoot,
-      {requiredCollection, patternGroupRegistry},
+      {
+        patternGroupRegistry,
+        caseSeriesById: caseSeriesRegistry.byId,
+      },
     );
-    const errors = [...inputErrors, ...contentErrors];
+    const errors = [
+      ...inputErrors,
+      ...caseSeriesRegistry.errors,
+      ...contentErrors,
+    ];
     let ledger;
 
     try {

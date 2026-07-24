@@ -3,9 +3,11 @@ import {readFile} from 'node:fs/promises';
 import test from 'node:test';
 
 import {parseFrontMatter} from '../scripts/content-metadata.mjs';
-import {requiredCaseSlugs} from '../scripts/content-schema.mjs';
 
 const root = new URL('../', import.meta.url);
+const requiredCaseSlugs = JSON.parse(
+  await readFile(new URL('./fixtures/legacy-case-order.json', import.meta.url), 'utf8'),
+).map(({slug}) => slug);
 
 async function source(path) {
   return readFile(new URL(path, root), 'utf8');

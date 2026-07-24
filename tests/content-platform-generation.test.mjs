@@ -19,7 +19,10 @@ import {
   buildCaseCatalog,
   serializeCaseCatalog,
 } from '../scripts/generate-case-catalog.mjs';
-import {loadPatternGroupRegistry} from '../scripts/content-registries.mjs';
+import {
+  loadCaseSeriesRegistry,
+  loadPatternGroupRegistry,
+} from '../scripts/content-registries.mjs';
 import {parseBacklogTopics} from '../scripts/backlog-topics.mjs';
 import {
   buildContentArtifacts,
@@ -231,6 +234,21 @@ async function withRepositoryFixture(run) {
         }, null, 2)}\n`,
       ),
       writeFile(
+        path.join(root, 'data/case-series.json'),
+        `${JSON.stringify({
+          schema_version: 1,
+          series: [
+            {
+              id: 'ai-native',
+              label: 'AI 原生架构',
+              description: 'Agent 框架与编排。',
+              order: 10,
+              show_on_homepage: false,
+            },
+          ],
+        }, null, 2)}\n`,
+      ),
+      writeFile(
         path.join(root, 'data/source-ledger.json'),
         `${JSON.stringify({
           schema_version: 1,
@@ -309,10 +327,10 @@ test('builds all artifacts from one validated snapshot', async () => {
     let first;
     let second;
     try {
-      first = await buildContentArtifacts(root, {requiredCollection: null});
+      first = await buildContentArtifacts(root);
       assert.equal(sourceReads, 2);
       assert.equal(ledgerReads, 1);
-      second = await buildContentArtifacts(root, {requiredCollection: null});
+      second = await buildContentArtifacts(root);
       assert.equal(sourceReads, 4);
       assert.equal(ledgerReads, 2);
     } finally {
@@ -325,11 +343,27 @@ test('builds all artifacts from one validated snapshot', async () => {
       generatedPaths.manifest,
       generatedPaths.indexes,
       generatedPaths.patternGroups,
+      generatedPaths.caseSeries,
       generatedPaths.caseCatalog,
     ]);
     assert.match(
       first[generatedPaths.sourceLedger],
       /"health_summary": "healthy"/,
+    );
+    assert.deepEqual(
+      JSON.parse(first[generatedPaths.caseSeries]),
+      {
+        schema_version: 1,
+        series: [
+          {
+            id: 'ai-native',
+            label: 'AI 原生架构',
+            description: 'Agent 框架与编排。',
+            order: 10,
+            show_on_homepage: false,
+          },
+        ],
+      },
     );
     assert.equal(
       first[generatedPaths.sourceLedger],
@@ -384,6 +418,23 @@ test('builds all artifacts from one validated snapshot', async () => {
   });
 });
 
+test('content generation fails closed for missing or malformed case-series input', async () => {
+  await withRepositoryFixture(async (root) => {
+    const registryPath = path.join(root, 'data/case-series.json');
+    await unlink(registryPath);
+    await assert.rejects(
+      buildContentArtifacts(root),
+      /case-series\.json.*ENOENT/i,
+    );
+
+    await writeFile(registryPath, '{malformed');
+    await assert.rejects(
+      buildContentArtifacts(root),
+      /case-series\.json: invalid JSON/,
+    );
+  });
+});
+
 test('generates a stale public ledger while the offline link verdict fails', async () => {
   await withRepositoryFixture(async (root) => {
     const ledgerPath = path.join(root, 'data/source-ledger.json');
@@ -423,7 +474,7 @@ test('generates a stale public ledger while the offline link verdict fails', asy
       /stale/,
     );
     assert.match(
-      (await buildContentArtifacts(root, {requiredCollection: null}))[
+      (await buildContentArtifacts(root))[
         generatedPaths.sourceLedger
       ],
       /"health_summary": "stale"/,
@@ -505,9 +556,7 @@ test('requires complete validated document metadata for public serialization', (
 
 test('writes and checks deterministic generated artifacts', async () => {
   await withRepositoryFixture(async (root) => {
-    const expected = await buildContentArtifacts(root, {
-      requiredCollection: null,
-    });
+    const expected = await buildContentArtifacts(root);
     await writeContentArtifacts(root);
 
     for (const [relativePath, bytes] of Object.entries(expected)) {
@@ -538,9 +587,7 @@ test('writes and checks deterministic generated artifacts', async () => {
 
 test('recovers idempotently after an interrupted replacement', async () => {
   await withRepositoryFixture(async (root) => {
-    const expected = await buildContentArtifacts(root, {
-      requiredCollection: null,
-    });
+    const expected = await buildContentArtifacts(root);
     let replacements = 0;
 
     await assert.rejects(
@@ -562,6 +609,7 @@ test('recovers idempotently after an interrupted replacement', async () => {
     ).sort();
     assert.deepEqual(stagedNames, [
       'case-catalog.json',
+      'case-series.json',
       'manifest.json',
       'pattern-groups.json',
       'source-ledger.json',
@@ -586,18 +634,18 @@ test('recovers idempotently after an interrupted replacement', async () => {
 
 test('derives the compatibility case catalog from the manifest', async () => {
   await withRepositoryFixture(async (root) => {
-    const artifacts = await buildContentArtifacts(root, {
-      requiredCollection: null,
-    });
+    const artifacts = await buildContentArtifacts(root);
     const topics = parseBacklogTopics(
       await readFile(path.join(root, 'docs/content-backlog.md'), 'utf8'),
     ).topics;
     const patternGroupRegistry = await loadPatternGroupRegistry(root, topics);
+    const caseSeriesRegistry = await loadCaseSeriesRegistry(root);
     assert.equal(
       artifacts[generatedPaths.caseCatalog],
       serializeCaseCatalog(
         await buildCaseCatalog(path.join(root, 'content'), {
           patternGroupRegistry,
+          caseSeriesById: caseSeriesRegistry.byId,
         }),
       ),
     );

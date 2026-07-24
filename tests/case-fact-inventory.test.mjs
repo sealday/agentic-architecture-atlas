@@ -2,7 +2,9 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import test from 'node:test';
 
-import {requiredCaseSlugs} from '../scripts/content-schema.mjs';
+const requiredCaseSlugs = JSON.parse(
+  await readFile(new URL('./fixtures/legacy-case-order.json', import.meta.url), 'utf8'),
+).map(({slug}) => slug);
 
 const factInventory = {
   'apache-kafka-consumer-groups.mdx': [

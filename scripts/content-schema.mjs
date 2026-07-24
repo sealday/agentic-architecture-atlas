@@ -147,13 +147,6 @@ export const caseRequiredFields = [
   'migration_targets',
 ];
 
-export const allowedSeries = [
-  'ai-native',
-  'classic-distributed',
-  'frontend-architecture',
-  'edge-physical',
-];
-
 export const allowedSourceKinds = [
   'official-docs',
   'open-source-project',
@@ -167,37 +160,6 @@ export const requiredMigrationHeadings = [
   '### 只能有限类比的部分',
   '### 不应照搬的部分',
 ];
-
-export const caseCatalogManifest = [
-  {slug: '/cases/microsoft-multi-agent-reference-architecture', catalog_order: 1},
-  {slug: '/cases/openai-agents-sdk', catalog_order: 2},
-  {slug: '/cases/langgraph-supervisor', catalog_order: 3},
-  {slug: '/cases/google-adk-a2a', catalog_order: 4},
-  {slug: '/cases/aws-cli-agent-orchestrator', catalog_order: 5},
-  {slug: '/cases/erlang-otp-supervision-tree', catalog_order: 6},
-  {slug: '/cases/kubernetes-reconciliation-loop', catalog_order: 7},
-  {slug: '/cases/temporal-saga-durable-execution', catalog_order: 8},
-  {slug: '/cases/apache-kafka-consumer-groups', catalog_order: 9},
-  {slug: '/cases/aws-cell-shuffle-sharding', catalog_order: 10},
-  {slug: '/cases/micro-frontends-single-spa', catalog_order: 11},
-  {slug: '/cases/yjs-crdt-collaboration', catalog_order: 12},
-  {slug: '/cases/cloudflare-durable-objects-workerd', catalog_order: 13},
-  {slug: '/cases/kubeedge-cloud-edge-autonomy', catalog_order: 14},
-  {slug: '/cases/ros2-dds-agent-lifecycle', catalog_order: 15},
-  {slug: '/cases/new-api-channel-pool-routing', catalog_order: 16},
-  {slug: '/cases/litellm-virtual-keys-governance', catalog_order: 17},
-  {slug: '/cases/kong-ai-gateway-routing-resilience', catalog_order: 18},
-];
-
-export const launchCaseSlugs = caseCatalogManifest.slice(0, 5).map(({slug}) => slug);
-
-export const classicCollectionSlugs = caseCatalogManifest.slice(0, 10).map(({slug}) => slug);
-
-export const requiredCaseSlugs = caseCatalogManifest.map(({slug}) => slug);
-
-export const secondCollectionSlugs = new Set(
-  caseCatalogManifest.slice(5).map(({slug}) => slug),
-);
 
 export const requiredCaseHeadings = [
   '## 学习问题',

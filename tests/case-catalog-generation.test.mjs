@@ -8,6 +8,7 @@ import test from 'node:test';
 
 import {
   buildCaseCatalog,
+  buildCaseCatalogFromManifest,
   checkCaseCatalog,
   serializeCaseCatalog,
   writeCaseCatalog,
@@ -18,6 +19,60 @@ const patternGroupRegistry = {
   groupByTopicId: new Map(),
   errors: [],
 };
+const caseSeriesById = new Map([
+  [
+    'classic-distributed',
+    {
+      id: 'classic-distributed',
+      label: '经典分布式架构迁移',
+      description: '经典机制迁移。',
+      order: 30,
+      show_on_homepage: true,
+    },
+  ],
+]);
+
+function caseTopic(slug, catalogOrder) {
+  return {
+    id: slug,
+    type: 'case',
+    published: true,
+    presentation: {
+      case_catalog: {
+        slug,
+        catalog_order: catalogOrder,
+      },
+    },
+  };
+}
+
+test('catalog coverage is the discovered published case set', () => {
+  const manifest = {
+    schema_version: 1,
+    topics: [
+      caseTopic('/cases/one', 1),
+      caseTopic('/cases/two', 2),
+      {id: 'PR-01', type: 'principle', published: true, presentation: {}},
+    ],
+  };
+  assert.deepEqual(
+    buildCaseCatalogFromManifest(manifest).map(({slug}) => slug),
+    ['/cases/one', '/cases/two'],
+  );
+});
+
+test('preserves the legacy 18-case slug and order projection', async () => {
+  const [catalog, legacyOrder] = await Promise.all([
+    readFile(new URL('../src/generated/case-catalog.json', import.meta.url), 'utf8')
+      .then(JSON.parse),
+    readFile(new URL('./fixtures/legacy-case-order.json', import.meta.url), 'utf8')
+      .then(JSON.parse),
+  ]);
+  assert.deepEqual(
+    catalog.map(({slug, catalog_order}) => ({slug, catalog_order})),
+    legacyOrder,
+  );
+});
 
 const validCaseBody = [
   '# Fixture',
@@ -30,6 +85,9 @@ const validCaseBody = [
   '## 架构决策与权衡',
   '## 生产化分析',
   '## 可迁移经验',
+  '### 可直接复用的机制',
+  '### 只能有限类比的部分',
+  '### 不应照搬的部分',
   '## 来源',
 ].join('\n\n');
 
@@ -121,7 +179,10 @@ async function withCatalogFixture(run) {
 
 test('builds a deterministic catalog containing only ordered case fields', async () => {
   await withCatalogFixture(async (contentRoot) => {
-    const entries = await buildCaseCatalog(contentRoot, {patternGroupRegistry});
+    const entries = await buildCaseCatalog(contentRoot, {
+      patternGroupRegistry,
+      caseSeriesById,
+    });
     const expectedKeys = [
       'title',
       'slug',
@@ -174,7 +235,10 @@ test('builds the catalog from the validated document snapshot without rereading 
     syncBuiltinESMExports();
 
     try {
-      await buildCaseCatalog(contentRoot, {patternGroupRegistry});
+      await buildCaseCatalog(contentRoot, {
+        patternGroupRegistry,
+        caseSeriesById,
+      });
     } finally {
       fs.promises.readFile = originalReadFile;
       syncBuiltinESMExports();
@@ -187,21 +251,48 @@ test('builds the catalog from the validated document snapshot without rereading 
 test('writes current catalog bytes and detects a stale output file', async () => {
   await withCatalogFixture(async (contentRoot) => {
     const outputPath = path.join(contentRoot, 'generated', 'case-catalog.json');
-    await writeCaseCatalog({contentRoot, outputPath, patternGroupRegistry});
+    await writeCaseCatalog({
+      contentRoot,
+      outputPath,
+      patternGroupRegistry,
+      caseSeriesById,
+    });
 
     const expected = serializeCaseCatalog(
-      await buildCaseCatalog(contentRoot, {patternGroupRegistry}),
+      await buildCaseCatalog(contentRoot, {
+        patternGroupRegistry,
+        caseSeriesById,
+      }),
     );
     assert.equal(await readFile(outputPath, 'utf8'), expected);
     assert.deepEqual(
-      await checkCaseCatalog({contentRoot, outputPath, patternGroupRegistry}),
+      await checkCaseCatalog({
+        contentRoot,
+        outputPath,
+        patternGroupRegistry,
+        caseSeriesById,
+      }),
       {matches: true},
     );
 
     await writeFile(outputPath, '[]\n');
     assert.deepEqual(
-      await checkCaseCatalog({contentRoot, outputPath, patternGroupRegistry}),
+      await checkCaseCatalog({
+        contentRoot,
+        outputPath,
+        patternGroupRegistry,
+        caseSeriesById,
+      }),
       {matches: false},
+    );
+  });
+});
+
+test('requires the validated case series map', async () => {
+  await withCatalogFixture(async (contentRoot) => {
+    await assert.rejects(
+      buildCaseCatalog(contentRoot, {patternGroupRegistry}),
+      /requires caseSeriesById/,
     );
   });
 });

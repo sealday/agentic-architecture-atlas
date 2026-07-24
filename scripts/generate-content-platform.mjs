@@ -12,7 +12,10 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 import {parseBacklogTopics} from './backlog-topics.mjs';
-import {loadPatternGroupRegistry} from './content-registries.mjs';
+import {
+  loadCaseSeriesRegistry,
+  loadPatternGroupRegistry,
+} from './content-registries.mjs';
 import {
   buildCaseCatalogFromManifest,
   serializeCaseCatalog,
@@ -33,6 +36,7 @@ export const generatedPaths = {
   manifest: 'src/generated/topic-manifest.json',
   indexes: 'src/generated/topic-indexes.json',
   patternGroups: 'src/generated/pattern-groups.json',
+  caseSeries: 'src/generated/case-series.json',
   caseCatalog: 'src/generated/case-catalog.json',
 };
 
@@ -230,10 +234,7 @@ export function serializePublicSourceLedger(governedLedger, documents) {
   )}\n`;
 }
 
-export async function buildContentArtifacts(
-  root,
-  {requiredCollection = 'complete'} = {},
-) {
+export async function buildContentArtifacts(root) {
   const contentRoot = path.join(root, 'content');
   const backlogSource = await readFile(
     path.join(root, 'docs/content-backlog.md'),
@@ -247,9 +248,11 @@ export async function buildContentArtifacts(
     root,
     parsedBacklog.topics,
   );
+  const caseSeriesRegistry = await loadCaseSeriesRegistry(root);
   const inputErrors = [
     ...parsedBacklog.errors,
     ...patternGroupRegistry.errors,
+    ...caseSeriesRegistry.errors,
   ];
   if (inputErrors.length) {
     throw new Error(`Registry input failed:\n${inputErrors.join('\n')}`);
@@ -281,13 +284,10 @@ export async function buildContentArtifacts(
       )}`,
     );
   }
-  const validation =
-    requiredCollection === null
-      ? await validateContent(contentRoot, {patternGroupRegistry})
-      : await validateContent(contentRoot, {
-          requiredCollection,
-          patternGroupRegistry,
-        });
+  const validation = await validateContent(contentRoot, {
+    patternGroupRegistry,
+    caseSeriesById: caseSeriesRegistry.byId,
+  });
   if (validation.errors.length) {
     throw new Error(
       `Content validation failed:\n${validation.errors.join('\n')}`,
@@ -335,6 +335,7 @@ export async function buildContentArtifacts(
     [generatedPaths.manifest]: `${JSON.stringify(built.manifest, null, 2)}\n`,
     [generatedPaths.indexes]: `${JSON.stringify(built.indexes, null, 2)}\n`,
     [generatedPaths.patternGroups]: `${JSON.stringify(publicPatternGroups, null, 2)}\n`,
+    [generatedPaths.caseSeries]: `${JSON.stringify(caseSeriesRegistry.registry, null, 2)}\n`,
     [generatedPaths.caseCatalog]: serializeCaseCatalog(caseCatalog),
   };
 }
@@ -355,16 +356,12 @@ export async function writeContentArtifacts(
   root,
   {replaceFile = replaceGeneratedFile} = {},
 ) {
-  const artifacts = await buildContentArtifacts(root, {
-    requiredCollection: null,
-  });
+  const artifacts = await buildContentArtifacts(root);
   await writeExpectedArtifacts(root, artifacts, replaceFile);
 }
 
 export async function checkContentArtifacts(root) {
-  const artifacts = await buildContentArtifacts(root, {
-    requiredCollection: null,
-  });
+  const artifacts = await buildContentArtifacts(root);
   return checkExpectedArtifacts(root, artifacts);
 }
 

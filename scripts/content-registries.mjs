@@ -32,6 +32,89 @@ function emptyPatternGroupResult(errors) {
   };
 }
 
+function emptyCaseSeriesResult(errors) {
+  return {
+    registry: {schema_version: 1, series: []},
+    byId: new Map(),
+    errors: [...errors].sort((left, right) => left.localeCompare(right, 'en')),
+  };
+}
+
+export function parseCaseSeriesRegistry(
+  value,
+  file = 'data/case-series.json',
+) {
+  if (!exactKeys(value, ['schema_version', 'series'])) {
+    return emptyCaseSeriesResult([
+      `${file}: expected exactly schema_version and series`,
+    ]);
+  }
+  if (value.schema_version !== 1 || !Array.isArray(value.series)) {
+    return emptyCaseSeriesResult([
+      `${file}: schema_version must equal 1 and series must be an array`,
+    ]);
+  }
+
+  const errors = [];
+  const series = [];
+  const byId = new Map();
+  const orders = new Set();
+  const prototypeNames = new Set(['__proto__', 'constructor', 'prototype']);
+
+  for (const [index, entry] of value.series.entries()) {
+    const label = `${file}: series ${index + 1}`;
+    if (
+      !exactKeys(entry, [
+        'id',
+        'label',
+        'description',
+        'order',
+        'show_on_homepage',
+      ])
+    ) {
+      errors.push(`${label} has unknown or missing fields`);
+      continue;
+    }
+
+    const validId =
+      typeof entry.id === 'string' &&
+      /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(entry.id) &&
+      !prototypeNames.has(entry.id);
+    if (!validId) {
+      errors.push(`${label} id must be non-prototype kebab-case`);
+    } else if (byId.has(entry.id)) {
+      errors.push(`${label} has duplicate id "${entry.id}"`);
+    }
+    if (orders.has(entry.order)) {
+      errors.push(`${label} has duplicate order "${entry.order}"`);
+    }
+    if (
+      typeof entry.label !== 'string' ||
+      entry.label.trim() === '' ||
+      typeof entry.description !== 'string' ||
+      entry.description.trim() === '' ||
+      !Number.isInteger(entry.order) ||
+      entry.order <= 0 ||
+      typeof entry.show_on_homepage !== 'boolean'
+    ) {
+      errors.push(
+        `${label} has an invalid label, description, order, or show_on_homepage`,
+      );
+    }
+
+    orders.add(entry.order);
+    const normalized = {...entry};
+    series.push(normalized);
+    if (validId && !byId.has(entry.id)) {
+      byId.set(entry.id, normalized);
+    }
+  }
+
+  series.sort((left, right) => left.order - right.order);
+  errors.sort((left, right) => left.localeCompare(right, 'en'));
+  return {registry: {schema_version: 1, series}, byId, errors};
+}
+
 export function parsePatternGroupRegistry(
   value,
   topics,
@@ -140,6 +223,21 @@ export async function loadPatternGroupRegistry(projectRoot, topics) {
     return parsePatternGroupRegistry(value, topics, file);
   } catch (error) {
     return emptyPatternGroupResult([
+      error instanceof SyntaxError
+        ? `${file}: invalid JSON: ${error.message}`
+        : `${file}: ${error instanceof Error ? error.message : String(error)}`,
+    ]);
+  }
+}
+
+export async function loadCaseSeriesRegistry(projectRoot) {
+  const file = path.join(projectRoot, 'data/case-series.json');
+
+  try {
+    const value = JSON.parse(await readFile(file, 'utf8'));
+    return parseCaseSeriesRegistry(value, file);
+  } catch (error) {
+    return emptyCaseSeriesResult([
       error instanceof SyntaxError
         ? `${file}: invalid JSON: ${error.message}`
         : `${file}: ${error instanceof Error ? error.message : String(error)}`,

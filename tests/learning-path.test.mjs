@@ -9,7 +9,9 @@ import {
   findMarkdownHeadings,
   parseFrontMatter,
 } from '../scripts/content-metadata.mjs';
-import {requiredCaseSlugs} from '../scripts/content-schema.mjs';
+const requiredCaseSlugs = JSON.parse(
+  await readFile(new URL('./fixtures/legacy-case-order.json', import.meta.url), 'utf8'),
+).map(({slug}) => slug);
 
 const learningPathFile = fileURLToPath(
   new URL('../content/paths/index.mdx', import.meta.url),

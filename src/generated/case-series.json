@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "series": [
+    {
+      "id": "ai-native",
+      "label": "AI 原生架构",
+      "description": "Agent 框架、编排和多智能体运行时。",
+      "order": 10,
+      "show_on_homepage": false
+    },
+    {
+      "id": "agent-platform-gateway",
+      "label": "Agent 平台与模型网关",
+      "description": "模型路由、虚拟凭据、预算、Guardrail 和网关治理。",
+      "order": 20,
+      "show_on_homepage": false
+    },
+    {
+      "id": "classic-distributed",
+      "label": "经典分布式架构迁移",
+      "description": "监督、协调、持久执行、消息和故障隔离机制。",
+      "order": 30,
+      "show_on_homepage": true
+    },
+    {
+      "id": "frontend-architecture",
+      "label": "前端协同与组合架构",
+      "description": "运行时组合和协作状态机制。",
+      "order": 40,
+      "show_on_homepage": true
+    },
+    {
+      "id": "edge-physical",
+      "label": "边缘与物理智能体",
+      "description": "边云自治、物理执行和断连恢复。",
+      "order": 50,
+      "show_on_homepage": true
+    }
+  ]
+}

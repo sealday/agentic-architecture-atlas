@@ -7,15 +7,14 @@ import test from 'node:test';
 import {fileURLToPath} from 'node:url';
 
 import {
-  classicCollectionSlugs,
-  launchCaseSlugs,
-  requiredCaseSlugs,
   requiredCaseHeadings,
   requiredMigrationHeadings,
-  secondCollectionSlugs,
 } from '../scripts/content-schema.mjs';
 import {parseBacklogTopics} from '../scripts/backlog-topics.mjs';
-import {loadPatternGroupRegistry} from '../scripts/content-registries.mjs';
+import {
+  loadCaseSeriesRegistry,
+  loadPatternGroupRegistry,
+} from '../scripts/content-registries.mjs';
 import {validateContent as validateContentWithoutRegistry} from '../scripts/validate-content.mjs';
 
 const validatorScript = fileURLToPath(new URL('../scripts/validate-content.mjs', import.meta.url));
@@ -33,38 +32,25 @@ const canonicalPatternGroupRegistry = await loadPatternGroupRegistry(
   repositoryBacklog.topics,
 );
 assert.deepEqual(canonicalPatternGroupRegistry.errors, []);
+const canonicalCaseSeriesRegistry = await loadCaseSeriesRegistry(repositoryRoot);
+assert.deepEqual(canonicalCaseSeriesRegistry.errors, []);
 
 function validateContent(root, options = {}) {
   return validateContentWithoutRegistry(root, {
     ...options,
     patternGroupRegistry: canonicalPatternGroupRegistry,
+    caseSeriesById: canonicalCaseSeriesRegistry.byId,
   });
 }
 
-const expectedCaseCatalog = [
-  {slug: '/cases/microsoft-multi-agent-reference-architecture', catalog_order: 1},
-  {slug: '/cases/openai-agents-sdk', catalog_order: 2},
-  {slug: '/cases/langgraph-supervisor', catalog_order: 3},
-  {slug: '/cases/google-adk-a2a', catalog_order: 4},
-  {slug: '/cases/aws-cli-agent-orchestrator', catalog_order: 5},
-  {slug: '/cases/erlang-otp-supervision-tree', catalog_order: 6},
-  {slug: '/cases/kubernetes-reconciliation-loop', catalog_order: 7},
-  {slug: '/cases/temporal-saga-durable-execution', catalog_order: 8},
-  {slug: '/cases/apache-kafka-consumer-groups', catalog_order: 9},
-  {slug: '/cases/aws-cell-shuffle-sharding', catalog_order: 10},
-  {slug: '/cases/micro-frontends-single-spa', catalog_order: 11},
-  {slug: '/cases/yjs-crdt-collaboration', catalog_order: 12},
-  {slug: '/cases/cloudflare-durable-objects-workerd', catalog_order: 13},
-  {slug: '/cases/kubeedge-cloud-edge-autonomy', catalog_order: 14},
-  {slug: '/cases/ros2-dds-agent-lifecycle', catalog_order: 15},
-  {slug: '/cases/new-api-channel-pool-routing', catalog_order: 16},
-  {slug: '/cases/litellm-virtual-keys-governance', catalog_order: 17},
-  {slug: '/cases/kong-ai-gateway-routing-resilience', catalog_order: 18},
-];
+const expectedCaseCatalog = JSON.parse(
+  await readFile(
+    fileURLToPath(new URL('./fixtures/legacy-case-order.json', import.meta.url)),
+    'utf8',
+  ),
+);
 
 const expectedLaunchCases = expectedCaseCatalog.slice(0, 5);
-const expectedClassicCases = expectedCaseCatalog.slice(0, 10);
-const expectedSecondCollectionCases = expectedCaseCatalog.slice(5);
 
 async function withTempRoot(run) {
   const root = await mkdtemp(path.join(tmpdir(), 'content-validation-'));
@@ -223,7 +209,7 @@ function minimalPatternRegistry() {
 
 async function writePatternRegistryInputs(
   projectRoot,
-  {writePatternRegistry = true} = {},
+  {writePatternRegistry = true, writeCaseSeriesRegistry = true} = {},
 ) {
   await mkdir(path.join(projectRoot, 'data'), {recursive: true});
   await mkdir(path.join(projectRoot, 'docs'), {recursive: true});
@@ -237,11 +223,25 @@ async function writePatternRegistryInputs(
       `${JSON.stringify(minimalPatternRegistry(), null, 2)}\n`,
     );
   }
+  if (writeCaseSeriesRegistry) {
+    await writeFile(
+      path.join(projectRoot, 'data/case-series.json'),
+      await readFile(
+        fileURLToPath(new URL('../data/case-series.json', import.meta.url)),
+        'utf8',
+      ),
+    );
+  }
 }
 
 async function writeSourceGovernanceProject(
   projectRoot,
-  {body, ledger, writePatternRegistry = true} = {},
+  {
+    body,
+    ledger,
+    writePatternRegistry = true,
+    writeCaseSeriesRegistry = true,
+  } = {},
 ) {
   const contentRoot = path.join(projectRoot, 'content');
   await writeMdx(
@@ -255,7 +255,10 @@ async function writeSourceGovernanceProject(
     path.join(projectRoot, 'data/source-ledger.json'),
     `${JSON.stringify(ledger ?? sourceLedgerFixture(), null, 2)}\n`,
   );
-  await writePatternRegistryInputs(projectRoot, {writePatternRegistry});
+  await writePatternRegistryInputs(projectRoot, {
+    writePatternRegistry,
+    writeCaseSeriesRegistry,
+  });
   return contentRoot;
 }
 
@@ -328,54 +331,7 @@ test('rejects an invalid enum with field and value context', async () => {
   });
 });
 
-test('exports the literal approved catalog coverage in canonical order', () => {
-  assert.deepEqual(
-    launchCaseSlugs,
-    expectedLaunchCases.map(({slug}) => slug),
-  );
-  assert.deepEqual(
-    classicCollectionSlugs,
-    expectedClassicCases.map(({slug}) => slug),
-  );
-  assert.deepEqual(
-    requiredCaseSlugs,
-    expectedCaseCatalog.map(({slug}) => slug),
-  );
-  assert.deepEqual(
-    [...secondCollectionSlugs],
-    expectedSecondCollectionCases.map(({slug}) => slug),
-  );
-});
-
-test('reports staged catalog coverage failures', async () => {
-  await withTempRoot(async (root) => {
-    await writeMdx(
-      root,
-      'openai.mdx',
-      validCaseFrontMatter('/cases/openai-agents-sdk', {catalog_order: 2}),
-    );
-
-    const result = await validateContent(root, {requiredCollection: 'launch'});
-
-    assert.equal(
-      result.errors.filter((error) => error.includes('Missing launch case')).length,
-      4,
-    );
-    assert.ok(
-      result.errors.some((error) =>
-        error.includes('/cases/microsoft-multi-agent-reference-architecture'),
-      ),
-    );
-
-    const cli = spawnSync(
-      process.execPath,
-      [validatorScript, root, '--require-launch-cases'],
-      {encoding: 'utf8'},
-    );
-    assert.equal(cli.status, 1);
-    assert.match(`${cli.stdout}${cli.stderr}`, /Missing launch case/);
-  });
-
+test('accepts a discovered set of structurally valid cases', async () => {
   await withTempRoot(async (root) => {
     await Promise.all(
       expectedLaunchCases.map(({slug, catalog_order}) =>
@@ -387,33 +343,7 @@ test('reports staged catalog coverage failures', async () => {
       ),
     );
 
-    const classic = await validateContent(root, {requiredCollection: 'classic'});
-    const complete = await validateContent(root, {requiredCollection: 'complete'});
-
-    assert.equal(
-      classic.errors.filter((error) => error.includes('Missing classic collection case')).length,
-      5,
-    );
-    assert.equal(
-      complete.errors.filter((error) => error.includes('Missing complete catalog case')).length,
-      expectedCaseCatalog.length - expectedLaunchCases.length,
-    );
-  });
-});
-
-test('accepts all five structurally valid launch cases', async () => {
-  await withTempRoot(async (root) => {
-    await Promise.all(
-      expectedLaunchCases.map(({slug, catalog_order}) =>
-        writeMdx(
-          root,
-          `case-${catalog_order}.mdx`,
-          validCaseFrontMatter(slug, {catalog_order}),
-        ),
-      ),
-    );
-
-    const result = await validateContent(root, {requiredCollection: 'launch'});
+    const result = await validateContent(root);
 
     assert.equal(result.documents.length, 5);
     assert.deepEqual(result.errors, []);
@@ -456,7 +386,7 @@ test('accepts all five structurally valid launch cases', async () => {
     await writePatternRegistryInputs(cliProjectRoot);
     const cli = spawnSync(
       process.execPath,
-      [validatorScript, cliContentRoot, '--require-launch-cases'],
+      [validatorScript, cliContentRoot],
       {encoding: 'utf8'},
     );
     assert.equal(cli.status, 0, cli.stderr);
@@ -641,78 +571,6 @@ test('validates catalog metadata only for cases', async () => {
   });
 });
 
-test('rejects swapped canonical orders for approved launch cases', async () => {
-  await withTempRoot(async (root) => {
-    await Promise.all(
-      expectedLaunchCases.map(({slug, catalog_order}) => {
-        const swappedOrder = catalog_order === 1 ? 2 : catalog_order === 2 ? 1 : catalog_order;
-        return writeMdx(
-          root,
-          `case-${catalog_order}.mdx`,
-          validCaseFrontMatter(slug, {catalog_order: swappedOrder}),
-        );
-      }),
-    );
-
-    const result = await validateContent(root, {requiredCollection: 'launch'});
-    const orderErrors = result.errors.filter((error) =>
-      error.includes('approved catalog_order'),
-    );
-
-    assert.equal(orderErrors.length, 2);
-    assert.ok(
-      orderErrors.some(
-        (error) =>
-          error.includes('case-1.mdx') &&
-          error.includes('/cases/microsoft-multi-agent-reference-architecture') &&
-          error.includes('expected 1') &&
-          error.includes('actual 2'),
-      ),
-    );
-    assert.ok(
-      orderErrors.some(
-        (error) =>
-          error.includes('case-2.mdx') &&
-          error.includes('/cases/openai-agents-sdk') &&
-          error.includes('expected 2') &&
-          error.includes('actual 1'),
-      ),
-    );
-  });
-});
-
-test('rejects a unique wrong order for every approved case', async () => {
-  for (const {slug, catalog_order} of expectedCaseCatalog) {
-    await withTempRoot(async (root) => {
-      const actualOrder = catalog_order + 100;
-      const relativePath = `cases/case-${catalog_order}.mdx`;
-      await writeMdx(
-        root,
-        relativePath,
-        validCaseFrontMatter(slug, {catalog_order: actualOrder}),
-      );
-
-      const result = await validateContent(root);
-      const orderErrors = result.errors.filter((error) =>
-        error.includes('approved catalog_order'),
-      );
-
-      assert.deepEqual(orderErrors, [
-        `${relativePath}: slug "${slug}" has invalid approved catalog_order; expected ${catalog_order}, actual ${actualOrder}`,
-      ]);
-    });
-  }
-});
-
-test('rejects prototype properties as unknown required collections', async () => {
-  await withTempRoot(async (root) => {
-    await assert.rejects(
-      validateContent(root, {requiredCollection: 'constructor'}),
-      /Unknown required collection "constructor"/,
-    );
-  });
-});
-
 test('rejects invalid case catalog scalar fields', async () => {
   const invalidCases = [
     ['empty summary', {summary: ''}, 'summary'],
@@ -811,7 +669,7 @@ test('reports duplicate slugs and catalog orders with both file paths', async ()
   });
 });
 
-test('requires migration analysis headings for second-collection cases', async () => {
+test('requires migration analysis headings for non-featured cases', async () => {
   for (const [index, heading] of requiredMigrationHeadings.entries()) {
     await withTempRoot(async (root) => {
       const relativePath = `cases/missing-migration-${index}.mdx`;
@@ -1263,7 +1121,7 @@ test('keeps quality attribute scenario fields inside their section', async () =>
   });
 });
 
-test('rejects conflicting catalog coverage flags', async () => {
+test('rejects removed catalog coverage flags', async () => {
   await withTempRoot(async (root) => {
     const cli = spawnSync(
       process.execPath,
@@ -1272,7 +1130,7 @@ test('rejects conflicting catalog coverage flags', async () => {
     );
 
     assert.equal(cli.status, 1);
-    assert.match(`${cli.stdout}${cli.stderr}`, /conflicting coverage flags/i);
+    assert.match(`${cli.stdout}${cli.stderr}`, /Usage:/);
   });
 });
 
@@ -1281,6 +1139,17 @@ test('direct validation requires a loaded Pattern group registry', async () => {
     await assert.rejects(
       validateContentWithoutRegistry(root),
       /Pattern group registry is required/,
+    );
+  });
+});
+
+test('direct validation requires a loaded case series registry', async () => {
+  await withTempRoot(async (root) => {
+    await assert.rejects(
+      validateContentWithoutRegistry(root, {
+        patternGroupRegistry: canonicalPatternGroupRegistry,
+      }),
+      /Case series registry is required/,
     );
   });
 });
@@ -1298,6 +1167,23 @@ test('the repository validator fails closed when the Pattern registry is missing
 
     assert.equal(cli.status, 1);
     assert.match(output, /data[\\/]pattern-groups\.json/);
+    assert.match(output, /ENOENT|no such file or directory/i);
+  });
+});
+
+test('the repository validator fails closed when the case series registry is missing', async () => {
+  await withTempRoot(async (projectRoot) => {
+    const contentRoot = await writeSourceGovernanceProject(projectRoot, {
+      writeCaseSeriesRegistry: false,
+    });
+
+    const cli = spawnSync(process.execPath, [validatorScript, contentRoot], {
+      encoding: 'utf8',
+    });
+    const output = `${cli.stdout}${cli.stderr}`;
+
+    assert.equal(cli.status, 1);
+    assert.match(output, /data[\\/]case-series\.json/);
     assert.match(output, /ENOENT|no such file or directory/i);
   });
 });

@@ -20,7 +20,7 @@
     "check:links": "node scripts/source-link-health.mjs --check-cache",
     "check:links:live": "node scripts/source-link-health.mjs --live",
     "refresh:links": "node scripts/source-link-health.mjs --refresh",
-    "validate:content": "node scripts/validate-content.mjs content --require-complete-catalog",
+    "validate:content": "node scripts/validate-content.mjs content",
     "report:writing-density": "node .codex/skills/writing-architecture-cases/scripts/analyze_case_density.mjs content/cases",
     "typecheck": "tsc --noEmit",
     "verify": "npm run test && npm run validate:content && npm run check:content && npm run check:links && npm run typecheck && npm run build"
