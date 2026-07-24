@@ -178,6 +178,24 @@ test('rejects invalid dates, policies, and empty canonical inputs', () => {
   assert.equal(empty.report.gates.inputs_non_empty, 'failed');
 });
 
+test('fails closed for an invalid policy map entry without date arithmetic', () => {
+  const invalidPolicyById = new Map([
+    ['quarterly-version-sensitive', {
+      ...policyById.get('quarterly-version-sensitive'),
+      calendar_months: '3',
+      warning_days: '30',
+    }],
+  ]);
+  const result = evaluateContentReviewHealth(fixture({
+    policyById: invalidPolicyById,
+    asOf: '2026-10-24',
+  }));
+  assert.match(result.errors.join('\n'), /invalid-policy-definition/);
+  assert.deepEqual(result.report.due_documents, []);
+  assert.equal(result.report.gates.policy_validation, 'failed');
+  assert.equal(result.report.gates.review_health, 'failed');
+});
+
 test('serializes deterministic JSON and complete Markdown sections', () => {
   const report = evaluateContentReviewHealth(fixture()).report;
   const json = serializeReviewHealthJson(report);
@@ -240,6 +258,26 @@ test('real report CLI writes failure evidence before exiting one', async () => {
         '# Example',
       ].join('\n'),
     );
+    const implicitJsonPath = path.join(root, 'implicit-date-report.json');
+    const implicitMarkdownPath = path.join(root, 'implicit-date-report.md');
+    const implicitDate = spawnSync(process.execPath, [
+      cli,
+      '--report',
+      '--project-root',
+      root,
+      '--json',
+      implicitJsonPath,
+      '--markdown',
+      implicitMarkdownPath,
+    ], {encoding: 'utf8'});
+    assert.equal(implicitDate.status, 1);
+    assert.match(
+      implicitDate.stderr,
+      /--report requires an explicit --as-of YYYY-MM-DD/,
+    );
+    await assert.rejects(readFile(implicitJsonPath), /ENOENT/);
+    await assert.rejects(readFile(implicitMarkdownPath), /ENOENT/);
+
     const jsonPath = path.join(root, 'report.json');
     const markdownPath = path.join(root, 'report.md');
     const result = spawnSync(process.execPath, [
@@ -259,6 +297,42 @@ test('real report CLI writes failure evidence before exiting one', async () => {
     assert.match(result.stderr, /interval-elapsed/);
     assert.equal(JSON.parse(await readFile(jsonPath, 'utf8')).counts.due_documents, 1);
     assert.match(await readFile(markdownPath, 'utf8'), /\/cases\/example/);
+
+    await writeFile(
+      path.join(root, 'data/review-policies.json'),
+      `${JSON.stringify({
+        schema_version: 1,
+        policies: [{
+          ...policyById.get('quarterly-version-sensitive'),
+          calendar_months: '3',
+        }],
+      })}\n`,
+    );
+    const invalidPolicyJsonPath = path.join(root, 'invalid-policy-report.json');
+    const invalidPolicyMarkdownPath = path.join(root, 'invalid-policy-report.md');
+    const invalidPolicy = spawnSync(process.execPath, [
+      cli,
+      '--report',
+      '--project-root',
+      root,
+      '--as-of',
+      '2026-10-24',
+      '--json',
+      invalidPolicyJsonPath,
+      '--markdown',
+      invalidPolicyMarkdownPath,
+    ], {encoding: 'utf8'});
+    assert.equal(invalidPolicy.status, 1);
+    assert.match(invalidPolicy.stderr, /invalid-policy-definition|invalid label/);
+    assert.equal(
+      JSON.parse(await readFile(invalidPolicyJsonPath, 'utf8'))
+        .gates.policy_validation,
+      'failed',
+    );
+    assert.match(
+      await readFile(invalidPolicyMarkdownPath, 'utf8'),
+      /policy_validation \| failed/,
+    );
 
     await rm(path.join(root, 'data/source-ledger.json'));
     const missingJsonPath = path.join(root, 'missing-input-report.json');

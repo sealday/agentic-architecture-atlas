@@ -35,6 +35,33 @@ function compareText(left, right) {
   return left.localeCompare(right, 'en');
 }
 
+function isValidPolicyEntry(id, policy) {
+  return (
+    typeof id === 'string' &&
+    /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(id) &&
+    !['__proto__', 'constructor', 'prototype'].includes(id) &&
+    policy !== null &&
+    typeof policy === 'object' &&
+    !Array.isArray(policy) &&
+    Object.keys(policy).sort().join('\0') === [
+      'id',
+      'label',
+      'calendar_months',
+      'warning_days',
+      'description',
+    ].sort().join('\0') &&
+    policy.id === id &&
+    typeof policy.label === 'string' &&
+    policy.label.trim() !== '' &&
+    Number.isInteger(policy.calendar_months) &&
+    policy.calendar_months > 0 &&
+    Number.isInteger(policy.warning_days) &&
+    policy.warning_days >= 0 &&
+    typeof policy.description === 'string' &&
+    policy.description.trim() !== ''
+  );
+}
+
 function dateToEpochDay(dateText) {
   const [year, month, day] = dateText.split('-').map(Number);
   return Math.floor(Date.UTC(year, month - 1, day) / 86_400_000);
@@ -138,6 +165,7 @@ export function evaluateContentReviewHealth({
       ? ledger.documents
       : {};
   const policies = policyById instanceof Map ? policyById : new Map();
+  const validPolicies = new Map();
   const errors = [];
   const warnings = [];
   const monthlyWindow = previousCompleteMonth(asOf);
@@ -145,7 +173,21 @@ export function evaluateContentReviewHealth({
   const citedSourceIds = new Set();
   const dueDocuments = [];
   const approachingDueDocuments = [];
-  let policyValidationFailed = false;
+  let policyValidationFailed = !(policyById instanceof Map);
+
+  if (!(policyById instanceof Map)) {
+    errors.push('invalid-policy-definition: policyById must be a Map');
+  }
+  for (const [id, policy] of policies) {
+    if (!isValidPolicyEntry(id, policy)) {
+      policyValidationFailed = true;
+      errors.push(
+        `invalid-policy-definition: policy "${String(id)}" has an invalid shape`,
+      );
+      continue;
+    }
+    validPolicies.set(id, policy);
+  }
 
   if (sources.length === 0 || documentList.length === 0) {
     errors.push(
@@ -198,12 +240,15 @@ export function evaluateContentReviewHealth({
     if (metadata.review_policy === undefined) {
       continue;
     }
-    const policy = policies.get(metadata.review_policy);
-    if (!policy) {
+    const policy = validPolicies.get(metadata.review_policy);
+    if (!policy && !policies.has(metadata.review_policy)) {
       policyValidationFailed = true;
       errors.push(
         `${ledgerPath}: invalid-policy: review policy "${metadata.review_policy}" is not registered`,
       );
+      continue;
+    }
+    if (!policy) {
       continue;
     }
     if (!isCalendarDate(metadata.source_cutoff)) {
@@ -378,8 +423,10 @@ function parseArgs(args) {
   const options = {
     mode,
     asOf: new Date().toISOString().slice(0, 10),
+    hasExplicitAsOf: false,
     projectRoot: path.resolve(fileURLToPath(new URL('..', import.meta.url))),
   };
+  const seenFlags = new Set();
   for (let index = 1; index < args.length; index += 2) {
     const flag = args[index];
     const value = args[index + 1];
@@ -389,7 +436,14 @@ function parseArgs(args) {
     ) {
       throw new Error(usage());
     }
-    if (flag === '--as-of') options.asOf = value;
+    if (seenFlags.has(flag)) {
+      throw new Error(`Duplicate CLI option "${flag}"\n${usage()}`);
+    }
+    seenFlags.add(flag);
+    if (flag === '--as-of') {
+      options.asOf = value;
+      options.hasExplicitAsOf = true;
+    }
     if (flag === '--json') options.jsonPath = path.resolve(value);
     if (flag === '--markdown') options.markdownPath = path.resolve(value);
     if (flag === '--project-root') options.projectRoot = path.resolve(value);
@@ -405,6 +459,11 @@ function parseArgs(args) {
     (options.jsonPath === undefined || options.markdownPath === undefined)
   ) {
     throw new Error(usage());
+  }
+  if (mode === '--report' && !options.hasExplicitAsOf) {
+    throw new Error(
+      `--report requires an explicit --as-of YYYY-MM-DD\n${usage()}`,
+    );
   }
   return options;
 }
