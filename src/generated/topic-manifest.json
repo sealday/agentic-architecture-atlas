@@ -390,27 +390,6 @@
       "presentation": {}
     },
     {
-      "id": "FND-04",
-      "type": "concept",
-      "title": "权衡、敏感点、权衡点、风险与非风险",
-      "slug": "/concepts/fnd-04",
-      "priority": "P0",
-      "status": {
-        "scope": "backlog-projection",
-        "value": "pending",
-        "source": "docs/content-backlog.md"
-      },
-      "dependencies": [],
-      "adjacent_topics": [],
-      "primary_sources": [],
-      "related_cases": [],
-      "related_questions": [],
-      "reviewed_at": null,
-      "review_policy": null,
-      "published": false,
-      "pattern_group": null
-    },
-    {
       "id": "MOD-01",
       "type": "modeling",
       "title": "建模总览",
@@ -1486,7 +1465,9 @@
         "FND-01"
       ],
       "adjacent_topics": [
-        "FND-01"
+        "FND-01",
+        "FND-04",
+        "MTH-01"
       ],
       "primary_sources": [
         "https://swehb.nasa.gov/spaces/SWEHBVD/pages/102695632/7.07%2B-%2BSoftware%2BArchitecture%2BDescription",
@@ -1527,6 +1508,38 @@
       ],
       "related_cases": [
         "/cases/microsoft-multi-agent-reference-architecture"
+      ],
+      "related_questions": [],
+      "reviewed_at": "2026-07-24",
+      "review_policy": "quarterly-version-sensitive",
+      "published": true,
+      "pattern_group": null,
+      "presentation": {}
+    },
+    {
+      "id": "FND-04",
+      "type": "concept",
+      "title": "架构权衡、敏感点与风险",
+      "slug": "/concepts/fnd-04",
+      "priority": "P0",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [
+        "FND-02"
+      ],
+      "adjacent_topics": [
+        "FND-02",
+        "MTH-02"
+      ],
+      "primary_sources": [
+        "https://swehb.nasa.gov/spaces/SWEHBVD/pages/102695632/7.07%2B-%2BSoftware%2BArchitecture%2BDescription",
+        "https://www.sei.cmu.edu/library/the-architecture-tradeoff-analysis-method/"
+      ],
+      "related_cases": [
+        "/cases/aws-cell-shuffle-sharding"
       ],
       "related_questions": [],
       "reviewed_at": "2026-07-24",
@@ -1594,7 +1607,7 @@
     {
       "id": "MTH-01",
       "type": "method",
-      "title": "QAW",
+      "title": "质量属性工作坊（QAW）",
       "slug": "/methods/mth-01",
       "priority": "P0",
       "status": {
@@ -1605,19 +1618,28 @@
       "dependencies": [
         "QA-01"
       ],
-      "adjacent_topics": [],
-      "primary_sources": [],
-      "related_cases": [],
+      "adjacent_topics": [
+        "FND-02",
+        "MTH-02"
+      ],
+      "primary_sources": [
+        "https://swehb.nasa.gov/spaces/SWEHBVD/pages/102695632/7.07%2B-%2BSoftware%2BArchitecture%2BDescription",
+        "https://www.sei.cmu.edu/library/quality-attribute-workshops-qaws-third-edition/"
+      ],
+      "related_cases": [
+        "/cases/microsoft-multi-agent-reference-architecture"
+      ],
       "related_questions": [],
-      "reviewed_at": null,
-      "review_policy": null,
-      "published": false,
-      "pattern_group": null
+      "reviewed_at": "2026-07-24",
+      "review_policy": "quarterly-version-sensitive",
+      "published": true,
+      "pattern_group": null,
+      "presentation": {}
     },
     {
       "id": "MTH-02",
       "type": "method",
-      "title": "ATAM",
+      "title": "架构权衡分析方法（ATAM）",
       "slug": "/methods/mth-02",
       "priority": "P0",
       "status": {
@@ -1628,14 +1650,23 @@
       "dependencies": [
         "QA-01"
       ],
-      "adjacent_topics": [],
-      "primary_sources": [],
-      "related_cases": [],
+      "adjacent_topics": [
+        "FND-04",
+        "MTH-01"
+      ],
+      "primary_sources": [
+        "https://swehb.nasa.gov/spaces/SWEHBVD/pages/102695632/7.07%2B-%2BSoftware%2BArchitecture%2BDescription",
+        "https://www.sei.cmu.edu/library/the-architecture-tradeoff-analysis-method/"
+      ],
+      "related_cases": [
+        "/cases/aws-cell-shuffle-sharding"
+      ],
       "related_questions": [],
-      "reviewed_at": null,
-      "review_policy": null,
-      "published": false,
-      "pattern_group": null
+      "reviewed_at": "2026-07-24",
+      "review_policy": "quarterly-version-sensitive",
+      "published": true,
+      "pattern_group": null,
+      "presentation": {}
     },
     {
       "id": "MTH-03",
@@ -1652,17 +1683,19 @@
         "QA-01"
       ],
       "adjacent_topics": [
+        "FND-05",
         "QA-01"
       ],
       "primary_sources": [
-        "https://adr.github.io/"
+        "https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions",
+        "https://martinfowler.com/bliki/ArchitectureDecisionRecord.html"
       ],
       "related_cases": [
         "/cases/kubernetes-reconciliation-loop"
       ],
       "related_questions": [],
       "reviewed_at": "2026-07-24",
-      "review_policy": null,
+      "review_policy": "quarterly-version-sensitive",
       "published": true,
       "pattern_group": null,
       "presentation": {}
@@ -2802,27 +2835,6 @@
       "pattern_group": null
     },
     {
-      "id": "FND-05",
-      "type": "concept",
-      "title": "技术债、架构债与演进式设计",
-      "slug": "/concepts/fnd-05",
-      "priority": "P1",
-      "status": {
-        "scope": "backlog-projection",
-        "value": "pending",
-        "source": "docs/content-backlog.md"
-      },
-      "dependencies": [],
-      "adjacent_topics": [],
-      "primary_sources": [],
-      "related_cases": [],
-      "related_questions": [],
-      "reviewed_at": null,
-      "review_policy": null,
-      "published": false,
-      "pattern_group": null
-    },
-    {
       "id": "MOD-08",
       "type": "modeling",
       "title": "状态机建模",
@@ -3917,6 +3929,38 @@
       "review_policy": null,
       "published": false,
       "pattern_group": null
+    },
+    {
+      "id": "FND-05",
+      "type": "concept",
+      "title": "架构债与演进式设计",
+      "slug": "/concepts/fnd-05",
+      "priority": "P1",
+      "status": {
+        "scope": "backlog-projection",
+        "value": "pending",
+        "source": "docs/content-backlog.md"
+      },
+      "dependencies": [
+        "FND-04"
+      ],
+      "adjacent_topics": [
+        "MTH-03"
+      ],
+      "primary_sources": [
+        "https://dl.acm.org/doi/10.1145/157710.157715",
+        "https://martinfowler.com/articles/designDead.html",
+        "https://www.sei.cmu.edu/library/managing-technical-debt-in-complex-software-systems/"
+      ],
+      "related_cases": [
+        "/cases/kubernetes-reconciliation-loop"
+      ],
+      "related_questions": [],
+      "reviewed_at": "2026-07-24",
+      "review_policy": "quarterly-version-sensitive",
+      "published": true,
+      "pattern_group": null,
+      "presentation": {}
     },
     {
       "id": "MTH-06",

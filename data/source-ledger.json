@@ -14214,6 +14214,178 @@
       "expected_final_approval_note": "Initial reviewed NPR 7150.2D Chapter 4 transport baseline"
     },
     {
+      "id": "src-cunningham-wycash-1992",
+      "canonical_locator": "https://dl.acm.org/doi/10.1145/157710.157715",
+      "transport_locator": "https://dl.acm.org/doi/10.1145/157710.157715",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "The WyCash Portfolio Management System",
+      "author_or_org": "Ward Cunningham / ACM",
+      "published_at": "1992-03-01",
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "OOPSLA 1992 experience report, DOI 10.1145/157710.157715",
+      "source_kind": "paper",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "definition",
+        "historical-context",
+        "learning"
+      ],
+      "license": "LicenseRef-All-Rights-Reserved",
+      "license_scope": "The cited ACM paper and factual bibliographic metadata only; full text, linked works, and third-party material excluded",
+      "license_evidence_url": "https://dl.acm.org/doi/10.1145/157710.157715",
+      "license_evidence_note": "No reusable license was established for the ACM paper; Atlas retains the canonical link and original factual summary only.",
+      "license_family_id": "doi:10.1145/157710.157715",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "facts-and-short-quotation",
+      "usage_boundary": "Supports the historical debt metaphor in the WyCash experience; it does not define every modern form of technical or architecture debt.",
+      "link_policy": "auth-required",
+      "expected_final_transport_locator": "https://dl.acm.org/doi/10.1145/157710.157715",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Initial reviewed DOI transport baseline"
+    },
+    {
+      "id": "src-martin-fowler-is-design-dead-2004",
+      "canonical_locator": "https://martinfowler.com/articles/designDead.html",
+      "transport_locator": "https://martinfowler.com/articles/designDead.html",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "Is Design Dead?",
+      "author_or_org": "Martin Fowler",
+      "published_at": "2004-05-01",
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "May 2004 article; page checked on 2026-07-24",
+      "source_kind": "independent-blog",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "definition",
+        "method",
+        "historical-context",
+        "learning"
+      ],
+      "license": "LicenseRef-All-Rights-Reserved",
+      "license_scope": "The named Martin Fowler article only; linked works, code, marks, and third-party material excluded",
+      "license_evidence_url": "https://martinfowler.com/articles/designDead.html",
+      "license_evidence_note": "No reusable license was established for the article; Atlas retains the link and original factual summary only.",
+      "license_family_id": "https://martinfowler.com/articles/designDead.html",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "facts-and-short-quotation",
+      "usage_boundary": "Supports the planned-versus-evolutionary design discussion in its stated context; it does not prove that architecture can emerge without deliberate design.",
+      "link_policy": "stable",
+      "expected_final_transport_locator": "https://martinfowler.com/articles/designDead.html",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Initial reviewed article transport baseline"
+    },
+    {
+      "id": "src-martin-fowler-architecture-decision-record-2026",
+      "canonical_locator": "https://martinfowler.com/bliki/ArchitectureDecisionRecord.html",
+      "transport_locator": "https://martinfowler.com/bliki/ArchitectureDecisionRecord.html",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "Architecture Decision Record",
+      "author_or_org": "Martin Fowler",
+      "published_at": "2026-03-24",
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "Bliki entry dated 24 March 2026; checked on 2026-07-24",
+      "source_kind": "independent-blog",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "definition",
+        "method",
+        "learning"
+      ],
+      "license": "LicenseRef-All-Rights-Reserved",
+      "license_scope": "The named Martin Fowler bliki entry only; linked works, code, marks, and third-party material excluded",
+      "license_evidence_url": "https://martinfowler.com/bliki/ArchitectureDecisionRecord.html",
+      "license_evidence_note": "No reusable license was established for the bliki entry; Atlas retains the link and original factual summary only.",
+      "license_family_id": "https://martinfowler.com/bliki/ArchitectureDecisionRecord.html",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "facts-and-short-quotation",
+      "usage_boundary": "Supports current ADR purpose and supersession links; it does not validate the correctness of a particular architecture decision.",
+      "link_policy": "stable",
+      "expected_final_transport_locator": "https://martinfowler.com/bliki/ArchitectureDecisionRecord.html",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Initial reviewed bliki transport baseline"
+    },
+    {
+      "id": "src-nygard-documenting-architecture-decisions-2011",
+      "canonical_locator": "https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions",
+      "transport_locator": "https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "Documenting Architecture Decisions",
+      "author_or_org": "Michael Nygard / Cognitect",
+      "published_at": "2011-11-15",
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "Article published 2011-11-15; page checked on 2026-07-24",
+      "source_kind": "engineering-blog",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "definition",
+        "method",
+        "historical-context",
+        "learning"
+      ],
+      "license": "CC0-1.0",
+      "license_scope": "The named Cognitect article text covered by its explicit CC0 waiver; linked works, marks, and third-party material excluded",
+      "license_evidence_url": "https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions",
+      "license_evidence_note": "The article page explicitly states that Cognitect waived copyright and related rights to the extent possible under law under CC0.",
+      "license_family_id": "https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "adapt-with-attribution",
+      "usage_boundary": "Supports the ADR context-decision-consequences form and historical status practice; it does not make every local status vocabulary mandatory.",
+      "link_policy": "stable",
+      "expected_final_transport_locator": "https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Initial reviewed CC0 article transport baseline"
+    },
+    {
+      "id": "src-sei-managing-technical-debt-complex-systems-2016",
+      "canonical_locator": "https://www.sei.cmu.edu/library/managing-technical-debt-in-complex-software-systems/",
+      "transport_locator": "https://www.sei.cmu.edu/library/managing-technical-debt-in-complex-software-systems/",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "Managing Technical Debt in Complex Software Systems",
+      "author_or_org": "Carnegie Mellon Software Engineering Institute",
+      "published_at": "2016-04-22",
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "Conference paper work page published 2016-04-22; checked on 2026-07-24",
+      "source_kind": "paper",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "definition",
+        "method",
+        "learning"
+      ],
+      "license": "LicenseRef-All-Rights-Reserved",
+      "license_scope": "The named SEI conference paper work page and factual bibliographic metadata only; full text, linked works, and third-party material excluded",
+      "license_evidence_url": "https://www.sei.cmu.edu/library/managing-technical-debt-in-complex-software-systems/",
+      "license_evidence_note": "No reusable license was established for the paper; Atlas retains the official work-page link and original factual summary only.",
+      "license_family_id": "https://www.sei.cmu.edu/library/managing-technical-debt-in-complex-software-systems/",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "facts-and-short-quotation",
+      "usage_boundary": "Supports identifying and managing technical debt in complex systems; it does not supply a universal debt score or mandate immediate repayment.",
+      "link_policy": "stable",
+      "expected_final_transport_locator": "https://www.sei.cmu.edu/library/managing-technical-debt-in-complex-software-systems/",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Initial reviewed SEI work-page transport baseline"
+    },
+    {
       "id": "src-sei-atam-1998",
       "canonical_locator": "https://www.sei.cmu.edu/library/the-architecture-tradeoff-analysis-method/",
       "transport_locator": "https://www.sei.cmu.edu/library/the-architecture-tradeoff-analysis-method/",
@@ -14601,6 +14773,99 @@
           "manifest_primary": false,
           "usage_mode": "navigation-only",
           "attribution_note": "Awesome Software Architecture, Mehdi Hadeli and contributors",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        }
+      ]
+    },
+    "content/concepts/fnd-04-tradeoffs-sensitivity-risk.mdx": {
+      "reviewed_at": "2026-07-24",
+      "copyright_checks": [
+        "original-structure",
+        "quotation-boundary",
+        "attribution-complete",
+        "illustration-rights"
+      ],
+      "citations": [
+        {
+          "source_id": "src-sei-atam-1998",
+          "citation_url": "https://www.sei.cmu.edu/library/the-architecture-tradeoff-analysis-method/",
+          "roles": [
+            "definition",
+            "method"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "The Architecture Tradeoff Analysis Method, Carnegie Mellon Software Engineering Institute",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-nasa-swehb-7-07",
+          "citation_url": "https://swehb.nasa.gov/spaces/SWEHBVD/pages/102695632/7.07%2B-%2BSoftware%2BArchitecture%2BDescription",
+          "roles": [
+            "definition",
+            "learning"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "NASA Software Engineering Handbook Version D, Topic 7.07, National Aeronautics and Space Administration",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        }
+      ]
+    },
+    "content/concepts/fnd-05-architecture-debt-evolutionary-design.mdx": {
+      "reviewed_at": "2026-07-24",
+      "copyright_checks": [
+        "original-structure",
+        "quotation-boundary",
+        "attribution-complete",
+        "illustration-rights"
+      ],
+      "citations": [
+        {
+          "source_id": "src-cunningham-wycash-1992",
+          "citation_url": "https://dl.acm.org/doi/10.1145/157710.157715",
+          "roles": [
+            "definition",
+            "historical-context"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "The WyCash Portfolio Management System, Ward Cunningham / ACM",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-sei-managing-technical-debt-complex-systems-2016",
+          "citation_url": "https://www.sei.cmu.edu/library/managing-technical-debt-in-complex-software-systems/",
+          "roles": [
+            "definition",
+            "method"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "Managing Technical Debt in Complex Software Systems, Carnegie Mellon Software Engineering Institute",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-martin-fowler-is-design-dead-2004",
+          "citation_url": "https://martinfowler.com/articles/designDead.html",
+          "roles": [
+            "definition",
+            "historical-context",
+            "learning"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "Is Design Dead?, Martin Fowler",
           "modification_note": null,
           "excerpt": null,
           "quotation_reviewed": false
@@ -19929,6 +20194,82 @@
       ],
       "citations": []
     },
+    "content/methods/mth-01-quality-attribute-workshop.mdx": {
+      "reviewed_at": "2026-07-24",
+      "copyright_checks": [
+        "original-structure",
+        "quotation-boundary",
+        "attribution-complete",
+        "illustration-rights"
+      ],
+      "citations": [
+        {
+          "source_id": "src-sei-0547756e19ba",
+          "citation_url": "https://www.sei.cmu.edu/library/quality-attribute-workshops-qaws-third-edition/",
+          "roles": [
+            "method"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "Quality Attribute Workshops (QAWs), Third Edition, Carnegie Mellon Software Engineering Institute",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-nasa-swehb-7-07",
+          "citation_url": "https://swehb.nasa.gov/spaces/SWEHBVD/pages/102695632/7.07%2B-%2BSoftware%2BArchitecture%2BDescription",
+          "roles": [
+            "definition",
+            "method"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "NASA Software Engineering Handbook Version D, Topic 7.07, National Aeronautics and Space Administration",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        }
+      ]
+    },
+    "content/methods/mth-02-architecture-tradeoff-analysis-method.mdx": {
+      "reviewed_at": "2026-07-24",
+      "copyright_checks": [
+        "original-structure",
+        "quotation-boundary",
+        "attribution-complete",
+        "illustration-rights"
+      ],
+      "citations": [
+        {
+          "source_id": "src-sei-atam-1998",
+          "citation_url": "https://www.sei.cmu.edu/library/the-architecture-tradeoff-analysis-method/",
+          "roles": [
+            "method"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "The Architecture Tradeoff Analysis Method, Carnegie Mellon Software Engineering Institute",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-nasa-swehb-7-07",
+          "citation_url": "https://swehb.nasa.gov/spaces/SWEHBVD/pages/102695632/7.07%2B-%2BSoftware%2BArchitecture%2BDescription",
+          "roles": [
+            "definition",
+            "method"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "NASA Software Engineering Handbook Version D, Topic 7.07, National Aeronautics and Space Administration",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        }
+      ]
+    },
     "content/methods/mth-03-adr-lifecycle.mdx": {
       "reviewed_at": "2026-07-24",
       "copyright_checks": [
@@ -19942,26 +20283,41 @@
           "source_id": "src-adr-d5366499f6a8",
           "citation_url": "https://adr.github.io/",
           "roles": [
-            "definition",
-            "method"
+            "learning"
           ],
-          "manifest_primary": true,
-          "usage_mode": "facts-summary",
+          "manifest_primary": false,
+          "usage_mode": "navigation-only",
           "attribution_note": "Architectural Decision Records, ADR GitHub organization",
           "modification_note": null,
           "excerpt": null,
           "quotation_reviewed": false
         },
         {
-          "source_id": "src-sei-bfb2b903b4eb",
-          "citation_url": "https://www.sei.cmu.edu/training/software-architecture-principles-practices/",
+          "source_id": "src-nygard-documenting-architecture-decisions-2011",
+          "citation_url": "https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions",
           "roles": [
+            "definition",
+            "historical-context",
+            "method"
+          ],
+          "manifest_primary": true,
+          "usage_mode": "facts-summary",
+          "attribution_note": "Documenting Architecture Decisions, Michael Nygard / Cognitect",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-martin-fowler-architecture-decision-record-2026",
+          "citation_url": "https://martinfowler.com/bliki/ArchitectureDecisionRecord.html",
+          "roles": [
+            "definition",
             "method",
             "learning"
           ],
-          "manifest_primary": false,
+          "manifest_primary": true,
           "usage_mode": "facts-summary",
-          "attribution_note": "Software Architecture: Principles and Practices, Carnegie Mellon Software Engineering Institute",
+          "attribution_note": "Architecture Decision Record, Martin Fowler",
           "modification_note": null,
           "excerpt": null,
           "quotation_reviewed": false
