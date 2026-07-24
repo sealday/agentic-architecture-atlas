@@ -1,9 +1,12 @@
 import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
 import test from 'node:test';
 
 import {
   assertCaseCatalog,
+  assertCaseSeriesRegistry,
   caseCatalog,
+  caseSeries,
   featuredCases,
   secondCollectionCases,
   seriesLabels,
@@ -85,7 +88,8 @@ test('derives the current featured and second-collection views from generated da
   assert.deepEqual(
     groupCasesBySeries(caseCatalog).map(({series, cases}) => [series, cases.length]),
     [
-      ['ai-native', 8],
+      ['ai-native', 5],
+      ['agent-platform-gateway', 3],
       ['classic-distributed', 5],
       ['frontend-architecture', 2],
       ['edge-physical', 3],
@@ -93,8 +97,138 @@ test('derives the current featured and second-collection views from generated da
   );
   assert.ok(featuredCases.every((entry) => caseCatalog.includes(entry)));
   assert.deepEqual(
-    Object.keys(seriesLabels),
-    ['ai-native', 'classic-distributed', 'frontend-architecture', 'edge-physical'],
+    caseSeries.map(({id, label, order}) => ({id, label, order})),
+    [
+      {id: 'ai-native', label: 'AI 原生架构', order: 10},
+      {id: 'agent-platform-gateway', label: 'Agent 平台与模型网关', order: 20},
+      {id: 'classic-distributed', label: '经典分布式架构迁移', order: 30},
+      {id: 'frontend-architecture', label: '前端协同与组合架构', order: 40},
+      {id: 'edge-physical', label: '边缘与物理智能体', order: 50},
+    ],
+  );
+  assert.deepEqual(Object.keys(seriesLabels), caseSeries.map(({id}) => id));
+  assert.deepEqual(
+    caseCatalog
+      .filter(({slug}) =>
+        [
+          '/cases/new-api-channel-pool-routing',
+          '/cases/litellm-virtual-keys-governance',
+          '/cases/kong-ai-gateway-routing-resilience',
+        ].includes(slug),
+      )
+      .map(({slug, series, catalog_order}) => ({slug, series, catalog_order})),
+    [
+      {
+        slug: '/cases/new-api-channel-pool-routing',
+        series: 'agent-platform-gateway',
+        catalog_order: 16,
+      },
+      {
+        slug: '/cases/litellm-virtual-keys-governance',
+        series: 'agent-platform-gateway',
+        catalog_order: 17,
+      },
+      {
+        slug: '/cases/kong-ai-gateway-routing-resilience',
+        series: 'agent-platform-gateway',
+        catalog_order: 18,
+      },
+    ],
+  );
+  assert.equal(
+    caseCatalog.find(({slug}) => slug === '/cases/aws-cli-agent-orchestrator')?.series,
+    'ai-native',
+  );
+});
+
+test('runtime-validates the generated case-series registry exactly', () => {
+  const valid = {
+    schema_version: 1,
+    series: [
+      {
+        id: 'example',
+        label: 'Example',
+        description: 'Example series.',
+        order: 10,
+        show_on_homepage: false,
+      },
+    ],
+  };
+
+  assert.doesNotThrow(() => assertCaseSeriesRegistry(valid));
+  assert.throws(
+    () => assertCaseSeriesRegistry({...valid, unexpected: true}),
+    /exact|unexpected|keys/i,
+  );
+  assert.throws(
+    () => assertCaseSeriesRegistry({...valid, series: 'not-an-array'}),
+    /series|shape/i,
+  );
+  assert.throws(
+    () =>
+      assertCaseSeriesRegistry({
+        ...valid,
+        series: [{...valid.series[0], unexpected: true}],
+      }),
+    /exact|keys/i,
+  );
+  assert.throws(
+    () =>
+      assertCaseSeriesRegistry({
+        ...valid,
+        series: [{...valid.series[0], label: ' '}],
+      }),
+    /blank|label|text/i,
+  );
+  assert.throws(
+    () =>
+      assertCaseSeriesRegistry({
+        ...valid,
+        series: [valid.series[0], {...valid.series[0]}],
+      }),
+    /duplicate.*id/i,
+  );
+  assert.throws(
+    () =>
+      assertCaseSeriesRegistry({
+        ...valid,
+        series: [valid.series[0], {...valid.series[0], id: 'other'}],
+      }),
+    /duplicate.*order/i,
+  );
+  for (const id of ['constructor', 'toString', '__proto__']) {
+    assert.throws(
+      () =>
+        assertCaseSeriesRegistry({
+          ...valid,
+          series: [{...valid.series[0], id}],
+        }),
+      /prototype|reserved|id/i,
+    );
+  }
+  assert.throws(
+    () =>
+      assertCaseSeriesRegistry({
+        ...valid,
+        series: [{...valid.series[0], id: 'not kebab case'}],
+      }),
+    /kebab|id/i,
+  );
+  assert.throws(
+    () =>
+      assertCaseSeriesRegistry({
+        ...valid,
+        series: [{...valid.series[0], order: 0}],
+      }),
+    /order/i,
+  );
+  assert.throws(
+    () =>
+      assertCaseSeriesRegistry({
+        ...valid,
+        series: [{...valid.series[0], show_on_homepage: 'yes'}],
+      }),
+    /homepage|flag/i,
   );
 });
 
@@ -108,8 +242,23 @@ test('provides the shared Chinese source-kind labels for catalog consumers', () 
   });
 });
 
+test('derives homepage case-series visibility from the generated registry', async () => {
+  assert.deepEqual(
+    caseSeries.filter(({show_on_homepage}) => show_on_homepage).map(({id}) => id),
+    ['classic-distributed', 'frontend-architecture', 'edge-physical'],
+  );
+
+  const homepage = await readFile(
+    new URL('../src/pages/index.tsx', import.meta.url),
+    'utf8',
+  );
+  assert.match(homepage, /caseSeries\.filter\(\(\{show_on_homepage\}\) => show_on_homepage\)/);
+  assert.match(homepage, /homepageSeries\.has\(series\)/);
+  assert.doesNotMatch(homepage, /migrationSeries\s*=/);
+});
+
 test('rejects prototype-inherited names as generated catalog series', () => {
-  for (const series of ['constructor', 'toString', '__proto__']) {
+  for (const series of ['unknown-series', 'constructor', 'toString', '__proto__']) {
     assert.throws(
       () => assertCaseCatalog([{...fixture[0], series}]),
       /has no series label/,

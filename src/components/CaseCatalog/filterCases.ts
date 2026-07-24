@@ -5,6 +5,8 @@ import type {
   CatalogFilters,
   SourceKind,
 } from '../../data/caseCatalog';
+// @ts-expect-error Node's native TypeScript loader requires the explicit extension in tests.
+import {caseSeries} from '../../data/caseCatalog.ts';
 
 export type CaseSeriesGroup = {
   series: CaseSeries;
@@ -18,12 +20,7 @@ export type CatalogFilterOptions = {
   migrationTargets: string[];
 };
 
-const seriesOrder: CaseSeries[] = [
-  'ai-native',
-  'classic-distributed',
-  'frontend-architecture',
-  'edge-physical',
-];
+const seriesOrder = caseSeries.map(({id}) => id);
 
 function byCatalogOrder(left: CaseCatalogEntry, right: CaseCatalogEntry): number {
   return left.catalog_order - right.catalog_order;

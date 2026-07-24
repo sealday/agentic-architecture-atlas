@@ -3573,7 +3573,7 @@
           "slug": "/cases/kong-ai-gateway-routing-resilience",
           "summary": "用多目标路由、失败分类、重试与 fallback、断路器和协议边界分析 AI Gateway 的韧性设计。",
           "difficulty": "advanced",
-          "series": "ai-native",
+          "series": "agent-platform-gateway",
           "catalog_order": 18,
           "featured": false,
           "source_kinds": [
@@ -3843,7 +3843,7 @@
           "slug": "/cases/litellm-virtual-keys-governance",
           "summary": "用虚拟 Key、分层模型权限、预算与限流、Guardrail 时序和双轨日志分析多租户模型网关的治理边界。",
           "difficulty": "advanced",
-          "series": "ai-native",
+          "series": "agent-platform-gateway",
           "catalog_order": 17,
           "featured": false,
           "source_kinds": [
@@ -4042,7 +4042,7 @@
           "slug": "/cases/new-api-channel-pool-routing",
           "summary": "用 Ability 索引、优先级层、权重选择和多 Key 状态分析统一模型网关如何路由、重试与隔离故障。",
           "difficulty": "advanced",
-          "series": "ai-native",
+          "series": "agent-platform-gateway",
           "catalog_order": 16,
           "featured": false,
           "source_kinds": [

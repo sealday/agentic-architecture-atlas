@@ -6,20 +6,19 @@ import Heading from '@theme/Heading';
 import CaseCard from '@site/src/components/CaseCard';
 import {groupCasesBySeries} from '@site/src/components/CaseCatalog/filterCases';
 import {
+  caseSeries,
   featuredCases,
   secondCollectionCases,
   seriesLabels,
 } from '@site/src/data/caseCatalog';
 import styles from './index.module.css';
 
-const migrationSeries = [
-  'classic-distributed',
-  'frontend-architecture',
-  'edge-physical',
-] as const;
+const homepageSeries = new Set(
+  caseSeries.filter(({show_on_homepage}) => show_on_homepage).map(({id}) => id),
+);
 
 const migrationGroups = groupCasesBySeries(secondCollectionCases).filter(({series}) =>
-  migrationSeries.some((migrationSeriesName) => migrationSeriesName === series),
+  homepageSeries.has(series),
 );
 
 const learningSteps = [
