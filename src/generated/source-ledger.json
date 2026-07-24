@@ -5145,14 +5145,14 @@
         "learning",
         "method"
       ],
-      "license": "CC-BY-SA-4.0",
-      "license_scope": "The named AWS documentation page covered by the AWS documentation CC BY-SA 4.0 notice; linked works, code, images, marks, and third-party material excluded",
-      "license_evidence_url": "https://aws.amazon.com/documentation-overview/",
-      "license_evidence_note": "AWS Documentation states that documentation content is licensed under Creative Commons Attribution-ShareAlike 4.0 unless otherwise indicated.",
+      "license": "LicenseRef-All-Rights-Reserved",
+      "license_scope": "The named AWS documentation page only; linked works, code, images, marks, and third-party material excluded",
+      "license_evidence_url": "https://aws.amazon.com/terms/",
+      "license_evidence_note": "The AWS Site Terms were checked for this documentation work; no reusable license covering the page was found, so Atlas retains only the link and original facts summary.",
       "license_family_id": "https://docs.aws.amazon.com/wellarchitected/latest/framework/rel_testing_resiliency_game_days_resiliency.html",
       "license_family_grouping": "identity",
       "family_grouping_evidence_url": null,
-      "copyright_policy": "adapt-sharealike-review",
+      "copyright_policy": "facts-and-short-quotation",
       "usage_boundary": "Supports regular game days as exercises of systems, processes, and team response with lessons fed back into resilience work; AWS-specific services and risk levels are not universal requirements.",
       "link_policy": "floating",
       "expected_final_transport_locator": "https://docs.aws.amazon.com/wellarchitected/latest/framework/rel_testing_resiliency_game_days_resiliency.html",
@@ -25365,7 +25365,7 @@
             "comparison",
             "method"
           ],
-          "manifest_primary": true,
+          "manifest_primary": false,
           "usage_mode": "facts-summary",
           "attribution_note": "Threat Modeling Cheat Sheet, OWASP Cheat Sheet Series",
           "modification_note": null,
@@ -25379,7 +25379,7 @@
             "comparison",
             "method"
           ],
-          "manifest_primary": true,
+          "manifest_primary": false,
           "usage_mode": "facts-summary",
           "attribution_note": "REL12-BP05 Conduct game days regularly, Amazon Web Services",
           "modification_note": null,
@@ -25393,7 +25393,7 @@
             "definition",
             "method"
           ],
-          "manifest_primary": true,
+          "manifest_primary": false,
           "usage_mode": "facts-summary",
           "attribution_note": "Performing a Project Premortem, Gary Klein / Harvard Business Review",
           "modification_note": null,
@@ -25413,6 +25413,20 @@
           "modification_note": null,
           "excerpt": null,
           "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-sei-atam-1998",
+          "citation_url": "https://www.sei.cmu.edu/library/the-architecture-tradeoff-analysis-method/",
+          "roles": [
+            "definition",
+            "method"
+          ],
+          "manifest_primary": false,
+          "usage_mode": "facts-summary",
+          "attribution_note": "The Architecture Tradeoff Analysis Method, Carnegie Mellon Software Engineering Institute",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
         }
       ]
     },
@@ -25428,13 +25442,41 @@
       ],
       "citations": [
         {
+          "source_id": "src-arc42-8b346f00707f",
+          "citation_url": "https://arc42.org/",
+          "roles": [
+            "definition",
+            "learning"
+          ],
+          "manifest_primary": false,
+          "usage_mode": "facts-summary",
+          "attribution_note": "arc42, arc42 contributors",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-c4model-f5342a5e8659",
+          "citation_url": "https://c4model.com/",
+          "roles": [
+            "definition",
+            "learning"
+          ],
+          "manifest_primary": false,
+          "usage_mode": "facts-summary",
+          "attribution_note": "C4 Model, Simon Brown",
+          "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
           "source_id": "src-nygard-documenting-architecture-decisions-2011",
           "citation_url": "https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions",
           "roles": [
             "definition",
             "method"
           ],
-          "manifest_primary": true,
+          "manifest_primary": false,
           "usage_mode": "facts-summary",
           "attribution_note": "Documenting Architecture Decisions, Michael Nygard / Cognitect",
           "modification_note": null,
@@ -25462,7 +25504,7 @@
             "definition",
             "method"
           ],
-          "manifest_primary": true,
+          "manifest_primary": false,
           "usage_mode": "facts-summary",
           "attribution_note": "The Architecture Tradeoff Analysis Method, Carnegie Mellon Software Engineering Institute",
           "modification_note": null,
@@ -25476,7 +25518,7 @@
             "implementation",
             "method"
           ],
-          "manifest_primary": true,
+          "manifest_primary": false,
           "usage_mode": "facts-summary",
           "attribution_note": "Fitness function-driven development, Paula Paul and Rosemary Wang / Thoughtworks",
           "modification_note": null,

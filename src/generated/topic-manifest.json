@@ -3972,9 +3972,6 @@
         "MTH-06"
       ],
       "primary_sources": [
-        "https://cheatsheetseries.owasp.org/cheatsheets/Threat_Modeling_Cheat_Sheet.html",
-        "https://docs.aws.amazon.com/wellarchitected/latest/framework/rel_testing_resiliency_game_days_resiliency.html",
-        "https://hbr.org/2007/09/performing-a-project-premortem",
         "https://riskstorming.com/"
       ],
       "related_cases": [
@@ -4010,10 +4007,7 @@
         "FND-05"
       ],
       "primary_sources": [
-        "https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions",
-        "https://www.sei.cmu.edu/library/quality-attribute-workshops-qaws-third-edition/",
-        "https://www.sei.cmu.edu/library/the-architecture-tradeoff-analysis-method/",
-        "https://www.thoughtworks.com/en-us/insights/articles/fitness-function-driven-development"
+        "https://www.sei.cmu.edu/library/quality-attribute-workshops-qaws-third-edition/"
       ],
       "related_cases": [
         "/cases/microsoft-multi-agent-reference-architecture"

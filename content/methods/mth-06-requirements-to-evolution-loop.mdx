@@ -99,6 +99,8 @@ flowchart LR
 
 [架构适应度函数](/methods/mth-04)把决定转成持续信号，[风险风暴与事前验尸](/methods/mth-05)补充风险入口，[架构债与演进式设计](/concepts/fnd-05)帮助判断何时接受或偿还结构成本。工作坊、ATAM 和 [ADR 生命周期](/methods/mth-03)分别提供场景、取舍与决定记录。在 [Microsoft 多智能体参考架构案例](/cases/microsoft-multi-agent-reference-architecture)中，可把协议、编排与可观测性主张转成待验证场景，但参考架构不等于本地决定。
 
+C4 提供不同尺度的架构表示与视图，arc42 提供文档组织结构；两者帮助保存闭环产物，却不替代 QAW、ATAM、ADR 与 fitness 适应度函数这些发现、分析、授权和反馈方法。
+
 ## 完整演练
 
 以下是虚构演练，所有数字为说明性数值。团队要为客服系统增加 4 个专用 agent，业务目标是将人工转交率降低 20%，硬约束是敏感数据不能离开指定区域。质量工作坊得到“高峰期 1,000 个并发会话下，95% 的路由决定在 800 毫秒内完成”场景。候选 A 使用中央编排，候选 B 使用分层路由；风险分析发现中央组件既是延迟敏感点，也是故障域。
@@ -113,5 +115,7 @@ flowchart LR
 - [SEI — The Architecture Tradeoff Analysis Method](https://www.sei.cmu.edu/library/the-architecture-tradeoff-analysis-method/)：用于候选架构的敏感点、权衡与风险分析。
 - [Michael Nygard — Documenting Architecture Decisions](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions)：用于上下文、决定和后果的可追踪记录。
 - [Thoughtworks — Fitness function-driven development](https://www.thoughtworks.com/en-us/insights/articles/fitness-function-driven-development)：用于把架构目标连接到持续反馈。
+- [C4 Model](https://c4model.com/)：用于系统、容器、组件等尺度的架构表示与视图边界。
+- [arc42](https://arc42.org/)：用于架构文档的组织结构；它不规定本文的闭环方法。
 
 闭环、反馈路由和停止条件是本站原创综合；来源分别支持局部方法，不主张存在一个由这些来源共同规定的固定流程。
