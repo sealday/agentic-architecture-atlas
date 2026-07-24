@@ -196,7 +196,7 @@
         "FND-01"
       ],
       "primary_sources": [
-        "https://nodis3.gsfc.nasa.gov/npg_img/N_PR_7150_002D_/N_PR_7150_002D__Chapter4.pdf",
+        "https://swehb.nasa.gov/spaces/SWEHBVD/pages/102695632/7.07%2B-%2BSoftware%2BArchitecture%2BDescription",
         "https://www.sei.cmu.edu/library/quality-attribute-workshops-qaws-third-edition/",
         "https://www.sei.cmu.edu/library/the-architecture-tradeoff-analysis-method/"
       ],
@@ -228,7 +228,7 @@
         "FND-01"
       ],
       "primary_sources": [
-        "https://www.nist.gov/publications/reference-architecture-machine-control-systems-integration-interim-report",
+        "https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir5517.pdf",
         "https://www.sei.cmu.edu/library/attribute-based-architectural-styles/",
         "https://www.sei.cmu.edu/library/modifiability-tactics/"
       ],

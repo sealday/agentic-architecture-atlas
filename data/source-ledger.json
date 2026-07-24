@@ -14293,7 +14293,7 @@
       "tombstone": null,
       "title": "ISO/IEC/IEEE 42010:2022 — Software, systems and enterprise — Architecture description",
       "author_or_org": "International Organization for Standardization",
-      "published_at": null,
+      "published_at": "2022-11-07",
       "registered_at": "2026-07-24",
       "checked_at": "2026-07-24",
       "version": "Edition 2, published 2022-11; public abstract checked on 2026-07-24",
@@ -14320,17 +14320,34 @@
     },
     {
       "id": "src-nist-ir-5517",
-      "canonical_locator": "https://www.nist.gov/publications/reference-architecture-machine-control-systems-integration-interim-report",
-      "transport_locator": "https://www.nist.gov/publications/reference-architecture-machine-control-systems-integration-interim-report",
+      "canonical_locator": "https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir5517.pdf",
+      "transport_locator": "https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir5517.pdf",
       "query_insensitive": false,
-      "locator_aliases": [],
+      "locator_aliases": [
+        {
+          "locator": "https://www.nist.gov/publications/reference-architecture-machine-control-systems-integration-interim-report",
+          "transport_locator": "https://www.nist.gov/publications/reference-architecture-machine-control-systems-integration-interim-report",
+          "expected_final_transport_locator": "https://www.nist.gov/publications/reference-architecture-machine-control-systems-integration-interim-report",
+          "expected_final_approved_at": "2026-07-24",
+          "expected_final_approval_note": "Reviewed official NIST publication-page alias",
+          "superseded_at": "2026-07-24"
+        },
+        {
+          "locator": "https://doi.org/10.6028/NIST.IR.5517",
+          "transport_locator": "https://doi.org/10.6028/NIST.IR.5517",
+          "expected_final_transport_locator": "https://doi.org/10.6028/NIST.IR.5517",
+          "expected_final_approved_at": "2026-07-24",
+          "expected_final_approval_note": "Reviewed DOI alias for NISTIR 5517",
+          "superseded_at": "2026-07-24"
+        }
+      ],
       "tombstone": null,
       "title": "Reference Architecture for Machine Control Systems Integration: Interim Report",
       "author_or_org": "National Institute of Standards and Technology",
-      "published_at": "1994-01-01",
+      "published_at": "1994-10-20",
       "registered_at": "2026-07-24",
       "checked_at": "2026-07-24",
-      "version": "NISTIR 5517; official publication page checked on 2026-07-24",
+      "version": "NISTIR 5517 official report PDF; publication page and DOI metadata checked on 2026-07-24",
       "source_kind": "paper",
       "tier": "primary",
       "allowed_evidence_roles": [
@@ -14342,15 +14359,49 @@
       "license_scope": "NIST-authored technical-series material; third-party or separately marked copyrighted material, marks, and linked works excluded",
       "license_evidence_url": "https://www.nist.gov/nist-research-library/library-faqs",
       "license_evidence_note": "The NIST Research Library states that NIST publications are generally U.S. Government works in the public domain; Atlas credits NIST and excludes any separately copyrighted material.",
-      "license_family_id": "https://www.nist.gov/publications/reference-architecture-machine-control-systems-integration-interim-report",
+      "license_family_id": "https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir5517.pdf",
       "license_family_grouping": "identity",
       "family_grouping_evidence_url": null,
       "copyright_policy": "public-domain-with-provenance",
       "usage_boundary": "Supports a generic reference-architecture definition in NISTIR 5517; its manufacturing control framework is domain-specific and is not generalized as a universal structure.",
       "link_policy": "stable",
-      "expected_final_transport_locator": "https://www.nist.gov/publications/reference-architecture-machine-control-systems-integration-interim-report",
+      "expected_final_transport_locator": "https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir5517.pdf",
       "expected_final_approved_at": "2026-07-24",
-      "expected_final_approval_note": "Initial reviewed official NIST publication-page transport baseline"
+      "expected_final_approval_note": "Reviewed official NISTIR 5517 report PDF transport baseline"
+    },
+    {
+      "id": "src-nasa-swehb-7-07",
+      "canonical_locator": "https://swehb.nasa.gov/spaces/SWEHBVD/pages/102695632/7.07%2B-%2BSoftware%2BArchitecture%2BDescription",
+      "transport_locator": "https://swehb.nasa.gov/spaces/SWEHBVD/pages/102695632/7.07%2B-%2BSoftware%2BArchitecture%2BDescription",
+      "query_insensitive": false,
+      "locator_aliases": [],
+      "tombstone": null,
+      "title": "7.07 — Software Architecture Description",
+      "author_or_org": "National Aeronautics and Space Administration",
+      "published_at": null,
+      "registered_at": "2026-07-24",
+      "checked_at": "2026-07-24",
+      "version": "NASA Software Engineering Handbook Version D, Topic 7.07; checked on 2026-07-24",
+      "source_kind": "official-docs",
+      "tier": "primary",
+      "allowed_evidence_roles": [
+        "definition",
+        "learning",
+        "method"
+      ],
+      "license": "LicenseRef-All-Rights-Reserved",
+      "license_scope": "The named NASA Software Engineering Handbook topic only; embedded quotations, linked works, marks, and media excluded",
+      "license_evidence_url": "https://swehb.nasa.gov/spaces/SWEHBVD/pages/102695632/7.07%2B-%2BSoftware%2BArchitecture%2BDescription",
+      "license_evidence_note": "No reusable license notice covering the complete checked page was established; Atlas retains only the link and original factual summaries, excluding embedded third-party material.",
+      "license_family_id": "https://swehb.nasa.gov/spaces/SWEHBVD/pages/102695632/7.07%2B-%2BSoftware%2BArchitecture%2BDescription",
+      "license_family_grouping": "identity",
+      "family_grouping_evidence_url": null,
+      "copyright_policy": "facts-and-short-quotation",
+      "usage_boundary": "Supports explicit treatment of architectural drivers, driving requirements, decisions, rationale, and verification evidence in NASA architecture descriptions; NASA governance and mission context are not universal requirements.",
+      "link_policy": "floating",
+      "expected_final_transport_locator": "https://swehb.nasa.gov/spaces/SWEHBVD/pages/102695632/7.07%2B-%2BSoftware%2BArchitecture%2BDescription",
+      "expected_final_approved_at": "2026-07-24",
+      "expected_final_approval_note": "Initial reviewed NASA SWEHB Version D Topic 7.07 transport baseline"
     }
   ],
   "documents": {
@@ -14417,15 +14468,15 @@
       ],
       "citations": [
         {
-          "source_id": "src-nasa-architecture-description-vd",
-          "citation_url": "https://nodis3.gsfc.nasa.gov/npg_img/N_PR_7150_002D_/N_PR_7150_002D__Chapter4.pdf",
+          "source_id": "src-nasa-swehb-7-07",
+          "citation_url": "https://swehb.nasa.gov/spaces/SWEHBVD/pages/102695632/7.07%2B-%2BSoftware%2BArchitecture%2BDescription",
           "roles": [
             "definition",
             "method"
           ],
           "manifest_primary": true,
           "usage_mode": "facts-summary",
-          "attribution_note": "NPR 7150.2D Chapter 4, National Aeronautics and Space Administration",
+          "attribution_note": "NASA Software Engineering Handbook Version D, Topic 7.07, National Aeronautics and Space Administration",
           "modification_note": null,
           "excerpt": null,
           "quotation_reviewed": false
@@ -14497,7 +14548,7 @@
         },
         {
           "source_id": "src-nist-ir-5517",
-          "citation_url": "https://www.nist.gov/publications/reference-architecture-machine-control-systems-integration-interim-report",
+          "citation_url": "https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir5517.pdf",
           "roles": [
             "definition",
             "historical-context"

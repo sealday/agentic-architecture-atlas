@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-07-24T09:42:39.424Z",
+  "generated_at": "2026-07-24T10:22:06.903Z",
   "results": [
     {
       "transport_locator": "https://a2a-protocol.org/latest/",
@@ -21723,6 +21723,37 @@
       "review_status": "healthy"
     },
     {
+      "transport_locator": "https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir5517.pdf",
+      "source_ids": [
+        "src-nist-ir-5517"
+      ],
+      "last_attempt": {
+        "at": "2026-07-24T10:22:06.903Z",
+        "outcome": "healthy",
+        "final_transport_locator": "https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir5517.pdf",
+        "http_status": 200,
+        "login_wall_detected": false,
+        "redirects": []
+      },
+      "last_success": {
+        "at": "2026-07-24T10:22:06.903Z",
+        "outcome": "healthy",
+        "final_transport_locator": "https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir5517.pdf",
+        "http_status": 200,
+        "login_wall_detected": false
+      },
+      "attempt_history": [
+        {
+          "at": "2026-07-24T10:22:06.903Z",
+          "outcome": "healthy",
+          "final_transport_locator": "https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir5517.pdf",
+          "http_status": 200,
+          "login_wall_detected": false
+        }
+      ],
+      "review_status": "healthy"
+    },
+    {
       "transport_locator": "https://openai.github.io/openai-agents-python/multi_agent/",
       "source_ids": [
         "src-openai-6c059f59453b"
@@ -22817,6 +22848,37 @@
       "review_status": "healthy"
     },
     {
+      "transport_locator": "https://swehb.nasa.gov/spaces/SWEHBVD/pages/102695632/7.07%2B-%2BSoftware%2BArchitecture%2BDescription",
+      "source_ids": [
+        "src-nasa-swehb-7-07"
+      ],
+      "last_attempt": {
+        "at": "2026-07-24T10:22:06.903Z",
+        "outcome": "healthy",
+        "final_transport_locator": "https://swehb.nasa.gov/spaces/SWEHBVD/pages/102695632/7.07%2B-%2BSoftware%2BArchitecture%2BDescription",
+        "http_status": 200,
+        "login_wall_detected": false,
+        "redirects": []
+      },
+      "last_success": {
+        "at": "2026-07-24T10:22:06.903Z",
+        "outcome": "healthy",
+        "final_transport_locator": "https://swehb.nasa.gov/spaces/SWEHBVD/pages/102695632/7.07%2B-%2BSoftware%2BArchitecture%2BDescription",
+        "http_status": 200,
+        "login_wall_detected": false
+      },
+      "attempt_history": [
+        {
+          "at": "2026-07-24T10:22:06.903Z",
+          "outcome": "healthy",
+          "final_transport_locator": "https://swehb.nasa.gov/spaces/SWEHBVD/pages/102695632/7.07%2B-%2BSoftware%2BArchitecture%2BDescription",
+          "http_status": 200,
+          "login_wall_detected": false
+        }
+      ],
+      "review_status": "healthy"
+    },
+    {
       "transport_locator": "https://www.cosmicpython.com/book/preface.html",
       "source_ids": [
         "src-cosmicpython-dfb7a7470477"
@@ -23406,65 +23468,6 @@
           "outcome": "healthy",
           "final_transport_locator": "https://www.microsoft.com/en-us/research/wp-content/uploads/2017/09/Kafka.pdf",
           "http_status": 200,
-          "login_wall_detected": false
-        }
-      ],
-      "review_status": "healthy"
-    },
-    {
-      "transport_locator": "https://www.nist.gov/publications/reference-architecture-machine-control-systems-integration-interim-report",
-      "source_ids": [
-        "src-nist-ir-5517"
-      ],
-      "last_attempt": {
-        "at": "2026-07-24T09:42:39.424Z",
-        "outcome": "healthy",
-        "final_transport_locator": "https://www.nist.gov/publications/reference-architecture-machine-control-systems-integration-interim-report",
-        "http_status": 206,
-        "login_wall_detected": false,
-        "redirects": []
-      },
-      "last_success": {
-        "at": "2026-07-24T09:42:39.424Z",
-        "outcome": "healthy",
-        "final_transport_locator": "https://www.nist.gov/publications/reference-architecture-machine-control-systems-integration-interim-report",
-        "http_status": 206,
-        "login_wall_detected": false
-      },
-      "attempt_history": [
-        {
-          "at": "2026-07-24T09:33:11.885Z",
-          "outcome": "healthy",
-          "final_transport_locator": "https://www.nist.gov/publications/reference-architecture-machine-control-systems-integration-interim-report",
-          "http_status": 206,
-          "login_wall_detected": false
-        },
-        {
-          "at": "2026-07-24T09:34:44.976Z",
-          "outcome": "healthy",
-          "final_transport_locator": "https://www.nist.gov/publications/reference-architecture-machine-control-systems-integration-interim-report",
-          "http_status": 206,
-          "login_wall_detected": false
-        },
-        {
-          "at": "2026-07-24T09:38:23.088Z",
-          "outcome": "healthy",
-          "final_transport_locator": "https://www.nist.gov/publications/reference-architecture-machine-control-systems-integration-interim-report",
-          "http_status": 206,
-          "login_wall_detected": false
-        },
-        {
-          "at": "2026-07-24T09:40:31.542Z",
-          "outcome": "error",
-          "final_transport_locator": null,
-          "http_status": null,
-          "login_wall_detected": false
-        },
-        {
-          "at": "2026-07-24T09:42:39.424Z",
-          "outcome": "healthy",
-          "final_transport_locator": "https://www.nist.gov/publications/reference-architecture-machine-control-systems-integration-interim-report",
-          "http_status": 206,
           "login_wall_detected": false
         }
       ],
