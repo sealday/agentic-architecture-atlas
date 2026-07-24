@@ -253,6 +253,47 @@ test('records four PASS review gates and route-specific render evidence per page
   }
 });
 
+test('does not retain pending language after final render PASS', async () => {
+  const reviewFile = new URL(
+    '../docs/reviews/g005-batch1.md',
+    import.meta.url,
+  );
+  const review = await readRequiredText(reviewFile, 'G005 Batch 1 review record');
+  const visibleReview = review.replace(/<!--[\s\S]*?-->/gu, '');
+
+  for (const id of expectedFoundations.keys()) {
+    assert.match(
+      sectionForHeading(visibleReview, id),
+      /(?:^|\n)[^\n]*render[^\n]*\bPASS\b/iu,
+      `${id} must retain final render PASS`,
+    );
+  }
+  assert.doesNotMatch(
+    review,
+    /(?:仍需|尚待|待|后续|随后)[^，。；\n]{0,40}复核|复核[^，。；\n]{0,20}(?:待完成|未完成)/u,
+    'Final render PASS evidence must not retain pending review language',
+  );
+});
+
+test('records the final render review revision viewports and routes', async () => {
+  const reviewFile = new URL(
+    '../docs/reviews/g005-batch1.md',
+    import.meta.url,
+  );
+  const review = await readRequiredText(reviewFile, 'G005 Batch 1 review record');
+  const visibleReview = review.replace(/<!--[\s\S]*?-->/gu, '');
+
+  assert.match(
+    visibleReview,
+    /(?:final|最终)\s+HEAD[^0-9a-f]{0,20}\b0f6eebb\b/iu,
+    'Final render evidence must identify HEAD 0f6eebb',
+  );
+  assert.match(visibleReview, /\bdesktop\s+1440x1000\b/iu);
+  assert.match(visibleReview, /\bmobile\s+390x844\b/iu);
+  assert.match(visibleReview, /\/paths\/architecture-thinking\b/u);
+  assert.match(visibleReview, /\/references\/primary\b/u);
+});
+
 test('publishes the required dependency and reciprocal adjacency graph', () => {
   const expectedDependencies = new Map([
     ['FND-01', []],
