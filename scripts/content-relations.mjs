@@ -27,12 +27,19 @@ export function extractInternalLinks(document) {
       /(`+)(?:(?!\1)[\s\S])*\1/gu,
       '',
     );
-    for (const pattern of [
-      /(?<!!)\[(?:\\.|[^\]\\])*\]\((\/[^)\s]+)(?:\s+["'][^"']*["'])?\)/g,
-      /\bhref=(?:["'])(\/[^"']+)(?:["'])/g,
-      /\bto=(?:["'])(\/[^"']+)(?:["'])/g,
-    ]) {
-      for (const match of withoutInlineCode.matchAll(pattern)) {
+    const withoutImages = withoutInlineCode.replace(
+      /!\[((?:\\.|[^\]\\])*)\]\((?:\\.|[^)\s])+(?:\s+["'][^"']*["'])?\)/g,
+      '$1',
+    );
+    for (const match of withoutImages.matchAll(
+      /\[(?:\\.|[^\]\\])*\]\((\/[^)\s]+)(?:\s+["'][^"']*["'])?\)/g,
+    )) {
+      links.add(normalizeInternalPath(match[1]));
+    }
+    for (const tagMatch of withoutInlineCode.matchAll(/<[A-Za-z][^>]*>/g)) {
+      for (const match of tagMatch[0].matchAll(
+        /\s(?:href|to)=(?:["'])(\/[^"']+)(?:["'])/g,
+      )) {
         links.add(normalizeInternalPath(match[1]));
       }
     }

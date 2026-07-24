@@ -95,6 +95,39 @@ test('does not count Markdown images as visible relationship links', () => {
   );
 });
 
+test('extracts only the outer destination from linked Markdown images', () => {
+  assert.deepEqual(
+    extractInternalLinks({
+      body: [
+        '[![parent diagram](/principles)](/not-a-relation)',
+        '![adjacent diagram](/styles/sty-00)',
+        '![case diagram](/cases/example)',
+      ].join('\n'),
+    }),
+    ['/not-a-relation'],
+  );
+});
+
+test('rejects prefixed and namespaced JSX pseudo-attributes', () => {
+  const document = {
+    ...validDocument,
+    body: [
+      '<Link data-to="/principles">目录</Link>',
+      '<a aria-href="/styles/sty-00">风格</a>',
+      '<svg><use xlink:href="/cases/example" /></svg>',
+    ].join('\n'),
+  };
+  assert.deepEqual(extractInternalLinks(document), []);
+  assert.deepEqual(
+    validateContentRelations({documents: [document], manifest}).errors,
+    [
+      'content/principles/pr-01.mdx: missing visible adjacent topic link "/styles/sty-00"',
+      'content/principles/pr-01.mdx: missing visible parent link "/principles"',
+      'content/principles/pr-01.mdx: missing visible related case or question link (expected one of: "/cases/example")',
+    ],
+  );
+});
+
 test('ignores hidden and code-only internal links', () => {
   const document = {
     ...validDocument,

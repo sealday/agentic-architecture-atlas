@@ -516,6 +516,70 @@ test('rejects Markdown images used in place of every visible relationship kind',
   });
 });
 
+test('rejects linked-image destinations used to smuggle every relationship kind', async () => {
+  await withRepositoryFixture(async (root) => {
+    const documentPath = path.join(root, 'content/concepts/example.mdx');
+    const original = await readFile(documentPath, 'utf8');
+    const scenarios = [
+      {
+        visible: '<Link to="/concepts">概念入口</Link>',
+        bypass: '[![概念入口](/concepts)](/not-a-relation)',
+        error: /content\/concepts\/example\.mdx: missing visible parent link "\/concepts"/,
+      },
+      {
+        visible: "<Link to='/concepts/adjacent'>Adjacent concept</Link>",
+        bypass:
+          '[![Adjacent concept](/concepts/adjacent)](/not-a-relation)',
+        error:
+          /content\/concepts\/example\.mdx: missing visible adjacent topic link "\/concepts\/adjacent"/,
+      },
+      {
+        visible: '[Example case](/cases/example)',
+        bypass: '[![Example case](/cases/example)](/not-a-relation)',
+        error:
+          /content\/concepts\/example\.mdx: missing visible related case or question link \(expected one of: "\/cases\/example"\)/,
+      },
+    ];
+
+    for (const {visible, bypass, error} of scenarios) {
+      await writeFile(documentPath, original.replace(visible, bypass));
+      await assert.rejects(buildContentArtifacts(root), error);
+    }
+  });
+});
+
+test('rejects prefixed JSX pseudo-attributes used for every relationship kind', async () => {
+  await withRepositoryFixture(async (root) => {
+    const documentPath = path.join(root, 'content/concepts/example.mdx');
+    const original = await readFile(documentPath, 'utf8');
+    const scenarios = [
+      {
+        visible: '<Link to="/concepts">概念入口</Link>',
+        bypass: '<Link data-to="/concepts">概念入口</Link>',
+        error: /content\/concepts\/example\.mdx: missing visible parent link "\/concepts"/,
+      },
+      {
+        visible: "<Link to='/concepts/adjacent'>Adjacent concept</Link>",
+        bypass:
+          '<a aria-href="/concepts/adjacent">Adjacent concept</a>',
+        error:
+          /content\/concepts\/example\.mdx: missing visible adjacent topic link "\/concepts\/adjacent"/,
+      },
+      {
+        visible: '[Example case](/cases/example)',
+        bypass: '<svg><use xlink:href="/cases/example" /></svg>',
+        error:
+          /content\/concepts\/example\.mdx: missing visible related case or question link \(expected one of: "\/cases\/example"\)/,
+      },
+    ];
+
+    for (const {visible, bypass, error} of scenarios) {
+      await writeFile(documentPath, original.replace(visible, bypass));
+      await assert.rejects(buildContentArtifacts(root), error);
+    }
+  });
+});
+
 test('content generation fails closed for missing or malformed case-series input', async () => {
   await withRepositoryFixture(async (root) => {
     const registryPath = path.join(root, 'data/case-series.json');
