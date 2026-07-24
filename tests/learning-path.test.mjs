@@ -111,6 +111,12 @@ const topicStageLinks = new Map([
   ['/paths/agent-platform-gateway', '/paths/agentic-architecture'],
 ]);
 
+const stageOneFoundationSlugs = [
+  '/concepts/fnd-01',
+  '/concepts/fnd-02',
+  '/concepts/fnd-03',
+];
+
 function stripIgnoredMarkdown(source) {
   const withoutComments = source.replace(/<!--[\s\S]*?-->/g, '');
   const lines = withoutComments.split(/\r?\n/);
@@ -844,6 +850,35 @@ test('links the main stages in sequence and every topic back to the overview', a
   for (const topic of topics) {
     assertLinksTo(topic.body, '/paths', topic.filename);
   }
+});
+
+test('orders the Batch 1 foundation concepts first in the stage-one learning sequence', async () => {
+  const source = await readRequiredFile(
+    path.join(pathDirectory, mainStages[0][0]),
+    'stage-one learning path',
+  );
+  const sequence = sectionForHeading(
+    extractMarkdownBody(source),
+    '推荐学习顺序',
+  );
+  const orderedItems = sequence
+    .split(/\r?\n/)
+    .filter((line) => /^ {0,3}\d+[.)]\s+/.test(line));
+
+  assert.ok(
+    orderedItems.length >= stageOneFoundationSlugs.length,
+    'Stage one must contain the three foundation learning steps',
+  );
+  assert.deepEqual(
+    orderedItems
+      .slice(0, stageOneFoundationSlugs.length)
+      .map((item) =>
+        stageOneFoundationSlugs.find((slug) =>
+          extractMarkdownLinks(item).has(slug),
+        ),
+      ),
+    stageOneFoundationSlugs,
+  );
 });
 
 test('ships exactly one valid generated roadmap PNG larger than 50 KB', async () => {
