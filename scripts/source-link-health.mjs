@@ -466,6 +466,7 @@ function retryDelay(response, now) {
   const milliseconds = Number.isFinite(seconds)
     ? seconds * 1000
     : Date.parse(value) - now.getTime();
+  if (!Number.isFinite(milliseconds)) return transientRetryDelayMs;
   return Math.min(5000, Math.max(0, milliseconds));
 }
 
