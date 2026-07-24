@@ -15647,6 +15647,32 @@
           "modification_note": null,
           "excerpt": null,
           "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-atlas-kafka-partition-ownership-a43f4f08e4d3",
+          "citation_url": "/img/illustrations/apache-kafka-consumer-groups-partition-ownership.png",
+          "roles": [
+            "illustration"
+          ],
+          "manifest_primary": false,
+          "usage_mode": "original-illustration",
+          "attribution_note": "Kafka consumer-group partition ownership illustration, Agentic Architecture Atlas maintainers",
+          "modification_note": "Generated with the built-in image tool from a project-authored brief and QA-reviewed in an original composition to explain current partition assignment across consumers in one group.",
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-atlas-kafka-rebalance-loop-773b5a565ab7",
+          "citation_url": "/img/illustrations/apache-kafka-consumer-groups-rebalance-loop.png",
+          "roles": [
+            "illustration"
+          ],
+          "manifest_primary": false,
+          "usage_mode": "original-illustration",
+          "attribution_note": "Kafka consumer-group rebalance loop illustration, Agentic Architecture Atlas maintainers",
+          "modification_note": "Generated with the built-in image tool from a project-authored brief and QA-reviewed in an original composition to explain partition revoke, reassignment, recovery, and the separate in-flight-work risk.",
+          "excerpt": null,
+          "quotation_reviewed": false
         }
       ]
     },
@@ -17413,6 +17439,45 @@
           "modification_note": null,
           "excerpt": null,
           "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-atlas-kong-control-layers-6bff4004677a",
+          "citation_url": "/img/illustrations/kong-ai-gateway-routing-resilience-control-layers.png",
+          "roles": [
+            "illustration"
+          ],
+          "manifest_primary": false,
+          "usage_mode": "original-illustration",
+          "attribution_note": "Kong AI gateway control layers illustration, Agentic Architecture Atlas maintainers",
+          "modification_note": "Generated with the built-in image tool from a project-authored brief and QA-reviewed in an original composition to explain client, gateway policy and routing, provider execution, and separate business recovery responsibilities.",
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-atlas-kong-failure-route-eabc5c905ae6",
+          "citation_url": "/img/illustrations/kong-ai-gateway-routing-resilience-failure-route.png",
+          "roles": [
+            "illustration"
+          ],
+          "manifest_primary": false,
+          "usage_mode": "original-illustration",
+          "attribution_note": "Kong AI gateway bounded failure route illustration, Agentic Architecture Atlas maintainers",
+          "modification_note": "Generated with the built-in image tool from a project-authored brief and QA-reviewed in an original composition to explain failure classification, bounded retry or fallback, success return, and exhausted failure return.",
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-atlas-kong-policy-boundary-ad7926a7eab8",
+          "citation_url": "/img/illustrations/kong-ai-gateway-routing-resilience-policy-boundary.png",
+          "roles": [
+            "illustration"
+          ],
+          "manifest_primary": false,
+          "usage_mode": "original-illustration",
+          "attribution_note": "Kong routing-resilience policy boundary illustration, Agentic Architecture Atlas maintainers",
+          "modification_note": "Generated with the built-in image tool from a project-authored brief and QA-reviewed in an original composition to explain separate authorization, cost, and duplicate-side-effect controls around gateway routing.",
+          "excerpt": null,
+          "quotation_reviewed": false
         }
       ]
     },
@@ -18523,6 +18588,45 @@
           "modification_note": null,
           "excerpt": null,
           "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-atlas-litellm-budget-gates-2134c02fb563",
+          "citation_url": "/img/illustrations/litellm-virtual-keys-governance-budget-gates.png",
+          "roles": [
+            "illustration"
+          ],
+          "manifest_primary": false,
+          "usage_mode": "original-illustration",
+          "attribution_note": "LiteLLM budget and rate-limit gates illustration, Agentic Architecture Atlas maintainers",
+          "modification_note": "Generated with the built-in image tool from a project-authored brief and QA-reviewed in an original composition to explain budget and rate-limit admission gates before model access.",
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-atlas-litellm-control-path-28044852993d",
+          "citation_url": "/img/illustrations/litellm-virtual-keys-governance-control-path.png",
+          "roles": [
+            "illustration"
+          ],
+          "manifest_primary": false,
+          "usage_mode": "original-illustration",
+          "attribution_note": "LiteLLM virtual-key governance control path illustration, Agentic Architecture Atlas maintainers",
+          "modification_note": "Generated with the built-in image tool from a project-authored brief and QA-reviewed in an original composition to explain virtual-key identity, policy, budget, routing, and provider-credential custody.",
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-atlas-litellm-governance-boundary-f7ff2c2b8f5d",
+          "citation_url": "/img/illustrations/litellm-virtual-keys-governance-governance-boundary.png",
+          "roles": [
+            "illustration"
+          ],
+          "manifest_primary": false,
+          "usage_mode": "original-illustration",
+          "attribution_note": "LiteLLM governed proxy and direct-credential boundary illustration, Agentic Architecture Atlas maintainers",
+          "modification_note": "Generated with the built-in image tool from a project-authored brief and QA-reviewed in an original composition to explain governed proxy path and direct provider-credential bypass risk.",
+          "excerpt": null,
+          "quotation_reviewed": false
         }
       ]
     },
@@ -19566,6 +19670,45 @@
           "usage_mode": "facts-summary",
           "attribution_note": "OpenAI Agents SDK：Multi-agent, OpenAI",
           "modification_note": null,
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-atlas-agents-guardrail-boundary-de06a6a05869",
+          "citation_url": "/img/illustrations/openai-agents-sdk-guardrail-boundary.png",
+          "roles": [
+            "illustration"
+          ],
+          "manifest_primary": false,
+          "usage_mode": "original-illustration",
+          "attribution_note": "OpenAI Agents SDK guardrail and business-action boundary illustration, Agentic Architecture Atlas maintainers",
+          "modification_note": "Generated with the built-in image tool from a project-authored brief and QA-reviewed in an original composition to explain run guardrails and an independent pre-write business-action gate.",
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-atlas-agents-handoff-tool-fa2c6ce9ffed",
+          "citation_url": "/img/illustrations/openai-agents-sdk-handoff-vs-tool.png",
+          "roles": [
+            "illustration"
+          ],
+          "manifest_primary": false,
+          "usage_mode": "original-illustration",
+          "attribution_note": "OpenAI Agents SDK handoff versus agent-as-tool control illustration, Agentic Architecture Atlas maintainers",
+          "modification_note": "Generated with the built-in image tool from a project-authored brief and QA-reviewed in an original composition to explain conversational control transfer versus bounded delegated work that returns.",
+          "excerpt": null,
+          "quotation_reviewed": false
+        },
+        {
+          "source_id": "src-atlas-agents-run-control-0e1d1904e70c",
+          "citation_url": "/img/illustrations/openai-agents-sdk-run-control.png",
+          "roles": [
+            "illustration"
+          ],
+          "manifest_primary": false,
+          "usage_mode": "original-illustration",
+          "attribution_note": "OpenAI Agents SDK run-control loop illustration, Agentic Architecture Atlas maintainers",
+          "modification_note": "Generated with the built-in image tool from a project-authored brief and QA-reviewed in an original composition to explain one Runner invocation, tool action, result loop, termination, and turn limit.",
           "excerpt": null,
           "quotation_reviewed": false
         }
