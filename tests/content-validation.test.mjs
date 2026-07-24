@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
-import {mkdtemp, mkdir, rm, writeFile} from 'node:fs/promises';
+import {mkdtemp, mkdir, readFile, rm, writeFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
@@ -14,9 +14,32 @@ import {
   requiredMigrationHeadings,
   secondCollectionSlugs,
 } from '../scripts/content-schema.mjs';
-import {validateContent} from '../scripts/validate-content.mjs';
+import {parseBacklogTopics} from '../scripts/backlog-topics.mjs';
+import {loadPatternGroupRegistry} from '../scripts/content-registries.mjs';
+import {validateContent as validateContentWithoutRegistry} from '../scripts/validate-content.mjs';
 
 const validatorScript = fileURLToPath(new URL('../scripts/validate-content.mjs', import.meta.url));
+const repositoryRoot = fileURLToPath(new URL('../', import.meta.url));
+const repositoryBacklog = parseBacklogTopics(
+  await readFile(
+    fileURLToPath(new URL('../docs/content-backlog.md', import.meta.url)),
+    'utf8',
+  ),
+  'docs/content-backlog.md',
+);
+assert.deepEqual(repositoryBacklog.errors, []);
+const canonicalPatternGroupRegistry = await loadPatternGroupRegistry(
+  repositoryRoot,
+  repositoryBacklog.topics,
+);
+assert.deepEqual(canonicalPatternGroupRegistry.errors, []);
+
+function validateContent(root, options = {}) {
+  return validateContentWithoutRegistry(root, {
+    ...options,
+    patternGroupRegistry: canonicalPatternGroupRegistry,
+  });
+}
 
 const expectedCaseCatalog = [
   {slug: '/cases/microsoft-multi-agent-reference-architecture', catalog_order: 1},
@@ -138,7 +161,88 @@ function sourceLedgerFixture(overrides = {}) {
   };
 }
 
-async function writeSourceGovernanceProject(projectRoot, {body, ledger} = {}) {
+function minimalPatternBacklog() {
+  return [
+    '- [ ] **DDD-01 P0｜战略 DDD 总览**。',
+    '- [ ] **PAT-IN-01 P0｜API Gateway**。',
+    '- [ ] **REL-01 P0｜Timeout Budget**。',
+    '- [ ] **PAT-DC-01 P0｜Transactional Outbox**。',
+    '- [ ] **PAT-MIG-01 P0｜Strangler Fig 渐进迁移**。',
+  ].join('\n');
+}
+
+function minimalPatternRegistry() {
+  return {
+    schema_version: 1,
+    groups: [
+      {
+        id: 'general-design',
+        label: '通用设计模式',
+        description: '责任、结构与边界模式。',
+        order: 10,
+        topic_ids: ['DDD-01'],
+      },
+      {
+        id: 'integration',
+        label: '集成模式',
+        description: '跨边界协作模式。',
+        order: 20,
+        topic_ids: ['PAT-IN-01'],
+      },
+      {
+        id: 'reliability',
+        label: '可靠性与生产治理模式',
+        description: '恢复与隔离模式。',
+        order: 30,
+        topic_ids: ['REL-01'],
+      },
+      {
+        id: 'data',
+        label: '数据与一致性模式',
+        description: '一致性协作模式。',
+        order: 40,
+        topic_ids: ['PAT-DC-01'],
+      },
+      {
+        id: 'migration',
+        label: '迁移模式',
+        description: '渐进替换模式。',
+        order: 50,
+        topic_ids: ['PAT-MIG-01'],
+      },
+      {
+        id: 'agent-control',
+        label: 'Agent 控制与协作模式',
+        description: '现有 Agent 控制概览。',
+        order: 60,
+        topic_ids: [],
+      },
+    ],
+  };
+}
+
+async function writePatternRegistryInputs(
+  projectRoot,
+  {writePatternRegistry = true} = {},
+) {
+  await mkdir(path.join(projectRoot, 'data'), {recursive: true});
+  await mkdir(path.join(projectRoot, 'docs'), {recursive: true});
+  await writeFile(
+    path.join(projectRoot, 'docs/content-backlog.md'),
+    `${minimalPatternBacklog()}\n`,
+  );
+  if (writePatternRegistry) {
+    await writeFile(
+      path.join(projectRoot, 'data/pattern-groups.json'),
+      `${JSON.stringify(minimalPatternRegistry(), null, 2)}\n`,
+    );
+  }
+}
+
+async function writeSourceGovernanceProject(
+  projectRoot,
+  {body, ledger, writePatternRegistry = true} = {},
+) {
   const contentRoot = path.join(projectRoot, 'content');
   await writeMdx(
     contentRoot,
@@ -151,6 +255,7 @@ async function writeSourceGovernanceProject(projectRoot, {body, ledger} = {}) {
     path.join(projectRoot, 'data/source-ledger.json'),
     `${JSON.stringify(ledger ?? sourceLedgerFixture(), null, 2)}\n`,
   );
+  await writePatternRegistryInputs(projectRoot, {writePatternRegistry});
   return contentRoot;
 }
 
@@ -348,6 +453,7 @@ test('accepts all five structurally valid launch cases', async () => {
       path.join(cliProjectRoot, 'data/source-ledger.json'),
       `${JSON.stringify(cliLedger, null, 2)}\n`,
     );
+    await writePatternRegistryInputs(cliProjectRoot);
     const cli = spawnSync(
       process.execPath,
       [validatorScript, cliContentRoot, '--require-launch-cases'],
@@ -1167,6 +1273,32 @@ test('rejects conflicting catalog coverage flags', async () => {
 
     assert.equal(cli.status, 1);
     assert.match(`${cli.stdout}${cli.stderr}`, /conflicting coverage flags/i);
+  });
+});
+
+test('direct validation requires a loaded Pattern group registry', async () => {
+  await withTempRoot(async (root) => {
+    await assert.rejects(
+      validateContentWithoutRegistry(root),
+      /Pattern group registry is required/,
+    );
+  });
+});
+
+test('the repository validator fails closed when the Pattern registry is missing', async () => {
+  await withTempRoot(async (projectRoot) => {
+    const contentRoot = await writeSourceGovernanceProject(projectRoot, {
+      writePatternRegistry: false,
+    });
+
+    const cli = spawnSync(process.execPath, [validatorScript, contentRoot], {
+      encoding: 'utf8',
+    });
+    const output = `${cli.stdout}${cli.stderr}`;
+
+    assert.equal(cli.status, 1);
+    assert.match(output, /data[\\/]pattern-groups\.json/);
+    assert.match(output, /ENOENT|no such file or directory/i);
   });
 });
 

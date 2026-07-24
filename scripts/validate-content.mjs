@@ -3,6 +3,8 @@ import {readFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 
 import {readContentDocuments} from './content-metadata.mjs';
+import {parseBacklogTopics} from './backlog-topics.mjs';
+import {loadPatternGroupRegistry} from './content-registries.mjs';
 import {
   parseSourceLedger,
   validateSourceGovernance,
@@ -199,7 +201,20 @@ function isKnowledgeArticle(file, metadata) {
   );
 }
 
-export async function validateContent(root, {requiredCollection} = {}) {
+export async function validateContent(
+  root,
+  {requiredCollection, patternGroupRegistry} = {},
+) {
+  if (
+    !patternGroupRegistry ||
+    !Array.isArray(patternGroupRegistry.registry?.groups) ||
+    !(patternGroupRegistry.groupByTopicId instanceof Map) ||
+    !Array.isArray(patternGroupRegistry.errors)
+  ) {
+    throw new TypeError(
+      'Pattern group registry is required; call loadPatternGroupRegistry(projectRoot, topics)',
+    );
+  }
   if (
     requiredCollection !== undefined &&
     !Object.hasOwn(collectionRequirements, requiredCollection)
@@ -208,7 +223,7 @@ export async function validateContent(root, {requiredCollection} = {}) {
   }
 
   const documents = await readContentDocuments(root);
-  const errors = [];
+  const errors = [...patternGroupRegistry.errors];
   const slugFiles = new Map();
   const catalogOrderFiles = new Map();
 
@@ -435,16 +450,39 @@ async function runCli() {
 
   try {
     const [requiredCollection] = requestedCollections;
-    const contentRoot = path.resolve(root);
+    const scriptProjectRoot = fileURLToPath(new URL('..', import.meta.url));
+    const contentRoot = path.resolve(scriptProjectRoot, root);
+    const projectRoot = path.dirname(contentRoot);
+    const backlogPath = path.join(projectRoot, 'docs/content-backlog.md');
     const ledgerPath = path.join(
-      path.dirname(contentRoot),
+      projectRoot,
       'data/source-ledger.json',
+    );
+    const inputErrors = [];
+    let topics = [];
+
+    try {
+      const parsedBacklog = parseBacklogTopics(
+        await readFile(backlogPath, 'utf8'),
+        backlogPath,
+      );
+      inputErrors.push(...parsedBacklog.errors);
+      topics = parsedBacklog.topics;
+    } catch (error) {
+      inputErrors.push(
+        `${backlogPath}: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+
+    const patternGroupRegistry = await loadPatternGroupRegistry(
+      projectRoot,
+      topics,
     );
     const {documents, errors: contentErrors} = await validateContent(
       contentRoot,
-      {requiredCollection},
+      {requiredCollection, patternGroupRegistry},
     );
-    const errors = [...contentErrors];
+    const errors = [...inputErrors, ...contentErrors];
     let ledger;
 
     try {

@@ -11,6 +11,7 @@ export const topicPrefixTypes = new Map([
   ['DP', ['pattern', 'patterns']],
   ['PAT-DC', ['pattern', 'patterns']],
   ['PAT-IN', ['pattern', 'patterns']],
+  ['PAT-MIG', ['pattern', 'patterns']],
   ['REL', ['pattern', 'patterns']],
   ['OPS', ['pattern', 'patterns']],
   ['SEC', ['pattern', 'patterns']],

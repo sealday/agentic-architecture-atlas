@@ -6,6 +6,7 @@ import {fileURLToPath} from 'node:url';
 import {readContentDocuments} from '../scripts/content-metadata.mjs';
 import {parseBacklogTopics} from '../scripts/backlog-topics.mjs';
 import {knowledgeTypeContracts} from '../scripts/content-schema.mjs';
+import {loadPatternGroupRegistry} from '../scripts/content-registries.mjs';
 import {validateContent} from '../scripts/validate-content.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
@@ -39,7 +40,24 @@ test('publishes one production fixture for each independent knowledge contract',
     );
   }
 
-  const validation = await validateContent(contentRoot);
+  const backlogSource = await readFile(
+    fileURLToPath(new URL('../docs/content-backlog.md', import.meta.url)),
+    'utf8',
+  );
+  const parsedBacklog = parseBacklogTopics(
+    backlogSource,
+    'docs/content-backlog.md',
+  );
+  assert.deepEqual(parsedBacklog.errors, []);
+  const patternGroupRegistry = await loadPatternGroupRegistry(
+    root,
+    parsedBacklog.topics,
+  );
+  assert.deepEqual(patternGroupRegistry.errors, []);
+
+  const validation = await validateContent(contentRoot, {
+    patternGroupRegistry,
+  });
   assert.deepEqual(validation.errors, []);
 });
 

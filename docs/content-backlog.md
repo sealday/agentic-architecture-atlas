@@ -317,6 +317,12 @@
 - [ ] **PAT-IN-07 P1｜Sidecar 与 Ambassador**：部署、信任、资源和故障边界。
 - [ ] **PAT-IN-08 P2｜AsyncAPI 与消息契约演进**。
 
+### 迁移模式
+
+- [ ] **PAT-MIG-01 P0｜Strangler Fig 渐进迁移**：按可观测业务切片逐步替换旧系统，并定义流量迁移、回退和退役条件。
+- [ ] **PAT-MIG-02 P1｜Branch by Abstraction**：在稳定抽象后并行替换实现，控制双写、切换和旧分支删除窗口。
+- [ ] **PAT-MIG-03 P1｜Expand/Contract**：用兼容性扩展、分阶段迁移和最终收缩完成 schema/API 演进。
+
 ## E7：可靠性、可观测性、安全与生产治理
 
 ### 可靠性模式

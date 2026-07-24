@@ -60,6 +60,7 @@ test('covers every supported topic prefix', () => {
     ['DP', 'pattern', 'patterns'],
     ['PAT-DC', 'pattern', 'patterns'],
     ['PAT-IN', 'pattern', 'patterns'],
+    ['PAT-MIG', 'pattern', 'patterns'],
     ['REL', 'pattern', 'patterns'],
     ['OPS', 'pattern', 'patterns'],
     ['SEC', 'pattern', 'patterns'],
@@ -215,9 +216,9 @@ test('covers the complete real backlog topic set', async () => {
   const candidateIds = new Set(candidates.map(({id}) => id));
   const result = parseBacklogTopics(source, 'docs/content-backlog.md');
 
-  assert.equal(candidates.length, 198);
-  assert.equal(candidateIds.size, 198);
-  assert.equal(result.topics.length, 198);
+  assert.equal(candidates.length, 201);
+  assert.equal(candidateIds.size, 201);
+  assert.equal(result.topics.length, 201);
   assert.deepEqual(
     new Set(result.topics.map(({id}) => id)),
     candidateIds,
@@ -227,7 +228,37 @@ test('covers the complete real backlog topic set', async () => {
     expectedTopicIds,
   );
   assert.deepEqual(result.errors, []);
-  for (const id of ['FND-01', 'QA-00', 'PAT-DC-09', 'AGT-06', 'CASE-20', 'QST-10']) {
+  for (const id of [
+    'FND-01',
+    'QA-00',
+    'PAT-DC-09',
+    'PAT-MIG-01',
+    'PAT-MIG-02',
+    'PAT-MIG-03',
+    'AGT-06',
+    'CASE-20',
+    'QST-10',
+  ]) {
     assert.ok(candidateIds.has(id));
   }
+});
+
+test('parses migration Pattern topics with stable Pattern slugs', () => {
+  const source = [
+    '- [ ] **PAT-MIG-01 P0｜Strangler Fig 渐进迁移**：说明。',
+    '- [ ] **PAT-MIG-02 P1｜Branch by Abstraction**：说明。',
+    '- [ ] **PAT-MIG-03 P1｜Expand/Contract**：说明。',
+  ].join('\n');
+
+  const result = parseBacklogTopics(source, 'migration.md');
+
+  assert.deepEqual(result.errors, []);
+  assert.deepEqual(
+    result.topics.map(({id, type, slug}) => ({id, type, slug})),
+    [
+      {id: 'PAT-MIG-01', type: 'pattern', slug: '/patterns/pat-mig-01'},
+      {id: 'PAT-MIG-02', type: 'pattern', slug: '/patterns/pat-mig-02'},
+      {id: 'PAT-MIG-03', type: 'pattern', slug: '/patterns/pat-mig-03'},
+    ],
+  );
 });
