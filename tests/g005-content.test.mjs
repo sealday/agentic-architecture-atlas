@@ -63,11 +63,32 @@ const topicsById = new Map(manifest.topics.map((topic) => [topic.id, topic]));
 const sourcesById = new Map(
   sourceLedger.sources.map((source) => [source.id, source]),
 );
+const nasaSwehbPathPattern = /\/102695632\/7\.07/iu;
+const nistIr5517Pdf =
+  'https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir5517.pdf';
 
 function requiredDocument(id) {
   const document = documentsById.get(id);
   assert.ok(document, `${id} must be published`);
   return document;
+}
+
+function requiredLedgerDocument(id) {
+  const expected = expectedFoundations.get(id);
+  const ledgerDocument = sourceLedger.documents[`content/${expected.file}`];
+  assert.ok(ledgerDocument, `${id} must have a governed document entry`);
+  return ledgerDocument;
+}
+
+async function readRequiredText(file, label) {
+  try {
+    return await readFile(file, 'utf8');
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      assert.fail(`Missing ${label}: ${file.pathname}`);
+    }
+    throw error;
+  }
 }
 
 function sectionForHeading(body, headingText) {
@@ -138,6 +159,87 @@ test('compares all six foundation taxonomy categories in FND-03', () => {
     '参考架构',
     '最佳实践',
   ]);
+});
+
+test('uses governed NASA SWEHB 7.07 evidence directly for FND-02 drivers and ASRs', () => {
+  const document = requiredDocument('FND-02');
+  const citation = requiredLedgerDocument('FND-02').citations.find(
+    ({citation_url: url, source_id: sourceId}) =>
+      sourceId === 'src-nasa-swehb-7-07' ||
+      nasaSwehbPathPattern.test(url),
+  );
+  assert.ok(citation, 'FND-02 must govern NASA SWEHB 7.07 directly');
+
+  const source = sourcesById.get(citation.source_id);
+  assert.ok(source, `Missing governed source ${citation.source_id}`);
+  assert.ok(
+    source.id === 'src-nasa-swehb-7-07' ||
+      nasaSwehbPathPattern.test(source.canonical_locator),
+    'FND-02 NASA source must resolve to SWEHB 7.07',
+  );
+  assert.ok(
+    extractExternalLinks(document).includes(citation.citation_url),
+    'FND-02 must visibly cite NASA SWEHB 7.07',
+  );
+  const evidenceParagraph = document.body
+    .split(/\r?\n\s*\r?\n/)
+    .find((paragraph) => paragraph.includes(citation.citation_url));
+  assert.match(
+    evidenceParagraph ?? '',
+    /(?:驱动因素|架构重要需求|ASR|drivers?)/iu,
+    'FND-02 must connect NASA SWEHB 7.07 to drivers or ASRs',
+  );
+});
+
+test('governs and cites the NISTIR 5517 report PDF for the FND-03 definition', () => {
+  const document = requiredDocument('FND-03');
+  const citation = requiredLedgerDocument('FND-03').citations.find(
+    ({citation_url: url}) => url === nistIr5517Pdf,
+  );
+  assert.ok(citation, 'FND-03 must govern the NISTIR 5517 report PDF');
+
+  const source = sourcesById.get(citation.source_id);
+  assert.ok(source, `Missing governed source ${citation.source_id}`);
+  assert.equal(source.canonical_locator, nistIr5517Pdf);
+  assert.ok(
+    citation.roles.includes('definition'),
+    'NISTIR 5517 PDF must support the reference-architecture definition',
+  );
+  assert.ok(
+    extractExternalLinks(document).includes(nistIr5517Pdf),
+    'FND-03 must visibly cite the NISTIR 5517 report PDF',
+  );
+});
+
+test('records four PASS review gates and route-specific render evidence per page', async () => {
+  const reviewFile = new URL(
+    '../docs/reviews/g005-batch1.md',
+    import.meta.url,
+  );
+  const review = await readRequiredText(reviewFile, 'G005 Batch 1 review record');
+
+  for (const [id, {slug}] of expectedFoundations) {
+    const section = sectionForHeading(review, id);
+    for (const gate of ['editorial', 'fact', 'copyright', 'render']) {
+      assert.match(
+        section,
+        new RegExp(`(?:^|\\\\n)[^\\\\n]*${gate}[^\\\\n]*\\\\bPASS\\\\b`, 'iu'),
+        `${id} must record ${gate} PASS`,
+      );
+    }
+    assert.match(section, /\bdesktop\b/iu, `${id} render evidence needs desktop`);
+    assert.match(section, /\bmobile\b/iu, `${id} render evidence needs mobile`);
+    assert.match(
+      section,
+      /\/paths\/architecture-thinking\b/u,
+      `${id} render evidence needs the stage-one route`,
+    );
+    assert.match(
+      section,
+      new RegExp(`${slug.replaceAll('/', '\\/')}(?:\\\\b|[?#])`, 'u'),
+      `${id} render evidence needs ${slug}`,
+    );
+  }
 });
 
 test('publishes the required dependency and reciprocal adjacency graph', () => {
@@ -220,11 +322,9 @@ test('states scale boundaries failure modes and non-use conditions explicitly', 
 });
 
 test('governs two independent visible sources and one eligible primary per page', () => {
-  for (const [id, expected] of expectedFoundations) {
+  for (const id of expectedFoundations.keys()) {
     const document = requiredDocument(id);
-    const ledgerPath = `content/${expected.file}`;
-    const ledgerDocument = sourceLedger.documents[ledgerPath];
-    assert.ok(ledgerDocument, `${id} must have a governed document entry`);
+    const ledgerDocument = requiredLedgerDocument(id);
     assert.ok(
       ledgerDocument.citations.length >= 2,
       `${id} must govern at least two sources`,
