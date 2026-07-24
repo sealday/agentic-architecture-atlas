@@ -126,10 +126,10 @@ test('rejects hidden PASS pending language and backslash compatibility markers',
   );
 });
 
-test('identifies implementation HEAD 313cb3a in visible evidence', async () => {
+test('identifies implementation HEAD 15afc9d in visible evidence', async () => {
   const review = visibleReview(await readRequiredReview());
   assert.match(
     review,
-    /\bimplementation\s+HEAD\b[^0-9a-f]{0,20}\b313cb3a\b/iu,
+    /\bimplementation\s+HEAD\b[^0-9a-f]{0,20}\b15afc9d\b/iu,
   );
 });
