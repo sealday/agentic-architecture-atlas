@@ -367,7 +367,7 @@ test('renders the complete sorted ledger in production HTML', async () => {
     Buffer.byteLength(html) < 500_000,
     `references HTML exceeds 500 KB: ${Buffer.byteLength(html)} bytes`,
   );
-  assert.equal(articles.length, 363);
+  assert.equal(articles.length, 370);
   assert.deepEqual(
     articles.map(({title}) => title),
     expectedSources.map(({title}) => title),
@@ -386,7 +386,7 @@ test('renders the complete sorted ledger in production HTML', async () => {
       sections.find((section) => section.tier === tier).articles.length,
     ]),
     [
-      ['primary', 331],
+      ['primary', 338],
       ['first-party', 22],
       ['secondary', 3],
       ['discovery', 7],
