@@ -2,6 +2,8 @@ import {readFile} from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 
+import {normalizeUrl} from '@docusaurus/utils';
+
 import {
   buildSourceLedgerSections,
   sourceTiers,
@@ -140,7 +142,7 @@ export default function sourceLedgerPagesPlugin(context) {
           JSON.stringify(page),
         );
         actions.addRoute({
-          path: page.route,
+          path: normalizeUrl([context.baseUrl, page.route]),
           component,
           exact: true,
           modules: {pageData: dataPath},

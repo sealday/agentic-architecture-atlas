@@ -3,7 +3,7 @@ import Layout from '@theme/Layout';
 
 import {
   SourceLedgerCards,
-} from '../../src/components/SourceLedger';
+} from '../../src/components/SourceLedger/SourceLedgerCards';
 import type {
   SourceLedgerCard,
   SourceTier,
