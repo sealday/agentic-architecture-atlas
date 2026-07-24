@@ -1,11 +1,12 @@
 # G005 Batch 3 最终审阅证据
 
 - 审核日期：2026-07-24
-- implementation HEAD：`6af5b2d`
+- implementation HEAD：`c4a76ac`
+- 集成溯源：`c4a76ac` 将本批次变更重放到远端 `7d4f529`，并保留 11 条原创案例 illustration citations。
 - 独立 factual critic：APPROVE
 - 定向验证：47/47 PASS
-- 内容验证：56 documents / 383 sources PASS
-- 来源分布：primary 349、first-party 23、secondary 4、discovery 7，总计 383。
+- 内容验证：56 documents / 394 sources PASS
+- 来源分布：primary 360、first-party 23、secondary 4、discovery 7，总计 394。
 - `validate:content`：PASS
 - `check:content`：PASS
 - `check:links`：PASS
