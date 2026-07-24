@@ -12,6 +12,7 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 import {parseBacklogTopics} from './backlog-topics.mjs';
+import {readContentDocuments} from './content-metadata.mjs';
 import {
   loadCaseSeriesRegistry,
   loadPatternGroupRegistry,
@@ -234,6 +235,41 @@ export function serializePublicSourceLedger(governedLedger, documents) {
     null,
     2,
   )}\n`;
+}
+
+export async function loadContentReviewInputs(root) {
+  const errors = [];
+  let documents = [];
+  try {
+    documents = await readContentDocuments(path.join(root, 'content'));
+  } catch (error) {
+    errors.push(
+      `content: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
+  const reviewPolicyRegistry = await loadReviewPolicyRegistry(root);
+  errors.push(...reviewPolicyRegistry.errors);
+  let ledger = {schema_version: 1, sources: [], documents: {}};
+  const ledgerPath = path.join(root, 'data/source-ledger.json');
+  try {
+    const parsedLedger = parseSourceLedger(
+      JSON.parse(await readFile(ledgerPath, 'utf8')),
+    );
+    ledger = parsedLedger.ledger;
+    errors.push(...parsedLedger.errors);
+  } catch (error) {
+    errors.push(
+      `${ledgerPath}: ${
+        error instanceof Error ? error.message : String(error)
+      }`,
+    );
+  }
+  return {
+    documents,
+    ledger,
+    policyById: reviewPolicyRegistry.byId,
+    errors: errors.sort((left, right) => left.localeCompare(right, 'en')),
+  };
 }
 
 export async function buildContentArtifacts(root) {
