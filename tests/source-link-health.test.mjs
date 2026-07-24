@@ -343,6 +343,19 @@ test('follows bounded HTTPS redirects and records every hop', async () => {
   ]);
   assert.ok(calls.every(({options}) => options.redirect === 'manual'));
   assert.ok(calls.every(({options}) => options.signal instanceof AbortSignal));
+  const userAgents = calls.map(({options}) =>
+    new Headers(options.headers).get('user-agent'),
+  );
+  assert.ok(
+    userAgents.every((userAgent) => userAgent?.includes('Mozilla/5.0')),
+    `Link checker User-Agent must be browser-compatible: ${userAgents.join(', ')}`,
+  );
+  assert.ok(
+    userAgents.every((userAgent) =>
+      userAgent?.includes('AgenticArchitectureAtlasLinkCheck/1.0'),
+    ),
+    `Link checker User-Agent must retain product identity: ${userAgents.join(', ')}`,
+  );
 });
 
 test('falls back from unsupported HEAD to ranged GET', async () => {
